@@ -1,0 +1,19 @@
+{
+	"properties": [
+		{
+			"name": "environment.name",
+			"type": "java.lang.string",
+			"description": "Environment name"
+		},
+		{
+			"name": "token.secret",
+			"type": "java.lang.string",
+			"description": "Jwt-token secret"
+		},
+		{
+			"name": "token.expiration",
+			"type": "java.lang.string",
+			"description": "Jwt-token expiration time in seconds"
+		}
+	]
+}
