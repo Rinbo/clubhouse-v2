@@ -46,7 +46,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	public void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
 			Authentication auth) throws IOException, ServletException {
 		UserDetails userDetails = (User) auth.getPrincipal();
-		String token = jwtUtil.generateToken(userDetails);
+		String token = SecurityConstants.TOKEN_PREFIX + jwtUtil.generateToken(userDetails);
 		res.addHeader(SecurityConstants.AUTHORIZATION, token);
 	}
 }
