@@ -11,41 +11,63 @@ import javax.persistence.Table;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
 @NoArgsConstructor
 @Entity
 @Table(name = "club_role")
 public class ClubRole implements Serializable, GrantedAuthority {
 	
 	//public static final String ROLE_PREFIX = "ROLE_"; AUTHORITIES WORKS WITHOUT THIS????
+
+	private static final long serialVersionUID = 5386658724998732091L;
 	
 	public enum Role {
 		ADMIN, USER, SYSTEM_ADMIN, OWNER, PARENT, CHILD
 	}
-
-	private static final long serialVersionUID = 5386658724998732091L;
+	
+	public ClubRole(Role role) {
+		this.role = role;
+	}
 	
 	@Id
 	@GeneratedValue
-	private long id;
+	@Getter @Setter private long id;
 	
 	@Column(nullable = false)
-	private Role name;
-	
-	@ManyToOne
-	@Column(nullable = false)
-	private User user;
+	@Getter @Setter private Role role;
 	
 	@ManyToOne
-	@Column(nullable = false)
-	private Club club;
+	@Getter @Setter private User user;
+	
+	@ManyToOne
+	@Getter @Setter private Club club;
 
 	@Override
 	public String getAuthority() {
-		return name.name();
+		return role.name();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ClubRole other = (ClubRole) obj;
+		return id == other.id;
 	}
 
 }

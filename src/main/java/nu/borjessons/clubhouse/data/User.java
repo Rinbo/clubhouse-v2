@@ -1,24 +1,28 @@
 package nu.borjessons.clubhouse.data;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter @Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "user")
@@ -42,20 +46,31 @@ public class User implements UserDetails {
 	@Column(nullable = false)
 	private String encryptedPassword;
 	
-	@OneToMany(mappedBy = "user", orphanRemoval = true)
-	private Set<ClubRole> roles = new HashSet<>();
+	@OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER)
+	private List<ClubRole> roles = new ArrayList<>();
 	
+	@OneToOne
 	private Club activeClub;
 	
 	public Set<String> getActiveRoles() {
 		return roles.stream()
-				.filter(clubRole -> clubRole.getClub().equals(activeClub))
-				.map(clubRole -> clubRole.getName().name()).collect(Collectors.toSet());
+				.filter(clubRole -> clubRole.getClub().getId() == activeClub.getId())
+				.map(clubRole -> clubRole.getRole().name()).collect(Collectors.toSet());
+	}
+	
+	public void addClubRole(ClubRole clubRole) {
+		roles.add(clubRole);
+		clubRole.setUser(this);
+	}
+	
+	public void removeClubRole(ClubRole clubRole) {
+		roles.remove(clubRole);
+		clubRole.setUser(null);
 	}
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return roles.stream().filter(clubRole -> clubRole.getClub().equals(activeClub)).collect(Collectors.toSet());
+		return roles.stream().filter(clubRole -> clubRole.getClub().getId() == activeClub.getId()).collect(Collectors.toSet());
 	}
 
 	@Override
@@ -70,22 +85,41 @@ public class User implements UserDetails {
 
 	@Override
 	public boolean isAccountNonExpired() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return false;
+		return true;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		return (id != other.id);
+	}
 }

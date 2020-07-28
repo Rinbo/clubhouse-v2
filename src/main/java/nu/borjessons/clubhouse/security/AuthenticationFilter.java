@@ -36,7 +36,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 			UserLoginRequestModel creds = new ObjectMapper().readValue(req.getInputStream(),
 					UserLoginRequestModel.class);
 			return authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(creds.getUsername(), creds.getPassword()));
+					new UsernamePasswordAuthenticationToken(creds.getUsername().toLowerCase().trim(), creds.getPassword()));
 		} catch (IOException e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Attemt to authenticate failed. Unable to read input stream from request object");
 		}
