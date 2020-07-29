@@ -4,12 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.ClubhouseMappers;
@@ -24,6 +21,7 @@ import nu.borjessons.clubhouse.dto.UserDTO;
 import nu.borjessons.clubhouse.repository.ClubRepository;
 import nu.borjessons.clubhouse.repository.ClubRoleRepository;
 import nu.borjessons.clubhouse.repository.UserRepository;
+import nu.borjessons.clubhouse.service.ClubService;
 import nu.borjessons.clubhouse.service.RegistrationService;
 
 @RequiredArgsConstructor
@@ -33,37 +31,57 @@ public class RegistrationServiceImpl implements RegistrationService {
 	private final ClubRepository clubRepository;
 	private final UserRepository userRepository;
 	private final ClubRoleRepository clubRoleRepository;
+	private final ClubService clubService;
 	private final ClubhouseMappers clubhouseMappers;
-	
+
 	@Transactional
 	@Override
 	public UserDTO registerClub(CreateClubModel clubDetails) {
 		Club club = clubhouseMappers.clubCreationModelToClub(clubDetails);
 		User user = clubhouseMappers.userCreationModelToUser(clubDetails.getOwner());
-		
+
 		Club savedClub = clubRepository.save(club);
+		
 		user.setActiveClub(savedClub);
+		
 		User savedUser = userRepository.save(user);
-		
+
 		List<Role> roles = new ArrayList<>(Arrays.asList(Role.USER, Role.OWNER, Role.ADMIN));
-		
-		List<ClubRole> clubRoles = roles.stream().map(ClubRole::new).collect(Collectors.toList());
-		
-		clubRoles.stream().forEach(clubRole -> {
-			savedClub.addClubRole(clubRole);
-			savedUser.addClubRole(clubRole);
-		});
-		
-		clubRoleRepository.saveAll(clubRoles);		
-		
+
+		List<ClubRole> clubRoles = clubhouseMappers.rolesToClubRoles(roles);
+
+		clubhouseMappers.mapClubRoles(clubRoles, savedUser, savedClub);
+
+		clubRoleRepository.saveAll(clubRoles);
+
 		return new UserDTO(savedUser);
 	}
 
+	@Transactional
 	@Override
 	public UserDTO registerUser(CreateUserModel userDetails) {
 		User user = clubhouseMappers.userCreationModelToUser(userDetails);
-			
 		Set<CreateChildRequestModel> children = userDetails.getChildren();
-		return null;
+		Club club = clubService.getClubById(userDetails.getClubId());
+		user.setActiveClub(club);
+		
+		List<Role> roles = new ArrayList<>(Arrays.asList(Role.USER));
+		if (!children.isEmpty()) roles.add(Role.PARENT);
+		List<ClubRole> clubRoles = clubhouseMappers.rolesToClubRoles(roles);
+		clubhouseMappers.mapClubRoles(clubRoles, user, club);
+		clubRoleRepository.saveAll(clubRoles);
+		
+		children.stream().forEach(childModel -> {
+			User child = clubhouseMappers.childCreationModelToUser(childModel);
+			List<ClubRole> childRoles = clubhouseMappers.rolesToClubRoles(new ArrayList<>(Arrays.asList(Role.CHILD)));
+			child.addParent(user);
+			child.setActiveClub(club);
+			clubhouseMappers.mapClubRoles(childRoles, child, club);
+			User savedChild = userRepository.save(child);
+			clubhouseMappers.mapClubRoles(childRoles, savedChild, club);
+			clubRoleRepository.saveAll(childRoles);
+		});
+		User savedUser = userRepository.save(user);
+		return new UserDTO(savedUser);
 	}
 }

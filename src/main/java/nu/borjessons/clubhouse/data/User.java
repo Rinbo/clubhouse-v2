@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -38,7 +39,7 @@ public class User implements UserDetails {
 	private String email;
 	
 	@Column(nullable = false, length = 50)
-	private String firstname;
+	private String firstName;
 
 	@Column(nullable = false, length = 50)
 	private String lastName;
@@ -52,10 +53,10 @@ public class User implements UserDetails {
 	@OneToOne
 	private Club activeClub;
 	
-	@OneToMany(mappedBy = "id", orphanRemoval = true)
+	@ManyToMany
 	private List<User> parents = new ArrayList<>();
 	
-	@OneToMany(mappedBy = "id", orphanRemoval = true)
+	@ManyToMany(mappedBy = "parents")
 	private List<User> children = new ArrayList<>();
 	
 	public Set<String> getActiveRoles() {
@@ -72,6 +73,24 @@ public class User implements UserDetails {
 	public void removeClubRole(ClubRole clubRole) {
 		roles.remove(clubRole);
 		clubRole.setUser(null);
+	}
+	
+	public void addParent(User parent) {
+		parents.add(parent);
+		parent.addChild(this);
+	}
+	
+	public void removeParent(User parent) {
+		parents.remove(parent);
+		parent.removeChild(this);
+	}
+	
+	public void addChild(User child) {
+		children.add(child);
+	}
+	
+	public void removeChild(User child) {
+		children.add(child);
 	}
 	
 	@Override

@@ -20,7 +20,7 @@ import lombok.Setter;
 @Table(name = "club_role")
 public class ClubRole implements Serializable, GrantedAuthority {
 	
-	//public static final String ROLE_PREFIX = "ROLE_"; AUTHORITIES WORKS WITHOUT THIS????
+	public static final String ROLE_PREFIX = "ROLE_"; 
 
 	private static final long serialVersionUID = 5386658724998732091L;
 	
@@ -47,7 +47,7 @@ public class ClubRole implements Serializable, GrantedAuthority {
 
 	@Override
 	public String getAuthority() {
-		return role.name();
+		return ROLE_PREFIX + role;
 	}
 
 	@Override
