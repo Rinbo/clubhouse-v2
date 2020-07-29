@@ -3,14 +3,19 @@ package nu.borjessons.clubhouse.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.ClubhouseMappers;
+import nu.borjessons.clubhouse.controller.model.request.CreateChildRequestModel;
 import nu.borjessons.clubhouse.controller.model.request.CreateClubModel;
+import nu.borjessons.clubhouse.controller.model.request.CreateUserModel;
 import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.ClubRole;
 import nu.borjessons.clubhouse.data.ClubRole.Role;
@@ -33,7 +38,6 @@ public class RegistrationServiceImpl implements RegistrationService {
 	@Transactional
 	@Override
 	public UserDTO registerClub(CreateClubModel clubDetails) {
-		
 		Club club = clubhouseMappers.clubCreationModelToClub(clubDetails);
 		User user = clubhouseMappers.userCreationModelToUser(clubDetails.getOwner());
 		
@@ -53,5 +57,13 @@ public class RegistrationServiceImpl implements RegistrationService {
 		clubRoleRepository.saveAll(clubRoles);		
 		
 		return new UserDTO(savedUser);
+	}
+
+	@Override
+	public UserDTO registerUser(CreateUserModel userDetails) {
+		User user = clubhouseMappers.userCreationModelToUser(userDetails);
+			
+		Set<CreateChildRequestModel> children = userDetails.getChildren();
+		return null;
 	}
 }

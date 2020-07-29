@@ -52,6 +52,12 @@ public class User implements UserDetails {
 	@OneToOne
 	private Club activeClub;
 	
+	@OneToMany(mappedBy = "id", orphanRemoval = true)
+	private List<User> parents = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "id", orphanRemoval = true)
+	private List<User> children = new ArrayList<>();
+	
 	public Set<String> getActiveRoles() {
 		return roles.stream()
 				.filter(clubRole -> clubRole.getClub().getId() == activeClub.getId())

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.controller.model.request.CreateClubModel;
+import nu.borjessons.clubhouse.controller.model.request.CreateUserModel;
 import nu.borjessons.clubhouse.dto.UserDTO;
 import nu.borjessons.clubhouse.security.SecurityConstants;
 import nu.borjessons.clubhouse.service.RegistrationService;
@@ -22,6 +23,12 @@ public class RegistrationController {
 	public UserDTO registerClub(@Valid @RequestBody CreateClubModel clubDetails) {
 		
 		return registrationService.registerClub(clubDetails);
+	}
+	
+	@PostMapping(SecurityConstants.USER_REGISTRATION_URL)
+	public UserDTO registerUser(@Valid @RequestBody CreateUserModel userDetails) {
+		
+		return registrationService.registerUser(userDetails);
 	}
 	
 }

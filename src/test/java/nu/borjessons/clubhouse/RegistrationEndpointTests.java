@@ -68,7 +68,6 @@ class RegistrationEndpointTests {
 				.response();
 
 		authToken = loginResponse.getHeader("Authorization");
-		System.out.println(authToken);
 		assertNotNull(authToken);
 	}
 
