@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: 'jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1'
+    url: 'jdbc:h2:mem:testdb'
     username: sa
     password: sa
     
@@ -9,8 +9,8 @@ token:
   secret: safsgsdfgsdfgsfg6541s6dfgs654gsfGFRSFsfdgSFGF
   expiration: 604800
   
-logging:
-  level:
-    root: info
-    org.springframework.web: debug
-    org.springframework.security: debug
+#logging:
+#  level:
+#    root: info
+#    org.springframework.web: debug
+#    org.springframework.security: debug
