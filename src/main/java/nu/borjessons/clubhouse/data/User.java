@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.data;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +28,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "user")
-public class User implements UserDetails {
+public class User extends BaseEntity implements UserDetails {
 
 	private static final long serialVersionUID = 2973075901622175140L;
 	
@@ -52,6 +53,9 @@ public class User implements UserDetails {
 	
 	@OneToOne
 	private Club activeClub;
+	
+	@Column(nullable = false)
+	private LocalDateTime lastLoginTime = LocalDateTime.now();
 	
 	@ManyToMany
 	private List<User> parents = new ArrayList<>();

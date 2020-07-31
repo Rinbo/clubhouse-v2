@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ public class ClubhouseMappers {
 		return user;
 	}
 	
-	public List<ClubRole> rolesToClubRoles(List<Role> roles) {
+	public List<ClubRole> rolesToClubRoles(Set<Role> roles) {
 		return roles.stream().map(ClubRole::new).collect(Collectors.toList());
 	}
 	

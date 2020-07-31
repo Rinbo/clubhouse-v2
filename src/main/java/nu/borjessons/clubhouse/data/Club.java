@@ -21,7 +21,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "club")
-public class Club implements Serializable {
+public class Club extends BaseEntity  implements Serializable {
 
 	public enum Type { SPORT, MUSIC, MISC }
 	

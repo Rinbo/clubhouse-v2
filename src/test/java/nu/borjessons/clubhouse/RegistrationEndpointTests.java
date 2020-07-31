@@ -38,7 +38,7 @@ import nu.borjessons.clubhouse.config.TestConfiguration;
 class RegistrationEndpointTests {
 	
 	private static Long clubId;
-	private static String authToken;
+	private static String adminAuthToken;
 	
 	@LocalServerPort
 	private int port;
@@ -125,7 +125,7 @@ class RegistrationEndpointTests {
 	
 	
 	@Test
-	void ba_loginUser() {
+	void ba_loginAdminUser() {
 		Response loginResponse = given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
 				.body(loginRequest(ADMIN_USER_USERNAME))
@@ -136,8 +136,34 @@ class RegistrationEndpointTests {
 				.extract()
 				.response();
 
-		authToken = loginResponse.getHeader("Authorization");
-		assertNotNull(authToken);
+		adminAuthToken = loginResponse.getHeader("Authorization");
+		assertNotNull(adminAuthToken);
 	}
+	
+	@Test
+	void bb_loginUser() {
+		Response loginResponse = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.body(loginRequest(NORMAL_USER_USERNAME))
+				.when()
+				.post("/login")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
 
+		String userAuthToken = loginResponse.getHeader("Authorization");
+		assertNotNull(userAuthToken);
+	}
+	
+	@Test
+	void bc_accessDeniedWhenloginUserWithWrongPassword() {
+		given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.body(loginRequest(NORMAL_USER_USERNAME, "WrongPassword"))
+				.when()
+				.post("/login")
+				.then()
+				.statusCode(403);
+	}
 }

@@ -33,5 +33,5 @@ public class UserServiceImpl implements UserService {
 		
 		throw new UsernameNotFoundException(String.format("User %s could not be found", email));
 	}
-
+	
 }

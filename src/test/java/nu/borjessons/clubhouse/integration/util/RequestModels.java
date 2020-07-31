@@ -97,5 +97,13 @@ public class RequestModels {
 
 		return userRequestModel;
 	}
+	
+	public static Map<String, Object> loginRequest(String username, String password) {
+		Map<String, Object> userRequestModel = new HashMap<>();
+		userRequestModel.put("username", username);
+		userRequestModel.put("password", password);
+
+		return userRequestModel;
+	}
 
 }

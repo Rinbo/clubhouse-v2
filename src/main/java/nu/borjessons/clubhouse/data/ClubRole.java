@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -18,7 +20,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "club_role")
-public class ClubRole implements Serializable, GrantedAuthority {
+public class ClubRole  extends BaseEntity implements Serializable, GrantedAuthority {
 	
 	public static final String ROLE_PREFIX = "ROLE_"; 
 
@@ -37,6 +39,7 @@ public class ClubRole implements Serializable, GrantedAuthority {
 	@Getter @Setter private long id;
 	
 	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
 	@Getter @Setter private Role role;
 	
 	@ManyToOne
