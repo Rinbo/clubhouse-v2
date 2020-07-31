@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.data;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,6 +37,9 @@ public class Club extends BaseEntity  implements Serializable {
 	@Id
 	@GeneratedValue
 	private long id;
+	
+	@Column(nullable=false, unique = true)
+	private String clubId = UUID.randomUUID().toString();
 	
 	@Column(nullable = false, length = 120, unique = true)
 	private String name;

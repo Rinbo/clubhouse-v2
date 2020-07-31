@@ -62,7 +62,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 	public UserDTO registerUser(CreateUserModel userDetails) {
 		User user = clubhouseMappers.userCreationModelToUser(userDetails);
 		Set<CreateChildRequestModel> children = userDetails.getChildren();
-		Club club = clubService.getClubById(userDetails.getClubId());
+		Club club = clubService.getClubByClubId(userDetails.getClubId());
 		user.setActiveClub(club);
 		
 		Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER));

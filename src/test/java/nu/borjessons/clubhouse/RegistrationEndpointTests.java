@@ -37,7 +37,7 @@ import nu.borjessons.clubhouse.config.TestConfiguration;
 @TestMethodOrder(MethodOrderer.Alphanumeric.class)
 class RegistrationEndpointTests {
 	
-	private static Long clubId;
+	private static String clubId;
 	private static String adminAuthToken;
 	
 	@LocalServerPort
@@ -63,7 +63,7 @@ class RegistrationEndpointTests {
 				.extract()
 				.response();
 
-		clubId = Long.valueOf(response.jsonPath().getString("activeClub"));
+		clubId = response.jsonPath().getString("activeClub");
 		assertNotNull(clubId);
 	}
 	

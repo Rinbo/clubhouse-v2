@@ -4,6 +4,6 @@ import nu.borjessons.clubhouse.data.Club;
 
 public interface ClubService {
 	
-	Club getClubById(long clubId);
+	Club getClubByClubId(String clubId);
 	
 }

@@ -13,19 +13,21 @@ import nu.borjessons.clubhouse.data.User;
 public class UserDTO {
 	
 	private String email;
+	private String userId;
 	private String firstName;
 	private String lastName;
 	private List<Long> childrenIds = new ArrayList<>();
 	private List<Long> parentIds = new ArrayList<>();
 	private Set<String> roles = new HashSet<>();
-	private long activeClub;
+	private String activeClub;
 	
 	public UserDTO(User user) {
 		email = user.getEmail();
+		userId = user.getUserId();
 		firstName = user.getFirstName();
 		lastName = user.getLastName();
 		roles = user.getActiveRoles();
-		activeClub = user.getActiveClub().getId();
+		activeClub = user.getActiveClub().getClubId();
 		childrenIds = user.getChildren().stream().map(User::getId).collect(Collectors.toList());
 		parentIds = user.getParents().stream().map(User::getId).collect(Collectors.toList());
 	}

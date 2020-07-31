@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.Column;
@@ -36,6 +37,9 @@ public class User extends BaseEntity implements UserDetails {
 	@GeneratedValue
 	private long id;
 	
+	@Column(nullable = false, unique = true)
+	private String userId = UUID.randomUUID().toString();
+	
 	@Column(nullable = false, length = 120, unique = true)
 	private String email;
 	
@@ -54,8 +58,7 @@ public class User extends BaseEntity implements UserDetails {
 	@OneToOne
 	private Club activeClub;
 	
-	@Column(nullable = false)
-	private LocalDateTime lastLoginTime = LocalDateTime.now();
+	private LocalDateTime lastLoginTime;
 	
 	@ManyToMany
 	private List<User> parents = new ArrayList<>();

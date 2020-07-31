@@ -2,9 +2,7 @@ package nu.borjessons.clubhouse.service.impl;
 
 import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.data.Club;
@@ -19,8 +17,8 @@ public class ClubServiceImpl extends ClubhouseAbstractService implements ClubSer
 	private final ClubRepository clubRepository;
 
 	@Override
-	public Club getClubById(long clubId) {
-		Optional<Club> maybeClub = clubRepository.findById(clubId);
+	public Club getClubByClubId(String clubId) {
+		Optional<Club> maybeClub = clubRepository.findByClubId(clubId);
 		return getOrThrow(maybeClub, this.getClass().getName(), clubId);
 	}
 }

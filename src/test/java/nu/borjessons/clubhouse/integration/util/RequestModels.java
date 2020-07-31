@@ -60,7 +60,7 @@ public class RequestModels {
 		return userRequestModel;
 	}
 	
-	public static Map<String, Object> userWithChildrenRegistrationRequest(Long clubId, String user, String[] name,
+	public static Map<String, Object> userWithChildrenRegistrationRequest(String clubId, String user, String[] name,
 			List<String> childrenNames) {
 		Map<String, Object> userRequestModel = new HashMap<>();
 

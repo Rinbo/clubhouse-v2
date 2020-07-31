@@ -35,7 +35,7 @@ public class CreateUserModel implements Serializable {
 	private String email;
 	
 	@NotNull(message= "A user cannot be created without an organization")
-	private long clubId;
+	private String clubId;
 	
 	private Set<CreateChildRequestModel> children = new HashSet<>();
 

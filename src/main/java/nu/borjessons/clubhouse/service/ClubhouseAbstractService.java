@@ -35,7 +35,7 @@ public abstract class ClubhouseAbstractService {
 		throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("That entity %s with id %d could not be found", className, identifier));
 	}
 	
-	protected User getOrThrowUser(Optional<User> maybeUser, String email) {
+	protected User getOrThrowUNFE(Optional<User> maybeUser, String email) {
 		if (maybeUser.isPresent()) return maybeUser.get();
 		throw new UsernameNotFoundException(String.format("User %s could not be found", email));
 	}
