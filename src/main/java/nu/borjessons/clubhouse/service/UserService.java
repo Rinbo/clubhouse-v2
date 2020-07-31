@@ -8,5 +8,6 @@ public interface UserService extends UserDetailsService {
 
 	User getUserByEmail(String username);
 
+	void updateUserLoginTime(String email);
 }
 

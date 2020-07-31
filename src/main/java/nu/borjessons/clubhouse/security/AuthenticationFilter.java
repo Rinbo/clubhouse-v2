@@ -19,15 +19,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import nu.borjessons.clubhouse.controller.model.request.UserLoginRequestModel;
 import nu.borjessons.clubhouse.data.User;
+import nu.borjessons.clubhouse.service.UserService;
 
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	private AuthenticationManager authenticationManager;
 	private JWTUtil jwtUtil;
+	private UserService userService;
 	
-	public AuthenticationFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+	public AuthenticationFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, UserService userService) {
 		this.authenticationManager = authenticationManager;
 		this.jwtUtil = jwtUtil;
+		this.userService = userService;
 	}
 	
 	@Override
@@ -46,6 +49,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	public void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
 			Authentication auth) throws IOException, ServletException {
 		UserDetails userDetails = (User) auth.getPrincipal();
+		userService.updateUserLoginTime(userDetails.getUsername());
 		String token = SecurityConstants.TOKEN_PREFIX + jwtUtil.generateToken(userDetails);
 		res.addHeader(SecurityConstants.AUTHORIZATION, token);
 	}

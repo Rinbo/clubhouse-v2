@@ -10,22 +10,17 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.repository.ClubRepository;
 import nu.borjessons.clubhouse.service.ClubService;
+import nu.borjessons.clubhouse.service.ClubhouseAbstractService;
 
 @Service
 @RequiredArgsConstructor
-public class ClubServiceImpl implements ClubService {
+public class ClubServiceImpl extends ClubhouseAbstractService implements ClubService {
 	
 	private final ClubRepository clubRepository;
 
 	@Override
 	public Club getClubById(long clubId) {
 		Optional<Club> maybeClub = clubRepository.findById(clubId);
-		return getOrThrow(maybeClub, clubId);
+		return getOrThrow(maybeClub, this.getClass().getName(), clubId);
 	}
-
-	private Club getOrThrow(Optional<Club> maybeClub, long clubId) {
-		if (maybeClub.isPresent()) return maybeClub.get();
-		throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Club with id %d does not exist", clubId));
-	}
-
 }
