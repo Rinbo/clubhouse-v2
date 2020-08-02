@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse;
+package nu.borjessons.clubhouse.integration.util;
 
 import static io.restassured.RestAssured.given;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.ADMIN_USER_NAME;
@@ -6,16 +6,12 @@ import static nu.borjessons.clubhouse.integration.util.RequestModels.ADMIN_USER_
 import static nu.borjessons.clubhouse.integration.util.RequestModels.CHILD_1_NAME;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.CHILD_2_NAME;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.CLUB_1;
-import static nu.borjessons.clubhouse.integration.util.RequestModels.CLUB_2;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.NORMAL_USER1_NAME;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.NORMAL_USER_USERNAME;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.clubRegistrationRequest;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.loginRequest;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.userWithChildrenRegistrationRequest;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +34,7 @@ import nu.borjessons.clubhouse.config.TestConfiguration;
 @SpringBootTest(webEnvironment =WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.Alphanumeric.class)
 @DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
-class RegistrationEndpointTests {
+class UserEndpointTests {
 	
 	private static String clubId;
 	private static String adminAuthToken;
@@ -75,38 +71,6 @@ class RegistrationEndpointTests {
 	}
 	
 	@Test
-	void ab_conflictWhenRegisterSameClub() {
-		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
-				.accept(TestConfiguration.APPLICATION_JSON)
-				.body(clubRegistrationRequest(CLUB_1, ADMIN_USER_USERNAME, ADMIN_USER_NAME))
-				.when()
-				.post("/register/club")
-				.then()
-				.statusCode(409)
-				.contentType(TestConfiguration.APPLICATION_JSON).extract()
-				.response();
-		
-		String errorResponse = response.jsonPath().getString("message");
-		assertThat(errorResponse).contains("A resource already exists in the database with provided parameters");
-	}
-	
-	@Test
-	void ac_conflictWhenRegisterDifferentClubButSameUser() {
-		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
-				.accept(TestConfiguration.APPLICATION_JSON)
-				.body(clubRegistrationRequest(CLUB_2, ADMIN_USER_USERNAME, ADMIN_USER_NAME))
-				.when()
-				.post("/register/club")
-				.then()
-				.statusCode(409)
-				.contentType(TestConfiguration.APPLICATION_JSON).extract()
-				.response();
-		
-		String errorResponse = response.jsonPath().getString("message");
-		assertThat(errorResponse).contains("A resource already exists in the database with provided parameters");
-	}
-	
-	@Test
 	void ba_registerUserWithChildren() {
 		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
@@ -130,7 +94,7 @@ class RegistrationEndpointTests {
 		assertNotNull(email);
 		assertEquals(NORMAL_USER_USERNAME, email);
 	}
-
+	
 	@Test
 	void ca_loginAdminUser() {
 		Response loginResponse = given().contentType(TestConfiguration.APPLICATION_JSON)
@@ -148,30 +112,6 @@ class RegistrationEndpointTests {
 	}
 	
 	@Test
-	void cb_adminGetsUserByUserId() {
-		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
-				.accept(TestConfiguration.APPLICATION_JSON)
-				.header("Authorization", adminAuthToken)
-				.when()
-				.pathParam("userId", normalUserId)
-				.get("/users/{userId}")
-				.then()
-				.statusCode(200)
-				.extract()
-				.response();
-
-		String email = response.jsonPath().getString("email");
-		String firstName = response.jsonPath().getString("firstName");
-		String lastName = response.jsonPath().getString("lastName");
-		List<String> childrenIds  = response.jsonPath().getList("childrenIds", String.class);
-		assertNotNull(email);
-		assertEquals(NORMAL_USER_USERNAME, email);
-		assertEquals(NORMAL_USER1_NAME[0], firstName);
-		assertEquals(NORMAL_USER1_NAME[1], lastName);
-		assertEquals(2, childrenIds.size());
-	}
-	
-	@Test
 	void da_loginUser() {
 		Response loginResponse = given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
@@ -186,51 +126,5 @@ class RegistrationEndpointTests {
 		userAuthToken = loginResponse.getHeader("Authorization");
 		assertNotNull(userAuthToken);
 	}
-	
-	@Test
-	void db_accessDeniedWhenloginUserWithWrongPassword() {
-		given().contentType(TestConfiguration.APPLICATION_JSON)
-				.accept(TestConfiguration.APPLICATION_JSON)
-				.body(loginRequest(NORMAL_USER_USERNAME, "WrongPassword"))
-				.when()
-				.post("/login")
-				.then()
-				.statusCode(403);
-	}
-	
-	@Test
-	void dc_accessDeniedWhenUserTriesAdminEndpoint() {
-		given().contentType(TestConfiguration.APPLICATION_JSON)
-				.accept(TestConfiguration.APPLICATION_JSON)
-				.header("Authorization", userAuthToken)
-				.when()
-				.pathParam("userId", adminUserId)
-				.get("/users/{userId}")
-				.then()
-				.statusCode(403);
-	}
-	
-	@Test
-	void dd_userGetsPrincipal() {
-		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
-				.accept(TestConfiguration.APPLICATION_JSON)
-				.header("Authorization", userAuthToken)
-				.when()
-				.get("/users/principal")
-				.then()
-				.statusCode(200)
-				.extract()
-				.response();
 
-		String email = response.jsonPath().getString("email");
-		String firstName = response.jsonPath().getString("firstName");
-		String lastName = response.jsonPath().getString("lastName");
-		List<String> childrenIds  = response.jsonPath().getList("childrenIds", String.class);
-		assertNotNull(email);
-		assertEquals(NORMAL_USER_USERNAME, email);
-		assertEquals(NORMAL_USER1_NAME[0], firstName);
-		assertEquals(NORMAL_USER1_NAME[1], lastName);
-		assertEquals(2, childrenIds.size());
-	}
-	
 }
