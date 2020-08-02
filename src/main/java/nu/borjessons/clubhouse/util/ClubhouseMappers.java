@@ -1,7 +1,7 @@
 package nu.borjessons.clubhouse.util;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -28,8 +28,6 @@ public class ClubhouseMappers {
 	private static final String EMAIL_EXTENTION = "@clubhouse.nu";
 	private final BCryptPasswordEncoder bcryptPasswordEncoder;
 	
-	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	
 	public Club clubCreationModelToClub(CreateClubModel clubDetails) {
 		return new Club(clubDetails.getName(), clubDetails.getType());
 	}
@@ -40,7 +38,7 @@ public class ClubhouseMappers {
 		user.setFirstName(userDetails.getFirstName());
 		user.setLastName(userDetails.getLastName());
 		user.setEncryptedPassword(bcryptPasswordEncoder.encode(userDetails.getPassword()));
-		user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), formatter));
+		user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
 		
 		return user;
 	}
@@ -58,15 +56,17 @@ public class ClubhouseMappers {
 
 	public User childCreationModelToUser(CreateChildRequestModel childModel) {
 		User child = new User();
+		String childIdentifier = child.getUserId();
 		child.setFirstName(childModel.getFirstName());
 		child.setLastName(childModel.getLastName());
-		child.setEmail(UUID.randomUUID().toString() + EMAIL_EXTENTION);
+		child.setEmail(childIdentifier + EMAIL_EXTENTION);
 		child.setEncryptedPassword(bcryptPasswordEncoder.encode(UUID.randomUUID().toString()));
-		child.setDateOfBirth(LocalDate.parse(childModel.getDateOfBirth(), formatter));
+		child.setDateOfBirth(LocalDate.parse(childModel.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
 		return child;
 	}
 
 	public List<Address> addressModelToAddress(List<AddressModel> addressModels) {
+		if (addressModels == null) return new ArrayList<>();
 		return addressModels.stream().map(this::addressOf).collect(Collectors.toList());
 	}
 	

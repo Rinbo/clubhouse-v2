@@ -58,7 +58,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	@Column(nullable = false)
 	private String encryptedPassword;
 	
-	@OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	@Fetch(value = FetchMode.SUBSELECT)
 	private List<ClubRole> roles = new ArrayList<>();
 	

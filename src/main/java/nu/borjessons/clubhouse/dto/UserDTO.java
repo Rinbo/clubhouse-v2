@@ -22,7 +22,6 @@ public class UserDTO implements Serializable {
 	private Set<String> childrenIds = new HashSet<>();
 	private Set<String> parentIds = new HashSet<>();
 	private Set<String> roles = new HashSet<>();
-	private Set<AddressDTO> addresses = new HashSet<>();
 	private String activeClub;
 	
 	public UserDTO(User user) {
@@ -34,6 +33,5 @@ public class UserDTO implements Serializable {
 		activeClub = user.getActiveClub().getClubId();
 		childrenIds = user.getChildren().stream().map(User::getUserId).collect(Collectors.toSet());
 		parentIds = user.getParents().stream().map(User::getUserId).collect(Collectors.toSet());
-		addresses = user.getAddresses().stream().map(AddressDTO::new).collect(Collectors.toSet());
 	}
 }

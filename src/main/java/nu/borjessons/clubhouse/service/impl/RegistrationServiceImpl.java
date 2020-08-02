@@ -21,7 +21,6 @@ import nu.borjessons.clubhouse.data.ClubRole.Role;
 import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.UserDTO;
 import nu.borjessons.clubhouse.repository.ClubRepository;
-import nu.borjessons.clubhouse.repository.ClubRoleRepository;
 import nu.borjessons.clubhouse.repository.UserRepository;
 import nu.borjessons.clubhouse.service.ClubService;
 import nu.borjessons.clubhouse.service.RegistrationService;
@@ -33,7 +32,6 @@ public class RegistrationServiceImpl implements RegistrationService {
 
 	private final ClubRepository clubRepository;
 	private final UserRepository userRepository;
-	private final ClubRoleRepository clubRoleRepository;
 	private final ClubService clubService;
 	private final ClubhouseMappers clubhouseMappers;
 
@@ -49,17 +47,13 @@ public class RegistrationServiceImpl implements RegistrationService {
 		user.setActiveClub(savedClub);
 		addresses.stream().forEach(user::addAddress);
 		
-		User savedUser = userRepository.save(user);
-
 		Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER, Role.OWNER, Role.ADMIN));
 
 		List<ClubRole> clubRoles = clubhouseMappers.rolesToClubRoles(roles);
 
-		clubhouseMappers.mapClubRoles(clubRoles, savedUser, savedClub);
+		clubhouseMappers.mapClubRoles(clubRoles, user, savedClub);
 
-		clubRoleRepository.saveAll(clubRoles);
-
-		return new UserDTO(savedUser);
+		return new UserDTO(userRepository.save(user));
 	}
 
 	@Transactional
@@ -82,17 +76,13 @@ public class RegistrationServiceImpl implements RegistrationService {
 			child.addParent(user);
 			child.setActiveClub(club);
 			clubhouseMappers.mapClubRoles(childRoles, child, club);
-			User savedChild = userRepository.save(child);
-			clubhouseMappers.mapClubRoles(childRoles, savedChild, club);
-			clubRoleRepository.saveAll(childRoles);
+			userRepository.save(child);
 		});
-		User savedUser = userRepository.save(user);
 		
 		List<ClubRole> clubRoles = clubhouseMappers.rolesToClubRoles(roles);
-		clubhouseMappers.mapClubRoles(clubRoles, savedUser, club);
-		clubRoleRepository.saveAll(clubRoles);
+		clubhouseMappers.mapClubRoles(clubRoles, user, club);
 		
-		return new UserDTO(savedUser);
+		return new UserDTO(userRepository.save(user));
 	}
 
 	@Override

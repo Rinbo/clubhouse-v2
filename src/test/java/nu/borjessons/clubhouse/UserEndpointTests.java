@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.integration.util;
+package nu.borjessons.clubhouse;
 
 import static io.restassured.RestAssured.given;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.ADMIN_USER_NAME;
