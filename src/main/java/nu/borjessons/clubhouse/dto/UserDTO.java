@@ -1,15 +1,20 @@
 package nu.borjessons.clubhouse.dto;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import nu.borjessons.clubhouse.data.User;
 
-@Data
-public class UserDTO {
-	
+@Getter
+@Setter
+public class UserDTO implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	private String email;
 	private String userId;
 	private String firstName;
@@ -17,6 +22,7 @@ public class UserDTO {
 	private Set<String> childrenIds = new HashSet<>();
 	private Set<String> parentIds = new HashSet<>();
 	private Set<String> roles = new HashSet<>();
+	private Set<AddressDTO> addresses = new HashSet<>();
 	private String activeClub;
 	
 	public UserDTO(User user) {
@@ -28,5 +34,6 @@ public class UserDTO {
 		activeClub = user.getActiveClub().getClubId();
 		childrenIds = user.getChildren().stream().map(User::getUserId).collect(Collectors.toSet());
 		parentIds = user.getParents().stream().map(User::getUserId).collect(Collectors.toSet());
+		addresses = user.getAddresses().stream().map(AddressDTO::new).collect(Collectors.toSet());
 	}
 }

@@ -2,11 +2,14 @@ package nu.borjessons.clubhouse.controller.model.request;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -33,6 +36,13 @@ public class CreateUserModel implements Serializable {
 	@NotNull(message = "Email cannot be null")
 	@Email
 	private String email;
+	
+	@NotNull(message = "Date of birth cannot be null")
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	private String dateOfBirth;
+	
+	@NotNull(message = "Address cannot be null")
+	private List<AddressModel> addresses;
 	
 	@NotNull(message= "A user cannot be created without an organization")
 	private String clubId;

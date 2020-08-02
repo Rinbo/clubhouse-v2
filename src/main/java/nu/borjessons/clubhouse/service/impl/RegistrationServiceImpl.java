@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.ClubhouseMappers;
 import nu.borjessons.clubhouse.controller.model.request.CreateChildRequestModel;
 import nu.borjessons.clubhouse.controller.model.request.CreateClubModel;
 import nu.borjessons.clubhouse.controller.model.request.CreateUserModel;
+import nu.borjessons.clubhouse.data.Address;
 import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.ClubRole;
 import nu.borjessons.clubhouse.data.ClubRole.Role;
@@ -25,6 +25,7 @@ import nu.borjessons.clubhouse.repository.ClubRoleRepository;
 import nu.borjessons.clubhouse.repository.UserRepository;
 import nu.borjessons.clubhouse.service.ClubService;
 import nu.borjessons.clubhouse.service.RegistrationService;
+import nu.borjessons.clubhouse.util.ClubhouseMappers;
 
 @RequiredArgsConstructor
 @Service
@@ -41,10 +42,12 @@ public class RegistrationServiceImpl implements RegistrationService {
 	public UserDTO registerClub(CreateClubModel clubDetails) {
 		Club club = clubhouseMappers.clubCreationModelToClub(clubDetails);
 		User user = clubhouseMappers.userCreationModelToUser(clubDetails.getOwner());
+		List<Address> addresses = clubhouseMappers.addressModelToAddress(clubDetails.getOwner().getAddresses());
 
 		Club savedClub = clubRepository.save(club);
 		
 		user.setActiveClub(savedClub);
+		addresses.stream().forEach(user::addAddress);
 		
 		User savedUser = userRepository.save(user);
 
@@ -63,6 +66,9 @@ public class RegistrationServiceImpl implements RegistrationService {
 	@Override
 	public UserDTO registerUser(CreateUserModel userDetails) {
 		User user = clubhouseMappers.userCreationModelToUser(userDetails);
+		List<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
+		addresses.stream().forEach(user::addAddress);
+		
 		Set<CreateChildRequestModel> children = userDetails.getChildren();
 		Club club = clubService.getClubByClubId(userDetails.getClubId());
 		user.setActiveClub(club);
