@@ -39,6 +39,9 @@ class RegistrationEndpointTests {
 	
 	private static String clubId;
 	private static String adminAuthToken;
+	private static String userAuthToken;
+	private static String adminUserId;
+	private static String normalUserId;
 	
 	@LocalServerPort
 	private int port;
@@ -64,7 +67,9 @@ class RegistrationEndpointTests {
 				.response();
 
 		clubId = response.jsonPath().getString("activeClub");
+		adminUserId = response.jsonPath().getString("userId");
 		assertNotNull(clubId);
+		assertNotNull(adminUserId);
 	}
 	
 	@Test
@@ -114,7 +119,9 @@ class RegistrationEndpointTests {
 
 		String email = response.jsonPath().getString("email");
 		List<String> roles = response.jsonPath().getList("roles", String.class);
-		List<Long> childrenIds  = response.jsonPath().getList("childrenIds", Long.class);
+		List<String> childrenIds  = response.jsonPath().getList("childrenIds", String.class);
+		normalUserId = response.jsonPath().getString("userId");
+		assertNotNull(normalUserId);
 		assertTrue(roles.contains("PARENT"));
 		assertTrue(roles.contains("USER"));
 		assertEquals(2, childrenIds.size());
@@ -122,10 +129,8 @@ class RegistrationEndpointTests {
 		assertEquals(NORMAL_USER_USERNAME, email);
 	}
 
-	
-	
 	@Test
-	void ba_loginAdminUser() {
+	void ca_loginAdminUser() {
 		Response loginResponse = given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
 				.body(loginRequest(ADMIN_USER_USERNAME))
@@ -141,7 +146,31 @@ class RegistrationEndpointTests {
 	}
 	
 	@Test
-	void bb_loginUser() {
+	void cb_adminGetsUserByUserId() {
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", adminAuthToken)
+				.when()
+				.pathParam("userId", normalUserId)
+				.get("/users/{userId}")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+
+		String email = response.jsonPath().getString("email");
+		String firstName = response.jsonPath().getString("firstName");
+		String lastName = response.jsonPath().getString("lastName");
+		List<String> childrenIds  = response.jsonPath().getList("childrenIds", String.class);
+		assertNotNull(email);
+		assertEquals(NORMAL_USER_USERNAME, email);
+		assertEquals(NORMAL_USER1_NAME[0], firstName);
+		assertEquals(NORMAL_USER1_NAME[1], lastName);
+		assertEquals(2, childrenIds.size());
+	}
+	
+	@Test
+	void da_loginUser() {
 		Response loginResponse = given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
 				.body(loginRequest(NORMAL_USER_USERNAME))
@@ -152,12 +181,12 @@ class RegistrationEndpointTests {
 				.extract()
 				.response();
 
-		String userAuthToken = loginResponse.getHeader("Authorization");
+		userAuthToken = loginResponse.getHeader("Authorization");
 		assertNotNull(userAuthToken);
 	}
 	
 	@Test
-	void bc_accessDeniedWhenloginUserWithWrongPassword() {
+	void db_accessDeniedWhenloginUserWithWrongPassword() {
 		given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
 				.body(loginRequest(NORMAL_USER_USERNAME, "WrongPassword"))
@@ -166,4 +195,40 @@ class RegistrationEndpointTests {
 				.then()
 				.statusCode(403);
 	}
+	
+	@Test
+	void dc_accessDeniedWhenUserTriesAdminEndpoint() {
+		given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", userAuthToken)
+				.when()
+				.pathParam("userId", adminUserId)
+				.get("/users/{userId}")
+				.then()
+				.statusCode(403);
+	}
+	
+	@Test
+	void dd_userGetsPrincipal() {
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", userAuthToken)
+				.when()
+				.get("/users/principal")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+
+		String email = response.jsonPath().getString("email");
+		String firstName = response.jsonPath().getString("firstName");
+		String lastName = response.jsonPath().getString("lastName");
+		List<String> childrenIds  = response.jsonPath().getList("childrenIds", String.class);
+		assertNotNull(email);
+		assertEquals(NORMAL_USER_USERNAME, email);
+		assertEquals(NORMAL_USER1_NAME[0], firstName);
+		assertEquals(NORMAL_USER1_NAME[1], lastName);
+		assertEquals(2, childrenIds.size());
+	}
+	
 }
