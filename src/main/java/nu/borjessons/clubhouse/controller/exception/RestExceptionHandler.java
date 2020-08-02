@@ -40,6 +40,26 @@ public class RestExceptionHandler {
 		return new ResponseEntity<>(errorMessage, new HttpHeaders(), ex.getStatus());
     }
     
+    @ExceptionHandler({ IllegalArgumentException.class })
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest req) {
+    	
+		log.debug(stringifyStacktrace(ex));
+		
+		ErrorMessage errorMessage = new ErrorMessage(ex.getMessage(), req.getRequestURI(), HttpStatus.BAD_REQUEST.value());
+		
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+    
+    @ExceptionHandler({ IllegalStateException.class })
+    public ResponseEntity<Object> handleIllegalStateException(IllegalArgumentException ex, HttpServletRequest req) {
+    	
+		log.debug(stringifyStacktrace(ex));
+		
+		ErrorMessage errorMessage = new ErrorMessage(ex.getMessage(), req.getRequestURI(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+		
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
     private String stringifyStacktrace (Throwable err) {
     	StringWriter sw = new StringWriter();
     	PrintWriter pw = new PrintWriter(sw);

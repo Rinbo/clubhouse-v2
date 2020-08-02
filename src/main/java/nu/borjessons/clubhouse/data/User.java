@@ -60,10 +60,10 @@ public class User extends BaseEntity implements UserDetails {
 	
 	private LocalDateTime lastLoginTime;
 	
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	private List<User> parents = new ArrayList<>();
 	
-	@ManyToMany(mappedBy = "parents")
+	@ManyToMany(mappedBy = "parents", fetch = FetchType.EAGER)
 	private List<User> children = new ArrayList<>();
 	
 	public Set<String> getActiveRoles() {
@@ -103,6 +103,11 @@ public class User extends BaseEntity implements UserDetails {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return roles.stream().filter(clubRole -> clubRole.getClub().getId() == activeClub.getId()).collect(Collectors.toSet());
+	}
+	
+	public Club getActiveClub() {
+		if (activeClub != null) return activeClub;
+		throw new IllegalStateException(String.format("User with id %s does not have an active club set", userId));
 	}
 
 	@Override

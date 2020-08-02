@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.ClubRole.Role;
 import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.UserDTO;
@@ -51,5 +52,17 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 	public UserDTO updateUserRoles(User user, Set<Role> roles) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void removeUser(User user, Club club) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteUser(User user) {
+		// TODO Auto-generated method stub
+		
 	}
 }

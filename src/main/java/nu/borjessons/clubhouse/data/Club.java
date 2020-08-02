@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.data;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -52,6 +53,12 @@ public class Club extends BaseEntity  implements Serializable {
 	
 	@OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.EAGER)
 	private List<ClubRole> clubRoles = new ArrayList<>();
+	
+	public User getUser(String userId) {
+		Optional<ClubRole> maybeClubRole =  clubRoles.stream().filter(clubRole -> clubRole.getUser().getUserId().equals(userId)).findFirst();
+		if (maybeClubRole.isPresent()) return maybeClubRole.get().getUser();
+		throw new IllegalArgumentException(String.format("User with id %s is not present in club with id %s", userId, clubId));
+	}
 	
 	public void addClubRole(ClubRole clubRole) {
 		this.clubRoles.add(clubRole);

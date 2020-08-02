@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.validation.Valid;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,5 +87,11 @@ public class RegistrationServiceImpl implements RegistrationService {
 		clubRoleRepository.saveAll(clubRoles);
 		
 		return new UserDTO(savedUser);
+	}
+
+	@Override
+	public UserDTO registerChild(User parent, @Valid CreateChildRequestModel childModel) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

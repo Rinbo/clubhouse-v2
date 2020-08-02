@@ -3,12 +3,17 @@ package nu.borjessons.clubhouse.service;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.server.ResponseStatusException;
 
 import nu.borjessons.clubhouse.data.User;
 
 public abstract class ClubhouseAbstractService {
+	
+	protected User getPrincipal() {
+		return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	}
 	
 	protected <T> T getOrThrow(Optional<T> option) {
 		if (option.isPresent()) return option.get();
