@@ -53,7 +53,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
 		clubhouseMappers.mapClubRoles(clubRoles, user, savedClub);
 
-		return new UserDTO(userRepository.save(user));
+		return new UserDTO(userRepository.save(user), savedClub.getClubId());
 	}
 
 	@Transactional
@@ -74,7 +74,6 @@ public class RegistrationServiceImpl implements RegistrationService {
 			List<ClubRole> childRoles = clubhouseMappers.rolesToClubRoles(new HashSet<>(Arrays.asList(Role.CHILD)));
 			roles.add(Role.PARENT);
 			child.addParent(user);
-			child.setActiveClub(club);
 			clubhouseMappers.mapClubRoles(childRoles, child, club);
 			userRepository.save(child);
 		});
@@ -82,7 +81,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 		List<ClubRole> clubRoles = clubhouseMappers.rolesToClubRoles(roles);
 		clubhouseMappers.mapClubRoles(clubRoles, user, club);
 		
-		return new UserDTO(userRepository.save(user));
+		return new UserDTO(userRepository.save(user), club.getClubId());
 	}
 
 	@Override

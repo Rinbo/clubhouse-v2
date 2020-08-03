@@ -90,6 +90,12 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 				.map(clubRole -> clubRole.getRole().name()).collect(Collectors.toSet());
 	}
 	
+	public Set<String> getRolesForClub(String clubId) {
+		return roles.stream()
+				.filter(clubRole -> clubRole.getClub().getClubId().equals(clubId))
+				.map(clubRole -> clubRole.getRole().name()).collect(Collectors.toSet());
+	}
+	
 	public void addClubRole(ClubRole clubRole) {
 		roles.add(clubRole);
 		clubRole.setUser(this);

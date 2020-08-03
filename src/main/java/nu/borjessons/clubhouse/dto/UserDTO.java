@@ -14,7 +14,6 @@ import nu.borjessons.clubhouse.data.User;
 public class UserDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
 	private String email;
 	private String userId;
 	private String firstName;
@@ -24,13 +23,13 @@ public class UserDTO implements Serializable {
 	private Set<String> roles = new HashSet<>();
 	private String activeClub;
 	
-	public UserDTO(User user) {
+	public UserDTO(User user, String clubId) {
+		activeClub = user.getActiveClub().getClubId();
 		email = user.getEmail();
 		userId = user.getUserId();
 		firstName = user.getFirstName();
 		lastName = user.getLastName();
-		roles = user.getActiveRoles();
-		activeClub = user.getActiveClub().getClubId();
+		roles = user.getRolesForClub(clubId);
 		childrenIds = user.getChildren().stream().map(User::getUserId).collect(Collectors.toSet());
 		parentIds = user.getParents().stream().map(User::getUserId).collect(Collectors.toSet());
 	}

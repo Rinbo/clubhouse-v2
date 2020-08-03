@@ -16,9 +16,9 @@ public interface UserService extends UserDetailsService {
 
 	User getUserByEmail(String username);
 	
-	UserDTO updateUser(User user, @Valid UpdateUserModel userDetails);
+	UserDTO updateUser(User user, String clubId, @Valid UpdateUserModel userDetails);
 	
-	UserDTO updateUserRoles(User user, Set<Role> roles);
+	UserDTO updateUserRoles(User user, String clubId, Set<Role> roles);
 
 	void removeUser(User user, Club club);
 	

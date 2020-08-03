@@ -53,7 +53,7 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 	}
 
 	@Override
-	public UserDTO updateUser(User user, UpdateUserModel userDetails) {
+	public UserDTO updateUser(User user, String clubId, UpdateUserModel userDetails) {
 		user.setFirstName(userDetails.getFirstName());
 		user.setLastName(userDetails.getLastName());
 		user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
@@ -66,11 +66,11 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 		addressRepository.deleteAll(oldAddresses);
 		addresses.stream().forEach(user::addAddress);
 		
-		return new UserDTO(userRepository.save(user));
+		return new UserDTO(userRepository.save(user), clubId);
 	}
 
 	@Override
-	public UserDTO updateUserRoles(User user, Set<Role> roles) {
+	public UserDTO updateUserRoles(User user, String clubId, Set<Role> roles) {
 		// TODO Auto-generated method stub
 		return null;
 	}

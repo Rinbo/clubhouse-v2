@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.controller.model.request.UpdateUserModel;
+import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.UserDTO;
 import nu.borjessons.clubhouse.service.ClubhouseAbstractService;
@@ -29,13 +30,15 @@ public class UserController extends ClubhouseAbstractService {
 	@PreAuthorize("hasRole('USER')")
 	@GetMapping("/principal")
 	public UserDTO getSelf() {
-		return new UserDTO(getPrincipal());
+		User user = getPrincipal();
+		return new UserDTO(user, user.getActiveClub().getClubId());
 	}
 	
 	@PreAuthorize("hasRole('USER')")
 	@PutMapping("/principal")
 	public UserDTO updateSelf(@RequestBody UpdateUserModel userDetails) {
-		return userService.updateUser(getPrincipal(), userDetails);
+		User user = getPrincipal();
+		return userService.updateUser(user, user.getActiveClub().getClubId(), userDetails);
 	}
 	
 	/*
@@ -45,14 +48,15 @@ public class UserController extends ClubhouseAbstractService {
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/{userId}")
 	public UserDTO getUser(@PathVariable String userId) {
-		return new UserDTO(getPrincipal().getActiveClub().getUser(userId));
+		Club club = getPrincipal().getActiveClub();
+		return new UserDTO(club.getUser(userId), club.getClubId());
 	}
 	
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/{userId}")
 	public UserDTO updateUser(@PathVariable String userId, @RequestBody UpdateUserModel userDetails) {
-		User user = getPrincipal().getActiveClub().getUser(userId);
-		return userService.updateUser(user, userDetails);
+		Club club = getPrincipal().getActiveClub();
+		return userService.updateUser(club.getUser(userId), club.getClubId(), userDetails);
 	}
 	
 	
