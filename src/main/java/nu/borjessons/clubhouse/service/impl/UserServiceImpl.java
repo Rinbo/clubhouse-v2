@@ -2,8 +2,7 @@ package nu.borjessons.clubhouse.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -58,11 +57,11 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 		user.setLastName(userDetails.getLastName());
 		user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
 		
-		List<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
+		Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
 		
-		List<Address> oldAddresses = user.getAddresses();
+		Set<Address> oldAddresses = user.getAddresses();
 		oldAddresses.stream().forEach(address -> address.setUser(null));
-		user.setAddresses(new ArrayList<>());
+		user.setAddresses(new HashSet<>());
 		addressRepository.deleteAll(oldAddresses);
 		addresses.stream().forEach(user::addAddress);
 		

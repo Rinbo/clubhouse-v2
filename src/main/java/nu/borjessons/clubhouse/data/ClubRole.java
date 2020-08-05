@@ -57,7 +57,9 @@ public class ClubRole  extends BaseEntity implements Serializable, GrantedAuthor
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
+		result = prime * result + ((club == null) ? 0 : club.hashCode());
+		result = prime * result + ((role == null) ? 0 : role.hashCode());
+		result = prime * result + ((user == null) ? 0 : user.hashCode());
 		return result;
 	}
 
@@ -70,7 +72,19 @@ public class ClubRole  extends BaseEntity implements Serializable, GrantedAuthor
 		if (getClass() != obj.getClass())
 			return false;
 		ClubRole other = (ClubRole) obj;
-		return id == other.id;
+		if (club == null) {
+			if (other.club != null)
+				return false;
+		} else if (!club.equals(other.club))
+			return false;
+		if (role != other.role)
+			return false;
+		if (user == null) {
+			if (other.user != null)
+				return false;
+		} else if (!user.equals(other.user))
+			return false;
+		return true;
 	}
 
 }

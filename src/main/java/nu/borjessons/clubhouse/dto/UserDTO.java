@@ -22,10 +22,10 @@ public class UserDTO implements Serializable {
 	private Set<String> childrenIds = new HashSet<>();
 	private Set<String> parentIds = new HashSet<>();
 	private Set<String> roles = new HashSet<>();
-	private String activeClub;
+	private String clubId;
 	
 	public UserDTO(User user, String clubId) {
-		activeClub = user.getActiveClub().getClubId();
+		this.clubId = clubId;
 		email = user.getEmail();
 		userId = user.getUserId();
 		firstName = user.getFirstName();

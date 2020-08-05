@@ -1,5 +1,7 @@
 package nu.borjessons.clubhouse.service;
 
+import java.util.Set;
+
 import javax.validation.Valid;
 
 import nu.borjessons.clubhouse.controller.model.request.CreateChildRequestModel;
@@ -14,6 +16,6 @@ public interface RegistrationService {
 
 	UserDTO registerUser(@Valid CreateUserModel userDetails);
 	
-	UserDTO registerChild(User parent, @Valid CreateChildRequestModel childModel);
+	UserDTO registerChildren(User parent, String clubId, @Valid Set<CreateChildRequestModel> childModels);
 
 }

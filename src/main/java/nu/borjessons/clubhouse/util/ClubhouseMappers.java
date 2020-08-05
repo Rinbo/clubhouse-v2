@@ -1,7 +1,6 @@
 package nu.borjessons.clubhouse.util;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,11 +41,11 @@ public class ClubhouseMappers {
 		return user;
 	}
 	
-	public List<ClubRole> rolesToClubRoles(Set<Role> roles) {
-		return roles.stream().map(ClubRole::new).collect(Collectors.toList());
+	public Set<ClubRole> rolesToClubRoles(Set<Role> roles) {
+		return roles.stream().map(ClubRole::new).collect(Collectors.toSet());
 	}
 	
-	public void mapClubRoles(List<ClubRole> clubRoles, User user, Club club) {
+	public void mapClubRoles(Set<ClubRole> clubRoles, User user, Club club) {
 		clubRoles.stream().forEach(clubRole -> {
 			user.addClubRole(clubRole);
 			club.addClubRole(clubRole);
@@ -64,13 +63,12 @@ public class ClubhouseMappers {
 		return child;
 	}
 
-	public List<Address> addressModelToAddress(List<AddressModel> addressModels) {
-		return addressModels.stream().map(this::addressOf).collect(Collectors.toList());
+	public Set<Address> addressModelToAddress(Set<AddressModel> addressModels) {
+		return addressModels.stream().map(this::addressOf).collect(Collectors.toSet());
 	}
 	
 	private Address addressOf(AddressModel addressModel) {
 		Address address = new Address();
-		address.setAddressId(UUID.randomUUID().toString());
 		address.setStreet(addressModel.getStreet());
 		address.setPostalCode(addressModel.getPostalCode());
 		address.setCity(addressModel.getCity());

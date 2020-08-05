@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.data;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,8 +23,8 @@ public class Address extends BaseEntity implements Serializable {
 	@GeneratedValue
 	private long id;
 	
-	@Column(nullable=false)
-	private String addressId;
+	@Column(nullable=false, unique=true)
+	private String addressId = UUID.randomUUID().toString();
 		
 	@Column(length=30, nullable=false)
 	private String country;
@@ -44,7 +45,7 @@ public class Address extends BaseEntity implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
+		result = prime * result + ((addressId == null) ? 0 : addressId.hashCode());
 		return result;
 	}
 
@@ -57,6 +58,12 @@ public class Address extends BaseEntity implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Address other = (Address) obj;
-		return id != other.id;
+		if (addressId == null) {
+			if (other.addressId != null)
+				return false;
+		} else if (!addressId.equals(other.addressId))
+			return false;
+		return true;
 	}
+	
 }

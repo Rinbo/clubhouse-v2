@@ -3,9 +3,8 @@ package nu.borjessons.clubhouse.data;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -59,8 +58,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	private String encryptedPassword;
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	@Fetch(value = FetchMode.SUBSELECT)
-	private List<ClubRole> roles = new ArrayList<>();
+	private Set<ClubRole> roles = new HashSet<>();
 	
 	@OneToOne
 	private Club activeClub;
@@ -69,8 +67,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	private LocalDate dateOfBirth;
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	@Fetch(value = FetchMode.SUBSELECT)
-	private List<Address> addresses = new ArrayList<>();
+	private Set<Address> addresses = new HashSet<>();
 	
 	private boolean showAddress;
 	
@@ -78,11 +75,11 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Fetch(value = FetchMode.SUBSELECT)
-	private List<User> parents = new ArrayList<>();
+	private Set<User> parents = new HashSet<>();
 	
 	@ManyToMany(mappedBy = "parents", fetch = FetchType.EAGER)
 	@Fetch(value = FetchMode.SUBSELECT)
-	private List<User> children = new ArrayList<>();
+	private Set<User> children = new HashSet<>();
 	
 	public Set<String> getActiveRoles() {
 		return roles.stream()
@@ -134,8 +131,8 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 		children.add(child);
 	}
 	
-	public List<Address> getAddresses() {
-		if (getActiveRoles().contains(Role.CHILD.name())) return parents.stream().map(User::getAddresses).flatMap(List::stream).collect(Collectors.toList());
+	public Set<Address> getAddresses() {
+		if (getActiveRoles().contains(Role.CHILD.name())) return parents.stream().map(User::getAddresses).flatMap(Set::stream).collect(Collectors.toSet());
 		return addresses;
 	}
 	
@@ -183,7 +180,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
+		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
 		return result;
 	}
 
@@ -196,6 +193,11 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		User other = (User) obj;
-		return (id != other.id);
+		if (userId == null) {
+			if (other.userId != null)
+				return false;
+		} else if (!userId.equals(other.userId))
+			return false;
+		return true;
 	}
 }

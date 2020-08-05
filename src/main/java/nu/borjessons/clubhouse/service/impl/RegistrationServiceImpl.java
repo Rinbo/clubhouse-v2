@@ -2,10 +2,7 @@ package nu.borjessons.clubhouse.service.impl;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-
-import javax.validation.Valid;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +37,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 	public UserDTO registerClub(CreateClubModel clubDetails) {
 		Club club = clubhouseMappers.clubCreationModelToClub(clubDetails);
 		User user = clubhouseMappers.userCreationModelToUser(clubDetails.getOwner());
-		List<Address> addresses = clubhouseMappers.addressModelToAddress(clubDetails.getOwner().getAddresses());
+		Set<Address> addresses = clubhouseMappers.addressModelToAddress(clubDetails.getOwner().getAddresses());
 
 		Club savedClub = clubRepository.save(club);
 		
@@ -49,7 +46,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 		
 		Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER, Role.OWNER, Role.ADMIN));
 
-		List<ClubRole> clubRoles = clubhouseMappers.rolesToClubRoles(roles);
+		Set<ClubRole> clubRoles = clubhouseMappers.rolesToClubRoles(roles);
 
 		clubhouseMappers.mapClubRoles(clubRoles, user, savedClub);
 
@@ -60,7 +57,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 	@Override
 	public UserDTO registerUser(CreateUserModel userDetails) {
 		User user = clubhouseMappers.userCreationModelToUser(userDetails);
-		List<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
+		Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
 		addresses.stream().forEach(user::addAddress);
 		
 		Set<CreateChildRequestModel> children = userDetails.getChildren();
@@ -71,22 +68,40 @@ public class RegistrationServiceImpl implements RegistrationService {
 		
 		children.stream().forEach(childModel -> {
 			User child = clubhouseMappers.childCreationModelToUser(childModel);
-			List<ClubRole> childRoles = clubhouseMappers.rolesToClubRoles(new HashSet<>(Arrays.asList(Role.CHILD)));
-			roles.add(Role.PARENT);
+			Set<ClubRole> childRoles = clubhouseMappers.rolesToClubRoles(new HashSet<>(Arrays.asList(Role.CHILD)));
 			child.addParent(user);
 			clubhouseMappers.mapClubRoles(childRoles, child, club);
 			userRepository.save(child);
+			roles.add(Role.PARENT);
 		});
 		
-		List<ClubRole> clubRoles = clubhouseMappers.rolesToClubRoles(roles);
+		Set<ClubRole> clubRoles = clubhouseMappers.rolesToClubRoles(roles);
 		clubhouseMappers.mapClubRoles(clubRoles, user, club);
 		
 		return new UserDTO(userRepository.save(user), club.getClubId());
 	}
 
+	@Transactional
 	@Override
-	public UserDTO registerChild(User parent, @Valid CreateChildRequestModel childModel) {
-		// TODO Auto-generated method stub
-		return null;
+	public UserDTO registerChildren(User parent, String clubId, Set<CreateChildRequestModel> childModels) {
+		
+		Club club = clubService.getClubByClubId(clubId);
+		Set<Role> roles = new HashSet<>();
+		saveChildren(parent, childModels, club, roles);
+		Set<ClubRole> clubRoles = clubhouseMappers.rolesToClubRoles(roles);
+		clubhouseMappers.mapClubRoles(clubRoles, parent, club);
+		
+		return new UserDTO(userRepository.save(parent), clubId);
+	}
+
+	private void saveChildren(User parent, Set<CreateChildRequestModel> childModels, Club club, Set<Role> roles) {
+		childModels.stream().forEach(childModel -> {
+			User child = clubhouseMappers.childCreationModelToUser(childModel);
+			Set<ClubRole> childRoles = clubhouseMappers.rolesToClubRoles(new HashSet<>(Arrays.asList(Role.CHILD)));
+			child.addParent(parent);
+			clubhouseMappers.mapClubRoles(childRoles, child, club);
+			userRepository.save(child);
+			roles.add(Role.PARENT);
+		});
 	}
 }

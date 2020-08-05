@@ -1,9 +1,9 @@
 package nu.borjessons.clubhouse.data;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -52,7 +52,7 @@ public class Club extends BaseEntity  implements Serializable {
 	private Type type;
 	
 	@OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.EAGER)
-	private List<ClubRole> clubRoles = new ArrayList<>();
+	private Set<ClubRole> clubRoles = new HashSet<>();
 	
 	public User getUser(String userId) {
 		Optional<ClubRole> maybeClubRole =  clubRoles.stream().filter(clubRole -> clubRole.getUser().getUserId().equals(userId)).findFirst();
@@ -74,7 +74,7 @@ public class Club extends BaseEntity  implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
+		result = prime * result + ((clubId == null) ? 0 : clubId.hashCode());
 		return result;
 	}
 
@@ -87,6 +87,11 @@ public class Club extends BaseEntity  implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Club other = (Club) obj;
-		return (id != other.id);
+		if (clubId == null) {
+			if (other.clubId != null)
+				return false;
+		} else if (!clubId.equals(other.clubId))
+			return false;
+		return true;
 	}
 }

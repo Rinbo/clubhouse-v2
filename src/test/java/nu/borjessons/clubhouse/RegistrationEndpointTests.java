@@ -19,7 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -34,6 +36,7 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import nu.borjessons.clubhouse.config.TestConfiguration;
+import nu.borjessons.clubhouse.controller.model.request.CreateChildRequestModel;
 
 @SpringBootTest(webEnvironment =WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.Alphanumeric.class)
@@ -68,7 +71,7 @@ class RegistrationEndpointTests {
 				.extract()
 				.response();
 
-		clubId = response.jsonPath().getString("activeClub");
+		clubId = response.jsonPath().getString("clubId");
 		adminUserId = response.jsonPath().getString("userId");
 		assertNotNull(clubId);
 		assertNotNull(adminUserId);
@@ -231,6 +234,37 @@ class RegistrationEndpointTests {
 		assertEquals(NORMAL_USER1_NAME[0], firstName);
 		assertEquals(NORMAL_USER1_NAME[1], lastName);
 		assertEquals(2, childrenIds.size());
+	}
+	
+	@Test
+	void ea_userRegistersAnotherChild() {
+		
+		Set<CreateChildRequestModel> childModels = new HashSet<>();
+		CreateChildRequestModel childModel1 = new CreateChildRequestModel();
+		childModel1.setFirstName("Alva");
+		childModel1.setLastName("Börjesson");
+		childModel1.setDateOfBirth("2020-08-05");
+		CreateChildRequestModel childModel2 = new CreateChildRequestModel();
+		childModel2.setFirstName("Torleif");
+		childModel2.setLastName("Börjesson");
+		childModel2.setDateOfBirth("2020-08-01");
+		childModels.add(childModel1);
+		childModels.add(childModel2);
+		
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", userAuthToken)
+				.body(childModels)
+				.when()
+				.post("/register/principal/add-children")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+		
+		List<String> childrenList = response.jsonPath().getList("childrenIds");
+		
+		assertEquals(4, childrenList.size());
 	}
 	
 }

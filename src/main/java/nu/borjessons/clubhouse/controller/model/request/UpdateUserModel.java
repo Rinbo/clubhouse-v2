@@ -1,8 +1,8 @@
 package nu.borjessons.clubhouse.controller.model.request;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -30,6 +30,6 @@ public class UpdateUserModel implements Serializable {
 	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private String dateOfBirth;
 	
-	private List<AddressModel> addresses = new ArrayList<>();
+	private Set<AddressModel> addresses = new HashSet<>();
 
 }

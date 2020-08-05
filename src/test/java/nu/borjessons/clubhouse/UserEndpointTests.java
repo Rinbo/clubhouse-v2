@@ -68,7 +68,7 @@ class UserEndpointTests {
 				.extract()
 				.response();
 
-		clubId = response.jsonPath().getString("activeClub");
+		clubId = response.jsonPath().getString("clubId");
 		adminUserId = response.jsonPath().getString("userId");
 		assertNotNull(clubId);
 		assertNotNull(adminUserId);
