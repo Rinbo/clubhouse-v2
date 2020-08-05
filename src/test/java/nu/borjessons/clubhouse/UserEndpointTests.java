@@ -11,7 +11,9 @@ import static nu.borjessons.clubhouse.integration.util.RequestModels.NORMAL_USER
 import static nu.borjessons.clubhouse.integration.util.RequestModels.clubRegistrationRequest;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.loginRequest;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.userWithChildrenRegistrationRequest;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +32,7 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import nu.borjessons.clubhouse.config.TestConfiguration;
+import nu.borjessons.clubhouse.controller.model.request.UpdateUserModel;
 
 @SpringBootTest(webEnvironment =WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.Alphanumeric.class)
@@ -37,6 +40,7 @@ import nu.borjessons.clubhouse.config.TestConfiguration;
 class UserEndpointTests {
 	
 	private static String clubId;
+	private static String userId;
 	private static String adminAuthToken;
 	private static String userAuthToken;
 	private static String adminUserId;
@@ -71,7 +75,7 @@ class UserEndpointTests {
 	}
 	
 	@Test
-	void ba_registerUserWithChildren() {
+	void ab_registerUserWithChildren() {
 		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
 				.body(userWithChildrenRegistrationRequest(clubId, NORMAL_USER_USERNAME, NORMAL_USER1_NAME, new ArrayList<>(Arrays.asList(CHILD_1_NAME, CHILD_2_NAME))))
@@ -96,7 +100,7 @@ class UserEndpointTests {
 	}
 	
 	@Test
-	void ca_loginAdminUser() {
+	void ba_loginAdminUser() {
 		Response loginResponse = given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
 				.body(loginRequest(ADMIN_USER_USERNAME))
@@ -112,7 +116,7 @@ class UserEndpointTests {
 	}
 	
 	@Test
-	void da_loginUser() {
+	void bb_loginUser() {
 		Response loginResponse = given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
 				.body(loginRequest(NORMAL_USER_USERNAME))
@@ -125,6 +129,92 @@ class UserEndpointTests {
 
 		userAuthToken = loginResponse.getHeader("Authorization");
 		assertNotNull(userAuthToken);
+	}
+	
+	@Test
+	void bc_userGetsPrincipal() {
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", userAuthToken)
+				.when()
+				.get("/users/principal")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+
+		userId = response.jsonPath().getString("userId");
+		String email = response.jsonPath().getString("email");
+		String firstName = response.jsonPath().getString("firstName");
+		String lastName = response.jsonPath().getString("lastName");
+		List<String> childrenIds  = response.jsonPath().getList("childrenIds", String.class);
+		assertNotNull(userId);
+		assertNotNull(email);
+		assertEquals(NORMAL_USER_USERNAME, email);
+		assertEquals(NORMAL_USER1_NAME[0], firstName);
+		assertEquals(NORMAL_USER1_NAME[1], lastName);
+		assertEquals(2, childrenIds.size());
+	}
+	
+	@Test
+	void ca_userEditsHimself() {
+		
+		UpdateUserModel updateUserModel = new UpdateUserModel();
+		updateUserModel.setFirstName("Ronny");
+		updateUserModel.setLastName("Rolig");
+		updateUserModel.setDateOfBirth("2000-01-01");
+		
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", userAuthToken)
+				.body(updateUserModel)
+				.when()
+				.put("/users/principal")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+		
+		String id = response.jsonPath().getString("userId");
+		String firstName = response.jsonPath().getString("firstName");
+		String lastName  = response.jsonPath().getString("lastName");
+		String dateOfBirth  = response.jsonPath().getString("dateOfBirth");
+		
+		assertEquals(userId, id);
+		assertEquals(updateUserModel.getFirstName(), firstName);
+		assertEquals(updateUserModel.getLastName(), lastName);
+		assertEquals(updateUserModel.getDateOfBirth(), dateOfBirth);
+	}
+	
+	@Test
+	void cb_adminEditsUser() {
+		
+		UpdateUserModel updateUserModel = new UpdateUserModel();
+		updateUserModel.setFirstName("User");
+		updateUserModel.setLastName("Coolson");
+		updateUserModel.setDateOfBirth("1999-12-31");
+		
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", adminAuthToken)
+				.pathParam("userId", userId)
+				.body(updateUserModel)
+				.when()
+				.put("/users/{userId}")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+		
+		String id = response.jsonPath().getString("userId");
+		String firstName = response.jsonPath().getString("firstName");
+		String lastName  = response.jsonPath().getString("lastName");
+		String dateOfBirth  = response.jsonPath().getString("dateOfBirth");
+		
+		assertEquals(userId, id);
+		assertEquals(updateUserModel.getFirstName(), firstName);
+		assertEquals(updateUserModel.getLastName(), lastName);
+		assertEquals(updateUserModel.getDateOfBirth(), dateOfBirth);
 	}
 
 }

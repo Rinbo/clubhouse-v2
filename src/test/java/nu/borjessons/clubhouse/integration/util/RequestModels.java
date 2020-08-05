@@ -94,5 +94,13 @@ public class RequestModels {
 
 		return userRequestModel;
 	}
+	
+	public static Map<String, Object> updateUserModel(String username, String password) {
+		Map<String, Object> updateUserModel = new HashMap<>();
+		updateUserModel.put("username", username);
+		updateUserModel.put("password", password);
+
+		return updateUserModel;
+	}
 
 }

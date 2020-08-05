@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.controller.model.request;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +42,7 @@ public class CreateUserModel implements Serializable {
 	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private String dateOfBirth;
 	
-	private List<AddressModel> addresses;
+	private List<AddressModel> addresses = new ArrayList<>();
 	
 	@NotNull(message= "A user cannot be created without an organization")
 	private String clubId;

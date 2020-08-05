@@ -1,7 +1,6 @@
 package nu.borjessons.clubhouse.util;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -66,7 +65,6 @@ public class ClubhouseMappers {
 	}
 
 	public List<Address> addressModelToAddress(List<AddressModel> addressModels) {
-		if (addressModels == null) return new ArrayList<>();
 		return addressModels.stream().map(this::addressOf).collect(Collectors.toList());
 	}
 	

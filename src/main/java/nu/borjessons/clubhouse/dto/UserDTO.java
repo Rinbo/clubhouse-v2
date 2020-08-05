@@ -18,6 +18,7 @@ public class UserDTO implements Serializable {
 	private String userId;
 	private String firstName;
 	private String lastName;
+	private String dateOfBirth;
 	private Set<String> childrenIds = new HashSet<>();
 	private Set<String> parentIds = new HashSet<>();
 	private Set<String> roles = new HashSet<>();
@@ -29,6 +30,7 @@ public class UserDTO implements Serializable {
 		userId = user.getUserId();
 		firstName = user.getFirstName();
 		lastName = user.getLastName();
+		dateOfBirth = user.getDateOfBirth().toString();
 		roles = user.getRolesForClub(clubId);
 		childrenIds = user.getChildren().stream().map(User::getUserId).collect(Collectors.toSet());
 		parentIds = user.getParents().stream().map(User::getUserId).collect(Collectors.toSet());
