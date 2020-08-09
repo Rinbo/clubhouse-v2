@@ -1,8 +1,13 @@
 package nu.borjessons.clubhouse.controller;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +46,13 @@ public class UserController extends ClubhouseAbstractService {
 		return userService.updateUser(user, user.getActiveClub().getClubId(), userDetails);
 	}
 	
+	@PreAuthorize("hasRole('USER')")
+	@DeleteMapping("/principal")
+	public void deleteSelf() {
+		User user = getPrincipal();
+		userService.deleteUser(user);
+	}
+	
 	/*
 	 * Administrator routes
 	 */
@@ -57,6 +69,15 @@ public class UserController extends ClubhouseAbstractService {
 	public UserDTO updateUser(@PathVariable String userId, @RequestBody UpdateUserModel userDetails) {
 		Club club = getPrincipal().getActiveClub();
 		return userService.updateUser(club.getUser(userId), club.getClubId(), userDetails);
+	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@PostMapping("/children/{userId}")
+	public UserDTO updateUserChildren(@PathVariable String userId, @RequestBody Set<String> childrenIds) {
+		Club club = getPrincipal().getActiveClub();
+		User parent = club.getUser(userId);
+		Set<User> children = childrenIds.stream().map(club::getUser).collect(Collectors.toSet());
+		return userService.updateUserChildren(parent, children, club);
 	}
 	
 	

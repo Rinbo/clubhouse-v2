@@ -40,14 +40,14 @@ public class RegistrationController extends ClubhouseAbstractService {
 	}
 	
 	@PreAuthorize("hasRole('USER')")
-	@PostMapping("register/principal/add-children")
+	@PostMapping("register/principal/children")
 	public UserDTO selfRegisterChildren(@Valid @RequestBody Set<CreateChildRequestModel> childModels) {
 		User principal = getPrincipal();
 		return registrationService.registerChildren(principal, principal.getActiveClub().getClubId(), childModels);
 	}
 	
 	@PreAuthorize("hasRole('ADMIN')")
-	@PostMapping("register/add-children/{parentId}")
+	@PostMapping("register/children/{parentId}")
 	public UserDTO registerChildren(@PathVariable String parentId, @Valid @RequestBody Set<CreateChildRequestModel> childModels) {
 		Club club = getPrincipal().getActiveClub();
 		User parent = club.getUser(parentId);

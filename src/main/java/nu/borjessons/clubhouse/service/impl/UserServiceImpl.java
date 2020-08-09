@@ -2,17 +2,22 @@ package nu.borjessons.clubhouse.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.controller.model.request.UpdateUserModel;
 import nu.borjessons.clubhouse.data.Address;
 import nu.borjessons.clubhouse.data.Club;
+import nu.borjessons.clubhouse.data.ClubRole;
 import nu.borjessons.clubhouse.data.ClubRole.Role;
 import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.UserDTO;
@@ -81,9 +86,50 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 	}
 
 	@Override
+	@Transactional
 	public void deleteUser(User user) {
-		// TODO Auto-generated method stub
-		
+		Set<User> children = user.getChildren();
+		children.stream().forEach(child -> {
+			child.removeParent(user);
+			if (child.getParents().isEmpty()) {
+				userRepository.delete(child);
+			} else {
+				userRepository.save(child);
+			}
+		});
+		userRepository.delete(user);
 	}
 
+	@Override
+	@Transactional
+	public UserDTO updateUserChildren(User parent, Set<User> children, Club club) {
+		String clubId = club.getClubId();
+		Set<User> removedChildren = parent.getChildrenInClub(clubId); 
+		removedChildren.forEach(child -> child.removeParent(parent));
+		
+		children.forEach(child -> child.addParent(parent));
+		children.addAll(removedChildren);
+		List<User> savedChildren = userRepository.saveAll(children);
+		
+		savedChildren.forEach(child -> {
+			if (child.getParents().isEmpty()) userRepository.delete(child);
+		});
+		
+		if (!parent.getChildren().isEmpty()) {
+			ClubRole clubRole = new ClubRole(Role.PARENT, parent, club);
+			parent.addClubRole(clubRole);
+			club.addClubRole(clubRole);
+		} else {
+			parent
+				.getRoles()
+				.stream()
+				.filter(clubRole -> clubRole.getClub().equals(club) && clubRole.getRole().equals(Role.PARENT))
+				.collect(Collectors.toSet())
+				.forEach(ClubRole::doOrphan);
+		}
+		
+		User savedParent = userRepository.save(parent);
+		
+		return new UserDTO(savedParent, clubId);
+	}
 }

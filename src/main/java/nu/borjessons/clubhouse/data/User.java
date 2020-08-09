@@ -20,8 +20,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -74,11 +72,9 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	private LocalDateTime lastLoginTime;
 	
 	@ManyToMany(fetch = FetchType.EAGER)
-	@Fetch(value = FetchMode.SUBSELECT)
 	private Set<User> parents = new HashSet<>();
 	
-	@ManyToMany(mappedBy = "parents", fetch = FetchType.EAGER)
-	@Fetch(value = FetchMode.SUBSELECT)
+	@ManyToMany(mappedBy = "parents", fetch = FetchType.EAGER) //Orphan removal?
 	private Set<User> children = new HashSet<>();
 	
 	public Set<String> getActiveRoles() {
@@ -93,6 +89,10 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 				.map(clubRole -> clubRole.getRole().name()).collect(Collectors.toSet());
 	}
 	
+	public Set<Club> getClubs() {
+		return roles.stream().map(ClubRole::getClub).collect(Collectors.toSet());
+	}
+	
 	public void addClubRole(ClubRole clubRole) {
 		roles.add(clubRole);
 		clubRole.setUser(this);
@@ -100,7 +100,6 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	
 	public void removeClubRole(ClubRole clubRole) {
 		roles.remove(clubRole);
-		clubRole.setUser(null);
 	}
 	
 	public void addAddress(Address address) {
@@ -125,10 +124,22 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	
 	public void addChild(User child) {
 		children.add(child);
+		child.parents.add(this);
 	}
 	
 	public void removeChild(User child) {
-		children.add(child);
+		children.remove(child);
+		child.parents.remove(this);
+	}
+	
+	public Set<User> getChildrenInClub(String clubId) {
+		return children.stream().filter(child -> {
+			Set<Club> clubs = child.getClubs();
+			for (Club club : clubs) {
+				if (club.getClubId().equals(clubId)) return true;
+			}
+			return false;
+		}).collect(Collectors.toSet());
 	}
 	
 	public Set<Address> getAddresses() {

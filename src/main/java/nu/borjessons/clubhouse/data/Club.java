@@ -67,7 +67,6 @@ public class Club extends BaseEntity  implements Serializable {
 	
 	public void removeClubRole(ClubRole clubRole) {
 		this.clubRoles.remove(clubRole);
-		clubRole.setClub(null);
 	}
 
 	@Override

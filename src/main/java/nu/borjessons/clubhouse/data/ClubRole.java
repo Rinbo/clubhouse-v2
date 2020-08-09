@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
+@Getter @Setter
 @Entity
 @Table(name = "club_role")
 public class ClubRole  extends BaseEntity implements Serializable, GrantedAuthority {
@@ -34,19 +35,32 @@ public class ClubRole  extends BaseEntity implements Serializable, GrantedAuthor
 		this.role = role;
 	}
 	
+	public ClubRole(Role role, User user, Club club) {
+		this.role = role;
+		this.user = user;
+		this.club = club;
+	}
+	
 	@Id
 	@GeneratedValue
-	@Getter @Setter private long id;
+	private long id;
 	
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	@Getter @Setter private Role role;
+	private Role role;
 	
 	@ManyToOne
-	@Getter @Setter private User user;
+	private User user;
 	
 	@ManyToOne
-	@Getter @Setter private Club club;
+	private Club club;
+	
+	public void doOrphan() {
+		user.removeClubRole(this);
+		club.removeClubRole(this);
+		user = null;
+		club = null;
+	}
 
 	@Override
 	public String getAuthority() {

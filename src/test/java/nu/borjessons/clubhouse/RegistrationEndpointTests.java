@@ -256,7 +256,7 @@ class RegistrationEndpointTests {
 				.header("Authorization", userAuthToken)
 				.body(childModels)
 				.when()
-				.post("/register/principal/add-children")
+				.post("/register/principal/children")
 				.then()
 				.statusCode(200)
 				.extract()
