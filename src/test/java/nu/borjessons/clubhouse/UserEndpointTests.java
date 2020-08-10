@@ -6,18 +6,22 @@ import static nu.borjessons.clubhouse.integration.util.RequestModels.ADMIN_USER_
 import static nu.borjessons.clubhouse.integration.util.RequestModels.CHILD_1_NAME;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.CHILD_2_NAME;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.CLUB_1;
+import static nu.borjessons.clubhouse.integration.util.RequestModels.GENERIC_PASSWORD;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.NORMAL_USER1_NAME;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.NORMAL_USER_USERNAME;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.clubRegistrationRequest;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.loginRequest;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.userWithChildrenRegistrationRequest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -32,6 +36,7 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import nu.borjessons.clubhouse.config.TestConfiguration;
+import nu.borjessons.clubhouse.controller.model.request.CreateUserModel;
 import nu.borjessons.clubhouse.controller.model.request.UpdateUserModel;
 
 @SpringBootTest(webEnvironment =WebEnvironment.RANDOM_PORT)
@@ -45,6 +50,9 @@ class UserEndpointTests {
 	private static String userAuthToken;
 	private static String adminUserId;
 	private static String normalUserId;
+	private static String parent2UserId;
+	private static List<String> childrenIds;
+	
 	
 	@LocalServerPort
 	private int port;
@@ -89,7 +97,7 @@ class UserEndpointTests {
 
 		String email = response.jsonPath().getString("email");
 		List<String> roles = response.jsonPath().getList("roles", String.class);
-		List<String> childrenIds  = response.jsonPath().getList("childrenIds", String.class);
+		childrenIds  = response.jsonPath().getList("childrenIds", String.class);
 		normalUserId = response.jsonPath().getString("userId");
 		assertNotNull(normalUserId);
 		assertTrue(roles.contains("PARENT"));
@@ -147,13 +155,13 @@ class UserEndpointTests {
 		String email = response.jsonPath().getString("email");
 		String firstName = response.jsonPath().getString("firstName");
 		String lastName = response.jsonPath().getString("lastName");
-		List<String> childrenIds  = response.jsonPath().getList("childrenIds", String.class);
+		List<String> childrenList  = response.jsonPath().getList("childrenIds", String.class);
 		assertNotNull(userId);
 		assertNotNull(email);
 		assertEquals(NORMAL_USER_USERNAME, email);
 		assertEquals(NORMAL_USER1_NAME[0], firstName);
 		assertEquals(NORMAL_USER1_NAME[1], lastName);
-		assertEquals(2, childrenIds.size());
+		assertEquals(2, childrenList.size());
 	}
 	
 	@Test
@@ -216,5 +224,134 @@ class UserEndpointTests {
 		assertEquals(updateUserModel.getLastName(), lastName);
 		assertEquals(updateUserModel.getDateOfBirth(), dateOfBirth);
 	}
+	
+	@Test
+	void da_registerAnotherUser() {
+		CreateUserModel userModel = new CreateUserModel();
+		userModel.setFirstName("Parent2");
+		userModel.setLastName("Lastname");
+		userModel.setClubId(clubId);
+		userModel.setDateOfBirth("1984-04-04");
+		userModel.setEmail("parent2@ex.com");
+		userModel.setPassword(GENERIC_PASSWORD);
+		
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.body(userModel)
+				.when()
+				.post("/register/user")
+				.then()
+				.statusCode(200)
+				.contentType(TestConfiguration.APPLICATION_JSON)
+				.extract()
+				.response();
 
+		parent2UserId = response.jsonPath().getString("userId");
+		assertNotNull(parent2UserId);
+	}
+	
+	@Test
+	void db_adminAddsChildrenToUser2() {
+		
+		Set<String> childrenSet = new HashSet<>(childrenIds);
+		
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", adminAuthToken)
+				.pathParam("userId", parent2UserId)
+				.body(childrenSet)
+				.when()
+				.post("/users/children/{userId}")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+		
+		String id = response.jsonPath().getString("userId");
+		List<String> childrenList = response.jsonPath().getList("childrenIds");
+		List<String> roles = response.jsonPath().getList("roles");
+		
+		assertEquals(parent2UserId, id);
+		assertEquals(childrenIds, childrenList);
+		assertTrue(roles.contains("PARENT"));
+	}
+	
+	@Test
+	void db_adminRemovesChildrenFromUser2() {
+		
+		Set<String> childrenSet = new HashSet<>();
+		
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", adminAuthToken)
+				.pathParam("userId", parent2UserId)
+				.body(childrenSet)
+				.when()
+				.post("/users/children/{userId}")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+		
+		String id = response.jsonPath().getString("userId");
+		List<String> childrenList = response.jsonPath().getList("childrenIds");
+		List<String> roles = response.jsonPath().getList("roles");
+		
+		assertEquals(parent2UserId, id);
+		assertEquals(0, childrenList.size());
+		assertFalse(roles.contains("PARENT"));
+	}
+	
+	@Test
+	void dc_adminAssertsChildrenAreStillPresent() {
+		String childId = childrenIds.get(0);
+		
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", adminAuthToken)
+				.when()
+				.pathParam("childId", childId)
+				.get("/users/{childId}")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+
+		String userId = response.jsonPath().getString("userId");
+		
+		assertNotNull(userId);
+		assertEquals(childId, userId);
+	}
+	
+	@Test
+	void ea_200WhenfirstUserDeletesHimself() {
+		given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", userAuthToken)
+				.when()
+				.delete("/users/principal")
+				.then()
+				.statusCode(200);
+	}
+	
+	@Test
+	void eb_adminValidatesOrphanedChildrenAreAlsoDeleted() {
+		
+		String childId = childrenIds.get(0);
+		
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", adminAuthToken)
+				.when()
+				.pathParam("childId", childId)
+				.get("/users/{childId}")
+				.then()
+				.statusCode(404)
+				.extract()
+				.response();
+		
+		String errorResponse = response.jsonPath().getString("message");
+		
+		assertEquals(String.format("User with id %s is not present in club with id %s", childId, clubId), errorResponse);
+	}
 }

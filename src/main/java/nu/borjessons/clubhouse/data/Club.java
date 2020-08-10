@@ -14,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -57,7 +59,7 @@ public class Club extends BaseEntity  implements Serializable {
 	public User getUser(String userId) {
 		Optional<ClubRole> maybeClubRole =  clubRoles.stream().filter(clubRole -> clubRole.getUser().getUserId().equals(userId)).findFirst();
 		if (maybeClubRole.isPresent()) return maybeClubRole.get().getUser();
-		throw new IllegalArgumentException(String.format("User with id %s is not present in club with id %s", userId, clubId));
+		throw new UsernameNotFoundException(String.format("User with id %s is not present in club with id %s", userId, clubId));
 	}
 	
 	public void addClubRole(ClubRole clubRole) {

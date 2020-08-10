@@ -2,7 +2,6 @@ package nu.borjessons.clubhouse.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -89,6 +88,7 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 	@Transactional
 	public void deleteUser(User user) {
 		Set<User> children = user.getChildren();
+		user.setChildren(new HashSet<>());
 		children.stream().forEach(child -> {
 			child.removeParent(user);
 			if (child.getParents().isEmpty()) {

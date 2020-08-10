@@ -237,7 +237,7 @@ class RegistrationEndpointTests {
 	}
 	
 	@Test
-	void ea_userRegistersAnotherChild() {
+	void ea_userRegistersMoreChildren() {
 		
 		Set<CreateChildRequestModel> childModels = new HashSet<>();
 		CreateChildRequestModel childModel1 = new CreateChildRequestModel();

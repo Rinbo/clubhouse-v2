@@ -10,12 +10,13 @@ import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import lombok.AccessLevel;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
+@Setter
+@NoArgsConstructor
 public class CreateUserModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -42,7 +43,7 @@ public class CreateUserModel implements Serializable {
 	
 	private Set<AddressModel> addresses = new HashSet<>();
 	
-	@NotNull(message= "A user cannot be created without an organization")
+	@NotNull(message= "A user cannot be created without a club")
 	private String clubId;
 	
 	private Set<CreateChildRequestModel> children = new HashSet<>();
