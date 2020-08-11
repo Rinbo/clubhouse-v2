@@ -20,7 +20,7 @@ public interface UserService extends UserDetailsService {
 	
 	UserDTO updateUserRoles(User user, String clubId, Set<Role> roles);
 
-	void removeUser(User user, Club club);
+	void removeUserFromClub(User user, Club club);
 	
 	void deleteUser(User user);
 

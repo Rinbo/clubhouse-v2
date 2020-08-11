@@ -41,7 +41,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
 		Club savedClub = clubRepository.save(club);
 		
-		user.setActiveClub(savedClub);
+		user.setActiveClubId(savedClub.getClubId());
 		addresses.stream().forEach(user::addAddress);
 		
 		Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER, Role.OWNER, Role.ADMIN));
@@ -62,7 +62,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 		
 		Set<CreateChildRequestModel> children = userDetails.getChildren();
 		Club club = clubService.getClubByClubId(userDetails.getClubId());
-		user.setActiveClub(club);
+		user.setActiveClubId(club.getClubId());
 		
 		Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER));
 		

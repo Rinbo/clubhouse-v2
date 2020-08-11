@@ -50,7 +50,7 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 	@Override
 	public void updateUserLoginTime(String email) {
 		Optional<User> maybeUser = userRepository.findByEmail(email);
-		User user = getOrThrow(maybeUser, email);
+		User user = getOrThrowUNFE(maybeUser, email);
 		user.setLastLoginTime(LocalDateTime.now());
 		userRepository.save(user);
 	}
@@ -79,8 +79,17 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 	}
 
 	@Override
-	public void removeUser(User user, Club club) {
+	@Transactional
+	public void removeUserFromClub(User user, Club club) {
 		// TODO Auto-generated method stub
+		// An admin can remove a user
+		// A user can leave a club. Should be the same functionality
+		// Also must remove all children in this club if there are no other parents
+		
+		Set<ClubRole> clubRolesForRemoval = user.getRoles().stream().filter(clubRole -> clubRole.getClub().equals(club)).collect(Collectors.toSet());
+		clubRolesForRemoval.stream().forEach(ClubRole::doOrphan);
+		
+		userRepository.save(user);
 		
 	}
 

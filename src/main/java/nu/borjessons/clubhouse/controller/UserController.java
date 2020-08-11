@@ -36,14 +36,14 @@ public class UserController extends ClubhouseAbstractService {
 	@GetMapping("/principal")
 	public UserDTO getSelf() {
 		User user = getPrincipal();
-		return new UserDTO(user, user.getActiveClub().getClubId());
+		return new UserDTO(user, user.getActiveClubId());
 	}
 	
 	@PreAuthorize("hasRole('USER')")
 	@PutMapping("/principal")
 	public UserDTO updateSelf(@RequestBody UpdateUserModel userDetails) {
 		User user = getPrincipal();
-		return userService.updateUser(user, user.getActiveClub().getClubId(), userDetails);
+		return userService.updateUser(user, user.getActiveClubId(), userDetails);
 	}
 	
 	@PreAuthorize("hasRole('USER')")
@@ -78,6 +78,14 @@ public class UserController extends ClubhouseAbstractService {
 		User parent = club.getUser(userId);
 		Set<User> children = childrenIds.stream().map(club::getUser).collect(Collectors.toSet());
 		return userService.updateUserChildren(parent, children, club);
+	}
+	
+	@PreAuthorize("hasRole('ADMIN')")
+	@PutMapping("/remove/{userId}")
+	public void removeUserFromClub(@PathVariable String userId, @RequestBody Set<String> childrenIds) {
+		Club club = getPrincipal().getActiveClub();
+		User user = club.getUser(userId);
+		userService.removeUserFromClub(user, club);
 	}
 	
 	

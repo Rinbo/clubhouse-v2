@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -17,7 +18,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -58,8 +58,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	private Set<ClubRole> roles = new HashSet<>();
 	
-	@OneToOne
-	private Club activeClub;
+	private String activeClubId;
 	
 	@Column(nullable = false)
 	private LocalDate dateOfBirth;
@@ -79,7 +78,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	
 	public Set<String> getActiveRoles() {
 		return roles.stream()
-				.filter(clubRole -> clubRole.getClub().getId() == activeClub.getId())
+				.filter(clubRole -> clubRole.getClub().getClubId().equals(activeClubId))
 				.map(clubRole -> clubRole.getRole().name()).collect(Collectors.toSet());
 	}
 	
@@ -149,11 +148,12 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return roles.stream().filter(clubRole -> clubRole.getClub().getId() == activeClub.getId()).collect(Collectors.toSet());
+		return roles.stream().filter(clubRole -> clubRole.getClub().getClubId().equals(activeClubId)).collect(Collectors.toSet());
 	}
 	
 	public Club getActiveClub() {
-		if (activeClub != null) return activeClub;
+		Optional<ClubRole> maybeClubRole = roles.stream().filter(clubRole -> clubRole.getClub().getClubId().equals(activeClubId)).findFirst();
+		if (maybeClubRole.isPresent()) return maybeClubRole.get().getClub();
 		throw new IllegalStateException(String.format("User with id %s does not have an active club set", userId));
 	}
 
