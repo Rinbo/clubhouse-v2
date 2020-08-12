@@ -68,9 +68,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 		
 		children.stream().forEach(childModel -> {
 			User child = clubhouseMappers.childCreationModelToUser(childModel);
-			Set<ClubRole> childRoles = clubhouseMappers.rolesToClubRoles(new HashSet<>(Arrays.asList(Role.CHILD)));
 			child.addParent(user);
-			clubhouseMappers.mapClubRoles(childRoles, child, club);
 			userRepository.save(child);
 			roles.add(Role.PARENT);
 		});
@@ -94,14 +92,12 @@ public class RegistrationServiceImpl implements RegistrationService {
 		return new UserDTO(userRepository.save(parent), clubId);
 	}
 
-	private void saveChildren(User parent, Set<CreateChildRequestModel> childModels, Club club, Set<Role> roles) {
+	private void saveChildren(User parent, Set<CreateChildRequestModel> childModels, Club club, Set<Role> parentRoles) {
 		childModels.stream().forEach(childModel -> {
 			User child = clubhouseMappers.childCreationModelToUser(childModel);
-			Set<ClubRole> childRoles = clubhouseMappers.rolesToClubRoles(new HashSet<>(Arrays.asList(Role.CHILD)));
 			child.addParent(parent);
-			clubhouseMappers.mapClubRoles(childRoles, child, club);
 			userRepository.save(child);
-			roles.add(Role.PARENT);
+			parentRoles.add(Role.PARENT);
 		});
 	}
 }

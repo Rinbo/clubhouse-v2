@@ -81,11 +81,7 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 	@Override
 	@Transactional
 	public void removeUserFromClub(User user, Club club) {
-		// An admin can remove a user
-		// A user can leave a club. Should be the same functionality
-		// Also must remove all children in this club if there are no other parents
-		// Might need to check if the other parent is also part of this club. If not they should be removed anyways. 
-		
+		// Naturally this method needs to be augmented with removing all traces of this user and children if there are no other active parents in this club
 		Set<ClubRole> clubRolesForRemoval = user.getRoles().stream().filter(clubRole -> clubRole.getClub().equals(club)).collect(Collectors.toSet());
 		clubRolesForRemoval.stream().forEach(ClubRole::doOrphan);
 		
@@ -108,12 +104,13 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 		});
 		userRepository.delete(user);
 	}
-
+	
 	@Override
 	@Transactional
 	public UserDTO updateUserChildren(User parent, Set<User> children, Club club) {
-		String clubId = club.getClubId();
-		Set<User> removedChildren = parent.getChildrenInClub(clubId); 
+		
+		Set<User> removedChildren = parent.getChildren();
+		parent.setChildren(new HashSet<>());
 		removedChildren.forEach(child -> child.removeParent(parent));
 		
 		children.forEach(child -> child.addParent(parent));
@@ -139,6 +136,6 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 		
 		User savedParent = userRepository.save(parent);
 		
-		return new UserDTO(savedParent, clubId);
+		return new UserDTO(savedParent, club.getClubId());
 	}
 }

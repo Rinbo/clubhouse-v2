@@ -66,7 +66,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	private Set<Address> addresses = new HashSet<>();
 	
-	private boolean showAddress;
+	private boolean managedAccount;
 	
 	private LocalDateTime lastLoginTime;
 	
@@ -130,17 +130,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 		children.remove(child);
 		child.parents.remove(this);
 	}
-	
-	public Set<User> getChildrenInClub(String clubId) {
-		return children.stream().filter(child -> {
-			Set<Club> clubs = child.getClubs();
-			for (Club club : clubs) {
-				if (club.getClubId().equals(clubId)) return true;
-			}
-			return false;
-		}).collect(Collectors.toSet());
-	}
-	
+		
 	public Set<Address> getAddresses() {
 		if (getActiveRoles().contains(Role.CHILD.name())) return parents.stream().map(User::getAddresses).flatMap(Set::stream).collect(Collectors.toSet());
 		return addresses;

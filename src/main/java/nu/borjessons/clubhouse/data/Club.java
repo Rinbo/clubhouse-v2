@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -59,7 +60,17 @@ public class Club extends BaseEntity  implements Serializable {
 	public User getUser(String userId) {
 		Optional<ClubRole> maybeClubRole =  clubRoles.stream().filter(clubRole -> clubRole.getUser().getUserId().equals(userId)).findFirst();
 		if (maybeClubRole.isPresent()) return maybeClubRole.get().getUser();
+		Optional<User> maybeManagedUser =  getManagedUsers().stream().filter(managedUser -> managedUser.getUserId().equals(userId)).findFirst();
+		if (maybeManagedUser.isPresent()) return maybeManagedUser.get();
 		throw new UsernameNotFoundException(String.format("User with id %s is not present in club with id %s", userId, clubId));
+	}
+	
+	public Set<User> getUsers() {
+		return clubRoles.stream().map(ClubRole::getUser).collect(Collectors.toSet());
+	}
+	
+	public Set<User> getManagedUsers() {
+		return getUsers().stream().map(User::getChildren).flatMap(Set::stream).collect(Collectors.toSet());
 	}
 	
 	public void addClubRole(ClubRole clubRole) {

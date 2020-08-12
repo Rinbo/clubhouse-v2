@@ -60,6 +60,7 @@ public class ClubhouseMappers {
 		child.setEmail(childIdentifier + EMAIL_EXTENTION);
 		child.setEncryptedPassword(bcryptPasswordEncoder.encode(UUID.randomUUID().toString()));
 		child.setDateOfBirth(LocalDate.parse(childModel.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
+		child.setManagedAccount(true);
 		return child;
 	}
 

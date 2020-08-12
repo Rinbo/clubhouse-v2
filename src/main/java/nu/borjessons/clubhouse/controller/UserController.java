@@ -76,8 +76,9 @@ public class UserController extends ClubhouseAbstractService {
 	public UserDTO updateUserChildren(@PathVariable String userId, @RequestBody Set<String> childrenIds) {
 		Club club = getPrincipal().getActiveClub();
 		User parent = club.getUser(userId);
-		Set<User> children = childrenIds.stream().map(club::getUser).collect(Collectors.toSet());
-		return userService.updateUserChildren(parent, children, club);
+		Set<User> clubChildren = club.getManagedUsers();
+		Set<User> validatedChildren = clubChildren.stream().filter(child -> childrenIds.contains(child.getUserId())).collect(Collectors.toSet());
+		return userService.updateUserChildren(parent, validatedChildren, club);
 	}
 	
 	@PreAuthorize("hasRole('ADMIN')")
