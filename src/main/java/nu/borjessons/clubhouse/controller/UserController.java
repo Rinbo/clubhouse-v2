@@ -82,7 +82,7 @@ public class UserController extends ClubhouseAbstractService {
 	
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/remove/{userId}")
-	public void removeUserFromClub(@PathVariable String userId, @RequestBody Set<String> childrenIds) {
+	public void removeUserFromClub(@PathVariable String userId) {
 		Club club = getPrincipal().getActiveClub();
 		User user = club.getUser(userId);
 		userService.removeUserFromClub(user, club);

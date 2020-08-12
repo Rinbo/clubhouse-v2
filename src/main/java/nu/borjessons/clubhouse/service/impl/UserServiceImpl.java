@@ -81,10 +81,10 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 	@Override
 	@Transactional
 	public void removeUserFromClub(User user, Club club) {
-		// TODO Auto-generated method stub
 		// An admin can remove a user
 		// A user can leave a club. Should be the same functionality
 		// Also must remove all children in this club if there are no other parents
+		// Might need to check if the other parent is also part of this club. If not they should be removed anyways. 
 		
 		Set<ClubRole> clubRolesForRemoval = user.getRoles().stream().filter(clubRole -> clubRole.getClub().equals(club)).collect(Collectors.toSet());
 		clubRolesForRemoval.stream().forEach(ClubRole::doOrphan);
