@@ -19,7 +19,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 
 @Getter @Setter
@@ -32,7 +31,7 @@ public class Club extends BaseEntity  implements Serializable {
 	
 	private static final long serialVersionUID = 799039294739280410L;
 	
-	public Club(@NonNull String name, @NonNull Type type) {
+	public Club(String name, Type type) {
 		this.name = name;
 		this.path = name.toLowerCase().replace(" ", "-");
 		this.type = type;
@@ -43,7 +42,7 @@ public class Club extends BaseEntity  implements Serializable {
 	private long id;
 	
 	@Column(nullable=false, unique = true)
-	private String clubId = UUID.randomUUID().toString();
+	private final String clubId = UUID.randomUUID().toString();
 	
 	@Column(nullable = false, length = 120, unique = true)
 	private String name;
@@ -58,8 +57,8 @@ public class Club extends BaseEntity  implements Serializable {
 	private Set<ClubRole> clubRoles = new HashSet<>();
 	
 	public User getUser(String userId) {
-		Optional<ClubRole> maybeClubRole =  clubRoles.stream().filter(clubRole -> clubRole.getUser().getUserId().equals(userId)).findFirst();
-		if (maybeClubRole.isPresent()) return maybeClubRole.get().getUser();
+		Optional<User> maybeUser =  getUsers().stream().filter(user -> user.getUserId().equals(userId)).findFirst();
+		if (maybeUser.isPresent()) return maybeUser.get();
 		Optional<User> maybeManagedUser =  getManagedUsers().stream().filter(managedUser -> managedUser.getUserId().equals(userId)).findFirst();
 		if (maybeManagedUser.isPresent()) return maybeManagedUser.get();
 		throw new UsernameNotFoundException(String.format("User with id %s is not present in club with id %s", userId, clubId));
@@ -75,7 +74,6 @@ public class Club extends BaseEntity  implements Serializable {
 	
 	public void addClubRole(ClubRole clubRole) {
 		this.clubRoles.add(clubRole);
-		clubRole.setClub(this);
 	}
 	
 	public void removeClubRole(ClubRole clubRole) {

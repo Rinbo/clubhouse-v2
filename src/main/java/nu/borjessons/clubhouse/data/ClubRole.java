@@ -1,6 +1,8 @@
 package nu.borjessons.clubhouse.data;
 
 import java.io.Serializable;
+import java.util.Objects;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,12 +15,12 @@ import javax.persistence.Table;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
-@Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "club_role")
 public class ClubRole  extends BaseEntity implements Serializable, GrantedAuthority {
@@ -31,29 +33,44 @@ public class ClubRole  extends BaseEntity implements Serializable, GrantedAuthor
 		ADMIN, USER, SYSTEM_ADMIN, OWNER, PARENT, CHILD
 	}
 	
-	public ClubRole(Role role) {
-		this.role = role;
-	}
-	
 	public ClubRole(Role role, User user, Club club) {
 		this.role = role;
-		this.user = user;
-		this.club = club;
+		setUser(Objects.requireNonNull(user));
+		setClub(Objects.requireNonNull(club));
 	}
 	
 	@Id
 	@GeneratedValue
+	@Getter @Setter
 	private long id;
+	
+	@Column(nullable = false, unique = true)
+	@Getter
+	private final String clubRoleId = UUID.randomUUID().toString();
 	
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
+	@Getter
 	private Role role;
 	
 	@ManyToOne
+	@Getter
 	private User user;
 	
 	@ManyToOne
+	@Getter
 	private Club club;
+	
+	private void setUser(User user) {
+		this.user = user;
+		user.addClubRole(this);
+	}
+	
+	private void setClub(Club club) {
+		this.club = club;
+		club.addClubRole(this);
+	}
+	
 	
 	public void doOrphan() {
 		user.removeClubRole(this);
@@ -71,9 +88,7 @@ public class ClubRole  extends BaseEntity implements Serializable, GrantedAuthor
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((club == null) ? 0 : club.hashCode());
-		result = prime * result + ((role == null) ? 0 : role.hashCode());
-		result = prime * result + ((user == null) ? 0 : user.hashCode());
+		result = prime * result + ((clubRoleId == null) ? 0 : clubRoleId.hashCode());
 		return result;
 	}
 
@@ -86,17 +101,10 @@ public class ClubRole  extends BaseEntity implements Serializable, GrantedAuthor
 		if (getClass() != obj.getClass())
 			return false;
 		ClubRole other = (ClubRole) obj;
-		if (club == null) {
-			if (other.club != null)
+		if (clubRoleId == null) {
+			if (other.clubRoleId != null)
 				return false;
-		} else if (!club.equals(other.club))
-			return false;
-		if (role != other.role)
-			return false;
-		if (user == null) {
-			if (other.user != null)
-				return false;
-		} else if (!user.equals(other.user))
+		} else if (!clubRoleId.equals(other.clubRoleId))
 			return false;
 		return true;
 	}

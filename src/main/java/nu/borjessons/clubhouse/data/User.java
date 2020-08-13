@@ -41,7 +41,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	private long id;
 	
 	@Column(nullable = false, unique = true)
-	private String userId = UUID.randomUUID().toString();
+	private final String userId = UUID.randomUUID().toString();
 	
 	@Column(nullable = false, length = 120, unique = true)
 	private String email;
@@ -94,7 +94,6 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	
 	public void addClubRole(ClubRole clubRole) {
 		roles.add(clubRole);
-		clubRole.setUser(this);
 	}
 	
 	public void removeClubRole(ClubRole clubRole) {

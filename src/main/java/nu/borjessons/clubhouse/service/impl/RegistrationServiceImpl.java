@@ -13,7 +13,6 @@ import nu.borjessons.clubhouse.controller.model.request.CreateClubModel;
 import nu.borjessons.clubhouse.controller.model.request.CreateUserModel;
 import nu.borjessons.clubhouse.data.Address;
 import nu.borjessons.clubhouse.data.Club;
-import nu.borjessons.clubhouse.data.ClubRole;
 import nu.borjessons.clubhouse.data.ClubRole.Role;
 import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.UserDTO;
@@ -43,12 +42,8 @@ public class RegistrationServiceImpl implements RegistrationService {
 		
 		user.setActiveClubId(savedClub.getClubId());
 		addresses.stream().forEach(user::addAddress);
-		
 		Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER, Role.OWNER, Role.ADMIN));
-
-		Set<ClubRole> clubRoles = clubhouseMappers.rolesToClubRoles(roles);
-
-		clubhouseMappers.mapClubRoles(clubRoles, user, savedClub);
+		clubhouseMappers.mapClubRoles(roles, user, savedClub);
 
 		return new UserDTO(userRepository.save(user), savedClub.getClubId());
 	}
@@ -73,8 +68,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 			roles.add(Role.PARENT);
 		});
 		
-		Set<ClubRole> clubRoles = clubhouseMappers.rolesToClubRoles(roles);
-		clubhouseMappers.mapClubRoles(clubRoles, user, club);
+		clubhouseMappers.mapClubRoles(roles, user, club);
 		
 		return new UserDTO(userRepository.save(user), club.getClubId());
 	}
@@ -86,8 +80,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 		Club club = clubService.getClubByClubId(clubId);
 		Set<Role> roles = new HashSet<>();
 		saveChildren(parent, childModels, club, roles);
-		Set<ClubRole> clubRoles = clubhouseMappers.rolesToClubRoles(roles);
-		clubhouseMappers.mapClubRoles(clubRoles, parent, club);
+		clubhouseMappers.mapClubRoles(roles, parent, club);
 		
 		return new UserDTO(userRepository.save(parent), clubId);
 	}

@@ -24,7 +24,7 @@ public class Address extends BaseEntity implements Serializable {
 	private long id;
 	
 	@Column(nullable=false, unique=true)
-	private String addressId = UUID.randomUUID().toString();
+	private final String addressId = UUID.randomUUID().toString();
 		
 	@Column(length=30, nullable=false)
 	private String country;

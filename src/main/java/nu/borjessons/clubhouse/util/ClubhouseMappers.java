@@ -41,15 +41,8 @@ public class ClubhouseMappers {
 		return user;
 	}
 	
-	public Set<ClubRole> rolesToClubRoles(Set<Role> roles) {
-		return roles.stream().map(ClubRole::new).collect(Collectors.toSet());
-	}
-	
-	public void mapClubRoles(Set<ClubRole> clubRoles, User user, Club club) {
-		clubRoles.stream().forEach(clubRole -> {
-			user.addClubRole(clubRole);
-			club.addClubRole(clubRole);
-		});
+	public Set<ClubRole> mapClubRoles(Set<Role> roles, User user, Club club) {
+		return roles.stream().map(role -> new ClubRole(role, user, club)).collect(Collectors.toSet());
 	}
 
 	public User childCreationModelToUser(CreateChildRequestModel childModel) {
