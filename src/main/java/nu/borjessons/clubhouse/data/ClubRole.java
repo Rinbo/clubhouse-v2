@@ -18,7 +18,6 @@ import org.springframework.security.core.GrantedAuthority;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
@@ -41,7 +40,7 @@ public class ClubRole  extends BaseEntity implements Serializable, GrantedAuthor
 	
 	@Id
 	@GeneratedValue
-	@Getter @Setter
+	@Getter
 	private long id;
 	
 	@Column(nullable = false, unique = true)
@@ -70,7 +69,6 @@ public class ClubRole  extends BaseEntity implements Serializable, GrantedAuthor
 		this.club = club;
 		club.addClubRole(this);
 	}
-	
 	
 	public void doOrphan() {
 		user.removeClubRole(this);

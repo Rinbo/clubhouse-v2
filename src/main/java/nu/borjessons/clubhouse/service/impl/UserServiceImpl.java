@@ -2,6 +2,7 @@ package nu.borjessons.clubhouse.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,7 @@ import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.UserDTO;
 import nu.borjessons.clubhouse.repository.AddressRepository;
 import nu.borjessons.clubhouse.repository.UserRepository;
+import nu.borjessons.clubhouse.service.ClubService;
 import nu.borjessons.clubhouse.service.ClubhouseAbstractService;
 import nu.borjessons.clubhouse.service.UserService;
 import nu.borjessons.clubhouse.util.ClubhouseMappers;
@@ -32,6 +34,7 @@ import nu.borjessons.clubhouse.util.ClubhouseUtils;
 public class UserServiceImpl extends ClubhouseAbstractService implements UserService {
 	
 	private final UserRepository userRepository;
+	private final ClubService clubService;
 	private final AddressRepository addressRepository;
 	private final ClubhouseMappers clubhouseMappers;
 
@@ -74,17 +77,14 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 
 	@Override
 	public UserDTO updateUserRoles(User user, String clubId, Set<Role> roles) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	@Transactional
 	public void removeUserFromClub(User user, Club club) {
-		// Naturally this method needs to be augmented with removing all traces of this user and children if there are no other active parents in this club
 		Set<ClubRole> clubRolesForRemoval = user.getRoles().stream().filter(clubRole -> clubRole.getClub().equals(club)).collect(Collectors.toSet());
-		clubRolesForRemoval.stream().forEach(ClubRole::doOrphan);
-		
+		clubRolesForRemoval.stream().forEach(ClubRole::doOrphan);		
 		userRepository.save(user);
 		
 	}
@@ -137,5 +137,21 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 		User savedParent = userRepository.save(parent);
 		
 		return new UserDTO(savedParent, club.getClubId());
+	}
+
+	@Override
+	public UserDTO switchClub(User user, Club club) {
+		user.setActiveClubId(club.getClubId());
+		return new UserDTO(userRepository.save(user), club.getClubId());
+	}
+
+	@Override
+	public UserDTO joinClub(User user, String clubId) {
+		Club club = clubService.getClubByClubId(clubId);
+		Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER));
+		if (!user.getChildren().isEmpty()) roles.add(Role.PARENT);
+		clubhouseMappers.mapClubRoles(roles, user, club);
+		user.setActiveClubId(clubId);
+		return new UserDTO(userRepository.save(user), clubId);
 	}
 }

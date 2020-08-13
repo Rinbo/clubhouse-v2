@@ -1,8 +1,10 @@
 package nu.borjessons.clubhouse.controller;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.controller.model.request.UpdateUserModel;
@@ -46,11 +50,32 @@ public class UserController extends ClubhouseAbstractService {
 		return userService.updateUser(user, user.getActiveClubId(), userDetails);
 	}
 	
-	@PreAuthorize("hasRole('USER')")
 	@DeleteMapping("/principal")
 	public void deleteSelf() {
 		User user = getPrincipal();
 		userService.deleteUser(user);
+	}
+	
+	// Probably should be in the clubRepo
+	@PreAuthorize("hasRole('USER')")
+	@PutMapping("/principal/leave")
+	public void leaveClub() {
+		User user = getPrincipal();
+		userService.removeUserFromClub(user, user.getActiveClub());
+	}
+	
+	@PutMapping("/principal/switch-club")
+	public UserDTO switchClub(@RequestParam String clubId) {
+		User user = getPrincipal();
+		Optional<Club> maybeClub = user.getClubs().stream().filter(club -> club.getClubId().equals(clubId)).findFirst();
+		if (maybeClub.isEmpty()) throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("User with id %s does not have access to club with id %s", user.getUserId(), clubId));
+		return userService.switchClub(user, maybeClub.get());
+	}
+	
+	@PutMapping("/principal/join-club")
+	public UserDTO joinClub(@RequestParam String clubId) {
+		User user = getPrincipal();
+		return userService.joinClub(user, clubId);
 	}
 	
 	/*

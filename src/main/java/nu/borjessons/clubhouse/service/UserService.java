@@ -27,5 +27,9 @@ public interface UserService extends UserDetailsService {
 	void updateUserLoginTime(String email);
 
 	UserDTO updateUserChildren(User parent, Set<User> children, Club club);
+
+	UserDTO switchClub(User user, Club club);
+
+	UserDTO joinClub(User user, String clubId);
 }
 
