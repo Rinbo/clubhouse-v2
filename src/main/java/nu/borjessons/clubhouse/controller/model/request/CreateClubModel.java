@@ -7,12 +7,14 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import nu.borjessons.clubhouse.data.Club.Type;
 
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class CreateClubModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;

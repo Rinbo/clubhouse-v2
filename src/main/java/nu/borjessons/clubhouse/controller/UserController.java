@@ -56,7 +56,6 @@ public class UserController extends ClubhouseAbstractService {
 		userService.deleteUser(user);
 	}
 	
-	// Probably should be in the clubRepo
 	@PreAuthorize("hasRole('USER')")
 	@PutMapping("/principal/leave")
 	public void leaveClub() {

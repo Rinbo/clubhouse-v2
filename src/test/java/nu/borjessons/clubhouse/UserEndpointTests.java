@@ -36,8 +36,10 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import nu.borjessons.clubhouse.config.TestConfiguration;
+import nu.borjessons.clubhouse.controller.model.request.CreateClubModel;
 import nu.borjessons.clubhouse.controller.model.request.CreateUserModel;
 import nu.borjessons.clubhouse.controller.model.request.UpdateUserModel;
+import nu.borjessons.clubhouse.data.Club.Type;
 
 @SpringBootTest(webEnvironment =WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.Alphanumeric.class)
@@ -45,10 +47,12 @@ import nu.borjessons.clubhouse.controller.model.request.UpdateUserModel;
 class UserEndpointTests {
 	
 	private static String clubId;
+	private static String clubId2;
 	private static String userId;
 	private static String adminAuthToken;
 	private static String userAuthToken;
 	private static String adminUserId;
+	private static String parent2AuthToken;
 	private static String normalUserId;
 	private static String parent2UserId;
 	private static List<String> childrenIds;
@@ -277,7 +281,7 @@ class UserEndpointTests {
 	}
 	
 	@Test
-	void db_adminRemovesChildrenFromUser2() {
+	void dc_adminRemovesChildrenFromUser2() {
 		
 		Set<String> childrenSet = new HashSet<>();
 		
@@ -303,7 +307,7 @@ class UserEndpointTests {
 	}
 	
 	@Test
-	void dc_adminAssertsChildrenAreStillPresent() {
+	void dd_adminAssertsChildrenAreStillPresent() {
 		String childId = childrenIds.get(0);
 		
 		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
@@ -354,4 +358,67 @@ class UserEndpointTests {
 		
 		assertEquals(String.format("User with id %s is not present in club with id %s", childId, clubId), errorResponse);
 	}
+	
+	@Test
+	void fa_createSecondClub() {
+		
+		CreateUserModel userModel = new CreateUserModel();
+		userModel.setFirstName("Admin2");
+		userModel.setLastName("Admin2sson");
+		userModel.setClubId("dummy");
+		userModel.setDateOfBirth("1984-04-04");
+		userModel.setEmail("admin2@ex.com");
+		userModel.setPassword(GENERIC_PASSWORD);
+		
+		CreateClubModel clubModel = new CreateClubModel("Klubbers IK", Type.SPORT, userModel);
+		
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.body(clubModel)
+				.when()
+				.post("/register/club")
+				.then()
+				.statusCode(200)
+				.contentType(TestConfiguration.APPLICATION_JSON)
+				.extract()
+				.response();
+
+		clubId2 = response.jsonPath().getString("clubId");
+		assertNotNull(clubId2);
+	}
+	
+	@Test
+	void fb_loginUser2() {
+		Response loginResponse = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.body(loginRequest("parent2@ex.com", GENERIC_PASSWORD))
+				.when()
+				.post("/login")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+
+		parent2AuthToken = loginResponse.getHeader("Authorization");
+		assertNotNull(userAuthToken);
+	}
+	
+	@Test 
+	void fc_user2Joinsclub2() {
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", parent2AuthToken)
+				.params("clubId", clubId2)
+				.when()
+				.put("/users/principal/join-club")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+		
+		String clubId_2 = response.jsonPath().getString("clubId");
+		assertEquals(clubId2, clubId_2);
+	}
+	
+	
 }
