@@ -1,8 +1,8 @@
 package nu.borjessons.clubhouse;
 
 import static io.restassured.RestAssured.given;
-import static nu.borjessons.clubhouse.integration.util.RequestModels.ADMIN_USER_NAME;
-import static nu.borjessons.clubhouse.integration.util.RequestModels.ADMIN_USER_USERNAME;
+import static nu.borjessons.clubhouse.integration.util.RequestModels.ADMIN_NAME;
+import static nu.borjessons.clubhouse.integration.util.RequestModels.ADMIN_USERNAME;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.CHILD_1_NAME;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.CHILD_2_NAME;
 import static nu.borjessons.clubhouse.integration.util.RequestModels.CLUB_1;
@@ -62,7 +62,7 @@ class RegistrationEndpointTests {
 	void aa_registerClub() {
 		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
-				.body(clubRegistrationRequest(CLUB_1, ADMIN_USER_USERNAME, ADMIN_USER_NAME))
+				.body(clubRegistrationRequest(CLUB_1, ADMIN_USERNAME, ADMIN_NAME))
 				.when()
 				.post("/register/club")
 				.then()
@@ -81,7 +81,7 @@ class RegistrationEndpointTests {
 	void ab_conflictWhenRegisterSameClub() {
 		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
-				.body(clubRegistrationRequest(CLUB_1, ADMIN_USER_USERNAME, ADMIN_USER_NAME))
+				.body(clubRegistrationRequest(CLUB_1, ADMIN_USERNAME, ADMIN_NAME))
 				.when()
 				.post("/register/club")
 				.then()
@@ -97,7 +97,7 @@ class RegistrationEndpointTests {
 	void ac_conflictWhenRegisterDifferentClubButSameUser() {
 		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
-				.body(clubRegistrationRequest(CLUB_2, ADMIN_USER_USERNAME, ADMIN_USER_NAME))
+				.body(clubRegistrationRequest(CLUB_2, ADMIN_USERNAME, ADMIN_NAME))
 				.when()
 				.post("/register/club")
 				.then()
@@ -138,7 +138,7 @@ class RegistrationEndpointTests {
 	void ca_loginAdminUser() {
 		Response loginResponse = given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
-				.body(loginRequest(ADMIN_USER_USERNAME))
+				.body(loginRequest(ADMIN_USERNAME))
 				.when()
 				.post("/login")
 				.then()
@@ -169,8 +169,8 @@ class RegistrationEndpointTests {
 		List<String> childrenIds  = response.jsonPath().getList("childrenIds", String.class);
 		assertNotNull(email);
 		assertEquals(NORMAL_USER_USERNAME, email);
-		assertEquals(NORMAL_USER1_NAME[0], firstName);
-		assertEquals(NORMAL_USER1_NAME[1], lastName);
+		assertEquals(NORMAL_USER1_NAME.split(" ")[0], firstName);
+		assertEquals(NORMAL_USER1_NAME.split(" ")[1], lastName);
 		assertEquals(2, childrenIds.size());
 	}
 	
@@ -231,8 +231,8 @@ class RegistrationEndpointTests {
 		List<String> childrenIds  = response.jsonPath().getList("childrenIds", String.class);
 		assertNotNull(email);
 		assertEquals(NORMAL_USER_USERNAME, email);
-		assertEquals(NORMAL_USER1_NAME[0], firstName);
-		assertEquals(NORMAL_USER1_NAME[1], lastName);
+		assertEquals(NORMAL_USER1_NAME.split(" ")[0], firstName);
+		assertEquals(NORMAL_USER1_NAME.split(" ")[1], lastName);
 		assertEquals(2, childrenIds.size());
 	}
 	

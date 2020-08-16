@@ -19,15 +19,15 @@ public class RequestModels {
 	public static final String CLUB_1 = "Judo BK";
 	public static final String CLUB_2 = "Borjessons BK";
 	
-	public static final String ADMIN_USER_USERNAME = "admin@outlook.com";
-	public static final String[] ADMIN_USER_NAME = new String[] {"Admin", "Adminsson" };
+	public static final String ADMIN_USERNAME = "admin@outlook.com";
+	public static final String ADMIN_NAME = "Admin Adminsson";
 	public static final String NORMAL_USER_USERNAME = "user@outlook.com";
-	public static final String[] NORMAL_USER1_NAME = new String[] {"User", "Usersson" };
-	public static final String[] NORMAL_USER1_CHILDS_NAME = new String[] {"Child", "Childsson" };
+	public static final String NORMAL_USER1_NAME = "User Usersson";
+	public static final String NORMAL_USER1_CHILDS_NAME = "Child Childsson";
 	public static final String CHILD_1_NAME = "Sixten Childsson";
 	public static final String CHILD_2_NAME = "Albin Childsson";
 
-	public static Map<String, Object> clubRegistrationRequest(String ClubName, String owner, String[] name) {
+	public static Map<String, Object> clubRegistrationRequest(String ClubName, String owner, String name) {
 		Map<String, Object> organizationRequestModel = new HashMap<>();
 		organizationRequestModel.put("name", ClubName);
 		organizationRequestModel.put("type", "SPORT");
@@ -39,7 +39,7 @@ public class RequestModels {
 		return organizationRequestModel;
 	}
 
-	public static Map<String, Object> userWithChildrenRegistrationRequest(String clubId, String user, String[] name,
+	public static Map<String, Object> userWithChildrenRegistrationRequest(String clubId, String user, String name,
 			List<String> childrenNames) {
 		Map<String, Object> userRequestModel = userRegistrationRequest(clubId, user, name);
 		
@@ -50,12 +50,12 @@ public class RequestModels {
 		return userRequestModel;
 	}
 	
-	private static Map<String, Object> userRegistrationRequest(String clubId, String user, String[] name) {
+	private static Map<String, Object> userRegistrationRequest(String clubId, String user, String name) {
 		Map<String, Object> userRequestModel = new HashMap<>();
 
 		userRequestModel.put("email", user);
-		userRequestModel.put("firstName", name[0]);
-		userRequestModel.put("lastName", name[1]);
+		userRequestModel.put("firstName", name.split(" ")[0]);
+		userRequestModel.put("lastName", name.split(" ")[1]);
 		userRequestModel.put("password", GENERIC_PASSWORD);
 		userRequestModel.put("dateOfBirth", GENERIC_DATE_OF_BIRTH);
 		userRequestModel.put("clubId", clubId);
