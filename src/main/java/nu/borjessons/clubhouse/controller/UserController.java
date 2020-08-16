@@ -95,6 +95,8 @@ public class UserController extends ClubhouseAbstractService {
 		return userService.updateUser(club.getUser(userId), club.getClubId(), userDetails);
 	}
 	
+	// Principal needs similar functionality to add another parent to his/her children. Needs helper
+	// end point to search for a user in the club by email
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/children/{userId}")
 	public UserDTO updateUserChildren(@PathVariable String userId, @RequestBody Set<String> childrenIds) {
