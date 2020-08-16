@@ -57,7 +57,7 @@ public class UserController extends ClubhouseAbstractService {
 	}
 	
 	@PreAuthorize("hasRole('USER')")
-	@PutMapping("/principal/leave")
+	@PutMapping("/principal/leave-club")
 	public void leaveClub() {
 		User user = getPrincipal();
 		userService.removeUserFromClub(user, user.getActiveClub());

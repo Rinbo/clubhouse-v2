@@ -404,7 +404,7 @@ class UserEndpointTests {
 	}
 	
 	@Test 
-	void fc_user2Joinsclub2() {
+	void fc_user2JoinsClub2() {
 		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
 				.header("Authorization", parent2AuthToken)
@@ -420,5 +420,71 @@ class UserEndpointTests {
 		assertEquals(clubId2, clubId_2);
 	}
 	
+	@Test 
+	void fd_user2SwitchesToClub1() {
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", parent2AuthToken)
+				.params("clubId", clubId)
+				.when()
+				.put("/users/principal/switch-club")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+		
+		String clubId_1 = response.jsonPath().getString("clubId");
+		assertEquals(clubId, clubId_1);
+	}
+	
+	@Test 
+	void fe_user2LeavesClub1() {
+		given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", parent2AuthToken)
+				.when()
+				.put("/users/principal/leave-club")
+				.then()
+				.statusCode(200);
+	}
+	
+	@Test 
+	void ff_403WhenUser2GetsPrincipal() {
+		given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", parent2AuthToken)
+				.when()
+				.get("/users/principal")
+				.then()
+				.statusCode(403);
+	}
+	
+	@Test 
+	void fg_user2SwitchesToClub2() {
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", parent2AuthToken)
+				.params("clubId", clubId2)
+				.when()
+				.put("/users/principal/switch-club")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+		
+		String clubId_2 = response.jsonPath().getString("clubId");
+		assertEquals(clubId2, clubId_2);
+	}
+	
+	@Test 
+	void fh_200WhenUser2GetsPrincipal() {
+		given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", parent2AuthToken)
+				.when()
+				.get("/users/principal")
+				.then()
+				.statusCode(200);
+	}
 	
 }
