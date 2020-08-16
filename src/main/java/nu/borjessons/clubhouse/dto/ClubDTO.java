@@ -15,11 +15,13 @@ public class ClubDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
+	private String clubId;
 	private String name;
 	private String path;
 	private Type type;
 	
 	public ClubDTO(Club club) {
+		this.clubId = club.getClubId();
 		this.name = club.getName();
 		this.path = club.getPath();
 		this.type = club.getType();
