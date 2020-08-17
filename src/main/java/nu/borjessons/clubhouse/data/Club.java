@@ -56,6 +56,9 @@ public class Club extends BaseEntity  implements Serializable {
 	@OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.EAGER)
 	private Set<ClubRole> clubRoles = new HashSet<>();
 	
+	@OneToMany(mappedBy = "club", orphanRemoval = true)
+	private Set<Team> teams = new HashSet<>();
+	
 	public User getUser(String userId) {
 		Optional<User> maybeUser =  getUsers().stream().filter(user -> user.getUserId().equals(userId)).findFirst();
 		if (maybeUser.isPresent()) return maybeUser.get();
@@ -78,6 +81,16 @@ public class Club extends BaseEntity  implements Serializable {
 	
 	public void removeClubRole(ClubRole clubRole) {
 		this.clubRoles.remove(clubRole);
+	}
+	
+	public void addTeam(Team team) {
+		teams.add(team);
+		team.setClub(this);
+	}
+	
+	public void removeTeam(Team team) {
+		teams.remove(team);
+		team.setClub(null);
 	}
 
 	@Override
