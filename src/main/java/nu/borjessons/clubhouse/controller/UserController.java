@@ -22,13 +22,12 @@ import nu.borjessons.clubhouse.controller.model.request.UpdateUserModel;
 import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.UserDTO;
-import nu.borjessons.clubhouse.service.ClubhouseAbstractService;
 import nu.borjessons.clubhouse.service.UserService;
 
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @RestController
-public class UserController extends ClubhouseAbstractService {
+public class UserController extends AbstractController {
 	
 	private final UserService userService;
 	

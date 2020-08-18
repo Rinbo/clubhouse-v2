@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,14 +25,13 @@ import nu.borjessons.clubhouse.dto.UserDTO;
 import nu.borjessons.clubhouse.repository.AddressRepository;
 import nu.borjessons.clubhouse.repository.UserRepository;
 import nu.borjessons.clubhouse.service.ClubService;
-import nu.borjessons.clubhouse.service.ClubhouseAbstractService;
 import nu.borjessons.clubhouse.service.UserService;
 import nu.borjessons.clubhouse.util.ClubhouseMappers;
 import nu.borjessons.clubhouse.util.ClubhouseUtils;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl extends ClubhouseAbstractService implements UserService {
+public class UserServiceImpl implements UserService {
 	
 	private final UserRepository userRepository;
 	private final ClubService clubService;
@@ -154,4 +154,10 @@ public class UserServiceImpl extends ClubhouseAbstractService implements UserSer
 		user.setActiveClubId(clubId);
 		return new UserDTO(userRepository.save(user), clubId);
 	}
+	
+	private static User getOrThrowUNFE(Optional<User> maybeUser, String email) {
+		if (maybeUser.isPresent()) return maybeUser.get();
+		throw new UsernameNotFoundException(String.format("User %s could not be found", email));
+	}
+	
 }

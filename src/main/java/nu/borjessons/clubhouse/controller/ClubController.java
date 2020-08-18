@@ -11,12 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.dto.ClubDTO;
-import nu.borjessons.clubhouse.service.ClubhouseAbstractService;
 
 @RequestMapping("/clubs")
 @RequiredArgsConstructor
 @RestController
-public class ClubController extends ClubhouseAbstractService {
+public class ClubController extends AbstractController {
 	
 	@PreAuthorize("hasRole('USER')")
 	@GetMapping("/principal/active")

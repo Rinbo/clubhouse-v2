@@ -73,7 +73,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	@ManyToMany(fetch = FetchType.EAGER)
 	private Set<User> parents = new HashSet<>();
 	
-	@ManyToMany(mappedBy = "parents", fetch = FetchType.EAGER) //Orphan removal?
+	@ManyToMany(mappedBy = "parents", fetch = FetchType.EAGER)
 	private Set<User> children = new HashSet<>();
 	
 	public Set<String> getActiveRoles() {

@@ -18,12 +18,11 @@ import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.UserDTO;
 import nu.borjessons.clubhouse.security.SecurityConstants;
-import nu.borjessons.clubhouse.service.ClubhouseAbstractService;
 import nu.borjessons.clubhouse.service.RegistrationService;
 
 @RequiredArgsConstructor
 @RestController
-public class RegistrationController extends ClubhouseAbstractService {
+public class RegistrationController extends AbstractController {
 
 	private final RegistrationService registrationService;
 	
