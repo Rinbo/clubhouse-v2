@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpHeaders;
@@ -91,6 +92,16 @@ public class RestExceptionHandler {
 		ErrorMessage errorMessage = new ErrorMessage("Validation failure. Check your inputs", errors, req.getRequestURI(), HttpStatus.BAD_REQUEST.value());
 		
 		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+    
+    @ExceptionHandler({ NoResultException.class })
+    public ResponseEntity<Object> handleIllegalStateException(NoResultException ex, HttpServletRequest req) {
+    	
+		log.debug(stringifyStacktrace(ex));
+		
+		ErrorMessage errorMessage = new ErrorMessage(ex.getMessage(), req.getRequestURI(), HttpStatus.NOT_FOUND.value());
+		
+		return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
     
     private String stringifyStacktrace (Throwable err) {

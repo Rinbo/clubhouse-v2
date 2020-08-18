@@ -1,7 +1,5 @@
 package nu.borjessons.clubhouse.service.impl;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -18,7 +16,6 @@ public class ClubServiceImpl extends ClubhouseAbstractService implements ClubSer
 
 	@Override
 	public Club getClubByClubId(String clubId) {
-		Optional<Club> maybeClub = clubRepository.findByClubId(clubId);
-		return getOptional(maybeClub, Club.class.getSimpleName(), clubId);
+		return getOptional(clubRepository.findByClubId(clubId), Club.class.getSimpleName(), clubId);
 	}
 }
