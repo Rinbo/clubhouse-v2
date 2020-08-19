@@ -14,28 +14,28 @@ public abstract class AbstractController {
 		return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 	}
 	
-	protected <T> T getOrThrow(Optional<T> option) {
+	protected <T> T getOptional(Optional<T> option) {
 		if (option.isPresent()) return option.get();
 		throw new ResponseStatusException(HttpStatus.NOT_FOUND, "That entity could not be found");
 	}
 	
-	protected <T> T getOrThrow(Optional<T> option, String identifier) {
+	protected <T> T getOptional(Optional<T> option, String identifier) {
 		if (option.isPresent()) return option.get();
 		throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("That entity could not be found %s", identifier));
 	}
 	
-	protected <T> T getOrThrow(Optional<T> option, String className, String identifier) {
+	protected <T> T getOptional(Optional<T> option, Class<T> className, String identifier) {
 		if (option.isPresent()) return option.get();
-		throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("That entity %s with id %s could not be found", className, identifier));
+		throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("That entity %s with id %s could not be found", className.getSimpleName(), identifier));
 	}
 	
-	protected <T> T getOrThrow(Optional<T> option, Long identifier) {
+	protected <T> T getOptional(Optional<T> option, Long identifier) {
 		if (option.isPresent()) return option.get();
 		throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("That entity could not be found %d", identifier));
 	}
 	
-	protected <T> T getOrThrow(Optional<T> option, String className, Long identifier) {
+	protected <T> T getOptional(Optional<T> option, Class<T> className, Long identifier) {
 		if (option.isPresent()) return option.get();
-		throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("That entity %s with id %d could not be found", className, identifier));
+		throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("That entity %s with id %d could not be found", className.getSimpleName(), identifier));
 	}
 }

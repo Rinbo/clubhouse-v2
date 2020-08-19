@@ -16,6 +16,6 @@ public class ClubServiceImpl extends ClubhouseAbstractService implements ClubSer
 
 	@Override
 	public Club getClubByClubId(String clubId) {
-		return getOptional(clubRepository.findByClubId(clubId), Club.class.getSimpleName(), clubId);
+		return getOptional(clubRepository.findByClubId(clubId), Club.class, clubId);
 	}
 }
