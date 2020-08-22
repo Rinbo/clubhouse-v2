@@ -48,6 +48,14 @@ public class Team extends BaseEntity implements Serializable {
 	@ManyToOne
 	private Club club;
 
+	public void addMember(User user) {
+		members.add(user);
+	}
+	
+	public void removeMember(User user) {
+		members.remove(user);
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

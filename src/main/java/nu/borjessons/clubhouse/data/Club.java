@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -56,7 +57,7 @@ public class Club extends BaseEntity  implements Serializable {
 	@OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.EAGER)
 	private Set<ClubRole> clubRoles = new HashSet<>();
 	
-	@OneToMany(mappedBy = "club", orphanRemoval = true)
+	@OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Team> teams = new HashSet<>();
 	
 	public User getUser(String userId) {

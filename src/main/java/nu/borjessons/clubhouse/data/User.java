@@ -143,7 +143,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	public Club getActiveClub() {
 		Optional<ClubRole> maybeClubRole = roles.stream().filter(clubRole -> clubRole.getClub().getClubId().equals(activeClubId)).findFirst();
 		if (maybeClubRole.isPresent()) return maybeClubRole.get().getClub();
-		throw new IllegalStateException(String.format("User with id %s does not have an active club set", userId));
+		throw new IllegalStateException(String.format("User with id %s does not have an active club set", userId)); // Make a separate exception for this
 	}
 
 	@Override
