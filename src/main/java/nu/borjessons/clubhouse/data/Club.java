@@ -57,7 +57,7 @@ public class Club extends BaseEntity  implements Serializable {
 	@OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.EAGER)
 	private Set<ClubRole> clubRoles = new HashSet<>();
 	
-	@OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	private Set<Team> teams = new HashSet<>();
 	
 	public User getUser(String userId) {

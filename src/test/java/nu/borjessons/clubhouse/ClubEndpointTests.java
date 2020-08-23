@@ -50,7 +50,7 @@ class ClubEndpointTests {
 
 	@Test
 	void aa_registerClub1() {
-		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+		Response response = given().log().all().contentType(TestConfiguration.APPLICATION_JSON)
 				.accept(TestConfiguration.APPLICATION_JSON)
 				.body(clubRegistrationRequest(CLUB_1, ADMIN_USERNAME, ADMIN_NAME))
 				.when()
