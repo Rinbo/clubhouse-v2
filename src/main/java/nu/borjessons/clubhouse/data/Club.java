@@ -63,13 +63,16 @@ public class Club extends BaseEntity  implements Serializable {
 	public User getUser(String userId) {
 		Optional<User> maybeUser =  getUsers().stream().filter(user -> user.getUserId().equals(userId)).findFirst();
 		if (maybeUser.isPresent()) return maybeUser.get();
-		Optional<User> maybeManagedUser =  getManagedUsers().stream().filter(managedUser -> managedUser.getUserId().equals(userId)).findFirst();
-		if (maybeManagedUser.isPresent()) return maybeManagedUser.get();
 		throw new UsernameNotFoundException(String.format("User with id %s is not present in club with id %s", userId, clubId));
 	}
 	
 	public Set<User> getUsers() {
-		return clubRoles.stream().map(ClubRole::getUser).collect(Collectors.toSet());
+		return clubRoles.stream().map(ClubRole::getUser).map(user -> {
+			Set<User> userAndChildren = new HashSet<>();
+			userAndChildren.addAll(user.getChildren());
+			userAndChildren.add(user);
+			return userAndChildren;			
+		}).flatMap(Set::stream).collect(Collectors.toSet());
 	}
 	
 	public Set<User> getManagedUsers() {
