@@ -4,6 +4,9 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -85,6 +88,74 @@ class TeamEndpointTests {
 		assertNotNull(teamId1);
 		assertEquals(teamModel.getName(), teamName);
 	}
-
+	
+	@Test
+	void ac_userGetsAllTeams() {
+		
+		Response response = given().log().all().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", userAuthToken)
+				.when()
+				.get("/teams/principal")
+				.then()
+				.log()
+				.body()	
+				.statusCode(200)
+				.contentType(TestConfiguration.APPLICATION_JSON)
+				.extract()
+				.response();
+		
+		List<Map<String, String>> teams = response.jsonPath().getList("");
+		
+		assertNotNull(teams);
+		assertEquals(1, teams.size());
+		assertEquals(teamId1, teams.get(0).get("teamId"));
+	}
+	
+	@Test
+	void ad_userJoinsTeam() {
+		
+		Response response = given().log().all().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", userAuthToken)
+				.params("teamId", teamId1)
+				.when()
+				.put("/teams/principal/join")
+				.then()
+				.log()
+				.body()	
+				.statusCode(200)
+				.contentType(TestConfiguration.APPLICATION_JSON)
+				.extract()
+				.response();
+		
+		String teamId = response.jsonPath().getString("teamId");
+		
+		assertNotNull(teamId);
+		assertEquals(teamId1, teamId);
+	}
+	
+	@Test
+	void ae_userGetsSpecificTeam() {
+		
+		Response response = given().log().all().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", userAuthToken)
+				.when()
+				.pathParam("teamId", teamId1)
+				.get("/teams/principal/{teamId}")
+				.then()
+				.log()
+				.body()	
+				.statusCode(200)
+				.contentType(TestConfiguration.APPLICATION_JSON)
+				.extract()
+				.response();
+		
+		String teamId = response.jsonPath().getString("teamId");
+		
+		assertNotNull(teamId);
+		assertEquals(teamId1, teamId);
+	}
 
 }

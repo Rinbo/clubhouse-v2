@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -39,10 +40,10 @@ public class Team extends BaseEntity implements Serializable {
 
 	private int maxAge;
 	
-	@OneToMany
+	@OneToMany(fetch = FetchType.EAGER) 
 	private Set<User> members = new HashSet<>();
 	
-	@OneToMany
+	@OneToMany(fetch = FetchType.EAGER)
 	private Set<User> leaders = new HashSet<>();
 	
 	@ManyToOne
