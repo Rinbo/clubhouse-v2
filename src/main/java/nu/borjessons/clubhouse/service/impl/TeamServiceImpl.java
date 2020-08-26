@@ -25,11 +25,7 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
 		return getOptional(teamRepository.findByTeamId(teamId), Team.class, teamId);
 	}
 
-	@Override
-	public TeamDTO joinTeam(User principal, Team team) {
-		team.addMember(principal);
-		return new TeamDTO(teamRepository.save(team));
-	}
+	
 
 	@Override
 	public TeamDTO createTeam(Club club, CreateTeamModel teamModel) {
@@ -42,5 +38,29 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
 		clubRepository.save(club);
 		
 		return new TeamDTO(team);
+	}
+	
+	@Override
+	public TeamDTO addUserToTeam(User user, Team team) {
+		team.addMember(user);
+		return new TeamDTO(teamRepository.save(team));
+	}
+
+	@Override
+	public void removeUserFromTeam(User user, Team team) {
+		team.removeMember(user);
+		teamRepository.save(team);
+	}
+
+	@Override
+	public TeamDTO addLeaderToTeam(User leader, Team team) {
+		team.addLeader(leader);
+		return new TeamDTO(teamRepository.save(team));
+	}
+
+	@Override
+	public void removeLeaderFromTeam(User leader, Team team) {
+		team.removeLeader(leader);
+		teamRepository.save(team);
 	}
 }

@@ -45,11 +45,20 @@ public class TeamController extends AbstractController {
 	
 	@PreAuthorize("hasRole('USER')")
 	@PutMapping("/principal/join")
-	public TeamDTO editTeam(@RequestParam String teamId) {
+	public TeamDTO joinTem(@RequestParam String teamId) {
 		User principal = getPrincipal();
 		Set<Team> teams = principal.getActiveClub().getTeams();
 		Optional<Team> maybeTeam = teams.stream().filter(team -> team.getTeamId().equals(teamId)).findFirst();
-		return teamService.joinTeam(principal, getOptional(maybeTeam));
+		return teamService.addUserToTeam(principal, getOptional(maybeTeam));
+	}
+	
+	@PreAuthorize("hasRole('USER')")
+	@PutMapping("/principal/leave")
+	public void leaveTeam(@RequestParam String teamId) {
+		User principal = getPrincipal();
+		Set<Team> teams = principal.getActiveClub().getTeams();
+		Optional<Team> maybeTeam = teams.stream().filter(team -> team.getTeamId().equals(teamId)).findFirst();
+		teamService.removeUserFromTeam(principal, getOptional(maybeTeam));
 	}
 	
 	@PreAuthorize("hasRole('ADMIN')")

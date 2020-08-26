@@ -157,5 +157,18 @@ class TeamEndpointTests {
 		assertNotNull(teamId);
 		assertEquals(teamId1, teamId);
 	}
-
+	
+	@Test
+	void af_userLeavesSpecificTeam() {
+		given().log().all().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", userAuthToken)
+				.params("teamId", teamId1)
+				.when()
+				.put("/teams/principal/leave")
+				.then()
+				.log()
+				.body()	
+				.statusCode(200);
+	}
 }

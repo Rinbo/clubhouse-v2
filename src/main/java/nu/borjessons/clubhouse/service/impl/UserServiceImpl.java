@@ -84,7 +84,8 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public void removeUserFromClub(User user, Club club) {
 		Set<ClubRole> clubRolesForRemoval = user.getRoles().stream().filter(clubRole -> clubRole.getClub().equals(club)).collect(Collectors.toSet());
-		clubRolesForRemoval.stream().forEach(ClubRole::doOrphan);		
+		// Also remove user from all teams and all his children from all team (unless the children has another parent in this club (sigh)
+		clubRolesForRemoval.stream().forEach(ClubRole::doOrphan);	
 		userRepository.save(user);
 		
 	}

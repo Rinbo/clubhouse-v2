@@ -57,6 +57,14 @@ public class Team extends BaseEntity implements Serializable {
 		members.remove(user);
 	}
 	
+	public void addLeader(User leader) {
+		leaders.add(leader);
+	}
+	
+	public void removeLeader(User leader) {
+		leaders.remove(leader);
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

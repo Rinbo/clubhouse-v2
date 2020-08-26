@@ -10,7 +10,13 @@ public interface TeamService {
 	
 	Team getTeamById(String teamId);
 
-	TeamDTO joinTeam(User principal, Team team);
+	TeamDTO addUserToTeam(User user, Team team);
+	
+	TeamDTO addLeaderToTeam(User leader, Team team);
 	
 	TeamDTO createTeam(Club club, CreateTeamModel teamModel);
+
+	void removeUserFromTeam(User user, Team team);
+	
+	void removeLeaderFromTeam(User leader, Team team);
 }
