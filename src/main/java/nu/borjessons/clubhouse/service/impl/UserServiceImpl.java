@@ -25,6 +25,7 @@ import nu.borjessons.clubhouse.dto.UserDTO;
 import nu.borjessons.clubhouse.repository.AddressRepository;
 import nu.borjessons.clubhouse.repository.UserRepository;
 import nu.borjessons.clubhouse.service.ClubService;
+import nu.borjessons.clubhouse.service.TeamService;
 import nu.borjessons.clubhouse.service.UserService;
 import nu.borjessons.clubhouse.util.ClubhouseMappers;
 import nu.borjessons.clubhouse.util.ClubhouseUtils;
@@ -36,6 +37,7 @@ public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
 	private final ClubService clubService;
 	private final AddressRepository addressRepository;
+	private final TeamService teamService;
 	private final ClubhouseMappers clubhouseMappers;
 
 	@Override
@@ -83,11 +85,24 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public void removeUserFromClub(User user, Club club) {
+		Set<User> children = user.getChildren();
+		if (!children.isEmpty()) {
+			// Check if they have another parent in this club
+			Set<User> otherParentsInThisClub = children.stream().map(User::getParents).flatMap(Set::stream).filter(parent -> {
+				Set<Club> clubs = parent.getClubs();
+				return  clubs.contains(club);
+			}).collect(Collectors.toSet());
+			
+			if (otherParentsInThisClub.isEmpty()) {
+				teamService.removeUsersFromAllTeams(children, club);
+			}
+		}
+		
+		teamService.removeUsersFromAllTeams(new HashSet<>(Arrays.asList(user)), club);
+		
 		Set<ClubRole> clubRolesForRemoval = user.getRoles().stream().filter(clubRole -> clubRole.getClub().equals(club)).collect(Collectors.toSet());
-		// Also remove user from all teams and all his children from all team (unless the children has another parent in this club (sigh)
 		clubRolesForRemoval.stream().forEach(ClubRole::doOrphan);	
 		userRepository.save(user);
-		
 	}
 
 	@Override

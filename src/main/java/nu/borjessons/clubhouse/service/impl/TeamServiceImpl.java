@@ -1,5 +1,7 @@
 package nu.borjessons.clubhouse.service.impl;
 
+import java.util.Set;
+
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -62,5 +64,16 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
 	public void removeLeaderFromTeam(User leader, Team team) {
 		team.removeLeader(leader);
 		teamRepository.save(team);
+	}
+
+	@Override
+	public void removeUsersFromAllTeams(Set<User> users, Club club) {
+		Set<Team> teams = club.getTeams();
+		teams.stream().forEach(team -> {
+			for (User user : users) {
+				team.removeMember(user);
+			}
+		});
+		teamRepository.saveAll(teams);
 	}
 }

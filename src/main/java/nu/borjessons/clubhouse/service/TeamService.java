@@ -1,5 +1,7 @@
 package nu.borjessons.clubhouse.service;
 
+import java.util.Set;
+
 import nu.borjessons.clubhouse.controller.model.request.CreateTeamModel;
 import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.Team;
@@ -19,4 +21,6 @@ public interface TeamService {
 	void removeUserFromTeam(User user, Team team);
 	
 	void removeLeaderFromTeam(User leader, Team team);
+	
+	void removeUsersFromAllTeams(Set<User> users, Club club);
 }
