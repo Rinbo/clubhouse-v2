@@ -11,6 +11,7 @@ import java.util.List;
 
 import io.restassured.response.Response;
 import nu.borjessons.clubhouse.config.TestConfiguration;
+import nu.borjessons.clubhouse.controller.model.request.CreateTeamModel;
 
 class TestSetupFactory {
 	
@@ -73,6 +74,30 @@ class TestSetupFactory {
 				.response();
 
 		return loginResponse.getHeader("Authorization");
+	}
+	
+	public static String createTeam(String token, String teamName) {
+		
+		CreateTeamModel teamModel = new CreateTeamModel();
+		teamModel.setName(teamName);
+		teamModel.setMinAge(7);
+		teamModel.setMaxAge(10);
+		
+		Response response = given().log().all().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.header("Authorization", token)
+				.body(teamModel)
+				.when()
+				.post("/teams")
+				.then()
+				.log()
+				.body()	
+				.statusCode(200)
+				.contentType(TestConfiguration.APPLICATION_JSON)
+				.extract()
+				.response();
+		
+		return response.jsonPath().getString("teamId");
 	}
 
 	private static String generateFullName(String username) {

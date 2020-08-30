@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
 		if (!children.isEmpty()) {
 			Set<User> otherParentsInThisClub = children.stream().map(User::getParents).flatMap(Set::stream).filter(parent -> {
 				Set<Club> clubs = parent.getClubs();
-				return  clubs.contains(club);
+				return  clubs.contains(club) && !parent.getUserId().equals(user.getUserId());
 			}).collect(Collectors.toSet());
 			
 			if (otherParentsInThisClub.isEmpty()) {
