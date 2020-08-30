@@ -43,14 +43,14 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
 	}
 	
 	@Override
-	public TeamDTO addUserToTeam(User user, Team team) {
-		team.addMember(user);
+	public TeamDTO addMemberToTeam(User memeber, Team team) {
+		team.addMember(memeber);
 		return new TeamDTO(teamRepository.save(team));
 	}
 
 	@Override
-	public void removeUserFromTeam(User user, Team team) {
-		team.removeMember(user);
+	public void removeMemberFromTeam(User member, Team team) {
+		team.removeMember(member);
 		teamRepository.save(team);
 	}
 
@@ -72,6 +72,7 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
 		teams.stream().forEach(team -> {
 			for (User user : users) {
 				team.removeMember(user);
+				team.removeLeader(user);
 			}
 		});
 		teamRepository.saveAll(teams);

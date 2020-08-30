@@ -87,7 +87,6 @@ public class UserServiceImpl implements UserService {
 	public void removeUserFromClub(User user, Club club) {
 		Set<User> children = user.getChildren();
 		if (!children.isEmpty()) {
-			// Check if they have another parent in this club
 			Set<User> otherParentsInThisClub = children.stream().map(User::getParents).flatMap(Set::stream).filter(parent -> {
 				Set<Club> clubs = parent.getClubs();
 				return  clubs.contains(club);
@@ -101,7 +100,8 @@ public class UserServiceImpl implements UserService {
 		teamService.removeUsersFromAllTeams(new HashSet<>(Arrays.asList(user)), club);
 		
 		Set<ClubRole> clubRolesForRemoval = user.getRoles().stream().filter(clubRole -> clubRole.getClub().equals(club)).collect(Collectors.toSet());
-		clubRolesForRemoval.stream().forEach(ClubRole::doOrphan);	
+		clubRolesForRemoval.stream().forEach(ClubRole::doOrphan);
+		// Note: User::activeClubId is not rotated so the next call will mean no roles are set and users should be redirected to "choose club" interface
 		userRepository.save(user);
 	}
 

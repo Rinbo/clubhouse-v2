@@ -12,13 +12,13 @@ public interface TeamService {
 	
 	Team getTeamById(String teamId);
 
-	TeamDTO addUserToTeam(User user, Team team);
+	TeamDTO addMemberToTeam(User memeber, Team team);
 	
 	TeamDTO addLeaderToTeam(User leader, Team team);
 	
 	TeamDTO createTeam(Club club, CreateTeamModel teamModel);
 
-	void removeUserFromTeam(User user, Team team);
+	void removeMemberFromTeam(User memeber, Team team);
 	
 	void removeLeaderFromTeam(User leader, Team team);
 	

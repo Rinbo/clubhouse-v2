@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.controller.model.request.CreateTeamModel;
+import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.Team;
 import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.TeamDTO;
@@ -27,6 +28,10 @@ import nu.borjessons.clubhouse.service.TeamService;
 public class TeamController extends AbstractController {
 	
 	private final TeamService teamService;
+	
+	/*
+	 * Principal end points
+	 */
 	
 	@PreAuthorize("hasRole('USER')")
 	@GetMapping("/principal/{teamId}")
@@ -49,7 +54,7 @@ public class TeamController extends AbstractController {
 		User principal = getPrincipal();
 		Set<Team> teams = principal.getActiveClub().getTeams();
 		Optional<Team> maybeTeam = teams.stream().filter(team -> team.getTeamId().equals(teamId)).findFirst();
-		return teamService.addUserToTeam(principal, getOptional(maybeTeam));
+		return teamService.addMemberToTeam(principal, getOptional(maybeTeam, Team.class, teamId));
 	}
 	
 	@PreAuthorize("hasRole('USER')")
@@ -58,8 +63,26 @@ public class TeamController extends AbstractController {
 		User principal = getPrincipal();
 		Set<Team> teams = principal.getActiveClub().getTeams();
 		Optional<Team> maybeTeam = teams.stream().filter(team -> team.getTeamId().equals(teamId)).findFirst();
-		teamService.removeUserFromTeam(principal, getOptional(maybeTeam));
+		teamService.removeMemberFromTeam(principal, getOptional(maybeTeam, Team.class, teamId));
 	}
+	
+	/*
+	 * Parent end points
+	 */
+	
+	@PreAuthorize("hasRole('PARENT')")
+	@PutMapping("/principal/child/add")
+	public TeamDTO addChildToTeam(@RequestParam String childId, @RequestParam String teamId) {
+		User parent = getPrincipal();
+		Club club = parent.getActiveClub();
+		Optional<User> maybeChild = parent.getChildren().stream().filter(child -> child.getUserId().equals(childId)).findFirst();
+		Optional<Team> maybeTeam = club.getTeams().stream().filter(team -> team.getTeamId().equals(teamId)).findFirst();
+		return teamService.addMemberToTeam(getOptional(maybeChild, User.class, childId), getOptional(maybeTeam, Team.class, teamId));
+	}
+	
+	/*
+	 * Administrator end points
+	 */
 	
 	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping
