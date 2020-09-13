@@ -4,6 +4,7 @@ import java.util.Set;
 
 import javax.validation.Valid;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.controller.model.request.CreateChildRequestModel;
 import nu.borjessons.clubhouse.controller.model.request.CreateClubModel;
 import nu.borjessons.clubhouse.controller.model.request.CreateUserModel;
+import nu.borjessons.clubhouse.controller.model.request.FamilyRequestModel;
 import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.UserDTO;
@@ -36,6 +38,12 @@ public class RegistrationController extends AbstractController {
 	public UserDTO registerUser(@Valid @RequestBody CreateUserModel userDetails) {
 		
 		return registrationService.registerUser(userDetails);
+	}
+	
+	@PostMapping(SecurityConstants.FAMILY_REGISTRATION_URL)
+	public ResponseEntity<String> registerFamily(@Valid @RequestBody FamilyRequestModel familyDetails) {
+		registrationService.registerFamily(familyDetails);
+		return ResponseEntity.ok("Users successfully created");
 	}
 	
 	@PreAuthorize("hasRole('USER')")
