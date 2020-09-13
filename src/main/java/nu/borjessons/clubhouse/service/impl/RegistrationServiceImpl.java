@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.validation.Valid;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,64 +34,46 @@ public class RegistrationServiceImpl implements RegistrationService {
 	private final ClubService clubService;
 	private final ClubhouseMappers clubhouseMappers;
 	
-	// Isn't it better to devide this into three groups (for now)
-	// 1. Register club -> Public function -> calls private register club and private register user (returns user obj)
-	// 2. Register user -> Public function -> calls private register user
-	// 3. Register family -> Public function -> Calls private register user, private register children (takes parents (plural)
-
-	// Generally
-	// Each public function is responsible for setting the various roles and mapping details to user object (as well as children)
-	// Each service in turn provides the save logic. Creating a user or club all goes through the same creat service function?
-	// That way, saving a user can either have the childrens parents set
-	// or have the parents children set
-	
 	@Transactional
 	@Override
 	public UserDTO registerClub(CreateClubModel clubDetails) {
 		Club club = clubhouseMappers.clubCreationModelToClub(clubDetails);
 		Club savedClub = clubRepository.save(club);
 		Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER, Role.OWNER, Role.ADMIN));
-		User user = registerUser(clubDetails.getOwner(), savedClub, roles);
-		return new UserDTO(user, user.getActiveClubId());
+		User user = constructUserEntity(clubDetails.getOwner(), savedClub, roles);
+		return new UserDTO(userRepository.save(user), user.getActiveClubId());
 	}
 	
 	@Transactional
 	@Override
-	public void registerFamily(FamilyRequestModel familyDetails) {
+	public List<UserDTO> registerFamily(FamilyRequestModel familyDetails) {
 		List<CreateUserModel> parentsDetails = familyDetails.getParents();
 		List<CreateChildRequestModel> childrenDetails = familyDetails.getChildren();
+		Club club = clubService.getClubByClubId(familyDetails.getClubId());
+		Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER));
 		
-		// If private registerUser function is renamed to mapping function, then parents will have to be saved at
-		// then end of this function instead
-		List<User> savedParents = parentsDetails.stream().map(pDetail -> {
-			Club club = clubService.getClubByClubId(pDetail.getClubId());
-			Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER));
-			if (!childrenDetails.isEmpty()) roles.add(Role.PARENT);
-			return registerUser(pDetail, club, roles);
-			
-		}).collect(Collectors.toList());
+		List<User> parents = parentsDetails.stream().map(parentDetail -> constructUserEntity(parentDetail, club, roles)).collect(Collectors.toList());
 		
-		childrenDetails.stream().forEach(cDetails -> {
-			User child = clubhouseMappers.childCreationModelToUser(cDetails);
-			savedParents.forEach(p -> child.addParent(p));
+		childrenDetails.stream().forEach(childDetail -> {
+			User child = clubhouseMappers.childCreationModelToUser(childDetail);
+			parents.forEach(child::addParent);
+			roles.add(Role.PARENT);
 			userRepository.save(child);
 		});
+		
+		List<User> savedParents = userRepository.saveAll(parents);
+		return savedParents.stream().map(parent -> new UserDTO(parent, parent.getActiveClubId())).collect(Collectors.toList());
 	}
 
-
-	// Pointless at this point but removing it would mean rewriting all tests
 	@Transactional
 	@Override
 	public UserDTO registerUser(CreateUserModel userDetails) {
-		User user = clubhouseMappers.userCreationModelToUser(userDetails);
-		Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
-		addresses.stream().forEach(user::addAddress);
-		
-		Set<CreateChildRequestModel> children = userDetails.getChildren();
 		Club club = clubService.getClubByClubId(userDetails.getClubId());
-		user.setActiveClubId(club.getClubId());
 		
 		Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER));
+		User user = constructUserEntity(userDetails, club, roles);
+		
+		Set<CreateChildRequestModel> children = userDetails.getChildren();
 		
 		children.stream().forEach(childModel -> {
 			User child = clubhouseMappers.childCreationModelToUser(childModel);
@@ -128,14 +108,12 @@ public class RegistrationServiceImpl implements RegistrationService {
 		});
 	}
 	
-	// Should perhaps be renamed to only construct the user entity - not save it (like an additional mapper function)
-	// Eg. constructUserEntity
-	private User registerUser(CreateUserModel userDetails, Club club, Set<Role> roles) {		
+	private User constructUserEntity(CreateUserModel userDetails, Club club, Set<Role> roles) {		
 		User user = clubhouseMappers.userCreationModelToUser(userDetails);		
 		Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
 		user.setActiveClubId(club.getClubId());
 		addresses.stream().forEach(user::addAddress);
 		clubhouseMappers.mapClubRoles(roles, user, club);
-		return userRepository.save(user);
+		return user;
 	}
 }

@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.service;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.validation.Valid;
@@ -19,6 +20,6 @@ public interface RegistrationService {
 	
 	UserDTO registerChildren(User parent, String clubId, @Valid Set<CreateChildRequestModel> childModels);
 
-	void registerFamily(@Valid FamilyRequestModel familyDetails);
+	List<UserDTO> registerFamily(@Valid FamilyRequestModel familyDetails);
 
 }

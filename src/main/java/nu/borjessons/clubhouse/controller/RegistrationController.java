@@ -1,10 +1,10 @@
 package nu.borjessons.clubhouse.controller;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.validation.Valid;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,9 +41,8 @@ public class RegistrationController extends AbstractController {
 	}
 	
 	@PostMapping(SecurityConstants.FAMILY_REGISTRATION_URL)
-	public ResponseEntity<String> registerFamily(@Valid @RequestBody FamilyRequestModel familyDetails) {
-		registrationService.registerFamily(familyDetails);
-		return ResponseEntity.ok("Users successfully created");
+	public List<UserDTO> registerFamily(@Valid @RequestBody FamilyRequestModel familyDetails) {
+		return registrationService.registerFamily(familyDetails);
 	}
 	
 	@PreAuthorize("hasRole('USER')")

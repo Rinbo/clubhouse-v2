@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.security;
 
 import static nu.borjessons.clubhouse.security.SecurityConstants.CLUB_REGISTRATION_URL;
+import static nu.borjessons.clubhouse.security.SecurityConstants.FAMILY_REGISTRATION_URL;
 import static nu.borjessons.clubhouse.security.SecurityConstants.H2_CONSOLE;
 import static nu.borjessons.clubhouse.security.SecurityConstants.USER_REGISTRATION_URL;
 
@@ -38,7 +39,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 		http.cors().and().csrf().disable();
 		
 		http.authorizeRequests()
-	        .antMatchers(HttpMethod.POST, USER_REGISTRATION_URL, CLUB_REGISTRATION_URL)
+	        .antMatchers(HttpMethod.POST, USER_REGISTRATION_URL, CLUB_REGISTRATION_URL, FAMILY_REGISTRATION_URL)
 	        .permitAll()
 	        .antMatchers(H2_CONSOLE)
 	        .permitAll()
