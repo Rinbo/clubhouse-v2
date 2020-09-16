@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ActiveProfiles;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -29,6 +30,7 @@ import nu.borjessons.clubhouse.config.TestConfiguration;
 import nu.borjessons.clubhouse.controller.model.request.CreateUserModel;
 
 @SpringBootTest(webEnvironment =WebEnvironment.RANDOM_PORT)
+@ActiveProfiles(profiles = "test")
 @TestMethodOrder(MethodOrderer.Alphanumeric.class)
 @DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
 class ClubEndpointTests {

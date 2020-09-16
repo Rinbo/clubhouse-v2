@@ -10,4 +10,5 @@ import nu.borjessons.clubhouse.data.Club;
 @Repository
 public interface ClubRepository extends JpaRepository<Club, Long> {
 	Optional<Club> findByClubId(String clubId);
+	Club findByName(String name);
 }
