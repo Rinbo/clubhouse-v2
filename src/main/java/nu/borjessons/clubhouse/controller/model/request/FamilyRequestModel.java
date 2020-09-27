@@ -5,12 +5,12 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-@Getter
+@NoArgsConstructor
+@Getter @Setter
 public class FamilyRequestModel implements Serializable {
 	
 	private static final long serialVersionUID = 1L;

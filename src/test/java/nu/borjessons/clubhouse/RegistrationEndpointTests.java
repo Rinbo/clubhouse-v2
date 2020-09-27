@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +39,9 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import nu.borjessons.clubhouse.config.TestConfiguration;
 import nu.borjessons.clubhouse.controller.model.request.CreateChildRequestModel;
+import nu.borjessons.clubhouse.controller.model.request.CreateUserModel;
+import nu.borjessons.clubhouse.controller.model.request.FamilyRequestModel;
+import nu.borjessons.clubhouse.integration.util.RequestModels;
 
 @SpringBootTest(webEnvironment =WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = "test")
@@ -267,6 +271,65 @@ class RegistrationEndpointTests {
 		List<String> childrenList = response.jsonPath().getList("childrenIds");
 		
 		assertEquals(4, childrenList.size());
+	}
+	
+	@Test
+	void fa_registerFamily() {
+		
+		FamilyRequestModel family = new FamilyRequestModel();
+		CreateUserModel mom = new CreateUserModel();
+		mom.setFirstName("Maria");
+		mom.setLastName("Börjesson");
+		mom.setClubId(clubId);
+		mom.setDateOfBirth("1984-01-01");
+		mom.setEmail("mom@ex.com");
+		mom.setPassword(RequestModels.GENERIC_PASSWORD);
+		
+		CreateUserModel dad = new CreateUserModel();
+		dad.setFirstName("Rolle");
+		dad.setLastName("Börjesson");
+		dad.setClubId(clubId);
+		dad.setDateOfBirth("1982-01-01");
+		dad.setEmail("dad@ex.com");
+		dad.setPassword(RequestModels.GENERIC_PASSWORD);
+		
+		CreateChildRequestModel albin = new CreateChildRequestModel();
+		albin.setFirstName("Albin");
+		albin.setLastName("Börjesson");
+		albin.setDateOfBirth("2015-01-01");
+		
+		CreateChildRequestModel sixten = new CreateChildRequestModel();
+		sixten.setFirstName("Sixten");
+		sixten.setLastName("Börjesson");
+		sixten.setDateOfBirth("2012-01-01");
+
+		family.setParents(Arrays.asList(mom, dad));
+		family.setChildren(Arrays.asList(albin, sixten));
+		family.setClubId(clubId);		
+		
+		Response response = given().contentType(TestConfiguration.APPLICATION_JSON)
+				.accept(TestConfiguration.APPLICATION_JSON)
+				.body(family)
+				.when()
+				.post("/register/family")
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+		
+		List<Map<String, Object>> users = response.jsonPath().getList("");
+		assertNotNull(users);
+		
+		Map<String, Object> user1 = users.get(0);
+		assertNotNull(user1);
+		
+		@SuppressWarnings("unchecked")
+		List<String> childrenIds = (List<String>) user1.get("childrenIds");
+		
+		assertNotNull(childrenIds);
+		
+		assertEquals(2, childrenIds.size());
+		assertEquals(2, users.size());
 	}
 	
 }
