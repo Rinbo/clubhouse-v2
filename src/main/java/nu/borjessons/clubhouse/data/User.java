@@ -63,7 +63,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 	@Column(nullable = false)
 	private LocalDate dateOfBirth;
 	
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private Set<Address> addresses = new HashSet<>();
 	
 	private boolean managedAccount;
