@@ -42,6 +42,14 @@ public class TeamController extends AbstractController {
 	}
 	
 	@PreAuthorize("hasRole('USER')")
+	@GetMapping("/principal/my-teams")
+	public Set<TeamDTO> getMyTeams() {
+		User user = getPrincipal();
+		Set<Team> teams = user.getActiveClub().getTeams();
+		return teams.stream().filter(team -> team.getMembers().contains(user)).map(TeamDTO::new).collect(Collectors.toSet());
+	}
+	
+	@PreAuthorize("hasRole('USER')")
 	@GetMapping("/principal")
 	public Set<TeamDTO> getTeams() {
 		Set<Team> teams = getPrincipal().getActiveClub().getTeams();

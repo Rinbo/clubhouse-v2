@@ -25,7 +25,7 @@ public class ClubController extends AbstractController {
 	
 	@PreAuthorize("hasRole('USER')")
 	@GetMapping("/principal")
-	public Set<ClubDTO>getClubs() {
+	public Set<ClubDTO> getClubs() {
 		Set<Club> clubs = getPrincipal().getClubs();
 		return clubs.stream().map(ClubDTO::new).collect(Collectors.toSet());
 	}
