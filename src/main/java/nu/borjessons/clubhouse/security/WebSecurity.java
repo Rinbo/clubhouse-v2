@@ -1,12 +1,7 @@
 package nu.borjessons.clubhouse.security;
 
-import static nu.borjessons.clubhouse.security.SecurityConstants.CLUB_REGISTRATION_URL;
-import static nu.borjessons.clubhouse.security.SecurityConstants.FAMILY_REGISTRATION_URL;
-import static nu.borjessons.clubhouse.security.SecurityConstants.H2_CONSOLE;
-import static nu.borjessons.clubhouse.security.SecurityConstants.USER_REGISTRATION_URL;
-
-import java.util.Arrays;
-
+import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,8 +16,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.service.UserService;
+import java.util.List;
+
+import static nu.borjessons.clubhouse.security.SecurityConstants.*;
 
 @Configuration
 @EnableWebSecurity
@@ -56,19 +52,19 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder);
 	}
-	
+
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
-		configuration.setAllowedOrigins(Arrays.asList("*"));
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
-		configuration.setAllowedHeaders(Arrays.asList("Cache-Control", "Content-Type", "Authorization"));
-		configuration.setExposedHeaders(Arrays.asList("Authorization"));
+		configuration.setAllowedOrigins(List.of("*"));
+		configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
+		configuration.setAllowedHeaders(List.of("Cache-Control", "Content-Type", "Authorization"));
+		configuration.setExposedHeaders(List.of("Authorization"));
 		configuration.setAllowCredentials(true);
-		
+
 		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
-		
+
 		return source;
 	}
 

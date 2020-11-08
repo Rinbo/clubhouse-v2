@@ -23,7 +23,7 @@ import nu.borjessons.clubhouse.data.User;
 @RequiredArgsConstructor
 public class ClubhouseMappers {
 	
-	private static final String EMAIL_EXTENTION = "@clubhouse.nu";
+	private static final String EMAIL_EXTENSION = "@clubhouse.nu";
 	private final BCryptPasswordEncoder bcryptPasswordEncoder;
 	
 	public Club clubCreationModelToClub(CreateClubModel clubDetails) {
@@ -50,7 +50,7 @@ public class ClubhouseMappers {
 		String childIdentifier = child.getUserId();
 		child.setFirstName(childModel.getFirstName());
 		child.setLastName(childModel.getLastName());
-		child.setEmail(childIdentifier + EMAIL_EXTENTION);
+		child.setEmail(childIdentifier + EMAIL_EXTENSION);
 		child.setEncryptedPassword(bcryptPasswordEncoder.encode(UUID.randomUUID().toString()));
 		child.setDateOfBirth(LocalDate.parse(childModel.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
 		child.setManagedAccount(true);

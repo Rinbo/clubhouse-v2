@@ -36,10 +36,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) {
 		try {
-			UserLoginRequestModel creds = new ObjectMapper().readValue(req.getInputStream(),
+			UserLoginRequestModel credentials = new ObjectMapper().readValue(req.getInputStream(),
 					UserLoginRequestModel.class);
 			return authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(creds.getUsername().toLowerCase().trim(), creds.getPassword()));
+					new UsernamePasswordAuthenticationToken(credentials.getUsername().toLowerCase().trim(), credentials.getPassword()));
 		} catch (IOException e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Attempt to authenticate failed. Unable to read input stream from request object");
 		}

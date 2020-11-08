@@ -39,7 +39,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 	public UserDTO registerClub(CreateClubModel clubDetails) {
 		Club club = clubhouseMappers.clubCreationModelToClub(clubDetails);
 		Club savedClub = clubRepository.save(club);
-		Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER, Role.OWNER, Role.ADMIN));
+		Set<Role> roles = new HashSet<>(List.of(Role.USER, Role.OWNER, Role.ADMIN));
 		User user = constructUserEntity(clubDetails.getOwner(), savedClub, roles);
 		return new UserDTO(userRepository.save(user), user.getActiveClubId());
 	}

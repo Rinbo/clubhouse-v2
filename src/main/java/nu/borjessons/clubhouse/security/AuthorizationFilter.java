@@ -54,7 +54,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 				if (email == null) return null;
 
 				User user = userService.getUserByEmail(email);
-				
+
 				return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 
 	        }
