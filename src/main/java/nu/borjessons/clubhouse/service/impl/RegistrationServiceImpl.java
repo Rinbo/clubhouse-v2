@@ -1,14 +1,5 @@
 package nu.borjessons.clubhouse.service.impl;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.controller.model.request.CreateChildRequestModel;
 import nu.borjessons.clubhouse.controller.model.request.CreateClubModel;
@@ -20,17 +11,24 @@ import nu.borjessons.clubhouse.data.ClubRole.Role;
 import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.UserDTO;
 import nu.borjessons.clubhouse.repository.ClubRepository;
-import nu.borjessons.clubhouse.repository.UserRepository;
 import nu.borjessons.clubhouse.service.ClubService;
 import nu.borjessons.clubhouse.service.RegistrationService;
+import nu.borjessons.clubhouse.service.UserService;
 import nu.borjessons.clubhouse.util.ClubhouseMappers;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class RegistrationServiceImpl implements RegistrationService {
 
 	private final ClubRepository clubRepository;
-	private final UserRepository userRepository;
+	private final UserService userService;
 	private final ClubService clubService;
 	private final ClubhouseMappers clubhouseMappers;
 	
@@ -41,7 +39,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 		Club savedClub = clubRepository.save(club);
 		Set<Role> roles = new HashSet<>(List.of(Role.USER, Role.OWNER, Role.ADMIN));
 		User user = constructUserEntity(clubDetails.getOwner(), savedClub, roles);
-		return new UserDTO(userRepository.save(user), user.getActiveClubId());
+		return userService.createUser(user);
 	}
 	
 	@Transactional
@@ -50,19 +48,17 @@ public class RegistrationServiceImpl implements RegistrationService {
 		List<CreateUserModel> parentsDetails = familyDetails.getParents();
 		List<CreateChildRequestModel> childrenDetails = familyDetails.getChildren();
 		Club club = clubService.getClubByClubId(familyDetails.getClubId());
-		Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER));
+		Set<Role> roles = new HashSet<>(List.of(Role.USER));
 		
 		List<User> parents = parentsDetails.stream().map(parentDetail -> constructUserEntity(parentDetail, club, roles)).collect(Collectors.toList());
 		
-		childrenDetails.stream().forEach(childDetail -> {
+		childrenDetails.forEach(childDetail -> {
 			User child = clubhouseMappers.childCreationModelToUser(childDetail);
 			parents.forEach(child::addParent);
 			roles.add(Role.PARENT);
-			userRepository.save(child);
 		});
 		
-		List<User> savedParents = userRepository.saveAll(parents);
-		return savedParents.stream().map(parent -> new UserDTO(parent, parent.getActiveClubId())).collect(Collectors.toList());
+		return userService.createUsers(parents);
 	}
 
 	@Transactional
@@ -70,21 +66,20 @@ public class RegistrationServiceImpl implements RegistrationService {
 	public UserDTO registerUser(CreateUserModel userDetails) {
 		Club club = clubService.getClubByClubId(userDetails.getClubId());
 		
-		Set<Role> roles = new HashSet<>(Arrays.asList(Role.USER));
+		Set<Role> roles = new HashSet<>(List.of(Role.USER));
 		User user = constructUserEntity(userDetails, club, roles);
 		
 		Set<CreateChildRequestModel> children = userDetails.getChildren();
 		
-		children.stream().forEach(childModel -> {
+		children.forEach(childModel -> {
 			User child = clubhouseMappers.childCreationModelToUser(childModel);
 			child.addParent(user);
-			userRepository.save(child);
 			roles.add(Role.PARENT);
 		});
 		
 		clubhouseMappers.mapClubRoles(roles, user, club);
 		
-		return new UserDTO(userRepository.save(user), club.getClubId());
+		return userService.createUser(user);
 	}
 
 	@Transactional
@@ -96,14 +91,14 @@ public class RegistrationServiceImpl implements RegistrationService {
 		saveChildren(parent, childModels, roles);
 		clubhouseMappers.mapClubRoles(roles, parent, club);
 		
-		return new UserDTO(userRepository.save(parent), clubId);
+		return userService.updateUser(parent, clubId);
 	}
 
 	private void saveChildren(User parent, Set<CreateChildRequestModel> childModels, Set<Role> parentRoles) {
-		childModels.stream().forEach(childModel -> {
+		childModels.forEach(childModel -> {
 			User child = clubhouseMappers.childCreationModelToUser(childModel);
 			child.addParent(parent);
-			userRepository.save(child);
+			userService.createUser(child);
 			parentRoles.add(Role.PARENT);
 		});
 	}
@@ -112,7 +107,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 		User user = clubhouseMappers.userCreationModelToUser(userDetails);		
 		Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
 		user.setActiveClubId(club.getClubId());
-		addresses.stream().forEach(user::addAddress);
+		addresses.forEach(user::addAddress);
 		clubhouseMappers.mapClubRoles(roles, user, club);
 		return user;
 	}

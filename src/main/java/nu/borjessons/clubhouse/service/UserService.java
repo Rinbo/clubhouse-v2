@@ -1,5 +1,7 @@
 package nu.borjessons.clubhouse.service;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import javax.validation.Valid;
@@ -15,8 +17,14 @@ import nu.borjessons.clubhouse.dto.UserDTO;
 public interface UserService extends UserDetailsService {
 
 	User getUserByEmail(String username);
-	
-	UserDTO updateUser(User user, String clubId, @Valid UpdateUserModel userDetails);
+
+	UserDTO createUser(User user);
+
+	List<UserDTO> createUsers(List<User> users);
+
+	UserDTO updateUser(User user, String userId);
+
+	UserDTO updateUser(User user, String clubId, UpdateUserModel userDetails);
 	
 	UserDTO updateUserRoles(User user, String clubId, Set<Role> roles);
 

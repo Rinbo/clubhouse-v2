@@ -2,11 +2,7 @@ package nu.borjessons.clubhouse.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -53,11 +49,18 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void updateUserLoginTime(String email) {
-		Optional<User> maybeUser = userRepository.findByEmail(email);
-		User user = getOrThrowUNFE(maybeUser, email);
-		user.setLastLoginTime(LocalDateTime.now());
-		userRepository.save(user);
+	public UserDTO createUser(User user) {
+		return new UserDTO(userRepository.save(user), user.getActiveClubId());
+	}
+
+	@Override
+	public List<UserDTO> createUsers(List<User> users) {
+		return userRepository.saveAll(users).stream().map(user -> new UserDTO(user, user.getActiveClubId())).collect(Collectors.toList());
+	}
+
+	@Override
+	public UserDTO updateUser(User user, String clubId) {
+		return new UserDTO(userRepository.save(user), clubId);
 	}
 
 	@Override
@@ -120,7 +123,15 @@ public class UserServiceImpl implements UserService {
 		});
 		userRepository.delete(user);
 	}
-	
+
+	@Override
+	public void updateUserLoginTime(String email) {
+		Optional<User> maybeUser = userRepository.findByEmail(email);
+		User user = getOrThrowUNFE(maybeUser, email);
+		user.setLastLoginTime(LocalDateTime.now());
+		userRepository.save(user);
+	}
+
 	@Override
 	@Transactional
 	public UserDTO updateUserChildren(User parent, Set<User> children, Club club) {
