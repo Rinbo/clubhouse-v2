@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse;
+package nu.borjessons.clubhouse.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -27,15 +27,15 @@ private final RegistrationService registrationService;
 	private void loadData() {
 		
 		CreateUserModel owner = new CreateUserModel();
-		owner.setFirstName("Alle");
-		owner.setLastName("Allesson");
+		owner.setFirstName("Albin");
+		owner.setLastName("Börjesson");
 		owner.setDateOfBirth("1980-01-01");
 		owner.setClubId("dummy");
 		owner.setEmail("alle@clubhouse.com");
 		owner.setPassword("1234567890");
 		
 		CreateClubModel clubModel = new CreateClubModel();
-		clubModel.setName("Alles IK");
+		clubModel.setName("Borjessons IK");
 		clubModel.setType(Type.SPORT);
 		clubModel.setOwner(owner);
 		

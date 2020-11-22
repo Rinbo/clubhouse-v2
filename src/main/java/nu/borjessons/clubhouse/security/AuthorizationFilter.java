@@ -17,48 +17,47 @@ import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.service.UserService;
 
 public class AuthorizationFilter extends BasicAuthenticationFilter {
-	
-	private UserService userService;
-	private JWTUtil jwtUtil;
 
-	public AuthorizationFilter(AuthenticationManager authManager, UserService userService, JWTUtil jwtUtil) {
-		super(authManager);
-		this.jwtUtil = jwtUtil;
-		this.userService = userService;
-	}
-	
-	@Override
-	protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
-			throws IOException, ServletException {
-		
-		String token = req.getHeader(SecurityConstants.AUTHORIZATION);
-		
-		if(token == null) {
+    private UserService userService;
+    private JWTUtil jwtUtil;
+
+    public AuthorizationFilter(AuthenticationManager authManager, UserService userService, JWTUtil jwtUtil) {
+        super(authManager);
+        this.jwtUtil = jwtUtil;
+        this.userService = userService;
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+
+        String token = req.getHeader(SecurityConstants.AUTHORIZATION);
+
+        if (token == null) {
             chain.doFilter(req, res);
             return;
         }
-		
-		UsernamePasswordAuthenticationToken authentication = getAuthentication(token.replace(SecurityConstants.TOKEN_PREFIX, ""));
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		chain.doFilter(req, res);
-	}
-	
-	 private UsernamePasswordAuthenticationToken getAuthentication(String token) {
-	        if(token != null) {
 
-	        	if (!jwtUtil.validateToken(token)) 	return null;
-	        	
-	        	Claims claims = jwtUtil.getAllClaimsFromToken(token);
-				String email = claims.getSubject();
+        UsernamePasswordAuthenticationToken authentication = getAuthentication(token.replace(SecurityConstants.TOKEN_PREFIX, ""));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        chain.doFilter(req, res);
+    }
 
-				if (email == null) return null;
+    private UsernamePasswordAuthenticationToken getAuthentication(String token) {
+        if (token != null) {
 
-				User user = userService.getUserByEmail(email);
+            if (!jwtUtil.validateToken(token)) return null;
 
-				return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            Claims claims = jwtUtil.getAllClaimsFromToken(token);
+            String email = claims.getSubject();
 
-	        }
-	        return null;
-	    }
+            if (email == null) return null;
+
+            User user = userService.getUserByEmail(email);
+
+            return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        }
+        return null;
+    }
 
 }

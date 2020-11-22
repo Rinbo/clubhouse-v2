@@ -66,7 +66,7 @@ public class User extends BaseEntity implements UserDetails, Serializable {
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<User> parents = new HashSet<>();
 
-    @ManyToMany(mappedBy = "parents", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "parents", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private Set<User> children = new HashSet<>();
 
     public Set<String> getActiveRoles() {
@@ -184,14 +184,12 @@ public class User extends BaseEntity implements UserDetails, Serializable {
             return true;
         if (obj == null)
             return false;
+
         if (getClass() != obj.getClass())
             return false;
         User other = (User) obj;
         if (userId == null) {
-            if (other.userId != null)
-                return false;
-        } else if (!userId.equals(other.userId))
-            return false;
-        return true;
+            return other.userId == null;
+        } else return userId.equals(other.userId);
     }
 }
