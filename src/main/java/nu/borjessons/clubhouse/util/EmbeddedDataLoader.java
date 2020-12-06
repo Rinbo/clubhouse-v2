@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.util;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -12,27 +13,25 @@ import nu.borjessons.clubhouse.dto.UserDTO;
 import nu.borjessons.clubhouse.repository.ClubRepository;
 import nu.borjessons.clubhouse.service.RegistrationService;
 
+import javax.annotation.PostConstruct;
+
 @Component
 @Profile("local")
 @Slf4j
+@RequiredArgsConstructor
 public class EmbeddedDataLoader {
+
 private final RegistrationService registrationService;
 	
-	@Autowired
-	public EmbeddedDataLoader(RegistrationService registrationService, ClubRepository clubRepository) {
-		this.registrationService = registrationService;
-		loadData();
-	}
-	
+	@PostConstruct
 	private void loadData() {
-		
 		CreateUserModel owner = new CreateUserModel();
-		owner.setFirstName("Albin");
+		owner.setFirstName("Robin");
 		owner.setLastName("Börjesson");
 		owner.setDateOfBirth("1980-01-01");
 		owner.setClubId("dummy");
-		owner.setEmail("alle@clubhouse.com");
-		owner.setPassword("1234567890");
+		owner.setEmail("robin.b@outlook.com");
+		owner.setPassword("password");
 		
 		CreateClubModel clubModel = new CreateClubModel();
 		clubModel.setName("Borjessons IK");
@@ -41,6 +40,6 @@ private final RegistrationService registrationService;
 		
 		UserDTO dto = registrationService.registerClub(clubModel);
 		
-		log.info(dto.getClubId());
+		log.info(String.format("Created club: %s and user %s",dto.getClubId(), dto.getEmail()));
 	}
 }

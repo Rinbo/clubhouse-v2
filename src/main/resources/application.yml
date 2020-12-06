@@ -7,7 +7,7 @@ spring:
   h2:
     console:
       enabled: true
-    
+
 token:
   secret: ${token.secret}
   expiration: 604800
@@ -15,8 +15,12 @@ token:
 logging:
   level:
     root: info
-    org.springframework.web: debug
-    org.springframework.security: debug
+    org:
+      starmonkey:
+        brown: DEBUG
+      springframework:
+        web: warn
+        security: warn
 
 
 

@@ -25,47 +25,51 @@ import static nu.borjessons.clubhouse.security.SecurityConstants.*;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class WebSecurity extends WebSecurityConfigurerAdapter {
-	
-	private final BCryptPasswordEncoder bCryptPasswordEncoder;
-	private final UserService userService;
-	private final JWTUtil jwtUtil;
-	
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.cors().and().csrf().disable();
-		
-		http.authorizeRequests()
-	        .antMatchers(HttpMethod.POST, USER_REGISTRATION_URL, CLUB_REGISTRATION_URL, FAMILY_REGISTRATION_URL)
-	        .permitAll()
-	        .antMatchers(H2_CONSOLE)
-	        .permitAll()
-	        .anyRequest().authenticated()
-	        .and()
-	        .addFilter(new AuthenticationFilter(authenticationManager(), jwtUtil, userService))
-	        .addFilter(new AuthorizationFilter(authenticationManager(), userService, jwtUtil))
-	        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		
-		http.headers().frameOptions().disable();
-	}
-	
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder);
-	}
 
-	@Bean
-	CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
-		configuration.setAllowedOrigins(List.of("*"));
-		configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
-		configuration.setAllowedHeaders(List.of("Cache-Control", "Content-Type", "Authorization"));
-		configuration.setExposedHeaders(List.of("Authorization"));
-		configuration.setAllowCredentials(true);
+  private final BCryptPasswordEncoder bCryptPasswordEncoder;
+  private final UserService userService;
+  private final JWTUtil jwtUtil;
 
-		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http.cors().and().csrf().disable();
 
-		return source;
-	}
+    http.authorizeRequests()
+        .antMatchers(
+            HttpMethod.POST, USER_REGISTRATION_URL, CLUB_REGISTRATION_URL, FAMILY_REGISTRATION_URL)
+        .permitAll()
+        .antMatchers(HttpMethod.GET, GET_ALL_CLUBS_URL)
+        .permitAll()
+        .antMatchers(H2_CONSOLE)
+        .permitAll()
+        .anyRequest()
+        .authenticated()
+        .and()
+        .addFilter(new AuthenticationFilter(authenticationManager(), jwtUtil, userService))
+        .addFilter(new AuthorizationFilter(authenticationManager(), userService, jwtUtil))
+        .sessionManagement()
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
+    http.headers().frameOptions().disable();
+  }
+
+  @Override
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder);
+  }
+
+  @Bean
+  CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
+    configuration.setAllowedOrigins(List.of("*"));
+    configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
+    configuration.setAllowedHeaders(List.of("Cache-Control", "Content-Type", "Authorization"));
+    configuration.setExposedHeaders(List.of("Authorization"));
+    configuration.setAllowCredentials(true);
+
+    final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+
+    return source;
+  }
 }
