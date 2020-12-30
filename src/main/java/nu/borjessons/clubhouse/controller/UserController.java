@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.controller;
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.controller.model.request.UpdateUserModel;
 import nu.borjessons.clubhouse.data.Club;
+import nu.borjessons.clubhouse.data.ClubRole;
 import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.UserDTO;
 import nu.borjessons.clubhouse.service.UserService;
@@ -91,6 +92,13 @@ public class UserController extends AbstractController {
   public UserDTO updateUser(@PathVariable String userId, @RequestBody UpdateUserModel userDetails) {
     Club club = getPrincipal().getActiveClub();
     return userService.updateUser(club.getUser(userId), club.getClubId(), userDetails);
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @PutMapping("/roles/{userId}")
+  public UserDTO updateUser(@PathVariable String userId, @RequestBody Set<ClubRole.Role> roles) {
+    Club club = getPrincipal().getActiveClub();
+    return userService.updateUserRoles(club.getUser(userId), club, roles);
   }
 
   // Principal needs similar functionality to add another parent to his/her children. Needs helper

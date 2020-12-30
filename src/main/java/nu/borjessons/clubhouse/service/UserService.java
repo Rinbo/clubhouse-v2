@@ -1,43 +1,40 @@
 package nu.borjessons.clubhouse.service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import javax.validation.Valid;
-
-import org.springframework.security.core.userdetails.UserDetailsService;
-
 import nu.borjessons.clubhouse.controller.model.request.UpdateUserModel;
 import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.ClubRole.Role;
 import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.UserDTO;
+import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.List;
+import java.util.Set;
 
 public interface UserService extends UserDetailsService {
 
-	User getUserByEmail(String username);
+  User getUserByEmail(String username);
 
-	UserDTO createUser(User user);
+  UserDTO createUser(User user);
 
-	List<UserDTO> createUsers(List<User> users);
+  List<UserDTO> createUsers(List<User> users);
 
-	UserDTO updateUser(User user, String userId);
+  UserDTO updateUser(User user, String userId);
 
-	UserDTO updateUser(User user, String clubId, UpdateUserModel userDetails);
-	
-	UserDTO updateUserRoles(User user, String clubId, Set<Role> roles);
+  UserDTO updateUser(User user, String clubId, UpdateUserModel userDetails);
 
-	void removeUserFromClub(User user, Club club);
-	
-	void deleteUser(User user);
+  UserDTO updateUserRoles(User user, Club club, Set<Role> roles);
 
-	void updateUserLoginTime(String email);
+  void removeUserFromClub(User user, Club club);
 
-	UserDTO updateUserChildren(User parent, Set<User> children, Club club);
+  void deleteUser(User user);
 
-	UserDTO switchClub(User user, Club club);
+  void updateUserLoginTime(String email);
 
-	UserDTO joinClub(User user, String clubId);
+  UserDTO updateUserChildren(User parent, Set<User> children, Club club);
+
+  UserDTO switchClub(User user, Club club);
+
+  UserDTO joinClub(User user, String clubId);
+
+  Set<User> getUsers(String clubId, Set<String> userIds);
 }
-
