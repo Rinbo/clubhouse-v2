@@ -11,6 +11,7 @@ import nu.borjessons.clubhouse.service.TeamService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -100,7 +101,7 @@ public class TeamController extends AbstractController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
-  public TeamDTO createTeam(@RequestBody CreateTeamModel teamModel) {
+  public TeamDTO createTeam(@RequestBody @Valid CreateTeamModel teamModel) {
     User admin = getPrincipal();
     String clubId = admin.getActiveClubId();
     Set<User> leaders =

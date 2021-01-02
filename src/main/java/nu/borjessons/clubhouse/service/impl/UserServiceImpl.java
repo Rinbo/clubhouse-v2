@@ -207,11 +207,6 @@ public class UserServiceImpl implements UserService {
     return new UserDTO(userRepository.save(user), clubId);
   }
 
-  @Override
-  public Set<User> getUsers(String clubId, Set<String> userIds) {
-    return null;
-  }
-
   private static User getOrThrowUNFE(Optional<User> user, String email) {
     return user.orElseThrow(
         () -> new UsernameNotFoundException(String.format("User %s could not be found", email)));

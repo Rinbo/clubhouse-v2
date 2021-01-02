@@ -35,6 +35,4 @@ public interface UserService extends UserDetailsService {
   UserDTO switchClub(User user, Club club);
 
   UserDTO joinClub(User user, String clubId);
-
-  Set<User> getUsers(String clubId, Set<String> userIds);
 }

@@ -5,6 +5,7 @@ import nu.borjessons.clubhouse.controller.model.request.UpdateUserModel;
 import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.ClubRole;
 import nu.borjessons.clubhouse.data.User;
+import nu.borjessons.clubhouse.dto.BaseUserDTO;
 import nu.borjessons.clubhouse.dto.UserDTO;
 import nu.borjessons.clubhouse.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -123,5 +124,16 @@ public class UserController extends AbstractController {
     Club club = getPrincipal().getActiveClub();
     User user = club.getUser(userId);
     userService.removeUserFromClub(user, club);
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/leaders")
+  public Set<BaseUserDTO> getLeaders() {
+    User admin = getPrincipal();
+    String clubId = admin.getActiveClubId();
+    return admin.getActiveClub().getUsers().stream()
+        .filter(user -> user.getRolesForClub(clubId).contains(ClubRole.Role.LEADER.name()))
+        .map(BaseUserDTO::new)
+        .collect(Collectors.toSet());
   }
 }
