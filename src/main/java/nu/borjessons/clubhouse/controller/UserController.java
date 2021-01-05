@@ -24,6 +24,14 @@ public class UserController extends AbstractController {
 
   private final UserService userService;
 
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping
+  public Set<BaseUserDTO> getUsers() {
+    return getPrincipal().getActiveClub().getUsers().stream()
+        .map(BaseUserDTO::new)
+        .collect(Collectors.toSet());
+  }
+
   /*
    * Principal routes
    */
