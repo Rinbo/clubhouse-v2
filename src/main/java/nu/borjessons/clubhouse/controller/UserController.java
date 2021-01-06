@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.controller;
 
 import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.controller.model.request.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.controller.model.request.UpdateUserModel;
 import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.ClubRole;
@@ -13,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,7 +49,7 @@ public class UserController extends AbstractController {
   @PutMapping("/principal")
   public UserDTO updateSelf(@RequestBody UpdateUserModel userDetails) {
     User user = getPrincipal();
-    return userService.updateUser(user, user.getActiveClubId(), userDetails);
+    return userService.updateUser(user, user.getActiveClub(), userDetails);
   }
 
   @DeleteMapping("/principal")
@@ -98,9 +100,12 @@ public class UserController extends AbstractController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/{userId}")
-  public UserDTO updateUser(@PathVariable String userId, @RequestBody UpdateUserModel userDetails) {
+  public UserDTO updateUser(
+      @PathVariable String userId, @RequestBody @Valid AdminUpdateUserModel userDetails) {
     Club club = getPrincipal().getActiveClub();
-    return userService.updateUser(club.getUser(userId), club.getClubId(), userDetails);
+    User user = club.getUser(userId);
+    userService.updateUser(user, club, userDetails);
+    return userService.updateUserRoles(user, club, userDetails.getRoles());
   }
 
   @PreAuthorize("hasRole('ADMIN')")

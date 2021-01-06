@@ -68,16 +68,15 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserDTO updateUser(User user, String clubId, UpdateUserModel userDetails) {
+  public UserDTO updateUser(User user, Club club, UpdateUserModel userDetails) {
+    String clubId = club.getClubId();
     user.setFirstName(userDetails.getFirstName());
     user.setLastName(userDetails.getLastName());
     user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
 
     Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
-
     Set<Address> oldAddresses = user.getAddresses();
-    oldAddresses.forEach(address -> address.setUser(null));
-    user.setAddresses(new HashSet<>());
+    oldAddresses.forEach(user::removeAddress);
     addressRepository.deleteAll(oldAddresses);
     addresses.forEach(user::addAddress);
 

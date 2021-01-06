@@ -20,7 +20,7 @@ public interface UserService extends UserDetailsService {
 
   UserDTO updateUser(User user, String userId);
 
-  UserDTO updateUser(User user, String clubId, UpdateUserModel userDetails);
+  UserDTO updateUser(User user, Club club, UpdateUserModel userDetails);
 
   UserDTO updateUserRoles(User user, Club club, Set<Role> roles);
 
