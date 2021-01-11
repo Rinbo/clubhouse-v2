@@ -28,9 +28,10 @@ public class UserController extends AbstractController {
 
   @PreAuthorize("hasRole('USER')")
   @GetMapping
-  public Set<BaseUserDTO> getUsers() {
-    return getPrincipal().getActiveClub().getUsers().stream()
-        .map(BaseUserDTO::new)
+  public Set<UserDTO> getUsers() {
+    Club activeClub = getPrincipal().getActiveClub();
+    return activeClub.getUsers().stream()
+        .map(user -> new UserDTO(user, activeClub.getClubId()))
         .collect(Collectors.toSet());
   }
 
@@ -85,6 +86,11 @@ public class UserController extends AbstractController {
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST, "User is already a member of this club");
     return userService.joinClub(user, clubId);
+  }
+
+  @GetMapping("/roles")
+  public ClubRole.Role[] getRolesNames() {
+    return ClubRole.Role.values();
   }
 
   /*
