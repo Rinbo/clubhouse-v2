@@ -27,88 +27,96 @@ import java.util.stream.Collectors;
 @Service
 public class RegistrationServiceImpl implements RegistrationService {
 
-	private final ClubRepository clubRepository;
-	private final UserService userService;
-	private final ClubService clubService;
-	private final ClubhouseMappers clubhouseMappers;
-	
-	@Transactional
-	@Override
-	public UserDTO registerClub(CreateClubModel clubDetails) {
-		Club club = clubhouseMappers.clubCreationModelToClub(clubDetails);
-		Club savedClub = clubRepository.save(club);
-		Set<Role> roles = new HashSet<>(List.of(Role.USER, Role.OWNER, Role.ADMIN));
-		User user = constructUserEntity(clubDetails.getOwner(), savedClub, roles);
-		return userService.createUser(user);
-	}
-	
-	@Transactional
-	@Override
-	public List<UserDTO> registerFamily(FamilyRequestModel familyDetails) {
-		List<CreateUserModel> parentsDetails = familyDetails.getParents();
-		List<CreateChildRequestModel> childrenDetails = familyDetails.getChildren();
-		Club club = clubService.getClubByClubId(familyDetails.getClubId());
-		Set<Role> roles = new HashSet<>(List.of(Role.USER));
-		
-		List<User> parents = parentsDetails.stream().map(parentDetail -> constructUserEntity(parentDetail, club, roles)).collect(Collectors.toList());
-		
-		childrenDetails.forEach(childDetail -> {
-			User child = clubhouseMappers.childCreationModelToUser(childDetail);
-			parents.forEach(child::addParent);
-			roles.add(Role.PARENT);
-		});
-		
-		return userService.createUsers(parents);
-	}
+  private final ClubRepository clubRepository;
+  private final UserService userService;
+  private final ClubService clubService;
+  private final ClubhouseMappers clubhouseMappers;
 
-	@Transactional
-	@Override
-	public UserDTO registerUser(CreateUserModel userDetails) {
-		Club club = clubService.getClubByClubId(userDetails.getClubId());
-		
-		Set<Role> roles = new HashSet<>(List.of(Role.USER));
-		User user = constructUserEntity(userDetails, club, roles);
-		
-		Set<CreateChildRequestModel> children = userDetails.getChildren();
-		
-		children.forEach(childModel -> {
-			User child = clubhouseMappers.childCreationModelToUser(childModel);
-			child.addParent(user);
-			roles.add(Role.PARENT);
-		});
-		
-		clubhouseMappers.mapClubRoles(roles, user, club);
-		
-		return userService.createUser(user);
-	}
+  @Transactional
+  @Override
+  public UserDTO registerClub(CreateClubModel clubDetails) {
+    Club club = clubhouseMappers.clubCreationModelToClub(clubDetails);
+    Club savedClub = clubRepository.save(club);
+    Set<Role> roles = new HashSet<>(List.of(Role.USER, Role.OWNER, Role.ADMIN));
+    User user = constructUserEntity(clubDetails.getOwner(), savedClub, roles);
+    return userService.createUser(user);
+  }
 
-	@Transactional
-	@Override
-	public UserDTO registerChildren(User parent, String clubId, Set<CreateChildRequestModel> childModels) {
-		
-		Club club = clubService.getClubByClubId(clubId);
-		Set<Role> roles = new HashSet<>();
-		saveChildren(parent, childModels, roles);
-		clubhouseMappers.mapClubRoles(roles, parent, club);
-		
-		return userService.updateUser(parent, clubId);
-	}
+  @Transactional
+  @Override
+  public List<UserDTO> registerFamily(FamilyRequestModel familyDetails) {
+    List<CreateUserModel> parentsDetails = familyDetails.getParents();
+    List<CreateChildRequestModel> childrenDetails = familyDetails.getChildren();
+    Club club = clubService.getClubByClubId(familyDetails.getClubId());
+    Set<Role> roles = new HashSet<>(List.of(Role.USER));
+    if (!childrenDetails.isEmpty()) roles.add(Role.PARENT);
 
-	private void saveChildren(User parent, Set<CreateChildRequestModel> childModels, Set<Role> parentRoles) {
-		childModels.forEach(childModel -> {
-			User child = clubhouseMappers.childCreationModelToUser(childModel);
-			child.addParent(parent);
-			userService.createUser(child);
-			parentRoles.add(Role.PARENT);
-		});
-	}
-	
-	private User constructUserEntity(CreateUserModel userDetails, Club club, Set<Role> roles) {		
-		User user = clubhouseMappers.userCreationModelToUser(userDetails);		
-		Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
-		user.setActiveClubId(club.getClubId());
-		addresses.forEach(user::addAddress);
-		clubhouseMappers.mapClubRoles(roles, user, club);
-		return user;
-	}
+    List<User> parents =
+        parentsDetails.stream()
+            .map(parentDetail -> constructUserEntity(parentDetail, club, roles))
+            .collect(Collectors.toList());
+
+    childrenDetails.forEach(
+        childDetail -> {
+          User child = clubhouseMappers.childCreationModelToUser(childDetail);
+          parents.forEach(child::addParent);
+        });
+
+    return userService.createUsers(parents);
+  }
+
+  @Transactional
+  @Override
+  public UserDTO registerUser(CreateUserModel userDetails) {
+    Club club = clubService.getClubByClubId(userDetails.getClubId());
+
+    Set<Role> roles = new HashSet<>(List.of(Role.USER));
+    User user = constructUserEntity(userDetails, club, roles);
+
+    Set<CreateChildRequestModel> children = userDetails.getChildren();
+
+    children.forEach(
+        childModel -> {
+          User child = clubhouseMappers.childCreationModelToUser(childModel);
+          child.addParent(user);
+          roles.add(Role.PARENT);
+        });
+
+    clubhouseMappers.mapClubRoles(roles, user, club);
+
+    return userService.createUser(user);
+  }
+
+  @Transactional
+  @Override
+  public UserDTO registerChildren(
+      User parent, String clubId, Set<CreateChildRequestModel> childModels) {
+
+    Club club = clubService.getClubByClubId(clubId);
+    Set<Role> roles = new HashSet<>();
+    saveChildren(parent, childModels, roles);
+    clubhouseMappers.mapClubRoles(roles, parent, club);
+
+    return userService.updateUser(parent, clubId);
+  }
+
+  private void saveChildren(
+      User parent, Set<CreateChildRequestModel> childModels, Set<Role> parentRoles) {
+    childModels.forEach(
+        childModel -> {
+          User child = clubhouseMappers.childCreationModelToUser(childModel);
+          child.addParent(parent);
+          userService.createUser(child);
+          parentRoles.add(Role.PARENT);
+        });
+  }
+
+  private User constructUserEntity(CreateUserModel userDetails, Club club, Set<Role> roles) {
+    User user = clubhouseMappers.userCreationModelToUser(userDetails);
+    Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
+    user.setActiveClubId(club.getClubId());
+    addresses.forEach(user::addAddress);
+    clubhouseMappers.mapClubRoles(roles, user, club);
+    return user;
+  }
 }

@@ -1,7 +1,7 @@
 package nu.borjessons.clubhouse.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.controller.model.request.CreateTeamModel;
+import nu.borjessons.clubhouse.controller.model.request.TeamRequestModel;
 import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.Team;
 import nu.borjessons.clubhouse.data.User;
@@ -29,7 +29,7 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
 
   @Override
   @Transactional
-  public TeamDTO createTeam(Club club, CreateTeamModel teamModel, Set<User> leaders) {
+  public TeamDTO createTeam(Club club, TeamRequestModel teamModel, Set<User> leaders) {
     Team team = new Team();
     team.setName(teamModel.getName());
     team.setMinAge(teamModel.getMinAge());
@@ -68,14 +68,25 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
   @Override
   public void removeUsersFromAllTeams(Set<User> users, Club club) {
     Set<Team> teams = club.getTeams();
-    teams.stream()
-        .forEach(
-            team -> {
-              for (User user : users) {
-                team.removeMember(user);
-                team.removeLeader(user);
-              }
-            });
+    teams.forEach(
+        team -> {
+          for (User user : users) {
+            team.removeMember(user);
+            team.removeLeader(user);
+          }
+        });
     teamRepository.saveAll(teams);
+  }
+
+  @Override
+  public TeamDTO updateTeam(
+      Club club, String teamId, TeamRequestModel teamModel, Set<User> leaders) {
+    Team team = club.getTeams().stream().findFirst().orElseThrow();
+    team.setName(teamModel.getName());
+    team.setLeaders(leaders);
+    team.setMaxAge(teamModel.getMaxAge());
+    team.setMinAge(teamModel.getMinAge());
+    clubRepository.save(club);
+    return new TeamDTO(team);
   }
 }

@@ -1,7 +1,7 @@
 package nu.borjessons.clubhouse.controller;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.controller.model.request.CreateTeamModel;
+import nu.borjessons.clubhouse.controller.model.request.TeamRequestModel;
 import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.ClubRole.Role;
 import nu.borjessons.clubhouse.data.Team;
@@ -101,7 +101,7 @@ public class TeamController extends AbstractController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
-  public TeamDTO createTeam(@RequestBody @Valid CreateTeamModel teamModel) {
+  public TeamDTO createTeam(@RequestBody @Valid TeamRequestModel teamModel) {
     User admin = getPrincipal();
     String clubId = admin.getActiveClubId();
     Set<User> leaders =
@@ -110,5 +110,20 @@ public class TeamController extends AbstractController {
             .filter(user -> user.getRolesForClub(clubId).contains(Role.LEADER.name()))
             .collect(Collectors.toSet());
     return teamService.createTeam(getPrincipal().getActiveClub(), teamModel, leaders);
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @PutMapping("/{teamId}")
+  public TeamDTO updateTeam(
+      @RequestBody @Valid TeamRequestModel teamModel, @PathVariable String teamId) {
+    User admin = getPrincipal();
+    Club activeClub = admin.getActiveClub();
+    Set<User> leaders =
+        admin.getActiveClub().getUsers().stream()
+            .filter(user -> teamModel.getLeaderIds().contains(user.getUserId()))
+            .filter(
+                user -> user.getRolesForClub(activeClub.getClubId()).contains(Role.LEADER.name()))
+            .collect(Collectors.toSet());
+    return teamService.updateTeam(activeClub, teamId, teamModel, leaders);
   }
 }

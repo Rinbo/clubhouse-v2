@@ -13,12 +13,12 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class CreateTeamModel implements Serializable {
+public class TeamRequestModel implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
   @NotNull(message = "Team name cannot be null")
-  @Size(min = 2, message = "Team name must consist of atleast two characters")
+  @Size(min = 2, message = "Team name must consist of at least two characters")
   private String name;
 
   @NotNull(message = "Minimum age limit cannot be null")
@@ -31,5 +31,6 @@ public class CreateTeamModel implements Serializable {
   @Max(100)
   private int maxAge;
 
+  @NotNull(message = "LeaderId list cannot be null")
   private Set<String> leaderIds = new HashSet<>();
 }
