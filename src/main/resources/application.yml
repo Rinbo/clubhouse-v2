@@ -14,12 +14,12 @@ token:
 
 logging:
   level:
-    root: info
+    root: debug
     org:
       starmonkey:
         brown: DEBUG
       springframework:
-        web: warn
+        web: info
         security: warn
 
 
