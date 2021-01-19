@@ -126,4 +126,24 @@ public class TeamController extends AbstractController {
             .collect(Collectors.toSet());
     return teamService.updateTeam(activeClub, teamId, teamModel, leaders);
   }
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @PutMapping("/remove-leader")
+  public TeamDTO removeLeader(@RequestParam String userId, @RequestParam String teamId) {
+    User admin = getPrincipal();
+    Club activeClub = admin.getActiveClub();
+    Team team =
+        activeClub.getTeams().stream()
+            .filter(t -> t.getTeamId().equals(teamId))
+            .findFirst()
+            .orElseThrow();
+    User leader =
+        admin.getActiveClub().getUsers().stream()
+            .filter(user -> user.getUserId().equals(userId))
+            .filter(
+                user -> user.getRolesForClub(activeClub.getClubId()).contains(Role.LEADER.name()))
+            .findFirst()
+            .orElseThrow();
+    return teamService.removeLeaderFromTeam(leader, team);
+  }
 }

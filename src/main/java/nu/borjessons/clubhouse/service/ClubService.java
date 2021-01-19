@@ -7,7 +7,9 @@ import java.util.Set;
 
 public interface ClubService {
 
-    Club getClubByClubId(String clubId);
+  Club saveClub(Club club);
 
-    Set<ClubDTO> getAllClubs();
+  Club getClubByClubId(String clubId);
+
+  Set<ClubDTO> getAllClubs();
 }

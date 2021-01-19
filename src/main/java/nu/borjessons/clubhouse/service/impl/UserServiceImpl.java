@@ -2,11 +2,8 @@ package nu.borjessons.clubhouse.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.controller.model.request.UpdateUserModel;
-import nu.borjessons.clubhouse.data.Address;
-import nu.borjessons.clubhouse.data.Club;
-import nu.borjessons.clubhouse.data.ClubRole;
+import nu.borjessons.clubhouse.data.*;
 import nu.borjessons.clubhouse.data.ClubRole.Role;
-import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.UserDTO;
 import nu.borjessons.clubhouse.repository.AddressRepository;
 import nu.borjessons.clubhouse.repository.UserRepository;
@@ -94,6 +91,12 @@ public class UserServiceImpl implements UserService {
 
     rolesInClub.forEach(user::removeClubRole);
     clubhouseMappers.mapClubRoles(roles, user, club);
+
+    if (!roles.contains(Role.LEADER)) {
+      Set<Team> teams = club.getTeams();
+      teams.forEach(team -> team.removeLeader(user));
+      clubService.saveClub(club);
+    }
 
     return new UserDTO(userRepository.save(user), clubId);
   }

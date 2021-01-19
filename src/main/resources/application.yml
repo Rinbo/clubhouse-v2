@@ -14,7 +14,10 @@ token:
 
 logging:
   level:
-    root: debug
+    root: info
+    nu:
+      borjessons:
+        clubhouse: debug
     org:
       starmonkey:
         brown: DEBUG

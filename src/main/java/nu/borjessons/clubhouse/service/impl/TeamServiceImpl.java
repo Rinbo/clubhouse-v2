@@ -60,9 +60,9 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
   }
 
   @Override
-  public void removeLeaderFromTeam(User leader, Team team) {
+  public TeamDTO removeLeaderFromTeam(User leader, Team team) {
     team.removeLeader(leader);
-    teamRepository.save(team);
+    return new TeamDTO(teamRepository.save(team));
   }
 
   @Override
@@ -81,7 +81,11 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
   @Override
   public TeamDTO updateTeam(
       Club club, String teamId, TeamRequestModel teamModel, Set<User> leaders) {
-    Team team = club.getTeams().stream().findFirst().orElseThrow();
+    Team team =
+        club.getTeams().stream()
+            .filter(t -> t.getTeamId().equals(teamId))
+            .findFirst()
+            .orElseThrow();
     team.setName(teamModel.getName());
     team.setLeaders(leaders);
     team.setMaxAge(teamModel.getMaxAge());

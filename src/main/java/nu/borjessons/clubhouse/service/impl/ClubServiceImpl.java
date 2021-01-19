@@ -15,15 +15,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ClubServiceImpl extends ClubhouseAbstractService implements ClubService {
 
-    private final ClubRepository clubRepository;
+  private final ClubRepository clubRepository;
 
-    @Override
-    public Club getClubByClubId(String clubId) {
-        return getOptional(clubRepository.findByClubId(clubId), Club.class, clubId);
-    }
+  @Override
+  public Club saveClub(Club club) {
+    return clubRepository.save(club);
+  }
 
-    @Override
-    public Set<ClubDTO> getAllClubs() {
-        return clubRepository.findAll().stream().map(ClubDTO::new).collect(Collectors.toSet());
-    }
+  @Override
+  public Club getClubByClubId(String clubId) {
+    return getOptional(clubRepository.findByClubId(clubId), Club.class, clubId);
+  }
+
+  @Override
+  public Set<ClubDTO> getAllClubs() {
+    return clubRepository.findAll().stream().map(ClubDTO::new).collect(Collectors.toSet());
+  }
 }
