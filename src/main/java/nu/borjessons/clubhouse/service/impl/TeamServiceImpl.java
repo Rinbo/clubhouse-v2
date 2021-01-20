@@ -6,21 +6,22 @@ import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.Team;
 import nu.borjessons.clubhouse.data.User;
 import nu.borjessons.clubhouse.dto.TeamDTO;
-import nu.borjessons.clubhouse.repository.ClubRepository;
 import nu.borjessons.clubhouse.repository.TeamRepository;
+import nu.borjessons.clubhouse.service.ClubService;
 import nu.borjessons.clubhouse.service.ClubhouseAbstractService;
 import nu.borjessons.clubhouse.service.TeamService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class TeamServiceImpl extends ClubhouseAbstractService implements TeamService {
 
   private final TeamRepository teamRepository;
-  private final ClubRepository clubRepository;
+  private final ClubService clubService;
 
   @Override
   public Team getTeamById(String teamId) {
@@ -36,7 +37,7 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
     team.setMaxAge(teamModel.getMaxAge());
     team.setLeaders(leaders);
     club.addTeam(team);
-    clubRepository.save(club);
+    clubService.saveClub(club);
 
     return new TeamDTO(team);
   }
@@ -45,6 +46,24 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
   public TeamDTO addMemberToTeam(User member, Team team) {
     team.addMember(member);
     return new TeamDTO(teamRepository.save(team));
+  }
+
+  @Override
+  public TeamDTO addMembersToTeam(Club club, String teamId, Set<String> memberIds) {
+    Team team =
+        club.getTeams().stream()
+            .filter(t -> t.getTeamId().equals(teamId))
+            .findFirst()
+            .orElseThrow();
+
+    Set<User> members =
+        club.getUsers().stream()
+            .filter(user -> memberIds.contains(user.getUserId()))
+            .collect(Collectors.toSet());
+
+    team.setMembers(members);
+    clubService.saveClub(club);
+    return null;
   }
 
   @Override
@@ -90,7 +109,7 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
     team.setLeaders(leaders);
     team.setMaxAge(teamModel.getMaxAge());
     team.setMinAge(teamModel.getMinAge());
-    clubRepository.save(club);
+    clubService.saveClub(club);
     return new TeamDTO(team);
   }
 }

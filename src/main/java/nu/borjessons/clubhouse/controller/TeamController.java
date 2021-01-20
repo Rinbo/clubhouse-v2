@@ -138,12 +138,19 @@ public class TeamController extends AbstractController {
             .findFirst()
             .orElseThrow();
     User leader =
-        admin.getActiveClub().getUsers().stream()
+        activeClub.getUsers().stream()
             .filter(user -> user.getUserId().equals(userId))
             .filter(
                 user -> user.getRolesForClub(activeClub.getClubId()).contains(Role.LEADER.name()))
             .findFirst()
             .orElseThrow();
     return teamService.removeLeaderFromTeam(leader, team);
+  }
+
+  @PutMapping("/add-members/{teamId}")
+  public TeamDTO addMembers(@RequestBody Set<String> memberIds, @RequestParam String teamId) {
+    User admin = getPrincipal();
+    Club activeClub = admin.getActiveClub();
+    return teamService.addMembersToTeam(activeClub, teamId, memberIds);
   }
 }
