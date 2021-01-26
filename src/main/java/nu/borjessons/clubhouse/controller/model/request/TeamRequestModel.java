@@ -22,12 +22,12 @@ public class TeamRequestModel implements Serializable {
   private String name;
 
   @NotNull(message = "Minimum age limit cannot be null")
-  @Min(5)
-  @Max(18)
+  @Min(0)
+  @Max(100)
   private int minAge;
 
   @NotNull(message = "Maximum age limit cannot be null")
-  @Min(5)
+  @Min(0)
   @Max(100)
   private int maxAge;
 
