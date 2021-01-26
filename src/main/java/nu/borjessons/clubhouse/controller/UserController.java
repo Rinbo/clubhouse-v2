@@ -105,6 +105,16 @@ public class UserController extends AbstractController {
   }
 
   @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/")
+  public Set<BaseUserDTO> getUsersByAgeRange(@RequestParam int minAge, @RequestParam int maxAge) {
+    Club club = getPrincipal().getActiveClub();
+    return club.getUsers().stream()
+        .filter(user -> user.getAge() <= maxAge && user.getAge() >= minAge)
+        .map(BaseUserDTO::new)
+        .collect(Collectors.toSet());
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/{userId}")
   public UserDTO updateUser(
       @PathVariable String userId, @RequestBody @Valid AdminUpdateUserModel userDetails) {
