@@ -49,7 +49,7 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
   }
 
   @Override
-  public TeamDTO addMembersToTeam(Club club, String teamId, Set<String> memberIds) {
+  public TeamDTO updateTeamMembers(Club club, String teamId, Set<String> memberIds) {
     Team team =
         club.getTeams().stream()
             .filter(t -> t.getTeamId().equals(teamId))
@@ -63,7 +63,7 @@ public class TeamServiceImpl extends ClubhouseAbstractService implements TeamSer
 
     team.setMembers(members);
     clubService.saveClub(club);
-    return null;
+    return new TeamDTO(team);
   }
 
   @Override

@@ -105,7 +105,7 @@ public class UserController extends AbstractController {
   }
 
   @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping("/")
+  @GetMapping("/age-range")
   public Set<BaseUserDTO> getUsersByAgeRange(@RequestParam int minAge, @RequestParam int maxAge) {
     Club club = getPrincipal().getActiveClub();
     return club.getUsers().stream()

@@ -14,7 +14,7 @@ public interface TeamService {
 
   TeamDTO addMemberToTeam(User member, Team team);
 
-  TeamDTO addMembersToTeam(Club club, String teamId, Set<String> memberIds);
+  TeamDTO updateTeamMembers(Club club, String teamId, Set<String> memberIds);
 
   TeamDTO addLeaderToTeam(User leader, Team team);
 

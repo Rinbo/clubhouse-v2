@@ -2,6 +2,7 @@ package nu.borjessons.clubhouse.controller;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.controller.model.request.TeamRequestModel;
+import nu.borjessons.clubhouse.controller.model.request.UpdateTeamMembersRequestModel;
 import nu.borjessons.clubhouse.data.Club;
 import nu.borjessons.clubhouse.data.ClubRole.Role;
 import nu.borjessons.clubhouse.data.Team;
@@ -128,6 +129,15 @@ public class TeamController extends AbstractController {
   }
 
   @PreAuthorize("hasRole('ADMIN')")
+  @PutMapping("/members")
+  public TeamDTO updateTeamMembers(@Valid @RequestBody UpdateTeamMembersRequestModel requestModel) {
+    User admin = getPrincipal();
+    Club activeClub = admin.getActiveClub();
+    return teamService.updateTeamMembers(
+        activeClub, requestModel.getTeamId(), requestModel.getMemberIds());
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/remove-leader")
   public TeamDTO removeLeader(@RequestParam String userId, @RequestParam String teamId) {
     User admin = getPrincipal();
@@ -145,12 +155,5 @@ public class TeamController extends AbstractController {
             .findFirst()
             .orElseThrow();
     return teamService.removeLeaderFromTeam(leader, team);
-  }
-
-  @PutMapping("/add-members/{teamId}")
-  public TeamDTO addMembers(@RequestBody Set<String> memberIds, @RequestParam String teamId) {
-    User admin = getPrincipal();
-    Club activeClub = admin.getActiveClub();
-    return teamService.addMembersToTeam(activeClub, teamId, memberIds);
   }
 }
