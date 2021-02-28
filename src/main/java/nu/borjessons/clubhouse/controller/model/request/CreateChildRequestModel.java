@@ -5,11 +5,16 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Data;
 
-@Data
+@Getter
+@Setter
+@ToString
 public class CreateChildRequestModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;

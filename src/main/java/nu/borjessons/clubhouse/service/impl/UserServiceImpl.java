@@ -65,6 +65,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  @Transactional
   public UserDTO updateUser(User user, Club club, UpdateUserModel userDetails) {
     String clubId = club.getClubId();
     user.setFirstName(userDetails.getFirstName());
@@ -81,6 +82,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  @Transactional
   public UserDTO updateUserRoles(User user, Club club, Set<Role> roles) {
     String clubId = club.getClubId();
     Set<ClubRole> allRoles = user.getRoles();

@@ -8,6 +8,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Getter;
@@ -16,6 +17,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class CreateUserModel implements Serializable {
 
