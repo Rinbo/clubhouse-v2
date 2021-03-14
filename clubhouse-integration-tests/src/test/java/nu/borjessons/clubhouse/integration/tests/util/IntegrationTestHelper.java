@@ -1,9 +1,13 @@
 package nu.borjessons.clubhouse.integration.tests.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import nu.borjessons.clubhouse.impl.ClubhouseApplication;
 import nu.borjessons.clubhouse.impl.controller.model.request.UserLoginRequestModel;
+import nu.borjessons.clubhouse.impl.dto.UserDTO2;
+import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -20,6 +24,9 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
+import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
 
 public class IntegrationTestHelper {
   private static final String BASE_URL = "http://localhost:8081";
@@ -51,5 +58,31 @@ public class IntegrationTestHelper {
     Assertions.assertNotNull(authHeader);
     Assertions.assertTrue(authHeader.get(0).contains("Bearer"));
     return authHeader.get(0);
+  }
+
+  public static UserDTO2 getSelf(String token) throws JsonProcessingException {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path("/users/principal");
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = getVoidHttpEntity(EmbeddedDataLoader.defaultClubId, token);
+
+    ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
+    UserDTO2 userDTO = deserializeUserDTO(response.getBody(), UserDTO2.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return userDTO;
+  }
+
+  private static <T> T deserializeUserDTO(String body, Class<T> clazz) throws JsonProcessingException {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerModule(new ParameterNamesModule());
+    mapper.setVisibility(FIELD, ANY);
+    return mapper.readValue(body, clazz);
+  }
+
+  private static HttpEntity<Void> getVoidHttpEntity(String clubId, String token) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("ClubId", clubId);
+    headers.add("Authorization", token);
+    headers.add("Accept", "application/json");
+    return new HttpEntity<>(headers);
   }
 }

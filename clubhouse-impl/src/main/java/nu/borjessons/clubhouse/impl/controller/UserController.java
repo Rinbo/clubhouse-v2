@@ -8,6 +8,8 @@ import nu.borjessons.clubhouse.impl.data.ClubRole;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.BaseUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.UserDTO2;
+import nu.borjessons.clubhouse.impl.dto.UserDTO2Builder;
 import nu.borjessons.clubhouse.impl.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
@@ -51,9 +54,8 @@ public class UserController extends AbstractController {
 
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/principal")
-  public UserDTO getSelf() {
-    User user = getPrincipal();
-    return new UserDTO(user, user.getActiveClubId());
+  public UserDTO2 getSelf(WebRequest webRequest) {
+    return UserDTO2Builder.build(getPrincipal(), webRequest.getHeader("ClubId"));
   }
 
   @PreAuthorize("hasRole('USER')")

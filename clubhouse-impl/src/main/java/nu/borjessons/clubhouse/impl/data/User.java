@@ -11,7 +11,11 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Getter
@@ -23,7 +27,9 @@ public class User extends BaseEntity implements UserDetails, Serializable {
 
   private static final long serialVersionUID = 2973075901622175140L;
 
-  @Id @GeneratedValue private long id;
+  @Id
+  @GeneratedValue
+  private long id;
 
   @Column(nullable = false, unique = true)
   private final String userId = UUID.randomUUID().toString();
@@ -138,6 +144,12 @@ public class User extends BaseEntity implements UserDetails, Serializable {
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return roles.stream()
         .filter(clubRole -> clubRole.getClub().getClubId().equals(activeClubId))
+        .collect(Collectors.toSet());
+  }
+
+  public Collection<? extends GrantedAuthority> getAuthorities(String clubId) {
+    return roles.stream()
+        .filter(clubRole -> clubRole.getClub().getClubId().equals(clubId))
         .collect(Collectors.toSet());
   }
 

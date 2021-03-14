@@ -38,8 +38,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
   }
 
   @Override
-  public void successfulAuthentication(
-      HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) {
+  public void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) {
     UserDetails userDetails = (User) auth.getPrincipal();
     userService.updateUserLoginTime(userDetails.getUsername());
     String token = SecurityConstants.TOKEN_PREFIX + jwtUtil.generateToken(userDetails);

@@ -4,13 +4,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.User;
 
-import java.io.Serializable;
-
 @Getter
 @NoArgsConstructor
-public class BaseUserDTO implements Serializable {
-
-  private static final long serialVersionUID = 1L;
+public class BaseUserDTO {
 
   private String userId;
   private String firstName;
