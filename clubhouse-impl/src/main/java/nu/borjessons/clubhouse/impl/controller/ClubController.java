@@ -1,7 +1,6 @@
 package nu.borjessons.clubhouse.impl.controller;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,10 +18,9 @@ public class ClubController extends AbstractController {
 
   private final ClubService clubService;
 
-  @GetMapping()
+  @GetMapping
   public Set<ClubDTO> getAllClubs() {
-    Set<ClubDTO> clubs = clubService.getAllClubs();
-    return clubs;
+    return clubService.getAllClubs();
   }
 
   @PreAuthorize("hasRole('USER')")
@@ -34,7 +32,10 @@ public class ClubController extends AbstractController {
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/principal")
   public Set<ClubDTO> getClubs() {
-    Set<Club> clubs = getPrincipal().getClubs();
-    return clubs.stream().map(ClubDTO::new).collect(Collectors.toSet());
+    return getPrincipal()
+        .getClubs()
+        .stream()
+        .map(ClubDTO::new)
+        .collect(Collectors.toSet());
   }
 }

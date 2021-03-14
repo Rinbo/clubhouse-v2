@@ -11,7 +11,15 @@ import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
@@ -30,7 +38,9 @@ public class UserController extends AbstractController {
   @GetMapping
   public Set<UserDTO> getUsers() {
     Club activeClub = getPrincipal().getActiveClub();
-    return activeClub.getUsers().stream()
+    return activeClub
+        .getUsers()
+        .stream()
         .map(user -> new UserDTO(user, activeClub.getClubId()))
         .collect(Collectors.toSet());
   }
@@ -69,22 +79,16 @@ public class UserController extends AbstractController {
   @PutMapping("/principal/switch-club")
   public UserDTO switchClub(@RequestParam String clubId) {
     User user = getPrincipal();
-    Optional<Club> maybeClub =
-        user.getClubs().stream().filter(club -> club.getClubId().equals(clubId)).findFirst();
-    if (maybeClub.isEmpty())
-      throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN,
-          String.format(
-              "User with id %s does not have access to club with id %s", user.getUserId(), clubId));
-    return userService.switchClub(user, maybeClub.get());
+    Optional<Club> optional = user.getClubs().stream().filter(club -> club.getClubId().equals(clubId)).findFirst();
+    return userService.switchClub(user, optional.orElseThrow());
   }
 
   @PutMapping("/principal/join-club")
   public UserDTO joinClub(@RequestParam String clubId) {
     User user = getPrincipal();
-    if (user.getClubs().stream().anyMatch(club -> club.getClubId().equals(clubId)))
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "User is already a member of this club");
+    if (user.getClubs().stream().anyMatch(club -> club.getClubId().equals(clubId))) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is already a member of this club");
+    }
     return userService.joinClub(user, clubId);
   }
 
@@ -108,16 +112,17 @@ public class UserController extends AbstractController {
   @GetMapping("/age-range")
   public Set<BaseUserDTO> getUsersByAgeRange(@RequestParam int minAge, @RequestParam int maxAge) {
     Club club = getPrincipal().getActiveClub();
-    return club.getUsers().stream()
+    return club.getUsers()
+        .stream()
         .filter(user -> user.getAge() <= maxAge && user.getAge() >= minAge)
         .map(BaseUserDTO::new)
         .collect(Collectors.toSet());
   }
 
+  //TODO: Horrible execution. Rething deeply
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/{userId}")
-  public UserDTO updateUser(
-      @PathVariable String userId, @RequestBody @Valid AdminUpdateUserModel userDetails) {
+  public UserDTO updateUser(@PathVariable String userId, @RequestBody @Valid AdminUpdateUserModel userDetails) {
     Club club = getPrincipal().getActiveClub();
     User user = club.getUser(userId);
     userService.updateUser(user, club, userDetails);
@@ -135,15 +140,13 @@ public class UserController extends AbstractController {
   // end point to search for a user in the club by email
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/children/{userId}")
-  public UserDTO updateUserChildren(
-      @PathVariable String userId, @RequestBody Set<String> childrenIds) {
+  public UserDTO updateUserChildren(@PathVariable String userId, @RequestBody Set<String> childrenIds) {
     Club club = getPrincipal().getActiveClub();
     User parent = club.getUser(userId);
     Set<User> clubChildren = club.getManagedUsers();
-    Set<User> validatedChildren =
-        clubChildren.stream()
-            .filter(child -> childrenIds.contains(child.getUserId()))
-            .collect(Collectors.toSet());
+    Set<User> validatedChildren = clubChildren.stream()
+        .filter(child -> childrenIds.contains(child.getUserId()))
+        .collect(Collectors.toSet());
     return userService.updateUserChildren(parent, validatedChildren, club);
   }
 
@@ -160,7 +163,9 @@ public class UserController extends AbstractController {
   public Set<BaseUserDTO> getLeaders() {
     User admin = getPrincipal();
     String clubId = admin.getActiveClubId();
-    return admin.getActiveClub().getUsers().stream()
+    return admin.getActiveClub()
+        .getUsers()
+        .stream()
         .filter(user -> user.getRolesForClub(clubId).contains(ClubRole.Role.LEADER.name()))
         .map(BaseUserDTO::new)
         .collect(Collectors.toSet());

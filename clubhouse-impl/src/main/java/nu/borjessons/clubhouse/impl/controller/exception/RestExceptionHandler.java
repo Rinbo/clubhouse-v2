@@ -23,108 +23,68 @@ import java.util.NoSuchElementException;
 @Slf4j
 public class RestExceptionHandler {
 
-  @ExceptionHandler(
-      value = {
-        javax.validation.ConstraintViolationException.class,
-        org.hibernate.exception.ConstraintViolationException.class
-      })
-  public ResponseEntity<Object> handleSpecificExceptions(Exception ex, HttpServletRequest req) {
-
+  @ExceptionHandler(ResponseStatusException.class)
+  public ResponseEntity<ErrorMessage> handleResponseStatusException(ResponseStatusException ex, HttpServletRequest req) {
     log.debug(stringifyStacktrace(ex));
 
-    String errorDescription = "A resource already exists in the database with provided parameters";
-
-    ErrorMessage errorMessage =
-        new ErrorMessage(errorDescription, req.getRequestURI(), HttpStatus.CONFLICT.value());
-
-    return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.CONFLICT);
-  }
-
-  @ExceptionHandler({ResponseStatusException.class})
-  public ResponseEntity<Object> handleResponseStatusException(
-      ResponseStatusException ex, HttpServletRequest req) {
-
-    log.debug(stringifyStacktrace(ex));
-
-    ErrorMessage errorMessage =
-        new ErrorMessage(ex.getReason(), req.getRequestURI(), ex.getStatus().value());
-
+    ErrorMessage errorMessage = new ErrorMessage(ex.getReason(), req.getRequestURI(), ex.getStatus().value());
     return new ResponseEntity<>(errorMessage, new HttpHeaders(), ex.getStatus());
   }
 
-  @ExceptionHandler({UsernameNotFoundException.class})
-  public ResponseEntity<Object> handleUsernameNotFoundException(
-      UsernameNotFoundException ex, HttpServletRequest req) {
-
+  @ExceptionHandler(UsernameNotFoundException.class)
+  public ResponseEntity<ErrorMessage> handleUsernameNotFoundException(UsernameNotFoundException ex, HttpServletRequest req) {
     log.debug(stringifyStacktrace(ex));
 
-    ErrorMessage errorMessage =
-        new ErrorMessage(ex.getMessage(), req.getRequestURI(), HttpStatus.NOT_FOUND.value());
-
+    ErrorMessage errorMessage = new ErrorMessage(ex.getMessage(), req.getRequestURI(), HttpStatus.NOT_FOUND.value());
     return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
   }
 
-  @ExceptionHandler({IllegalArgumentException.class})
-  public ResponseEntity<Object> handleIllegalArgumentException(
-      IllegalArgumentException ex, HttpServletRequest req) {
-
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ErrorMessage> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest req) {
     log.debug(stringifyStacktrace(ex));
 
-    ErrorMessage errorMessage =
-        new ErrorMessage(ex.getMessage(), req.getRequestURI(), HttpStatus.BAD_REQUEST.value());
-
+    ErrorMessage errorMessage = new ErrorMessage(ex.getMessage(), req.getRequestURI(), HttpStatus.BAD_REQUEST.value());
     return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler({IllegalStateException.class})
-  public ResponseEntity<Object> handleIllegalStateException(
-      IllegalArgumentException ex, HttpServletRequest req) {
-
+  @ExceptionHandler(IllegalStateException.class)
+  public ResponseEntity<ErrorMessage> handleIllegalStateException(IllegalArgumentException ex, HttpServletRequest req) {
     log.debug(stringifyStacktrace(ex));
 
-    ErrorMessage errorMessage =
-        new ErrorMessage(
-            ex.getMessage(), req.getRequestURI(), HttpStatus.INTERNAL_SERVER_ERROR.value());
-
+    ErrorMessage errorMessage = new ErrorMessage(ex.getMessage(), req.getRequestURI(), HttpStatus.INTERNAL_SERVER_ERROR.value());
     return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  @ExceptionHandler({MethodArgumentNotValidException.class})
-  public ResponseEntity<Object> handleMethodArgumentNotValidException(
-      MethodArgumentNotValidException ex, HttpServletRequest req) {
-
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorMessage> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, HttpServletRequest req) {
     log.debug(stringifyStacktrace(ex));
 
     Map<String, String> errors = new HashMap<>();
-    ex.getBindingResult()
-        .getAllErrors()
-        .forEach(
-            error -> {
-              String fieldName = ((FieldError) error).getField();
-              String errorMessage = error.getDefaultMessage();
-              errors.put(fieldName, errorMessage);
-            });
+    ex.getBindingResult().getAllErrors().forEach(error -> errors.put(((FieldError) error).getField(), error.getDefaultMessage()));
 
-    ErrorMessage errorMessage =
-        new ErrorMessage(
-            "Validation failure. Check your inputs",
-            errors,
-            req.getRequestURI(),
-            HttpStatus.BAD_REQUEST.value());
-
+    ErrorMessage errorMessage = new ErrorMessage("Validation failure. Check your inputs", errors, req.getRequestURI(),
+        HttpStatus.BAD_REQUEST.value());
     return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler({NoResultException.class, NoSuchElementException.class})
-  public ResponseEntity<Object> handleIllegalStateException(
-      NoResultException ex, HttpServletRequest req) {
-
+  public ResponseEntity<ErrorMessage> handleNoSuchElementException(RuntimeException ex, HttpServletRequest req) {
     log.debug(stringifyStacktrace(ex));
 
-    ErrorMessage errorMessage =
-        new ErrorMessage(ex.getMessage(), req.getRequestURI(), HttpStatus.NOT_FOUND.value());
-
+    ErrorMessage errorMessage = new ErrorMessage(ex.getMessage(), req.getRequestURI(), HttpStatus.NOT_FOUND.value());
     return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler({
+      javax.validation.ConstraintViolationException.class,
+      org.hibernate.exception.ConstraintViolationException.class
+  })
+  public ResponseEntity<ErrorMessage> handleSpecificExceptions(Exception ex, HttpServletRequest req) {
+    log.debug(stringifyStacktrace(ex));
+
+    ErrorMessage errorMessage = new ErrorMessage("A resource already exists in the database with provided parameters",
+        req.getRequestURI(), HttpStatus.CONFLICT.value());
+    return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.CONFLICT);
   }
 
   private String stringifyStacktrace(Throwable err) {

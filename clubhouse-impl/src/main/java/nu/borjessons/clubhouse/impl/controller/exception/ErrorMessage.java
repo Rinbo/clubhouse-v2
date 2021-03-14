@@ -5,14 +5,13 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Map;
 
 @Getter
 @Setter
 @JsonInclude(Include.NON_NULL)
-public class ErrorMessage implements Serializable {
+public class ErrorMessage {
 
   private static final long serialVersionUID = 1L;
 

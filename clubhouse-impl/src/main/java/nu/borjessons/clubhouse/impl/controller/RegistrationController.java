@@ -28,13 +28,11 @@ public class RegistrationController extends AbstractController {
 
   @PostMapping(SecurityConstants.CLUB_REGISTRATION_URL)
   public UserDTO registerClub(@Valid @RequestBody CreateClubModel clubDetails) {
-
     return registrationService.registerClub(clubDetails);
   }
 
   @PostMapping(SecurityConstants.USER_REGISTRATION_URL)
   public UserDTO registerUser(@Valid @RequestBody CreateUserModel userDetails) {
-
     return registrationService.registerUser(userDetails);
   }
 
@@ -45,20 +43,16 @@ public class RegistrationController extends AbstractController {
 
   @PreAuthorize("hasRole('USER')")
   @PostMapping("register/principal/children")
-  public UserDTO selfRegisterChildren(
-      @Valid @RequestBody Set<CreateChildRequestModel> childModels) {
+  public UserDTO selfRegisterChildren(@Valid @RequestBody Set<CreateChildRequestModel> childModels) {
     User principal = getPrincipal();
-    return registrationService.registerChildren(
-        principal, principal.getActiveClub().getClubId(), childModels);
+    return registrationService.registerChildren(principal, principal.getActiveClub().getClubId(), childModels);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("register/children/{parentId}")
-  public UserDTO registerChildren(
-      @PathVariable String parentId, @Valid @RequestBody Set<CreateChildRequestModel> childModels) {
+  public UserDTO registerChildren(@PathVariable String parentId, @Valid @RequestBody Set<CreateChildRequestModel> childModels) {
     Club club = getPrincipal().getActiveClub();
     User parent = club.getUser(parentId);
-
     return registrationService.registerChildren(parent, club.getClubId(), childModels);
   }
 }
