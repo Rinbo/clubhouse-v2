@@ -5,7 +5,6 @@ import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.service.ClubService;
-import nu.borjessons.clubhouse.impl.service.ClubhouseAbstractService;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -13,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ClubServiceImpl extends ClubhouseAbstractService implements ClubService {
+public class ClubServiceImpl implements ClubService {
 
   private final ClubRepository clubRepository;
 
@@ -23,9 +22,7 @@ public class ClubServiceImpl extends ClubhouseAbstractService implements ClubSer
   }
 
   @Override
-  public Club getClubByClubId(String clubId) {
-    return getOptional(clubRepository.findByClubId(clubId), Club.class, clubId);
-  }
+  public Club getClubByClubId(String clubId) { return clubRepository.findByClubId(clubId).orElseThrow(); }
 
   @Override
   public Set<ClubDTO> getAllClubs() {

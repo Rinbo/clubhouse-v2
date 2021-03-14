@@ -2,8 +2,12 @@ package nu.borjessons.clubhouse.impl.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.controller.model.request.UpdateUserModel;
-import nu.borjessons.clubhouse.impl.data.*;
+import nu.borjessons.clubhouse.impl.data.Address;
+import nu.borjessons.clubhouse.impl.data.Club;
+import nu.borjessons.clubhouse.impl.data.ClubRole;
 import nu.borjessons.clubhouse.impl.data.ClubRole.Role;
+import nu.borjessons.clubhouse.impl.data.Team;
+import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.repository.AddressRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
@@ -13,7 +17,6 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 import nu.borjessons.clubhouse.impl.util.ClubhouseMappers;
 import nu.borjessons.clubhouse.impl.util.ClubhouseUtils;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +24,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,15 +39,11 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDetails loadUserByUsername(String username) {
-    Optional<User> user = userRepository.findByEmail(username);
-    return getOrThrowUNFE(user, username);
+    return userRepository.findByEmail(username).orElseThrow();
   }
 
   @Override
-  public User getUserByEmail(String email) {
-    Optional<User> user = userRepository.findByEmail(email);
-    return getOrThrowUNFE(user, email);
-  }
+  public User getUserByEmail(String email) { return userRepository.findByEmail(email).orElseThrow(); }
 
   @Override
   public UserDTO createUser(User user) {
@@ -54,7 +52,8 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public List<UserDTO> createUsers(List<User> users) {
-    return userRepository.saveAll(users).stream()
+    return userRepository.saveAll(users)
+        .stream()
         .map(user -> new UserDTO(user, user.getActiveClubId()))
         .collect(Collectors.toList());
   }
@@ -86,10 +85,10 @@ public class UserServiceImpl implements UserService {
   public UserDTO updateUserRoles(User user, Club club, Set<Role> roles) {
     String clubId = club.getClubId();
     Set<ClubRole> allRoles = user.getRoles();
-    Set<ClubRole> rolesInClub =
-        allRoles.stream()
-            .filter(clubRole -> clubRole.getClub().getClubId().equals(clubId))
-            .collect(Collectors.toSet());
+    Set<ClubRole> rolesInClub = allRoles
+        .stream()
+        .filter(clubRole -> clubRole.getClub().getClubId().equals(clubId))
+        .collect(Collectors.toSet());
 
     rolesInClub.forEach(user::removeClubRole);
     clubhouseMappers.mapClubRoles(roles, user, club);
@@ -108,16 +107,15 @@ public class UserServiceImpl implements UserService {
   public void removeUserFromClub(User user, Club club) {
     Set<User> children = user.getChildren();
     if (!children.isEmpty()) {
-      Set<User> otherParentsInThisClub =
-          children.stream()
-              .map(User::getParents)
-              .flatMap(Set::stream)
-              .filter(
-                  parent -> {
-                    Set<Club> clubs = parent.getClubs();
-                    return clubs.contains(club) && !parent.getUserId().equals(user.getUserId());
-                  })
-              .collect(Collectors.toSet());
+      Set<User> otherParentsInThisClub = children
+          .stream()
+          .map(User::getParents)
+          .flatMap(Set::stream)
+          .filter(parent -> {
+            Set<Club> clubs = parent.getClubs();
+            return clubs.contains(club) && !parent.getUserId().equals(user.getUserId());
+          })
+          .collect(Collectors.toSet());
 
       if (otherParentsInThisClub.isEmpty()) {
         teamService.removeUsersFromAllTeams(children, club);
@@ -141,22 +139,20 @@ public class UserServiceImpl implements UserService {
   public void deleteUser(User user) {
     Set<User> children = user.getChildren();
     user.setChildren(new HashSet<>());
-    children.forEach(
-        child -> {
-          child.removeParent(user);
-          if (child.getParents().isEmpty()) {
-            userRepository.delete(child);
-          } else {
-            userRepository.save(child);
-          }
-        });
+    children.forEach(child -> {
+      child.removeParent(user);
+      if (child.getParents().isEmpty()) {
+        userRepository.delete(child);
+      } else {
+        userRepository.save(child);
+      }
+    });
     userRepository.delete(user);
   }
 
   @Override
   public void updateUserLoginTime(String email) {
-    Optional<User> maybeUser = userRepository.findByEmail(email);
-    User user = getOrThrowUNFE(maybeUser, email);
+    User user = userRepository.findByEmail(email).orElseThrow();
     user.setLastLoginTime(LocalDateTime.now());
     userRepository.save(user);
   }
@@ -164,7 +160,6 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional
   public UserDTO updateUserChildren(User parent, Set<User> children, Club club) {
-
     Set<User> removedChildren = parent.getChildren();
     parent.setChildren(new HashSet<>());
     removedChildren.forEach(child -> child.removeParent(parent));
@@ -173,26 +168,23 @@ public class UserServiceImpl implements UserService {
     children.addAll(removedChildren);
     List<User> savedChildren = userRepository.saveAll(children);
 
-    savedChildren.forEach(
-        child -> {
-          if (child.getParents().isEmpty()) userRepository.delete(child);
-        });
+    savedChildren.forEach(child -> {
+      if (child.getParents().isEmpty()) userRepository.delete(child);
+    });
 
     if (!parent.getChildren().isEmpty()) {
       ClubRole clubRole = new ClubRole(Role.PARENT, parent, club);
       parent.addClubRole(clubRole);
       club.addClubRole(clubRole);
     } else {
-      parent.getRoles().stream()
-          .filter(
-              clubRole -> clubRole.getClub().equals(club) && clubRole.getRole().equals(Role.PARENT))
+      parent.getRoles()
+          .stream()
+          .filter(clubRole -> clubRole.getClub().equals(club) && clubRole.getRole().equals(Role.PARENT))
           .collect(Collectors.toSet())
           .forEach(ClubRole::doOrphan);
     }
 
-    User savedParent = userRepository.save(parent);
-
-    return new UserDTO(savedParent, club.getClubId());
+    return new UserDTO(userRepository.save(parent), club.getClubId());
   }
 
   @Override
@@ -205,14 +197,12 @@ public class UserServiceImpl implements UserService {
   public UserDTO joinClub(User user, String clubId) {
     Club club = clubService.getClubByClubId(clubId);
     Set<Role> roles = new HashSet<>(List.of(Role.USER));
+
     if (!user.getChildren().isEmpty()) roles.add(Role.PARENT);
+
     clubhouseMappers.mapClubRoles(roles, user, club);
     user.setActiveClubId(clubId);
-    return new UserDTO(userRepository.save(user), clubId);
-  }
 
-  private static User getOrThrowUNFE(Optional<User> user, String email) {
-    return user.orElseThrow(
-        () -> new UsernameNotFoundException(String.format("User %s could not be found", email)));
+    return new UserDTO(userRepository.save(user), clubId);
   }
 }

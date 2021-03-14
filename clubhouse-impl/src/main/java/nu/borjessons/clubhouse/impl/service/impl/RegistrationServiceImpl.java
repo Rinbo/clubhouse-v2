@@ -37,13 +37,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   public UserDTO registerClub(CreateClubModel clubDetails) {
     Club club = clubhouseMappers.clubCreationModelToClub(clubDetails);
     Club savedClub = clubRepository.save(club);
-    Set<ClubRole.Role> roles =
-        new HashSet<>(
-            List.of(
-                ClubRole.Role.USER,
-                ClubRole.Role.OWNER,
-                ClubRole.Role.ADMIN,
-                ClubRole.Role.LEADER));
+    Set<ClubRole.Role> roles = new HashSet<>(List.of(ClubRole.Role.USER, ClubRole.Role.OWNER, ClubRole.Role.ADMIN, ClubRole.Role.LEADER));
     User user = constructUserEntity(clubDetails.getOwner(), savedClub, roles);
     return userService.createUser(user);
   }
@@ -57,10 +51,10 @@ public class RegistrationServiceImpl implements RegistrationService {
     Set<ClubRole.Role> roles = new HashSet<>(List.of(ClubRole.Role.USER));
     if (!childrenDetails.isEmpty()) roles.add(ClubRole.Role.PARENT);
 
-    List<User> parents =
-        parentsDetails.stream()
-            .map(parentDetail -> constructUserEntity(parentDetail, club, roles))
-            .collect(Collectors.toList());
+    List<User> parents = parentsDetails
+        .stream()
+        .map(parentDetail -> constructUserEntity(parentDetail, club, roles))
+        .collect(Collectors.toList());
 
     childrenDetails.forEach(
         childDetail -> {
@@ -75,10 +69,8 @@ public class RegistrationServiceImpl implements RegistrationService {
   @Override
   public UserDTO registerUser(CreateUserModel userDetails) {
     Club club = clubService.getClubByClubId(userDetails.getClubId());
-
     Set<ClubRole.Role> roles = new HashSet<>(List.of(ClubRole.Role.USER));
     User user = constructUserEntity(userDetails, club, roles);
-
     Set<CreateChildRequestModel> children = userDetails.getChildren();
 
     children.forEach(
@@ -95,9 +87,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
   @Transactional
   @Override
-  public UserDTO registerChildren(
-      User parent, String clubId, Set<CreateChildRequestModel> childModels) {
-
+  public UserDTO registerChildren(User parent, String clubId, Set<CreateChildRequestModel> childModels) {
     Club club = clubService.getClubByClubId(clubId);
     Set<ClubRole.Role> roles = new HashSet<>();
     saveChildren(parent, childModels, roles);
@@ -106,8 +96,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     return userService.updateUser(parent, clubId);
   }
 
-  private void saveChildren(
-      User parent, Set<CreateChildRequestModel> childModels, Set<ClubRole.Role> parentRoles) {
+  private void saveChildren(User parent, Set<CreateChildRequestModel> childModels, Set<ClubRole.Role> parentRoles) {
     childModels.forEach(
         childModel -> {
           User child = clubhouseMappers.childCreationModelToUser(childModel);
@@ -117,8 +106,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         });
   }
 
-  private User constructUserEntity(
-      CreateUserModel userDetails, Club club, Set<ClubRole.Role> roles) {
+  private User constructUserEntity(CreateUserModel userDetails, Club club, Set<ClubRole.Role> roles) {
     User user = clubhouseMappers.userCreationModelToUser(userDetails);
     Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
     user.setActiveClubId(club.getClubId());
