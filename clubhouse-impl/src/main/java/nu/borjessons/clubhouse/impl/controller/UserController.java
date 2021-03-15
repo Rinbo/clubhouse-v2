@@ -8,8 +8,6 @@ import nu.borjessons.clubhouse.impl.data.ClubRole;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.BaseUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
-import nu.borjessons.clubhouse.impl.dto.UserDTO2;
-import nu.borjessons.clubhouse.impl.dto.UserDTO2Builder;
 import nu.borjessons.clubhouse.impl.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,7 +42,7 @@ public class UserController extends AbstractController {
     return activeClub
         .getUsers()
         .stream()
-        .map(user -> new UserDTO(user, activeClub.getClubId()))
+        .map(user -> UserDTO.create(user, activeClub.getClubId()))
         .collect(Collectors.toSet());
   }
 
@@ -54,8 +52,8 @@ public class UserController extends AbstractController {
 
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/principal")
-  public UserDTO2 getSelf(WebRequest webRequest) {
-    return UserDTO2Builder.build(getPrincipal(), webRequest.getHeader("ClubId"));
+  public UserDTO getSelf(WebRequest webRequest) {
+    return UserDTO.create(getPrincipal(), webRequest.getHeader("ClubId"));
   }
 
   @PreAuthorize("hasRole('USER')")
@@ -107,7 +105,7 @@ public class UserController extends AbstractController {
   @GetMapping("/{userId}")
   public UserDTO getUser(@PathVariable String userId) {
     Club club = getPrincipal().getActiveClub();
-    return new UserDTO(club.getUser(userId), club.getClubId());
+    return UserDTO.create(club.getUser(userId), club.getClubId());
   }
 
   @PreAuthorize("hasRole('ADMIN')")

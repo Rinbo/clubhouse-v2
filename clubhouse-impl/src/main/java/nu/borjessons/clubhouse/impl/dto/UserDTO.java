@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 import nu.borjessons.clubhouse.impl.data.User;
@@ -7,6 +8,7 @@ import nu.borjessons.clubhouse.impl.data.User;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Builder
 @Getter
 @ToString
 public final class UserDTO {
@@ -21,15 +23,17 @@ public final class UserDTO {
   private final Set<String> parentIds;
   private final Set<String> roles;
 
-  public UserDTO(User user, String clubId) {
-    this.clubId = clubId;
-    userId = user.getUserId();
-    firstName = user.getFirstName();
-    lastName = user.getLastName();
-    dateOfBirth = user.getDateOfBirth().toString();
-    email = user.getEmail();
-    roles = user.getRolesForClub(clubId);
-    childrenIds = user.getChildren().stream().map(User::getUserId).collect(Collectors.toSet());
-    parentIds = user.getParents().stream().map(User::getUserId).collect(Collectors.toSet());
+  public static UserDTO create(User user, String clubId) {
+    return UserDTO.builder()
+        .clubId(clubId)
+        .userId(user.getUserId())
+        .email(user.getEmail())
+        .firstName(user.getFirstName())
+        .lastName(user.getLastName())
+        .dateOfBirth(user.getDateOfBirth().toString())
+        .roles(user.getRolesForClub(clubId))
+        .childrenIds(user.getChildren().stream().map(User::getUserId).collect(Collectors.toSet()))
+        .parentIds(user.getParents().stream().map(User::getUserId).collect(Collectors.toSet()))
+        .build();
   }
 }

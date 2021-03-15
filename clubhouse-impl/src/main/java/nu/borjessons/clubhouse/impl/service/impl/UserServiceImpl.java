@@ -47,20 +47,20 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDTO createUser(User user) {
-    return new UserDTO(userRepository.save(user), user.getActiveClubId());
+    return UserDTO.create(userRepository.save(user), user.getActiveClubId());
   }
 
   @Override
   public List<UserDTO> createUsers(List<User> users) {
     return userRepository.saveAll(users)
         .stream()
-        .map(user -> new UserDTO(user, user.getActiveClubId()))
+        .map(user -> UserDTO.create(user, user.getActiveClubId()))
         .collect(Collectors.toList());
   }
 
   @Override
   public UserDTO updateUser(User user, String clubId) {
-    return new UserDTO(userRepository.save(user), clubId);
+    return UserDTO.create(userRepository.save(user), clubId);
   }
 
   @Override
@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
     addressRepository.deleteAll(oldAddresses);
     addresses.forEach(user::addAddress);
 
-    return new UserDTO(userRepository.save(user), clubId);
+    return UserDTO.create(userRepository.save(user), clubId);
   }
 
   @Override
@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
       clubService.saveClub(club);
     }
 
-    return new UserDTO(userRepository.save(user), clubId);
+    return UserDTO.create(userRepository.save(user), clubId);
   }
 
   @Override
@@ -184,13 +184,13 @@ public class UserServiceImpl implements UserService {
           .forEach(ClubRole::doOrphan);
     }
 
-    return new UserDTO(userRepository.save(parent), club.getClubId());
+    return UserDTO.create(userRepository.save(parent), club.getClubId());
   }
 
   @Override
   public UserDTO switchClub(User user, Club club) {
     user.setActiveClubId(club.getClubId());
-    return new UserDTO(userRepository.save(user), club.getClubId());
+    return UserDTO.create(userRepository.save(user), club.getClubId());
   }
 
   @Override
@@ -203,6 +203,6 @@ public class UserServiceImpl implements UserService {
     clubhouseMappers.mapClubRoles(roles, user, club);
     user.setActiveClubId(clubId);
 
-    return new UserDTO(userRepository.save(user), clubId);
+    return UserDTO.create(userRepository.save(user), clubId);
   }
 }

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import nu.borjessons.clubhouse.impl.ClubhouseApplication;
 import nu.borjessons.clubhouse.impl.controller.model.request.UserLoginRequestModel;
-import nu.borjessons.clubhouse.impl.dto.UserDTO2;
+import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -60,13 +60,13 @@ public class IntegrationTestHelper {
     return authHeader.get(0);
   }
 
-  public static UserDTO2 getSelf(String token) throws JsonProcessingException {
+  public static UserDTO getSelf(String token) throws JsonProcessingException {
     UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path("/users/principal");
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = getVoidHttpEntity(EmbeddedDataLoader.defaultClubId, token);
 
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
-    UserDTO2 userDTO = deserializeUserDTO(response.getBody(), UserDTO2.class);
+    UserDTO userDTO = deserializeUserDTO(response.getBody(), UserDTO.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return userDTO;
   }

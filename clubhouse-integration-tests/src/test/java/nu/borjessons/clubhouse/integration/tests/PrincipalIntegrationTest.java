@@ -2,7 +2,7 @@ package nu.borjessons.clubhouse.integration.tests;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
-import nu.borjessons.clubhouse.impl.dto.UserDTO2;
+import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import org.junit.jupiter.api.Assertions;
@@ -30,7 +30,7 @@ class PrincipalIntegrationTest {
       String token = IntegrationTestHelper.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       log.info("AUTH TOKEN: {}", token);
 
-      UserDTO2 userDTO = IntegrationTestHelper.getSelf(token);
+      UserDTO userDTO = IntegrationTestHelper.getSelf(token);
       log.info("UserDTO: {}", userDTO);
       Assertions.assertTrue(token.contains("Bearer"));
     }
