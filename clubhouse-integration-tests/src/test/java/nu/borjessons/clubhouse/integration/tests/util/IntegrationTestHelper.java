@@ -5,9 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import nu.borjessons.clubhouse.impl.ClubhouseApplication;
+import nu.borjessons.clubhouse.impl.controller.model.request.CreateClubModel;
 import nu.borjessons.clubhouse.impl.controller.model.request.UserLoginRequestModel;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
-import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
+import nu.borjessons.clubhouse.impl.security.SecurityConstants;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -45,6 +46,23 @@ public class IntegrationTestHelper {
         .run();
   }
 
+  public static String loginUserWithHeader(String email, String password, String clubId) {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path("/login");
+    RestTemplate restTemplate = new RestTemplate();
+
+    HttpHeaders httpHeaders = new HttpHeaders();
+    httpHeaders.add("clubId", clubId);
+    HttpEntity<UserLoginRequestModel> httpEntity = new HttpEntity<>(new UserLoginRequestModel(email, password), httpHeaders);
+    ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, String.class);
+    HttpHeaders headers = response.getHeaders();
+    List<String> authHeader = headers.get("Authorization");
+
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    Assertions.assertNotNull(authHeader);
+    Assertions.assertTrue(authHeader.get(0).contains("Bearer"));
+    return authHeader.get(0);
+  }
+
   public static String loginUser(String email, String password) {
     UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path("/login");
     RestTemplate restTemplate = new RestTemplate();
@@ -63,26 +81,43 @@ public class IntegrationTestHelper {
   public static UserDTO getSelf(String token) throws JsonProcessingException {
     UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path("/users/principal");
     RestTemplate restTemplate = new RestTemplate();
-    HttpEntity<Void> entity = getVoidHttpEntity(EmbeddedDataLoader.defaultClubId, token);
+    HttpEntity<Void> entity = getVoidHttpEntity(token);
 
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
-    UserDTO userDTO = deserializeUserDTO(response.getBody(), UserDTO.class);
+    UserDTO userDTO = deserializeJsonBody(response.getBody(), UserDTO.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return userDTO;
   }
 
-  private static <T> T deserializeUserDTO(String body, Class<T> clazz) throws JsonProcessingException {
+  private static <T> T deserializeJsonBody(String body, Class<T> clazz) throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new ParameterNamesModule());
     mapper.setVisibility(FIELD, ANY);
     return mapper.readValue(body, clazz);
   }
 
-  private static HttpEntity<Void> getVoidHttpEntity(String clubId, String token) {
+  private static HttpEntity<Void> getVoidHttpEntity(String token) {
     HttpHeaders headers = new HttpHeaders();
-    headers.add("ClubId", clubId);
     headers.add("Authorization", token);
     headers.add("Accept", "application/json");
     return new HttpEntity<>(headers);
+  }
+
+  public static UserDTO registerClub(CreateClubModel createClubModel) throws JsonProcessingException {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path(SecurityConstants.CLUB_REGISTRATION_URL);
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<CreateClubModel> httpEntity = new HttpEntity<>(createClubModel);
+    ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return deserializeJsonBody(response.getBody(), UserDTO.class);
+  }
+
+  public static UserDTO joinClub(String token, String clubId) throws JsonProcessingException {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path("/users/principal/join-club").queryParam("clubId", clubId);
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> httpEntity = getVoidHttpEntity(token);
+    ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.PUT, httpEntity, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return deserializeJsonBody(response.getBody(), UserDTO.class);
   }
 }

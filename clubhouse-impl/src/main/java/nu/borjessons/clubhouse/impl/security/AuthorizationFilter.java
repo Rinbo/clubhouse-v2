@@ -28,17 +28,16 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
     String token = req.getHeader(SecurityConstants.AUTHORIZATION);
-    String clubId = req.getHeader("ClubId");
 
     if (token != null) {
-      UsernamePasswordAuthenticationToken authentication = getAuthentication(token.replace(SecurityConstants.TOKEN_PREFIX, ""), clubId);
+      UsernamePasswordAuthenticationToken authentication = getAuthentication(token.replace(SecurityConstants.TOKEN_PREFIX, ""));
       SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     chain.doFilter(req, res);
   }
 
-  private UsernamePasswordAuthenticationToken getAuthentication(String token, String clubId) {
+  private UsernamePasswordAuthenticationToken getAuthentication(String token) {
     if (!jwtUtil.validateToken(token)) return null;
 
     Claims claims = jwtUtil.getAllClaimsFromToken(token);
@@ -48,6 +47,6 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
     User user = userService.getUserByEmail(email);
 
-    return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities(clubId));
+    return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
   }
 }

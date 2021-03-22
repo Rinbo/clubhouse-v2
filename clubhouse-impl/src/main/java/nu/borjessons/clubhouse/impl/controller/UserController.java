@@ -53,7 +53,7 @@ public class UserController extends AbstractController {
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/principal")
   public UserDTO getSelf(WebRequest webRequest) {
-    return UserDTO.create(getPrincipal(), webRequest.getHeader("ClubId"));
+    return UserDTO.create(getPrincipal(), getPrincipal().getActiveClubId());
   }
 
   @PreAuthorize("hasRole('USER')")

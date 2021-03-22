@@ -9,7 +9,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,7 +16,7 @@ import java.util.Set;
 @Setter
 @ToString
 @NoArgsConstructor
-public class CreateUserModel implements Serializable {
+public class CreateUserModel {
 
   private static final long serialVersionUID = 1L;
 

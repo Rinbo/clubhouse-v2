@@ -3,13 +3,14 @@ package nu.borjessons.clubhouse.impl.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.controller.model.request.UserLoginRequestModel;
+import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -39,9 +40,21 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
   @Override
   public void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) {
-    UserDetails userDetails = (User) auth.getPrincipal();
-    userService.updateUserLoginTime(userDetails.getUsername());
-    String token = SecurityConstants.TOKEN_PREFIX + jwtUtil.generateToken(userDetails);
+    User user = (User) auth.getPrincipal();
+    setClub(user, req.getHeader("clubId"));
+    userService.updateUserLoginTime(user.getUsername());
+    String token = SecurityConstants.TOKEN_PREFIX + jwtUtil.doGenerateToken(user.getUsername());
     res.addHeader(SecurityConstants.AUTHORIZATION, token);
+  }
+
+  private void setClub(User user, String clubId) {
+    if (clubId == null || user.getActiveClubId().equals("clubId")) return;
+    Club club = user
+        .getClubs()
+        .stream()
+        .filter(c -> c.getClubId().equals(clubId))
+        .findFirst()
+        .orElseThrow(() -> new AccessDeniedException("You do not have access to this club"));
+    userService.switchClub(user, club);
   }
 }

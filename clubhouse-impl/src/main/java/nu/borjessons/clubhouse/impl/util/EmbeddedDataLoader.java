@@ -26,8 +26,6 @@ public class EmbeddedDataLoader {
   public static final String DEFAULT_PASSWORD = "password";
   public static final String BORJESSON = "Börjesson";
 
-  public static String defaultClubId = "";
-
   private final RegistrationService registrationService;
 
   @PostConstruct
@@ -46,7 +44,6 @@ public class EmbeddedDataLoader {
     clubModel.setOwner(owner);
 
     UserDTO dto = registrationService.registerClub(clubModel);
-    defaultClubId = dto.getClubId();
 
     log.info("Created club: {} and user {}", dto.getClubId(), dto.getEmail());
 
