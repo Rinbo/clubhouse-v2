@@ -6,13 +6,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Getter
 @Setter
-public class UpdateUserModel implements Serializable {
+public class UpdateUserModel {
 
   private static final long serialVersionUID = 1L;
 

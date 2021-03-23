@@ -119,21 +119,12 @@ public class UserController extends AbstractController {
         .collect(Collectors.toSet());
   }
 
-  //TODO: Horrible execution. Rething deeply
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/{userId}")
   public UserDTO updateUser(@PathVariable String userId, @RequestBody @Valid AdminUpdateUserModel userDetails) {
     Club club = getPrincipal().getActiveClub();
     User user = club.getUser(userId);
-    userService.updateUser(user, club, userDetails);
-    return userService.updateUserRoles(user, club, userDetails.getRoles());
-  }
-
-  @PreAuthorize("hasRole('ADMIN')")
-  @PutMapping("/roles/{userId}")
-  public UserDTO updateUser(@PathVariable String userId, @RequestBody Set<ClubRole.Role> roles) {
-    Club club = getPrincipal().getActiveClub();
-    return userService.updateUserRoles(club.getUser(userId), club, roles);
+    return userService.updateUser(user, club, userDetails);
   }
 
   // Principal needs similar functionality to add another parent to his/her children. Needs helper

@@ -1,8 +1,8 @@
 package nu.borjessons.clubhouse.impl.service;
 
+import nu.borjessons.clubhouse.impl.controller.model.request.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.controller.model.request.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.data.Club;
-import nu.borjessons.clubhouse.impl.data.ClubRole.Role;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,7 +22,7 @@ public interface UserService extends UserDetailsService {
 
   UserDTO updateUser(User user, Club club, UpdateUserModel userDetails);
 
-  UserDTO updateUserRoles(User user, Club club, Set<Role> roles);
+  UserDTO updateUser(User user, Club club, AdminUpdateUserModel userDetails);
 
   void removeUserFromClub(User user, Club club);
 

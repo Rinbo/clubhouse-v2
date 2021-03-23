@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.controller.model.request.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.controller.model.request.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.Club;
@@ -82,24 +83,9 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public UserDTO updateUserRoles(User user, Club club, Set<Role> roles) {
-    String clubId = club.getClubId();
-    Set<ClubRole> allRoles = user.getRoles();
-    Set<ClubRole> rolesInClub = allRoles
-        .stream()
-        .filter(clubRole -> clubRole.getClub().getClubId().equals(clubId))
-        .collect(Collectors.toSet());
-
-    rolesInClub.forEach(user::removeClubRole);
-    clubhouseMappers.mapClubRoles(roles, user, club);
-
-    if (!roles.contains(Role.LEADER)) {
-      Set<Team> teams = club.getTeams();
-      teams.forEach(team -> team.removeLeader(user));
-      clubService.saveClub(club);
-    }
-
-    return UserDTO.create(userRepository.save(user), clubId);
+  public UserDTO updateUser(User user, Club club, AdminUpdateUserModel userDetails) {
+    updateUserRoles(user, club, userDetails.getRoles());
+    return updateUser(user, club, (UpdateUserModel) userDetails);
   }
 
   @Override
@@ -204,5 +190,23 @@ public class UserServiceImpl implements UserService {
     user.setActiveClubId(clubId);
 
     return UserDTO.create(userRepository.save(user), clubId);
+  }
+
+  private void updateUserRoles(User user, Club club, Set<Role> roles) {
+    String clubId = club.getClubId();
+    Set<ClubRole> allRoles = user.getRoles();
+    Set<ClubRole> rolesInClub = allRoles
+        .stream()
+        .filter(clubRole -> clubRole.getClub().getClubId().equals(clubId))
+        .collect(Collectors.toSet());
+
+    rolesInClub.forEach(user::removeClubRole);
+    clubhouseMappers.mapClubRoles(roles, user, club);
+
+    if (!roles.contains(Role.LEADER)) {
+      Set<Team> teams = club.getTeams();
+      teams.forEach(team -> team.removeLeader(user));
+      clubService.saveClub(club);
+    }
   }
 }
