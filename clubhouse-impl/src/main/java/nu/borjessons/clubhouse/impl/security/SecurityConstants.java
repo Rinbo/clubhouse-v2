@@ -12,4 +12,5 @@ public class SecurityConstants {
   public static final String TOKEN_PREFIX = "Bearer ";
   public static final String AUTHORIZATION = "Authorization";
   public static final String GET_ALL_CLUBS_URL = "/clubs";
+  public static final String PUBLIC_CLUB_URLS = "/clubs/public/**";
 }

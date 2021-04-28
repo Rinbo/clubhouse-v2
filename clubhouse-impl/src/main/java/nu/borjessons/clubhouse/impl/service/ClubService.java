@@ -12,4 +12,6 @@ public interface ClubService {
   Club getClubByClubId(String clubId);
 
   Set<ClubDTO> getAllClubs();
+
+  ClubDTO getPublicClub(String pathname);
 }

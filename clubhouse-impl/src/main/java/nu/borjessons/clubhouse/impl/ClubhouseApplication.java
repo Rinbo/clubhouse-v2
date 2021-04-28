@@ -7,10 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @SpringBootApplication
 public class ClubhouseApplication {
-
   public static void main(String[] args) {
-
-    System.out.println("HELLO MOTHER FUCKER!!!!!!");
     SpringApplication.run(ClubhouseApplication.class, args);
   }
 

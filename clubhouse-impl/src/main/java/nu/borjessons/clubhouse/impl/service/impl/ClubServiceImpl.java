@@ -28,4 +28,9 @@ public class ClubServiceImpl implements ClubService {
   public Set<ClubDTO> getAllClubs() {
     return clubRepository.findAll().stream().map(ClubDTO::new).collect(Collectors.toSet());
   }
+
+  @Override
+  public ClubDTO getPublicClub(String pathname) {
+    return clubRepository.findByPath(pathname).map(ClubDTO::new).orElseThrow();
+  }
 }

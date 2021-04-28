@@ -5,6 +5,7 @@ import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,10 +19,23 @@ public class ClubController extends AbstractController {
 
   private final ClubService clubService;
 
+  /**
+   * Public endpoints
+   */
+
+  @GetMapping(path = "/public/{pathname}")
+  public ClubDTO getPublicClub(@PathVariable String pathname) {
+    return clubService.getPublicClub(pathname);
+  }
+
   @GetMapping
   public Set<ClubDTO> getAllClubs() {
     return clubService.getAllClubs();
   }
+
+  /**
+   * Private endpoints
+   */
 
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/principal/active")

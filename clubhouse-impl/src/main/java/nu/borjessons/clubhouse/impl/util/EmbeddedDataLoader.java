@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EmbeddedDataLoader {
 
-  public static final String OWNER_EMAIL = "owner@ex.com;";
+  public static final String OWNER_EMAIL = "owner@ex.com";
   public static final String DEFAULT_PASSWORD = "password";
   public static final String BORJESSON = "Börjesson";
 

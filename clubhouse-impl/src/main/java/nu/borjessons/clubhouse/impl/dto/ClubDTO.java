@@ -6,12 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import nu.borjessons.clubhouse.impl.data.Club;
 
-import java.io.Serializable;
-
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ClubDTO implements Serializable {
+public class ClubDTO {
 
   private static final long serialVersionUID = 1L;
 
