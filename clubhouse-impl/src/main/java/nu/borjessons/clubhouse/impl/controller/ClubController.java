@@ -28,7 +28,7 @@ public class ClubController extends AbstractController {
     return clubService.getPublicClub(pathname);
   }
 
-  @GetMapping
+  @GetMapping(path = "/public")
   public Set<ClubDTO> getAllClubs() {
     return clubService.getAllClubs();
   }

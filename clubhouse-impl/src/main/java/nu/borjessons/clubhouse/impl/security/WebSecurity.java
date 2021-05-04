@@ -38,7 +38,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         .antMatchers(
             HttpMethod.POST, USER_REGISTRATION_URL, CLUB_REGISTRATION_URL, FAMILY_REGISTRATION_URL)
         .permitAll()
-        .antMatchers(HttpMethod.GET, GET_ALL_CLUBS_URL, PUBLIC_CLUB_URLS)
+        .antMatchers(HttpMethod.GET, PUBLIC_CLUB_URLS)
         .permitAll()
         .antMatchers(H2_CONSOLE)
         .permitAll()
