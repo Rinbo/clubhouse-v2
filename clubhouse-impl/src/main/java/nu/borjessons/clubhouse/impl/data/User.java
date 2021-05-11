@@ -8,12 +8,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,10 +21,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Entity
 @Table(name = "user", indexes = @Index(name = "ix_email", columnList = "email"))
-public class User extends BaseEntity implements UserDetails, Serializable {
-
-  private static final long serialVersionUID = 2973075901622175140L;
-
+public class User extends BaseEntity implements UserDetails {
   @Id
   @GeneratedValue
   private long id;
@@ -90,7 +85,9 @@ public class User extends BaseEntity implements UserDetails, Serializable {
   }
 
   public Set<Club> getClubs() {
-    return roles.stream().map(ClubRole::getClub).collect(Collectors.toSet());
+    return roles.stream()
+        .map(ClubRole::getClub)
+        .collect(Collectors.toSet());
   }
 
   public void addClubRole(ClubRole clubRole) {
@@ -141,28 +138,24 @@ public class User extends BaseEntity implements UserDetails, Serializable {
   }
 
   @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
+  public Collection<GrantedAuthority> getAuthorities() {
     return roles.stream()
         .filter(clubRole -> clubRole.getClub().getClubId().equals(activeClubId))
         .collect(Collectors.toSet());
   }
 
-  public Collection<? extends GrantedAuthority> getAuthorities(String clubId) {
+  public Collection<GrantedAuthority> getAuthorities(String clubId) {
     return roles.stream()
         .filter(clubRole -> clubRole.getClub().getClubId().equals(clubId))
         .collect(Collectors.toSet());
   }
 
   public Club getActiveClub() {
-    Optional<ClubRole> maybeClubRole =
-        roles.stream()
-            .filter(clubRole -> clubRole.getClub().getClubId().equals(activeClubId))
-            .findFirst();
-    if (maybeClubRole.isPresent()) return maybeClubRole.get().getClub();
-    throw new IllegalStateException(
-        String.format(
-            "User with id %s does not have an active club set",
-            userId)); // Make a separate exception for this
+    return roles.stream()
+        .filter(clubRole -> clubRole.getClub().getClubId().equals(activeClubId))
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException(String.format("User with id %s does not have an active club set", userId)))
+        .getClub();
   }
 
   public int getAge() {
@@ -221,7 +214,6 @@ public class User extends BaseEntity implements UserDetails, Serializable {
   public boolean equals(Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
-
     if (getClass() != obj.getClass()) return false;
     User other = (User) obj;
     if (userId == null) {

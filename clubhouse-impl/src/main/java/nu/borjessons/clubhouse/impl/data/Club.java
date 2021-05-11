@@ -3,12 +3,16 @@ package nu.borjessons.clubhouse.impl.data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -18,7 +22,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Entity
 @Table(name = "club")
-public class Club extends BaseEntity implements Serializable {
+public class Club extends BaseEntity {
 
   public enum Type {
     SPORT,
@@ -26,15 +30,15 @@ public class Club extends BaseEntity implements Serializable {
     MISC
   }
 
-  private static final long serialVersionUID = 799039294739280410L;
-
   public Club(String name, Type type) {
     this.name = name;
     this.path = name.toLowerCase().replace(" ", "-");
     this.type = type;
   }
 
-  @Id @GeneratedValue private long id;
+  @Id
+  @GeneratedValue
+  private long id;
 
   @Column(nullable = false, unique = true)
   private final String clubId = UUID.randomUUID().toString();
@@ -59,22 +63,21 @@ public class Club extends BaseEntity implements Serializable {
   private Set<Team> teams = new HashSet<>();
 
   public User getUser(String userId) {
-    Optional<User> maybeUser =
-        getUsers().stream().filter(user -> user.getUserId().equals(userId)).findFirst();
-    if (maybeUser.isPresent()) return maybeUser.get();
-    throw new UsernameNotFoundException(
-        String.format("User with id %s is not present in club with id %s", userId, clubId));
+    return getUsers()
+        .stream()
+        .filter(user -> user.getUserId().equals(userId))
+        .findFirst()
+        .orElseThrow();
   }
 
   public Set<User> getUsers() {
     return clubRoles.stream()
         .map(ClubRole::getUser)
-        .map(
-            user -> {
-              Set<User> userAndChildren = new HashSet<>(user.getChildren());
-              userAndChildren.add(user);
-              return userAndChildren;
-            })
+        .map(user -> {
+          Set<User> combinedSet = new HashSet<>(user.getChildren());
+          combinedSet.add(user);
+          return combinedSet;
+        })
         .flatMap(Set::stream)
         .collect(Collectors.toSet());
   }
@@ -97,11 +100,6 @@ public class Club extends BaseEntity implements Serializable {
   public void addTeam(Team team) {
     teams.add(team);
     team.setClub(this);
-  }
-
-  public void removeTeam(Team team) {
-    teams.remove(team);
-    team.setClub(null);
   }
 
   @Override

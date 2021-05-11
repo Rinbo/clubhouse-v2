@@ -5,19 +5,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.util.Objects;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "club_role")
-public class ClubRole extends BaseEntity implements Serializable, GrantedAuthority {
-
+public class ClubRole extends BaseEntity implements GrantedAuthority {
   public static final String ROLE_PREFIX = "ROLE_";
-
-  private static final long serialVersionUID = 5386658724998732091L;
 
   public enum Role {
     ADMIN,
@@ -35,7 +38,10 @@ public class ClubRole extends BaseEntity implements Serializable, GrantedAuthori
     setClub(Objects.requireNonNull(club));
   }
 
-  @Id @GeneratedValue @Getter private long id;
+  @Id
+  @GeneratedValue
+  @Getter
+  private long id;
 
   @Column(nullable = false, unique = true)
   @Getter
@@ -46,9 +52,13 @@ public class ClubRole extends BaseEntity implements Serializable, GrantedAuthori
   @Getter
   private Role role;
 
-  @ManyToOne @Getter private User user;
+  @ManyToOne
+  @Getter
+  private User user;
 
-  @ManyToOne @Getter private Club club;
+  @ManyToOne
+  @Getter
+  private Club club;
 
   private void setUser(User user) {
     this.user = user;
@@ -87,8 +97,7 @@ public class ClubRole extends BaseEntity implements Serializable, GrantedAuthori
     if (getClass() != obj.getClass()) return false;
     ClubRole other = (ClubRole) obj;
     if (clubRoleId == null) {
-      if (other.clubRoleId != null) return false;
-    } else if (!clubRoleId.equals(other.clubRoleId)) return false;
-    return true;
+      return other.clubRoleId == null;
+    } else return clubRoleId.equals(other.clubRoleId);
   }
 }

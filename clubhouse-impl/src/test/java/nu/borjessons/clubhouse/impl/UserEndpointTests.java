@@ -20,7 +20,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static nu.borjessons.clubhouse.impl.integration.util.RequestModels.*;
@@ -41,7 +45,8 @@ class UserEndpointTests {
   private static String parent2UserId;
   private static List<String> childrenIds;
 
-  @LocalServerPort private int port;
+  @LocalServerPort
+  private int port;
 
   @BeforeEach
   void setUp() {
@@ -372,7 +377,7 @@ class UserEndpointTests {
     String errorResponse = response.jsonPath().getString("message");
 
     assertEquals(
-        String.format("User with id %s is not present in club with id %s", childId, clubId),
+        "No value present",
         errorResponse);
   }
 

@@ -200,7 +200,7 @@ class ClubEndpointTests {
             .contentType(TestConfiguration.APPLICATION_JSON)
             .accept(TestConfiguration.APPLICATION_JSON)
             .when()
-            .get("/clubs")
+            .get("/clubs/public")
             .then()
             .statusCode(200)
             .extract()

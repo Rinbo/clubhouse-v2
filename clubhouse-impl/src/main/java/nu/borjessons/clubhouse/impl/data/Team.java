@@ -4,8 +4,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -15,11 +21,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "team")
-public class Team extends BaseEntity implements Serializable {
-
-  private static final long serialVersionUID = 1L;
-
-  @Id @GeneratedValue private long id;
+public class Team extends BaseEntity {
+  @Id
+  @GeneratedValue
+  private long id;
 
   @Column(nullable = false, unique = true)
   private final String teamId = UUID.randomUUID().toString();
@@ -37,7 +42,8 @@ public class Team extends BaseEntity implements Serializable {
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<User> leaders = new HashSet<>();
 
-  @ManyToOne private Club club;
+  @ManyToOne
+  private Club club;
 
   public void addMember(User user) {
     members.add(user);

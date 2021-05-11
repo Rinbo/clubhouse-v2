@@ -3,18 +3,20 @@ package nu.borjessons.clubhouse.impl.data;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
-public class Address extends BaseEntity implements Serializable {
-
-  private static final long serialVersionUID = 1L;
-
-  @Id @GeneratedValue private long id;
+public class Address extends BaseEntity {
+  @Id
+  @GeneratedValue
+  private long id;
 
   @Column(nullable = false, unique = true)
   private final String addressId = UUID.randomUUID().toString();
@@ -31,7 +33,8 @@ public class Address extends BaseEntity implements Serializable {
   @Column(length = 30, nullable = false)
   private String city;
 
-  @ManyToOne private User user;
+  @ManyToOne
+  private User user;
 
   @Override
   public int hashCode() {
@@ -48,8 +51,7 @@ public class Address extends BaseEntity implements Serializable {
     if (getClass() != obj.getClass()) return false;
     Address other = (Address) obj;
     if (addressId == null) {
-      if (other.addressId != null) return false;
-    } else if (!addressId.equals(other.addressId)) return false;
-    return true;
+      return other.addressId == null;
+    } else return addressId.equals(other.addressId);
   }
 }
