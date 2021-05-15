@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import nu.borjessons.clubhouse.impl.ClubhouseApplication;
 import nu.borjessons.clubhouse.impl.controller.model.request.CreateClubModel;
 import nu.borjessons.clubhouse.impl.controller.model.request.UserLoginRequestModel;
+import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.security.SecurityConstants;
 import org.junit.jupiter.api.Assertions;
@@ -24,7 +25,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
@@ -119,5 +122,31 @@ public class IntegrationTestHelper {
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.PUT, httpEntity, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return deserializeJsonBody(response.getBody(), UserDTO.class);
+  }
+
+  public static List<ClubDTO> getClubs() {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path("/clubs/public");
+    RestTemplate restTemplate = new RestTemplate();
+    ResponseEntity<ClubDTO[]> responseEntity = restTemplate.getForEntity(builder.toUriString(), ClubDTO[].class);
+    ClubDTO[] clubs = responseEntity.getBody();
+    Assertions.assertNotNull(clubs);
+    return Arrays.stream(clubs).collect(Collectors.toList());
+  }
+
+  private static <T> T getList(String token, String uri, Class<T> type) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = getVoidHttpEntity(token);
+    ResponseEntity<T> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, entity, type);
+
+    T arrayResponse = responseEntity.getBody();
+    Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    Assertions.assertNotNull(arrayResponse);
+    return arrayResponse;
+  }
+
+
+  public static List<String> getRoles(String token, ClubDTO clubDTO) {
+    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path("/clubs").path("/" + clubDTO.getClubId()).path("/roles");
+    return Arrays.stream(getList(token, builder.toUriString(), String[].class)).collect(Collectors.toList());
   }
 }
