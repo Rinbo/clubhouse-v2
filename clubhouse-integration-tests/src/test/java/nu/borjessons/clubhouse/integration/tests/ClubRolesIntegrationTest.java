@@ -1,6 +1,5 @@
 package nu.borjessons.clubhouse.integration.tests;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
@@ -13,14 +12,16 @@ import java.util.List;
 class ClubRolesIntegrationTest {
 
   @Test
-  void integrationTest() throws JsonProcessingException {
+  void integrationTest() {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       // TODO change this so that userDTO contains a list of all the users clubIds
       String token = IntegrationTestHelper.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       List<ClubDTO> clubs = IntegrationTestHelper.getClubs();
       List<String> roles = IntegrationTestHelper.getRoles(token, clubs.iterator().next());
-      List<String> expected = List.of("ADMIN", "OWNER", "USER", "LEADER");
-      expected.forEach(role -> Assertions.assertTrue(roles.contains(role)));
+      roles.sort(String::compareTo);
+
+      List<String> expected = List.of("ADMIN", "LEADER", "OWNER", "USER");
+      Assertions.assertEquals(expected, roles);
     }
   }
 }

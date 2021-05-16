@@ -38,12 +38,6 @@ public class ClubController extends AbstractController {
    */
 
   @PreAuthorize("hasRole('USER')")
-  @GetMapping("/{clubId}/roles")
-  public Set<String> getActiveClub(@PathVariable String clubId) {
-    return getPrincipal().getRolesForClub(clubId);
-  }
-
-  @PreAuthorize("hasRole('USER')")
   @GetMapping("/principal/active")
   public ClubDTO getActiveClub() {
     return new ClubDTO(getPrincipal().getActiveClub());

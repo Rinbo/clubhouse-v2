@@ -146,7 +146,12 @@ public class IntegrationTestHelper {
 
 
   public static List<String> getRoles(String token, ClubDTO clubDTO) {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path("/clubs").path("/" + clubDTO.getClubId()).path("/roles");
+    UriComponentsBuilder builder = UriComponentsBuilder
+        .fromHttpUrl(BASE_URL)
+        .path("/users/club")
+        .path("/" + clubDTO.getClubId())
+        .path("/roles");
+    
     return Arrays.stream(getList(token, builder.toUriString(), String[].class)).collect(Collectors.toList());
   }
 }

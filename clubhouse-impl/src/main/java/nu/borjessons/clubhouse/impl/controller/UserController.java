@@ -97,6 +97,12 @@ public class UserController extends AbstractController {
     return ClubRole.Role.values();
   }
 
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping("/club/{clubId}/roles")
+  public Set<String> getActiveClub(@PathVariable String clubId) {
+    return getPrincipal().getRolesForClub(clubId);
+  }
+
   /*
    * Administrator routes
    */
