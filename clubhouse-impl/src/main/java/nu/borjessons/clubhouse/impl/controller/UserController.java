@@ -9,8 +9,8 @@ import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.BaseUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.service.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,11 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,61 +32,24 @@ public class UserController extends AbstractController {
 
   private final UserService userService;
 
-  @PreAuthorize("hasRole('USER')")
-  @GetMapping
-  public Set<UserDTO> getUsers() {
-    Club activeClub = getPrincipal().getActiveClub();
-    return activeClub
-        .getUsers()
-        .stream()
-        .map(user -> UserDTO.create(user, activeClub.getClubId()))
-        .collect(Collectors.toSet());
-  }
-
   /*
    * Principal routes
    */
 
-  @PreAuthorize("hasRole('USER')")
   @GetMapping("/principal")
-  public UserDTO getSelf(WebRequest webRequest) {
-    return UserDTO.create(getPrincipal(), getPrincipal().getActiveClubId());
+  public UserDTO getSelf(@AuthenticationPrincipal User principal) {
+    return UserDTO.create(principal);
   }
 
-  @PreAuthorize("hasRole('USER')")
   @PutMapping("/principal")
-  public UserDTO updateSelf(@RequestBody UpdateUserModel userDetails) {
-    User user = getPrincipal();
-    return userService.updateUser(user, user.getActiveClub(), userDetails);
+  public UserDTO updateSelf(@RequestBody UpdateUserModel userDetails, @AuthenticationPrincipal User principal) {
+    return userService.updateUser(principal, userDetails);
   }
 
   @DeleteMapping("/principal")
   public void deleteSelf() {
     User user = getPrincipal();
     userService.deleteUser(user);
-  }
-
-  @PreAuthorize("hasRole('USER')")
-  @PutMapping("/principal/leave-club")
-  public void leaveClub() {
-    User user = getPrincipal();
-    userService.removeUserFromClub(user, user.getActiveClub());
-  }
-
-  @PutMapping("/principal/switch-club")
-  public UserDTO switchClub(@RequestParam String clubId) {
-    User user = getPrincipal();
-    Optional<Club> optional = user.getClubs().stream().filter(club -> club.getClubId().equals(clubId)).findFirst();
-    return userService.switchClub(user, optional.orElseThrow());
-  }
-
-  @PutMapping("/principal/join-club")
-  public UserDTO joinClub(@RequestParam String clubId) {
-    User user = getPrincipal();
-    if (user.getClubs().stream().anyMatch(club -> club.getClubId().equals(clubId))) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is already a member of this club");
-    }
-    return userService.joinClub(user, clubId);
   }
 
   @GetMapping("/roles")
@@ -108,17 +68,22 @@ public class UserController extends AbstractController {
    */
 
   @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping("/{userId}")
-  public UserDTO getUser(@PathVariable String userId) {
-    Club club = getPrincipal().getActiveClub();
-    return UserDTO.create(club.getUser(userId), club.getClubId());
+  @GetMapping("/club/{clubId}/user/{userId}")
+  public UserDTO getUser(@PathVariable String clubId, @PathVariable String userId, @AuthenticationPrincipal User principal) {
+    // TODO require role admin
+    User user = principal
+        .getClubByClubId(clubId)
+        .getUser(userId);
+    return UserDTO.create(user);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping("/age-range")
-  public Set<BaseUserDTO> getUsersByAgeRange(@RequestParam int minAge, @RequestParam int maxAge) {
-    Club club = getPrincipal().getActiveClub();
-    return club.getUsers()
+  @GetMapping("/club/{clubId}/age-range")
+  public Set<BaseUserDTO> getUsersByAgeRange(@PathVariable String clubId, @RequestParam int minAge, @RequestParam int maxAge,
+                                             @AuthenticationPrincipal User principal) {
+    return principal
+        .getClubByClubId(clubId)
+        .getUsers()
         .stream()
         .filter(user -> user.getAge() <= maxAge && user.getAge() >= minAge)
         .map(BaseUserDTO::new)

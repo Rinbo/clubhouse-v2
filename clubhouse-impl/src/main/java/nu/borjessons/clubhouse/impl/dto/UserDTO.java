@@ -22,16 +22,16 @@ public final class UserDTO {
   private final Set<String> childrenIds;
   private final Set<String> parentIds;
   private final Set<String> roles;
+  private final Set<ClubDTO> clubs;
 
-  public static UserDTO create(User user, String clubId) {
+  public static UserDTO create(User user) {
     return UserDTO.builder()
-        .clubId(clubId)
+        .clubs(user.getClubs().stream().map(ClubDTO::new).collect(Collectors.toSet()))
         .userId(user.getUserId())
         .email(user.getEmail())
         .firstName(user.getFirstName())
         .lastName(user.getLastName())
         .dateOfBirth(user.getDateOfBirth().toString())
-        .roles(user.getRolesForClub(clubId))
         .childrenIds(user.getChildren().stream().map(User::getUserId).collect(Collectors.toSet()))
         .parentIds(user.getParents().stream().map(User::getUserId).collect(Collectors.toSet()))
         .build();

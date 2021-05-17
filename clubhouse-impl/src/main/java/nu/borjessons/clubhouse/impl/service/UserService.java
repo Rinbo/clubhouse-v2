@@ -18,9 +18,9 @@ public interface UserService extends UserDetailsService {
 
   List<UserDTO> createUsers(List<User> users);
 
-  UserDTO updateUser(User user, String userId);
+  UserDTO updateUser(User user);
 
-  UserDTO updateUser(User user, Club club, UpdateUserModel userDetails);
+  UserDTO updateUser(User user, UpdateUserModel userDetails);
 
   UserDTO updateUser(User user, Club club, AdminUpdateUserModel userDetails);
 
@@ -31,8 +31,4 @@ public interface UserService extends UserDetailsService {
   void updateUserLoginTime(String email);
 
   UserDTO updateUserChildren(User parent, Set<User> children, Club club);
-
-  UserDTO switchClub(User user, Club club);
-
-  UserDTO joinClub(User user, String clubId);
 }

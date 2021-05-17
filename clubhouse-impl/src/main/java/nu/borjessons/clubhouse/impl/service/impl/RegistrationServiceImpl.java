@@ -93,7 +93,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     saveChildren(parent, childModels, roles);
     clubhouseMappers.mapClubRoles(roles, parent, club);
 
-    return userService.updateUser(parent, clubId);
+    return userService.updateUser(parent);
   }
 
   private void saveChildren(User parent, Set<CreateChildRequestModel> childModels, Set<ClubRole.Role> parentRoles) {

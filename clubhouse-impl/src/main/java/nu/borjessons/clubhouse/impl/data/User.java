@@ -172,6 +172,10 @@ public class User extends BaseEntity implements UserDetails {
     return age - 1;
   }
 
+  public Club getClubByClubId(String clubId) {
+    return this.getClubs().stream().filter(club -> club.getClubId().equals(clubId)).findFirst().orElseThrow();
+  }
+
   @Override
   public String getPassword() {
     return encryptedPassword;

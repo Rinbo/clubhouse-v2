@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
   private final UserRepository userRepository;
   private final ClubService clubService;
   private final AddressRepository addressRepository;
@@ -48,26 +47,25 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDTO createUser(User user) {
-    return UserDTO.create(userRepository.save(user), user.getActiveClubId());
+    return UserDTO.create(userRepository.save(user));
   }
 
   @Override
   public List<UserDTO> createUsers(List<User> users) {
     return userRepository.saveAll(users)
         .stream()
-        .map(user -> UserDTO.create(user, user.getActiveClubId()))
+        .map(UserDTO::create)
         .collect(Collectors.toList());
   }
 
   @Override
-  public UserDTO updateUser(User user, String clubId) {
-    return UserDTO.create(userRepository.save(user), clubId);
+  public UserDTO updateUser(User user) {
+    return UserDTO.create(userRepository.save(user));
   }
 
   @Override
   @Transactional
-  public UserDTO updateUser(User user, Club club, UpdateUserModel userDetails) {
-    String clubId = club.getClubId();
+  public UserDTO updateUser(User user, UpdateUserModel userDetails) {
     user.setFirstName(userDetails.getFirstName());
     user.setLastName(userDetails.getLastName());
     user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
@@ -78,14 +76,14 @@ public class UserServiceImpl implements UserService {
     addressRepository.deleteAll(oldAddresses);
     addresses.forEach(user::addAddress);
 
-    return UserDTO.create(userRepository.save(user), clubId);
+    return UserDTO.create(userRepository.save(user));
   }
 
   @Override
   @Transactional
   public UserDTO updateUser(User user, Club club, AdminUpdateUserModel userDetails) {
     updateUserRoles(user, club, userDetails.getRoles());
-    return updateUser(user, club, (UpdateUserModel) userDetails);
+    return updateUser(user, userDetails);
   }
 
   @Override
@@ -170,26 +168,7 @@ public class UserServiceImpl implements UserService {
           .forEach(ClubRole::doOrphan);
     }
 
-    return UserDTO.create(userRepository.save(parent), club.getClubId());
-  }
-
-  @Override
-  public UserDTO switchClub(User user, Club club) {
-    user.setActiveClubId(club.getClubId());
-    return UserDTO.create(userRepository.save(user), club.getClubId());
-  }
-
-  @Override
-  public UserDTO joinClub(User user, String clubId) {
-    Club club = clubService.getClubByClubId(clubId);
-    Set<Role> roles = new HashSet<>(List.of(Role.USER));
-
-    if (!user.getChildren().isEmpty()) roles.add(Role.PARENT);
-
-    clubhouseMappers.mapClubRoles(roles, user, club);
-    user.setActiveClubId(clubId);
-
-    return UserDTO.create(userRepository.save(user), clubId);
+    return UserDTO.create(userRepository.save(parent));
   }
 
   private void updateUserRoles(User user, Club club, Set<Role> roles) {

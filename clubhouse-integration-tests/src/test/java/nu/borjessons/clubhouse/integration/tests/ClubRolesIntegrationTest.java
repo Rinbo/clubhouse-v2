@@ -1,6 +1,6 @@
 package nu.borjessons.clubhouse.integration.tests;
 
-import nu.borjessons.clubhouse.impl.dto.ClubDTO;
+import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import org.junit.jupiter.api.Assertions;
@@ -12,12 +12,11 @@ import java.util.List;
 class ClubRolesIntegrationTest {
 
   @Test
-  void integrationTest() {
+  void integrationTest() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
-      // TODO change this so that userDTO contains a list of all the users clubIds
       String token = IntegrationTestHelper.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      List<ClubDTO> clubs = IntegrationTestHelper.getClubs();
-      List<String> roles = IntegrationTestHelper.getRoles(token, clubs.iterator().next());
+      UserDTO userDTO = IntegrationTestHelper.getSelf(token);
+      List<String> roles = IntegrationTestHelper.getRoles(token, userDTO.getClubs().iterator().next());
       roles.sort(String::compareTo);
 
       List<String> expected = List.of("ADMIN", "LEADER", "OWNER", "USER");
