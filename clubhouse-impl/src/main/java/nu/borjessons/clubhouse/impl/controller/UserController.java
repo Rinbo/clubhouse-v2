@@ -1,14 +1,10 @@
 package nu.borjessons.clubhouse.impl.controller;
 
-import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.controller.model.request.AdminUpdateUserModel;
-import nu.borjessons.clubhouse.impl.controller.model.request.UpdateUserModel;
-import nu.borjessons.clubhouse.impl.data.Club;
-import nu.borjessons.clubhouse.impl.data.ClubRole;
-import nu.borjessons.clubhouse.impl.data.User;
-import nu.borjessons.clubhouse.impl.dto.BaseUserDTO;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
-import nu.borjessons.clubhouse.impl.service.UserService;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,35 +17,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.controller.model.request.AdminUpdateUserModel;
+import nu.borjessons.clubhouse.impl.controller.model.request.UpdateUserModel;
+import nu.borjessons.clubhouse.impl.data.Club;
+import nu.borjessons.clubhouse.impl.data.ClubRole;
+import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.dto.BaseUserDTO;
+import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.service.UserService;
 
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @RestController
-public class UserController extends AbstractController {
-
+public class UserController {
   private final UserService userService;
 
-  /*
-   * Principal routes
-   */
-
-  @GetMapping("/principal")
-  public UserDTO getSelf(@AuthenticationPrincipal User principal) {
-    return UserDTO.create(principal);
-  }
-
-  @PutMapping("/principal")
-  public UserDTO updateSelf(@RequestBody UpdateUserModel userDetails, @AuthenticationPrincipal User principal) {
-    return userService.updateUser(principal, userDetails);
-  }
-
   @DeleteMapping("/principal")
-  public void deleteSelf() {
-    User user = getPrincipal();
-    userService.deleteUser(user);
+  public void deleteSelf(@AuthenticationPrincipal User principal) {
+    userService.deleteUser(principal);
+  }
+
+  @GetMapping("/club/{clubId}/leaders")
+  public Set<BaseUserDTO> getLeaders(@AuthenticationPrincipal User principal, @PathVariable String clubId) {
+    // TODO Require Admin
+    return principal.getActiveClub()
+        .getUsers()
+        .stream()
+        .filter(user -> user.getRolesForClub(clubId).contains(ClubRole.Role.LEADER.name()))
+        .map(BaseUserDTO::new)
+        .collect(Collectors.toSet());
   }
 
   @GetMapping("/roles")
@@ -57,32 +54,30 @@ public class UserController extends AbstractController {
     return ClubRole.Role.values();
   }
 
-  @PreAuthorize("hasRole('USER')")
-  @GetMapping("/club/{clubId}/roles")
-  public Set<String> getActiveClub(@PathVariable String clubId) {
-    return getPrincipal().getRolesForClub(clubId);
+  @GetMapping("/principal")
+  public UserDTO getSelf(@AuthenticationPrincipal User principal) {
+    return UserDTO.create(principal);
   }
-
-  /*
-   * Administrator routes
-   */
 
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/club/{clubId}/user/{userId}")
-  public UserDTO getUser(@PathVariable String clubId, @PathVariable String userId, @AuthenticationPrincipal User principal) {
+  public UserDTO getUser(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String userId) {
     // TODO require role admin
     User user = principal
         .getClubByClubId(clubId)
-        .getUser(userId);
+        .orElseThrow()
+        .getUser(userId)
+        .orElseThrow();
     return UserDTO.create(user);
   }
 
-  @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/club/{clubId}/age-range")
-  public Set<BaseUserDTO> getUsersByAgeRange(@PathVariable String clubId, @RequestParam int minAge, @RequestParam int maxAge,
-                                             @AuthenticationPrincipal User principal) {
+  public Set<BaseUserDTO> getUsersByAgeRange(@AuthenticationPrincipal User principal, @PathVariable String clubId, @RequestParam int minAge,
+      @RequestParam int maxAge) {
+    // TODO require role admin
     return principal
         .getClubByClubId(clubId)
+        .orElseThrow()
         .getUsers()
         .stream()
         .filter(user -> user.getAge() <= maxAge && user.getAge() >= minAge)
@@ -91,45 +86,42 @@ public class UserController extends AbstractController {
   }
 
   @PreAuthorize("hasRole('ADMIN')")
-  @PutMapping("/{userId}")
-  public UserDTO updateUser(@PathVariable String userId, @RequestBody @Valid AdminUpdateUserModel userDetails) {
-    Club club = getPrincipal().getActiveClub();
-    User user = club.getUser(userId);
+  @PutMapping("/club/{clubId}/remove/{userId}")
+  public void removeUserFromClub(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String userId) {
+    // TODO require role admin
+    Club club = principal.getClubByClubId(clubId).orElseThrow();
+    User user = club.getUser(userId).orElseThrow();
+    userService.removeUserFromClub(user, club);
+  }
+
+  @PutMapping("/principal")
+  public UserDTO updateSelf(@AuthenticationPrincipal User principal, @RequestBody UpdateUserModel userDetails) {
+    return userService.updateUser(principal, userDetails);
+  }
+
+  @PutMapping("/club/{clubId}/{userId}")
+  public UserDTO updateUser(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String userId,
+      @RequestBody @Valid AdminUpdateUserModel userDetails) {
+    // TODO Require Admin
+    Club club = principal.getClubByClubId(clubId).orElseThrow();
+    User user = club.getUser(userId).orElseThrow();
     return userService.updateUser(user, club, userDetails);
   }
 
   // Principal needs similar functionality to add another parent to his/her children. Needs helper
   // end point to search for a user in the club by email
-  @PreAuthorize("hasRole('ADMIN')")
-  @PostMapping("/children/{userId}")
-  public UserDTO updateUserChildren(@PathVariable String userId, @RequestBody Set<String> childrenIds) {
-    Club club = getPrincipal().getActiveClub();
-    User parent = club.getUser(userId);
+  @PostMapping("/clubId/{clubId}/children/{userId}")
+  public UserDTO updateUserChildren(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String userId,
+      @RequestBody Set<String> childrenIds) {
+    // TODO Require Admin
+    Club club = principal.getClubByClubId(clubId).orElseThrow();
+    User parent = club.getUser(userId).orElseThrow();
     Set<User> clubChildren = club.getManagedUsers();
-    Set<User> validatedChildren = clubChildren.stream()
+    Set<User> validatedChildren = clubChildren
+        .stream()
         .filter(child -> childrenIds.contains(child.getUserId()))
         .collect(Collectors.toSet());
+
     return userService.updateUserChildren(parent, validatedChildren, club);
-  }
-
-  @PreAuthorize("hasRole('ADMIN')")
-  @PutMapping("/remove/{userId}")
-  public void removeUserFromClub(@PathVariable String userId) {
-    Club club = getPrincipal().getActiveClub();
-    User user = club.getUser(userId);
-    userService.removeUserFromClub(user, club);
-  }
-
-  @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping("/leaders")
-  public Set<BaseUserDTO> getLeaders() {
-    User admin = getPrincipal();
-    String clubId = admin.getActiveClubId();
-    return admin.getActiveClub()
-        .getUsers()
-        .stream()
-        .filter(user -> user.getRolesForClub(clubId).contains(ClubRole.Role.LEADER.name()))
-        .map(BaseUserDTO::new)
-        .collect(Collectors.toSet());
   }
 }

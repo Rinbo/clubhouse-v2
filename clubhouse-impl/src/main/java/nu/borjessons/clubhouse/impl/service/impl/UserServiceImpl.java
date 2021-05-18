@@ -1,5 +1,16 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.controller.model.request.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.controller.model.request.UpdateUserModel;
@@ -17,33 +28,15 @@ import nu.borjessons.clubhouse.impl.service.TeamService;
 import nu.borjessons.clubhouse.impl.service.UserService;
 import nu.borjessons.clubhouse.impl.util.ClubhouseMappers;
 import nu.borjessons.clubhouse.impl.util.ClubhouseUtils;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-  private final UserRepository userRepository;
-  private final ClubService clubService;
   private final AddressRepository addressRepository;
-  private final TeamService teamService;
+  private final ClubService clubService;
   private final ClubhouseMappers clubhouseMappers;
-
-  @Override
-  public UserDetails loadUserByUsername(String username) {
-    return userRepository.findByEmail(username).orElseThrow();
-  }
-
-  @Override
-  public User getUserByEmail(String email) { return userRepository.findByEmail(email).orElseThrow(); }
+  private final TeamService teamService;
+  private final UserRepository userRepository;
 
   @Override
   public UserDTO createUser(User user) {
@@ -59,31 +52,29 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserDTO updateUser(User user) {
-    return UserDTO.create(userRepository.save(user));
+  @Transactional
+  public void deleteUser(User user) {
+    Set<User> children = user.getChildren();
+    user.setChildren(new HashSet<>());
+    children.forEach(child -> {
+      child.removeParent(user);
+      if (child.getParents().isEmpty()) {
+        userRepository.delete(child);
+      } else {
+        userRepository.save(child);
+      }
+    });
+    userRepository.delete(user);
   }
 
   @Override
-  @Transactional
-  public UserDTO updateUser(User user, UpdateUserModel userDetails) {
-    user.setFirstName(userDetails.getFirstName());
-    user.setLastName(userDetails.getLastName());
-    user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
-
-    Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
-    Set<Address> oldAddresses = user.getAddresses();
-    oldAddresses.forEach(user::removeAddress);
-    addressRepository.deleteAll(oldAddresses);
-    addresses.forEach(user::addAddress);
-
-    return UserDTO.create(userRepository.save(user));
+  public User getUserByEmail(String email) {
+    return userRepository.findByEmail(email).orElseThrow();
   }
 
   @Override
-  @Transactional
-  public UserDTO updateUser(User user, Club club, AdminUpdateUserModel userDetails) {
-    updateUserRoles(user, club, userDetails.getRoles());
-    return updateUser(user, userDetails);
+  public UserDetails loadUserByUsername(String username) {
+    return userRepository.findByEmail(username).orElseThrow();
   }
 
   @Override
@@ -119,26 +110,31 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  @Transactional
-  public void deleteUser(User user) {
-    Set<User> children = user.getChildren();
-    user.setChildren(new HashSet<>());
-    children.forEach(child -> {
-      child.removeParent(user);
-      if (child.getParents().isEmpty()) {
-        userRepository.delete(child);
-      } else {
-        userRepository.save(child);
-      }
-    });
-    userRepository.delete(user);
+  public UserDTO updateUser(User user) {
+    return UserDTO.create(userRepository.save(user));
   }
 
   @Override
-  public void updateUserLoginTime(String email) {
-    User user = userRepository.findByEmail(email).orElseThrow();
-    user.setLastLoginTime(LocalDateTime.now());
-    userRepository.save(user);
+  @Transactional
+  public UserDTO updateUser(User user, UpdateUserModel userDetails) {
+    user.setFirstName(userDetails.getFirstName());
+    user.setLastName(userDetails.getLastName());
+    user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
+
+    Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
+    Set<Address> oldAddresses = user.getAddresses();
+    oldAddresses.forEach(user::removeAddress);
+    addressRepository.deleteAll(oldAddresses);
+    addresses.forEach(user::addAddress);
+
+    return UserDTO.create(userRepository.save(user));
+  }
+
+  @Override
+  @Transactional
+  public UserDTO updateUser(User user, Club club, AdminUpdateUserModel userDetails) {
+    updateUserRoles(user, club, userDetails.getRoles());
+    return updateUser(user, userDetails);
   }
 
   @Override
@@ -153,7 +149,8 @@ public class UserServiceImpl implements UserService {
     List<User> savedChildren = userRepository.saveAll(children);
 
     savedChildren.forEach(child -> {
-      if (child.getParents().isEmpty()) userRepository.delete(child);
+      if (child.getParents().isEmpty())
+        userRepository.delete(child);
     });
 
     if (!parent.getChildren().isEmpty()) {
@@ -169,6 +166,13 @@ public class UserServiceImpl implements UserService {
     }
 
     return UserDTO.create(userRepository.save(parent));
+  }
+
+  @Override
+  public void updateUserLoginTime(String email) {
+    User user = userRepository.findByEmail(email).orElseThrow();
+    user.setLastLoginTime(LocalDateTime.now());
+    userRepository.save(user);
   }
 
   private void updateUserRoles(User user, Club club, Set<Role> roles) {
