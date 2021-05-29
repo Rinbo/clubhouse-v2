@@ -35,39 +35,52 @@ import nu.borjessons.clubhouse.impl.data.ClubRole.Role;
 @Table(name = "user", indexes = @Index(name = "ix_email", columnList = "email"))
 public class User extends BaseEntity implements UserDetails {
   private String activeClubId;
+
   @OneToMany(
       mappedBy = "user",
       cascade = CascadeType.ALL,
       orphanRemoval = true,
       fetch = FetchType.EAGER)
   private Set<Address> addresses = new HashSet<>();
+
   @ManyToMany(mappedBy = "parents", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
   private Set<User> children = new HashSet<>();
+
   @Column(nullable = false)
   private LocalDate dateOfBirth;
+
   @Column(nullable = false, length = 120, unique = true, name = "email")
   private String email;
+
   @Column(nullable = false)
   private String encryptedPassword;
+
   @Column(nullable = false, length = 50)
   private String firstName;
+
   @Id
   @GeneratedValue
   private long id;
+
   private LocalDateTime lastLoginTime;
+
   @Column(nullable = false, length = 50)
   private String lastName;
+
   private boolean managedAccount;
+
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<User> parents = new HashSet<>();
+
   @OneToMany(
       mappedBy = "user",
       cascade = CascadeType.ALL,
       orphanRemoval = true,
       fetch = FetchType.EAGER)
   private Set<ClubRole> roles = new HashSet<>();
+
   @Column(nullable = false, unique = true)
-  private final String userId = UUID.randomUUID().toString();
+  private String userId = UUID.randomUUID().toString();
 
   public void addAddress(Address address) {
     addresses.add(address);

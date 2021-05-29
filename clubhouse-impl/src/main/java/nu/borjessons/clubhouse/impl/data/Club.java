@@ -27,7 +27,7 @@ import lombok.Setter;
 public class Club extends BaseEntity {
 
   @Column(nullable = false, unique = true)
-  private final String clubId = UUID.randomUUID().toString();
+  private String clubId = UUID.randomUUID().toString();
 
   @OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.EAGER)
   private Set<ClubRole> clubRoles = new HashSet<>();

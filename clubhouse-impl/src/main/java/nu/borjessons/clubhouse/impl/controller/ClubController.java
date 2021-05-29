@@ -1,23 +1,28 @@
 package nu.borjessons.clubhouse.impl.controller;
 
-import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.dto.ClubDTO;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
-import nu.borjessons.clubhouse.impl.service.ClubService;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.dto.ClubDTO;
+import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.service.ClubService;
 
 @RequestMapping("/clubs")
 @RequiredArgsConstructor
 @RestController
-public class ClubController extends AbstractController {
-
+public class ClubController {
   private final ClubService clubService;
+
+  @GetMapping(path = "/public")
+  public Set<ClubDTO> getAllClubs() {
+    return clubService.getAllClubs();
+  }
 
   /**
    * Public endpoints
@@ -26,11 +31,6 @@ public class ClubController extends AbstractController {
   @GetMapping(path = "/public/{pathname}")
   public ClubDTO getPublicClub(@PathVariable String pathname) {
     return clubService.getPublicClub(pathname);
-  }
-
-  @GetMapping(path = "/public")
-  public Set<ClubDTO> getAllClubs() {
-    return clubService.getAllClubs();
   }
 
   /**

@@ -95,13 +95,13 @@ public class UserController {
   }
 
   @PutMapping("/principal")
-  public UserDTO updateSelf(@AuthenticationPrincipal User principal, @RequestBody UpdateUserModel userDetails) {
+  public UserDTO updateSelf(@AuthenticationPrincipal User principal, @Valid @RequestBody UpdateUserModel userDetails) {
     return userService.updateUser(principal, userDetails);
   }
 
   @PutMapping("/club/{clubId}/{userId}")
   public UserDTO updateUser(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String userId,
-      @RequestBody @Valid AdminUpdateUserModel userDetails) {
+      @Valid @RequestBody AdminUpdateUserModel userDetails) {
     // TODO Require Admin
     Club club = principal.getClubByClubId(clubId).orElseThrow();
     User user = club.getUser(userId).orElseThrow();
