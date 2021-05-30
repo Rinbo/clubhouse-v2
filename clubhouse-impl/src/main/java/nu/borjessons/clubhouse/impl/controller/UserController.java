@@ -41,7 +41,9 @@ public class UserController {
   @GetMapping("/club/{clubId}/leaders")
   public Set<BaseUserDTO> getLeaders(@AuthenticationPrincipal User principal, @PathVariable String clubId) {
     // TODO Require Admin
-    return principal.getActiveClub()
+    return principal
+        .getClubByClubId(clubId)
+        .orElseThrow()
         .getUsers()
         .stream()
         .filter(user -> user.getRolesForClub(clubId).contains(ClubRole.Role.LEADER.name()))
@@ -59,7 +61,6 @@ public class UserController {
     return UserDTO.create(principal);
   }
 
-  @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/club/{clubId}/user/{userId}")
   public UserDTO getUser(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String userId) {
     // TODO require role admin

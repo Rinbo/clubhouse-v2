@@ -1,8 +1,8 @@
 package nu.borjessons.clubhouse.impl.data;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,9 +12,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -22,43 +23,45 @@ import java.util.UUID;
 @Entity
 @Table(name = "team")
 public class Team extends BaseEntity {
+  @ManyToOne
+  private Club club;
+
   @Id
   @GeneratedValue
   private long id;
 
-  @Column(nullable = false, unique = true)
-  private final String teamId = UUID.randomUUID().toString();
-
-  @Column(nullable = false)
-  private String name;
-
-  private int minAge;
+  @ManyToMany(fetch = FetchType.EAGER)
+  private Set<User> leaders = new HashSet<>();
 
   private int maxAge;
 
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<User> members = new HashSet<>();
 
-  @ManyToMany(fetch = FetchType.EAGER)
-  private Set<User> leaders = new HashSet<>();
+  private int minAge;
 
-  @ManyToOne
-  private Club club;
+  @Column(nullable = false)
+  private String name;
 
-  public void addMember(User user) {
-    members.add(user);
-  }
-
-  public void removeMember(User user) {
-    members.remove(user);
-  }
+  @Column(nullable = false, unique = true)
+  private String teamId = UUID.randomUUID().toString();
 
   public void addLeader(User leader) {
     leaders.add(leader);
   }
 
-  public void removeLeader(User leader) {
-    leaders.remove(leader);
+  public void addMember(User user) {
+    members.add(user);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!(obj instanceof Team))
+      return false;
+    Team other = (Team) obj;
+    return teamId.equals(other.teamId);
   }
 
   @Override
@@ -69,11 +72,11 @@ public class Team extends BaseEntity {
     return result;
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof Team)) return false;
-    Team other = (Team) obj;
-    return teamId.equals(other.teamId);
+  public void removeLeader(User leader) {
+    leaders.remove(leader);
+  }
+
+  public void removeMember(User user) {
+    members.remove(user);
   }
 }
