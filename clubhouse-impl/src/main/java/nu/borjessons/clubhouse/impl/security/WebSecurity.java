@@ -1,7 +1,13 @@
 package nu.borjessons.clubhouse.impl.security;
 
-import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.service.UserService;
+import static nu.borjessons.clubhouse.impl.security.SecurityConstants.CLUB_REGISTRATION_URL;
+import static nu.borjessons.clubhouse.impl.security.SecurityConstants.FAMILY_REGISTRATION_URL;
+import static nu.borjessons.clubhouse.impl.security.SecurityConstants.H2_CONSOLE;
+import static nu.borjessons.clubhouse.impl.security.SecurityConstants.PUBLIC_CLUB_URLS;
+import static nu.borjessons.clubhouse.impl.security.SecurityConstants.USER_REGISTRATION_URL;
+
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,14 +17,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
-import static nu.borjessons.clubhouse.impl.security.SecurityConstants.*;
+import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.service.UserService;
 
 @Configuration
 @EnableWebSecurity
@@ -26,9 +31,9 @@ import static nu.borjessons.clubhouse.impl.security.SecurityConstants.*;
 @RequiredArgsConstructor
 public class WebSecurity extends WebSecurityConfigurerAdapter {
 
-  private final BCryptPasswordEncoder bCryptPasswordEncoder;
-  private final UserService userService;
   private final JWTUtil jwtUtil;
+  private final PasswordEncoder passwordEncoder;
+  private final UserService userService;
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
@@ -54,7 +59,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder);
+    auth.userDetailsService(userService).passwordEncoder(passwordEncoder);
   }
 
   @Bean
