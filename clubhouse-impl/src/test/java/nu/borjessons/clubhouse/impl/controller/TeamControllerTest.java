@@ -25,4 +25,16 @@ class TeamControllerTest {
 
     Mockito.verifyNoInteractions(teamService);
   }
+
+  @Test
+  void principalAddsChildToTeam() {
+    final TeamService teamService = Mockito.mock(TeamService.class);
+    final TeamController teamController = new TeamController(teamService);
+    final User dad = TestUtil.getClubUser(TestUtil.PARENT_1_ID);
+    final String teamId = TestUtil.TEAM_1_ID;
+    final String childId = TestUtil.CHILD_1_ID;
+
+    teamController.addChildToTeam(dad, childId, teamId);
+    Mockito.verify(teamService).addMemberToTeam(TestUtil.getClubUser(childId), TestUtil.getTeam(teamId));
+  }
 }

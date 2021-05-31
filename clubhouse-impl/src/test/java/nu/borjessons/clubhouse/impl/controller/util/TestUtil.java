@@ -12,8 +12,10 @@ import nu.borjessons.clubhouse.impl.data.User;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestUtil {
+  public static final String CHILD_1_ID = "child1";
   public static final String CLUB_1_ID = "club1";
   public static final String OWNER_1_ID = "owner1";
+  public static final String PARENT_1_ID = "parent1";
   public static final String TEAM_1_ID = "team1";
   public static final String USER_1 = "user1";
   public static final Club CLUB1 = createClub();
@@ -52,12 +54,31 @@ public class TestUtil {
     user1.setLastName("User1son");
     user1.setEmail("user1@outlook.com");
     user1.setDateOfBirth(LocalDate.of(1982, 2, 15));
-    user1.setId(1);
+    user1.setId(2);
 
-    Set<ClubRole.Role> userRoles = Set.of(ClubRole.Role.USER);
+    User dad = new User();
+    dad.setUserId(PARENT_1_ID);
+    dad.setEmail("dad@outlook.com");
+    dad.setFirstName("Dad");
+    dad.setLastName("Familyson");
+    dad.setDateOfBirth(LocalDate.of(1982, 2, 15));
+    dad.setId(3);
+
+    User child = new User();
+    child.setUserId(CHILD_1_ID);
+    child.setFirstName("Child1");
+    child.setLastName("Familyson");
+    child.setEmail("child1@outlook.com");
+    child.setDateOfBirth(LocalDate.of(2012, 10, 24));
+    child.setManagedAccount(true);
+    child.addParent(dad);
+
     Set<ClubRole.Role> ownerRoles = Set.of(ClubRole.Role.OWNER, ClubRole.Role.ADMIN, ClubRole.Role.USER, ClubRole.Role.LEADER);
+    Set<ClubRole.Role> userRoles = Set.of(ClubRole.Role.USER);
+    Set<ClubRole.Role> parentRoles = Set.of(ClubRole.Role.USER, ClubRole.Role.PARENT);
     ownerRoles.forEach(role -> new ClubRole(role, owner, club));
     userRoles.forEach(role -> new ClubRole(role, user1, club));
+    parentRoles.forEach(role -> new ClubRole(role, dad, club));
 
     Team team = new Team();
     team.addMember(user1);

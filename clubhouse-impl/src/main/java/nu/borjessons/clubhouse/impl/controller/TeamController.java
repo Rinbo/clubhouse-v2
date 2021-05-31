@@ -38,25 +38,27 @@ public class TeamController extends AbstractController {
    * Principal end points
    */
 
-  @PreAuthorize("hasRole('PARENT')")
   @PutMapping("/principal/child/add")
-  public TeamDTO addChildToTeam(@RequestParam String childId, @RequestParam String teamId) {
-    User parent = getPrincipal();
-    Club club = parent.getActiveClub();
+  public TeamDTO addChildToTeam(@AuthenticationPrincipal User principal, @RequestParam String childId, @RequestParam String teamId) {
+    // TODO Evaluate checking for Role.PARENT
 
-    Optional<User> optionChild = parent.
-        getChildren()
+    User requestedChild = principal
+        .getChildren()
         .stream()
         .filter(child -> child.getUserId().equals(childId))
-        .findFirst();
+        .findFirst()
+        .orElseThrow();
 
-    Optional<Team> optionTeam = club
-        .getTeams()
+    Team requestedTeam = principal
+        .getClubs()
         .stream()
+        .map(Club::getTeams)
+        .flatMap(Set::stream)
         .filter(team -> team.getTeamId().equals(teamId))
-        .findFirst();
+        .findFirst()
+        .orElseThrow();
 
-    return teamService.addMemberToTeam(optionChild.orElseThrow(), optionTeam.orElseThrow());
+    return teamService.addMemberToTeam(requestedChild, requestedTeam);
   }
 
   @PreAuthorize("hasRole('ADMIN')")

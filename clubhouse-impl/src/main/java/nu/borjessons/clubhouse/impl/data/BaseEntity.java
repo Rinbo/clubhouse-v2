@@ -1,19 +1,21 @@
 package nu.borjessons.clubhouse.impl.data;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
-import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
 @MappedSuperclass
-public abstract class BaseEntity {
-
+public abstract class BaseEntity implements Serializable {
   @Column(updatable = false)
   @CreationTimestamp
   private LocalDateTime createdAt;
