@@ -15,6 +15,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Address extends BaseEntity {
+  private static final long serialVersionUID = 8296297244892527350L;
+
   @Column(nullable = false, unique = true)
   private final String addressId = UUID.randomUUID().toString();
 

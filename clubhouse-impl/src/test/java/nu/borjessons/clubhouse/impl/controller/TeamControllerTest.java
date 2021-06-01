@@ -1,15 +1,36 @@
 package nu.borjessons.clubhouse.impl.controller;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import nu.borjessons.clubhouse.impl.controller.model.request.TeamRequestModel;
 import nu.borjessons.clubhouse.impl.controller.util.TestUtil;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.TeamDTO;
 import nu.borjessons.clubhouse.impl.service.TeamService;
 
 class TeamControllerTest {
+
+  @Test
+  void createTeamInClub() {
+    final TeamService teamService = Mockito.mock(TeamService.class);
+    final User principal = TestUtil.getClubUser(TestUtil.OWNER_1_ID);
+    final TeamController teamController = new TeamController(teamService);
+
+    final TeamRequestModel teamRequestModel = new TeamRequestModel();
+    teamRequestModel.setName("New Team");
+    teamRequestModel.setMinAge(6);
+    teamRequestModel.setMaxAge(12);
+    teamRequestModel.setLeaderIds(Set.of(principal.getUserId()));
+
+    teamController.createTeam(principal, TestUtil.CLUB_1_ID, teamRequestModel);
+
+    Mockito.verify(teamService).createTeam(TestUtil.CLUB1, teamRequestModel, Set.of(principal));
+    Mockito.verifyNoMoreInteractions(teamService);
+  }
 
   @Test
   void getTeam() {

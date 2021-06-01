@@ -34,6 +34,8 @@ import nu.borjessons.clubhouse.impl.data.ClubRole.Role;
 @Entity
 @Table(name = "user", indexes = @Index(name = "ix_email", columnList = "email"))
 public class User extends BaseEntity implements UserDetails {
+  private static final long serialVersionUID = -1098642930133262484L;
+
   private String activeClubId;
 
   @OneToMany(

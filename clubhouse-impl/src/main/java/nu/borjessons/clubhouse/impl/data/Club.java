@@ -25,6 +25,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "club")
 public class Club extends BaseEntity {
+  private static final long serialVersionUID = -5573907533182487531L;
 
   @Column(nullable = false, unique = true)
   private String clubId = UUID.randomUUID().toString();

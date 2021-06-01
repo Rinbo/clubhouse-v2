@@ -16,6 +16,8 @@ import lombok.Setter;
 @Setter
 @MappedSuperclass
 public abstract class BaseEntity implements Serializable {
+  private static final long serialVersionUID = 3034920195395267938L;
+
   @Column(updatable = false)
   @CreationTimestamp
   private LocalDateTime createdAt;

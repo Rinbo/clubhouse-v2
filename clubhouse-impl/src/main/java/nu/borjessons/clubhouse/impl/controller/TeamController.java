@@ -61,20 +61,22 @@ public class TeamController extends AbstractController {
     return teamService.addMemberToTeam(requestedChild, requestedTeam);
   }
 
-  @PreAuthorize("hasRole('ADMIN')")
-  @PostMapping
-  public TeamDTO createTeam(@RequestBody @Valid TeamRequestModel teamModel) {
-    User admin = getPrincipal();
-    String clubId = admin.getActiveClubId();
-    Set<User> leaders = admin
-        .getActiveClub()
+  @PostMapping(path = "/club/{clubId}")
+  public TeamDTO createTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @RequestBody @Valid TeamRequestModel teamModel) {
+    // TODO require Role.ADMIN
+
+    Club club = principal
+        .getClubByClubId(clubId)
+        .orElseThrow();
+
+    Set<User> leaders = club
         .getUsers()
         .stream()
         .filter(user -> teamModel.getLeaderIds().contains(user.getUserId()))
         .filter(user -> user.getRolesForClub(clubId).contains(Role.LEADER.name()))
         .collect(Collectors.toSet());
 
-    return teamService.createTeam(getPrincipal().getActiveClub(), teamModel, leaders);
+    return teamService.createTeam(club, teamModel, leaders);
   }
 
   @PreAuthorize("hasRole('USER')")

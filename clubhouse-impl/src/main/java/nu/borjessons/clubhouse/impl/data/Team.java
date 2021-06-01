@@ -23,6 +23,8 @@ import lombok.Setter;
 @Entity
 @Table(name = "team")
 public class Team extends BaseEntity {
+  private static final long serialVersionUID = -6778870690760953845L;
+
   @ManyToOne
   private Club club;
 
