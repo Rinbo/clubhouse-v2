@@ -173,7 +173,9 @@ public class User extends BaseEntity implements UserDetails {
   }
 
   public Optional<Club> getClubByClubId(String clubId) {
-    return this.getClubs().stream().filter(club -> club.getClubId().equals(clubId)).findFirst();
+    return this.getClubs()
+        .stream()
+        .filter(club -> club.getClubId().equals(clubId)).findFirst();
   }
 
   public Set<Club> getClubs() {

@@ -39,7 +39,7 @@ public class ClubController {
 
   @GetMapping(path = "/{clubId}/users")
   public Set<UserDTO> getUsers(@PathVariable String clubId) {
-    // TODO Require role user in club
+    // TODO Require role user in club and move to userController
     return clubService
         .getClubByClubId(clubId)
         .getUsers()

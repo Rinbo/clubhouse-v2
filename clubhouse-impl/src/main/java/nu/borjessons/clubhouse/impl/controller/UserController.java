@@ -27,6 +27,29 @@ import nu.borjessons.clubhouse.impl.dto.BaseUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
+/**
+ * TODO should I have a separate controller for leaders, children?
+ * Should leaders be part of teamController?
+ * Should UserController be split into ClubUserController for all endpoints that begin with /clubs/{clubId} ?
+ * What is the memory footprint of eagerly loading the entire user object on each request?
+ * How many sql-queries are made?
+ * Ideally, access rights and roles should be sorted out very early so that one could then just use a
+ * query manager to fetch and modify whichever resource is asked for.
+ * The club, team or userId that is asked for is what is then being fetch or updated, and any corresponding
+ * update to access rights is done with the help of that resource's access table and repository manager?
+ * What about the case when an admin in a club wants to update a user in that club?
+ * We first check if he is authorized to access that club? Then we check if the user to be modified is
+ * a member of that club? Because we don't have a user to user access table? No, too much to manage.
+ * Every admin just asks if that resource is part of the club, if it is then he has the rights to modify
+ * that resource if he himself is also part of the club.
+ * So Club -> isMemberOfClub -> UserId/TeamId -> isPartOfClub
+ * If all this is done with an AuthGuard bean, then the resourceId can be safely be passed along to the
+ * service after that. And the ids can be used directly with the resourceRepository?
+ * Why not just do it the way I'm doing it now? Everything I need is already in the @AuthenticatedPrincipal
+ * But it feels bad to filter so much and to pass the actual database entities to the ResourceService.
+ * "Does not feel right"
+ */
+
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @RestController
