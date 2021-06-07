@@ -34,38 +34,30 @@ public class TestUtil {
   }
 
   private static Club createClub() {
-    Club club = new Club();
-    club.setId(1);
-    club.setClubId(CLUB_1_ID);
-    club.setName("Robins Sports Club");
-    club.setType(Club.Type.SPORT);
+    Club club = new Club("Robins Sports Club", Club.Type.SPORT, CLUB_1_ID);
 
-    User owner = new User();
-    owner.setUserId(OWNER_1_ID);
+    User owner = new User(OWNER_1_ID);
     owner.setFirstName("Robin");
     owner.setLastName("Börjesson");
     owner.setEmail("robin.b@outlook.com");
     owner.setDateOfBirth(LocalDate.of(1982, 2, 15));
     owner.setId(1);
 
-    User user1 = new User();
-    user1.setUserId(USER_1);
+    User user1 = new User(USER_1);
     user1.setFirstName("User1");
     user1.setLastName("User1son");
     user1.setEmail("user1@outlook.com");
     user1.setDateOfBirth(LocalDate.of(1982, 2, 15));
     user1.setId(2);
 
-    User dad = new User();
-    dad.setUserId(PARENT_1_ID);
+    User dad = new User(PARENT_1_ID);
     dad.setEmail("dad@outlook.com");
     dad.setFirstName("Dad");
     dad.setLastName("Familyson");
     dad.setDateOfBirth(LocalDate.of(1982, 2, 15));
     dad.setId(3);
 
-    User child = new User();
-    child.setUserId(CHILD_1_ID);
+    User child = new User(CHILD_1_ID);
     child.setFirstName("Child1");
     child.setLastName("Familyson");
     child.setEmail("child1@outlook.com");

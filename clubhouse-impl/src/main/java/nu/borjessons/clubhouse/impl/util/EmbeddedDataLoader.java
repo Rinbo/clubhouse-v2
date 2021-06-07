@@ -1,5 +1,13 @@
 package nu.borjessons.clubhouse.impl.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.controller.model.request.CreateChildRequestModel;
@@ -9,12 +17,6 @@ import nu.borjessons.clubhouse.impl.controller.model.request.FamilyRequestModel;
 import nu.borjessons.clubhouse.impl.data.Club.Type;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.service.RegistrationService;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @Profile({"local", "test"})
@@ -22,35 +24,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EmbeddedDataLoader {
 
-  public static final String OWNER_EMAIL = "owner@ex.com";
-  public static final String DEFAULT_PASSWORD = "password";
   public static final String BORJESSON = "Börjesson";
-
+  public static final String DEFAULT_PASSWORD = "password";
+  public static final String OWNER_EMAIL = "owner@ex.com";
   private final RegistrationService registrationService;
-
-  @PostConstruct
-  private void loadData() {
-    CreateUserModel owner = new CreateUserModel();
-    owner.setFirstName("Robin");
-    owner.setLastName(BORJESSON);
-    owner.setDateOfBirth("1980-01-01");
-    owner.setClubId("dummy");
-    owner.setEmail(OWNER_EMAIL);
-    owner.setPassword(DEFAULT_PASSWORD);
-
-    CreateClubModel clubModel = new CreateClubModel();
-    clubModel.setName("Fritiof Sports");
-    clubModel.setType(Type.SPORT);
-    clubModel.setOwner(owner);
-
-    UserDTO dto = registrationService.registerClub(clubModel);
-
-    log.info("Created club: {} and user {}", dto.getClubId(), dto.getEmail());
-
-    FamilyRequestModel familyModel = createFamilyRequestModel(dto.getClubId());
-    registrationService.registerFamily(familyModel);
-    log.info("Created family {}", familyModel);
-  }
 
   private FamilyRequestModel createFamilyRequestModel(String clubId) {
     FamilyRequestModel familyModel = new FamilyRequestModel();
@@ -88,5 +65,35 @@ public class EmbeddedDataLoader {
     familyModel.setChildren(children);
 
     return familyModel;
+  }
+
+  @PostConstruct
+  private void loadData() {
+    CreateUserModel owner = new CreateUserModel();
+    owner.setFirstName("Robin");
+    owner.setLastName(BORJESSON);
+    owner.setDateOfBirth("1980-01-01");
+    owner.setClubId("dummy");
+    owner.setEmail(OWNER_EMAIL);
+    owner.setPassword(DEFAULT_PASSWORD);
+
+    CreateClubModel clubModel = new CreateClubModel();
+    clubModel.setName("Fritiof Sports");
+    clubModel.setType(Type.SPORT);
+    clubModel.setOwner(owner);
+
+    UserDTO dto = registrationService.registerClub(clubModel);
+
+    String clubId = dto.getClubs()
+        .stream()
+        .findFirst()
+        .orElseThrow()
+        .getClubId();
+
+    log.info("Created club: {} and user {}", clubId, dto.getEmail());
+
+    FamilyRequestModel familyModel = createFamilyRequestModel(clubId);
+    registrationService.registerFamily(familyModel);
+    log.info("Created family {}", familyModel);
   }
 }

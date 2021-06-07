@@ -1,5 +1,13 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.controller.model.request.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.controller.model.request.CreateClubModel;
@@ -15,22 +23,25 @@ import nu.borjessons.clubhouse.impl.service.ClubService;
 import nu.borjessons.clubhouse.impl.service.RegistrationService;
 import nu.borjessons.clubhouse.impl.service.UserService;
 import nu.borjessons.clubhouse.impl.util.ClubhouseMappers;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class RegistrationServiceImpl implements RegistrationService {
 
   private final ClubRepository clubRepository;
-  private final UserService userService;
   private final ClubService clubService;
   private final ClubhouseMappers clubhouseMappers;
+  private final UserService userService;
+
+  @Transactional
+  @Override
+  public UserDTO registerChildren(User parent, Club club, Set<CreateChildRequestModel> childModels) {
+    Set<ClubRole.Role> roles = new HashSet<>();
+    saveChildren(parent, childModels, roles);
+    clubhouseMappers.mapClubRoles(roles, parent, club);
+
+    return userService.updateUser(parent);
+  }
 
   @Transactional
   @Override
@@ -49,7 +60,8 @@ public class RegistrationServiceImpl implements RegistrationService {
     List<CreateChildRequestModel> childrenDetails = familyDetails.getChildren();
     Club club = clubService.getClubByClubId(familyDetails.getClubId());
     Set<ClubRole.Role> roles = new HashSet<>(List.of(ClubRole.Role.USER));
-    if (!childrenDetails.isEmpty()) roles.add(ClubRole.Role.PARENT);
+    if (!childrenDetails.isEmpty())
+      roles.add(ClubRole.Role.PARENT);
 
     List<User> parents = parentsDetails
         .stream()
@@ -85,15 +97,12 @@ public class RegistrationServiceImpl implements RegistrationService {
     return userService.createUser(user);
   }
 
-  @Transactional
-  @Override
-  public UserDTO registerChildren(User parent, String clubId, Set<CreateChildRequestModel> childModels) {
-    Club club = clubService.getClubByClubId(clubId);
-    Set<ClubRole.Role> roles = new HashSet<>();
-    saveChildren(parent, childModels, roles);
-    clubhouseMappers.mapClubRoles(roles, parent, club);
-
-    return userService.updateUser(parent);
+  private User constructUserEntity(CreateUserModel userDetails, Club club, Set<ClubRole.Role> roles) {
+    User user = clubhouseMappers.userCreationModelToUser(userDetails);
+    Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
+    addresses.forEach(user::addAddress);
+    clubhouseMappers.mapClubRoles(roles, user, club);
+    return user;
   }
 
   private void saveChildren(User parent, Set<CreateChildRequestModel> childModels, Set<ClubRole.Role> parentRoles) {
@@ -104,14 +113,5 @@ public class RegistrationServiceImpl implements RegistrationService {
           userService.createUser(child);
           parentRoles.add(ClubRole.Role.PARENT);
         });
-  }
-
-  private User constructUserEntity(CreateUserModel userDetails, Club club, Set<ClubRole.Role> roles) {
-    User user = clubhouseMappers.userCreationModelToUser(userDetails);
-    Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
-    user.setActiveClubId(club.getClubId());
-    addresses.forEach(user::addAddress);
-    clubhouseMappers.mapClubRoles(roles, user, club);
-    return user;
   }
 }

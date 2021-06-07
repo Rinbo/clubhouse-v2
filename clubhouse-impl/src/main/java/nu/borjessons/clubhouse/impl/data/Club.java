@@ -16,19 +16,17 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Entity
 @Table(name = "club")
 public class Club extends BaseEntity {
   private static final long serialVersionUID = -5573907533182487531L;
 
   @Column(nullable = false, unique = true)
-  private String clubId = UUID.randomUUID().toString();
+  private final String clubId;
 
   @OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.EAGER)
   private Set<ClubRole> clubRoles = new HashSet<>();
@@ -53,10 +51,15 @@ public class Club extends BaseEntity {
   @Column(nullable = false)
   private Type type;
 
-  public Club(String name, Type type) {
+  public Club(String name, Type type, String clubId) {
     this.name = name;
     this.path = name.toLowerCase().replace(" ", "-");
     this.type = type;
+    this.clubId = clubId;
+  }
+
+  public Club() {
+    clubId = UUID.randomUUID().toString();
   }
 
   public void addClubRole(ClubRole clubRole) {

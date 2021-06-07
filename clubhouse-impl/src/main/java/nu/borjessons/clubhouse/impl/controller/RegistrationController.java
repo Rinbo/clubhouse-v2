@@ -5,7 +5,7 @@ import java.util.Set;
 
 import javax.validation.Valid;
 
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,16 +24,17 @@ import nu.borjessons.clubhouse.impl.service.RegistrationService;
 
 @RequiredArgsConstructor
 @RestController
-public class RegistrationController extends AbstractController {
+public class RegistrationController {
 
   private final RegistrationService registrationService;
 
-  @PreAuthorize("hasRole('ADMIN')")
-  @PostMapping("register/children/{parentId}")
-  public UserDTO registerChildren(@PathVariable String parentId, @Valid @RequestBody Set<CreateChildRequestModel> childModels) {
-    Club club = getPrincipal().getActiveClub();
+  @PostMapping("/clubs/{clubId}/register/children/{parentId}")
+  public UserDTO registerChildren(@AuthenticationPrincipal User principal, @PathVariable String parentId, @PathVariable String clubId,
+      @Valid @RequestBody Set<CreateChildRequestModel> childModels) {
+    // TODO require Role.ADMIN
+    Club club = principal.getClubByClubId(clubId).orElseThrow();
     User parent = club.getUser(parentId).orElseThrow();
-    return registrationService.registerChildren(parent, club.getClubId(), childModels);
+    return registrationService.registerChildren(parent, club, childModels);
   }
 
   @PostMapping(SecurityConstants.CLUB_REGISTRATION_URL)
@@ -51,10 +52,10 @@ public class RegistrationController extends AbstractController {
     return registrationService.registerUser(userDetails);
   }
 
-  @PreAuthorize("hasRole('USER')")
-  @PostMapping("register/principal/children")
-  public UserDTO selfRegisterChildren(@Valid @RequestBody Set<CreateChildRequestModel> childModels) {
-    User principal = getPrincipal();
-    return registrationService.registerChildren(principal, principal.getActiveClub().getClubId(), childModels);
+  @PostMapping("/clubs/{clubId}/register/principal/children")
+  public UserDTO selfRegisterChildren(@AuthenticationPrincipal User principal, @PathVariable String clubId,
+      @Valid @RequestBody Set<CreateChildRequestModel> childModels) {
+    // TODO require Role.USER in this club
+    return registrationService.registerChildren(principal, principal.getClubByClubId(clubId).orElseThrow(), childModels);
   }
 }

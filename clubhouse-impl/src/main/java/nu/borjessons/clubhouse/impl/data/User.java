@@ -24,19 +24,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import nu.borjessons.clubhouse.impl.data.ClubRole.Role;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Entity
 @Table(name = "user", indexes = @Index(name = "ix_email", columnList = "email"))
 public class User extends BaseEntity implements UserDetails {
   private static final long serialVersionUID = -1098642930133262484L;
-
-  private String activeClubId;
 
   @OneToMany(
       mappedBy = "user",
@@ -82,7 +77,15 @@ public class User extends BaseEntity implements UserDetails {
   private Set<ClubRole> roles = new HashSet<>();
 
   @Column(nullable = false, unique = true)
-  private String userId = UUID.randomUUID().toString();
+  private final String userId;
+
+  public User() {
+    userId = UUID.randomUUID().toString();
+  }
+
+  public User(String userId) {
+    this.userId = userId;
+  }
 
   public void addAddress(Address address) {
     addresses.add(address);
@@ -118,23 +121,8 @@ public class User extends BaseEntity implements UserDetails {
       return userId.equals(other.userId);
   }
 
-  public Club getActiveClub() {
-    return roles.stream()
-        .filter(clubRole -> clubRole.getClub().getClubId().equals(activeClubId))
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException(String.format("User with id %s does not have an active club set", userId)))
-        .getClub();
-  }
-
-  public Set<String> getActiveRoles() {
-    return roles.stream()
-        .filter(clubRole -> clubRole.getClub().getClubId().equals(activeClubId))
-        .map(clubRole -> clubRole.getRole().name())
-        .collect(Collectors.toSet());
-  }
-
   public Set<Address> getAddresses() {
-    if (getActiveRoles().contains(Role.CHILD.name()))
+    if (!parents.isEmpty())
       return parents.stream()
           .map(User::getAddresses)
           .flatMap(Set::stream)
@@ -161,9 +149,7 @@ public class User extends BaseEntity implements UserDetails {
 
   @Override
   public Collection<GrantedAuthority> getAuthorities() {
-    return roles.stream()
-        .filter(clubRole -> clubRole.getClub().getClubId().equals(activeClubId))
-        .collect(Collectors.toSet());
+    return Set.of();
   }
 
   public Collection<GrantedAuthority> getAuthorities(String clubId) {

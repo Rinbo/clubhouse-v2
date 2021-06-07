@@ -31,7 +31,7 @@ public class ClubhouseMappers {
   }
 
   public User childCreationModelToUser(CreateChildRequestModel childModel) {
-    User child = new User();
+    User child = new User(UUID.randomUUID().toString());
     String childIdentifier = child.getUserId();
     child.setFirstName(childModel.getFirstName());
     child.setLastName(childModel.getLastName());
@@ -43,7 +43,7 @@ public class ClubhouseMappers {
   }
 
   public Club clubCreationModelToClub(CreateClubModel clubDetails) {
-    return new Club(clubDetails.getName(), clubDetails.getType());
+    return new Club(clubDetails.getName(), clubDetails.getType(), UUID.randomUUID().toString());
   }
 
   public Set<ClubRole> mapClubRoles(Set<Role> roles, User user, Club club) {
@@ -51,7 +51,7 @@ public class ClubhouseMappers {
   }
 
   public User userCreationModelToUser(CreateUserModel userDetails) {
-    User user = new User();
+    User user = new User(UUID.randomUUID().toString());
     user.setEmail(userDetails.getEmail().toLowerCase().trim());
     user.setFirstName(userDetails.getFirstName());
     user.setLastName(userDetails.getLastName());
