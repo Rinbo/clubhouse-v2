@@ -135,9 +135,7 @@ public class IntegrationTestHelper {
   public static UserDTO updateSelf(String token, UpdateUserModel updateUserModel) throws JsonProcessingException {
     UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path("/users/principal");
     RestTemplate restTemplate = new RestTemplate();
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Authorization", token);
-    headers.add("Accept", "application/json");
+    HttpHeaders headers = getHttpHeaders(token);
     HttpEntity<UpdateUserModel> entity = new HttpEntity<>(updateUserModel, headers);
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.PUT, entity, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -149,6 +147,13 @@ public class IntegrationTestHelper {
     mapper.registerModule(new ParameterNamesModule());
     mapper.setVisibility(FIELD, ANY);
     return mapper.readValue(body, clazz);
+  }
+
+  private static HttpHeaders getHttpHeaders(String token) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Authorization", token);
+    headers.add("Accept", "application/json");
+    return headers;
   }
 
   private static <T> T getList(String token, String uri, Class<T> type) {
@@ -163,9 +168,7 @@ public class IntegrationTestHelper {
   }
 
   private static HttpEntity<Void> getVoidHttpEntity(String token) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Authorization", token);
-    headers.add("Accept", "application/json");
+    HttpHeaders headers = getHttpHeaders(token);
     return new HttpEntity<>(headers);
   }
 }
