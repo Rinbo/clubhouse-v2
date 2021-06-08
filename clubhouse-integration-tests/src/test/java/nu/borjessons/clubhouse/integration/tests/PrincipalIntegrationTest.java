@@ -1,5 +1,7 @@
 package nu.borjessons.clubhouse.integration.tests;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.logging.Logger;
@@ -36,6 +38,18 @@ class PrincipalIntegrationTest {
     createClubModel.setOwner(createUserModel);
 
     return createClubModel;
+  }
+
+  @Test
+  void getClubUsers() throws JsonProcessingException {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String token = IntegrationTestHelper.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+
+      final UserDTO self = IntegrationTestHelper.getSelf(token);
+      final List<UserDTO> users = IntegrationTestHelper.getClubUsers(self.getClubs().stream().findFirst().orElseThrow().getClubId(), token);
+      Assertions.assertNotNull(users);
+      Assertions.assertEquals(5, users.size());
+    }
   }
 
   @Test

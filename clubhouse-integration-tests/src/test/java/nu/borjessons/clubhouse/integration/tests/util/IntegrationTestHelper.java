@@ -38,6 +38,13 @@ import nu.borjessons.clubhouse.impl.security.SecurityConstants;
 public class IntegrationTestHelper {
   private static final String BASE_URL = "http://localhost:8081";
 
+  public static List<UserDTO> getClubUsers(String clubId, String token) throws JsonProcessingException {
+    final String uri = getUriBuilder("/clubs/{clubId}/users").buildAndExpand(clubId).toUriString();
+    final ResponseEntity<String> rawResponse = getRawResponse(uri, token);
+    final UserDTO[] userDTOs = deserializeJsonBody(rawResponse.getBody(), UserDTO[].class);
+    return Arrays.stream(userDTOs).collect(Collectors.toList());
+  }
+
   public static List<ClubDTO> getClubs() {
     UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path("/clubs/public");
     RestTemplate restTemplate = new RestTemplate();
@@ -165,6 +172,16 @@ public class IntegrationTestHelper {
     Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     Assertions.assertNotNull(arrayResponse);
     return arrayResponse;
+  }
+
+  private static ResponseEntity<String> getRawResponse(String uri, String token) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = getVoidHttpEntity(token);
+    return restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+  }
+
+  private static UriComponentsBuilder getUriBuilder(String path) {
+    return UriComponentsBuilder.fromHttpUrl(BASE_URL).path(path);
   }
 
   private static HttpEntity<Void> getVoidHttpEntity(String token) {
