@@ -38,10 +38,17 @@ import nu.borjessons.clubhouse.impl.security.SecurityConstants;
 public class IntegrationTestHelper {
   private static final String BASE_URL = "http://localhost:8081";
 
+  public static ClubDTO getClub(String clubId, String token) {
+    final String uri = getUriBuilder("/clubs/{clubId}").buildAndExpand(clubId).toUriString();
+    final ResponseEntity<ClubDTO> response = getResponse(uri, token, ClubDTO.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
+  }
+
   public static List<UserDTO> getClubUsers(String clubId, String token) throws JsonProcessingException {
     final String uri = getUriBuilder("/clubs/{clubId}/users").buildAndExpand(clubId).toUriString();
-    final ResponseEntity<String> rawResponse = getRawResponse(uri, token);
-    final UserDTO[] userDTOs = deserializeJsonBody(rawResponse.getBody(), UserDTO[].class);
+    final ResponseEntity<String> response = getResponse(uri, token, String.class);
+    final UserDTO[] userDTOs = deserializeJsonBody(response.getBody(), UserDTO[].class);
     return Arrays.stream(userDTOs).collect(Collectors.toList());
   }
 
@@ -174,10 +181,10 @@ public class IntegrationTestHelper {
     return arrayResponse;
   }
 
-  private static ResponseEntity<String> getRawResponse(String uri, String token) {
+  private static <T> ResponseEntity<T> getResponse(String uri, String token, Class<T> clazz) {
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = getVoidHttpEntity(token);
-    return restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+    return restTemplate.exchange(uri, HttpMethod.GET, entity, clazz);
   }
 
   private static UriComponentsBuilder getUriBuilder(String path) {

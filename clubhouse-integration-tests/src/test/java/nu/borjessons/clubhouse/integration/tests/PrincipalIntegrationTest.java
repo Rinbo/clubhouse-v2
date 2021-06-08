@@ -14,6 +14,7 @@ import nu.borjessons.clubhouse.impl.controller.model.request.CreateClubModel;
 import nu.borjessons.clubhouse.impl.controller.model.request.CreateUserModel;
 import nu.borjessons.clubhouse.impl.controller.model.request.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.data.Club;
+import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
@@ -21,6 +22,10 @@ import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 class PrincipalIntegrationTest {
   private static final Logger LOGGER = LoggerFactory.getLogger(PrincipalIntegrationTest.class);
   private static final String OWNER_2_EMAIL = "owner2@ex.com";
+
+  private static String getClubId(UserDTO userDTO) {
+    return userDTO.getClubs().stream().findFirst().orElseThrow().getClubId();
+  }
 
   private static CreateClubModel getCreateClubModel() {
     CreateClubModel createClubModel = new CreateClubModel();
@@ -41,12 +46,25 @@ class PrincipalIntegrationTest {
   }
 
   @Test
+  void getClubById() throws JsonProcessingException {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String token = IntegrationTestHelper.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+
+      final UserDTO self = IntegrationTestHelper.getSelf(token);
+      final String clubId = getClubId(self);
+      final ClubDTO club = IntegrationTestHelper.getClub(clubId, token);
+      Assertions.assertNotNull(club);
+      Assertions.assertEquals(clubId, club.getClubId());
+    }
+  }
+
+  @Test
   void getClubUsers() throws JsonProcessingException {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String token = IntegrationTestHelper.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
       final UserDTO self = IntegrationTestHelper.getSelf(token);
-      final List<UserDTO> users = IntegrationTestHelper.getClubUsers(self.getClubs().stream().findFirst().orElseThrow().getClubId(), token);
+      final List<UserDTO> users = IntegrationTestHelper.getClubUsers(getClubId(self), token);
       Assertions.assertNotNull(users);
       Assertions.assertEquals(5, users.size());
     }

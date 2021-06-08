@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.service.ClubService;
@@ -24,18 +25,17 @@ public class ClubController {
     return clubService.getAllClubs();
   }
 
-  /**
-   * Public endpoints
-   */
+  @GetMapping(path = "/{clubId}")
+  public ClubDTO getClub(@PathVariable String clubId) {
+    // TODO Require role user in club and move to userController
+    final Club club = clubService.getClubByClubId(clubId);
+    return new ClubDTO(club);
+  }
 
   @GetMapping(path = "/public/{pathname}")
   public ClubDTO getPublicClub(@PathVariable String pathname) {
     return clubService.getPublicClub(pathname);
   }
-
-  /**
-   * Private endpoints
-   */
 
   @GetMapping(path = "/{clubId}/users")
   public Set<UserDTO> getUsers(@PathVariable String clubId) {
