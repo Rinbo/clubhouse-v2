@@ -2,6 +2,7 @@ package nu.borjessons.clubhouse.impl.security;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -20,6 +21,16 @@ import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
 public class AuthorizationFilter extends BasicAuthenticationFilter {
+  private static final AntPathRequestMatcher antPathRequestMatcher = new AntPathRequestMatcher("/clubs/{clubId}/**");
+
+  private static Optional<String> getOptionalClubId(HttpServletRequest httpServletRequest) {
+    final RequestMatcher.MatchResult matcher = antPathRequestMatcher.matcher(httpServletRequest);
+    if (matcher.isMatch()) {
+      final Map<String, String> variables = matcher.getVariables();
+      return Optional.of(variables.get("clubId"));
+    }
+    return Optional.empty();
+  }
 
   private final JWTUtil jwtUtil;
   private final UserService userService;
@@ -32,17 +43,13 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
   @Override
   protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
-    String token = req.getHeader(SecurityConstants.AUTHORIZATION);
+    String tokenHeader = req.getHeader(SecurityConstants.AUTHORIZATION);
 
-    final String contextPath = req.getServletPath();
+    if (tokenHeader != null) {
+      final String token = tokenHeader.replace(SecurityConstants.TOKEN_PREFIX, "");
+      final Optional<String> optional = getOptionalClubId(req);
 
-    final AntPathRequestMatcher antPathRequestMatcher = new AntPathRequestMatcher("/clubs/{clubId}/**");
-    final RequestMatcher.MatchResult matcher = antPathRequestMatcher.matcher(req);
-    final Map<String, String> variables = matcher.getVariables();
-    final boolean matches = antPathRequestMatcher.matches(req);
-
-    if (token != null) {
-      UsernamePasswordAuthenticationToken authentication = getAuthentication(token.replace(SecurityConstants.TOKEN_PREFIX, ""));
+      UsernamePasswordAuthenticationToken authentication = optional.isPresent() ? getAuthentication(token, optional.get()) : getAuthentication(token);
       SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
@@ -50,17 +57,25 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
   }
 
   private UsernamePasswordAuthenticationToken getAuthentication(String token) {
-    if (!jwtUtil.validateToken(token))
-      return null;
+    if (!jwtUtil.validateToken(token)) return null;
 
     Claims claims = jwtUtil.getAllClaimsFromToken(token);
     String email = claims.getSubject();
 
-    if (email == null)
-      return null;
+    if (email == null) return null;
 
-    User user = userService.getUserByEmail(email);
+    return new UsernamePasswordAuthenticationToken(userService.getUserByEmail(email), null, null);
+  }
 
-    return new UsernamePasswordAuthenticationToken(user, null, null);
+  private UsernamePasswordAuthenticationToken getAuthentication(String token, String clubId) {
+    if (!jwtUtil.validateToken(token)) return null;
+
+    Claims claims = jwtUtil.getAllClaimsFromToken(token);
+    String email = claims.getSubject();
+
+    if (email == null) return null;
+
+    final User user = userService.getUserByEmail(email);
+    return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities(clubId));
   }
 }

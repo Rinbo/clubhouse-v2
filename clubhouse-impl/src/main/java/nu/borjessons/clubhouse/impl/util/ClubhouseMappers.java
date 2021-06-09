@@ -46,6 +46,10 @@ public class ClubhouseMappers {
     return new Club(clubDetails.getName(), clubDetails.getType(), UUID.randomUUID().toString());
   }
 
+  public Club clubCreationModelToClub(CreateClubModel clubDetails, String clubId) {
+    return new Club(clubDetails.getName(), clubDetails.getType(), clubId);
+  }
+
   public Set<ClubRole> mapClubRoles(Set<Role> roles, User user, Club club) {
     return roles.stream().map(role -> new ClubRole(role, user, club)).collect(Collectors.toSet());
   }

@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl.controller;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +38,7 @@ public class ClubController {
     return clubService.getPublicClub(pathname);
   }
 
+  @PreAuthorize("hasRole('ADMIN')")
   @GetMapping(path = "/{clubId}/users")
   public Set<UserDTO> getUsers(@PathVariable String clubId) {
     // TODO Require role user in club and move to userController

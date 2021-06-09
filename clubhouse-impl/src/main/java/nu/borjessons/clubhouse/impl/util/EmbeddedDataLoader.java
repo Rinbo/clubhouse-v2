@@ -23,10 +23,11 @@ import nu.borjessons.clubhouse.impl.service.RegistrationService;
 @Slf4j
 @RequiredArgsConstructor
 public class EmbeddedDataLoader {
-
   public static final String BORJESSON = "Börjesson";
+  public static final String CLUB1_ID = "club1";
   public static final String DEFAULT_PASSWORD = "password";
   public static final String OWNER_EMAIL = "owner@ex.com";
+
   private final RegistrationService registrationService;
 
   private FamilyRequestModel createFamilyRequestModel(String clubId) {
@@ -82,7 +83,7 @@ public class EmbeddedDataLoader {
     clubModel.setType(Type.SPORT);
     clubModel.setOwner(owner);
 
-    UserDTO dto = registrationService.registerClub(clubModel);
+    UserDTO dto = registrationService.registerClub(clubModel, CLUB1_ID);
 
     String clubId = dto.getClubs()
         .stream()

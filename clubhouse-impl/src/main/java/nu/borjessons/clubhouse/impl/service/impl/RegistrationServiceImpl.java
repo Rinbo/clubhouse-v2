@@ -55,6 +55,16 @@ public class RegistrationServiceImpl implements RegistrationService {
 
   @Transactional
   @Override
+  public UserDTO registerClub(CreateClubModel clubDetails, String clubId) {
+    Club club = clubhouseMappers.clubCreationModelToClub(clubDetails, clubId);
+    Club savedClub = clubRepository.save(club);
+    Set<ClubRole.Role> roles = new HashSet<>(List.of(ClubRole.Role.USER, ClubRole.Role.OWNER, ClubRole.Role.ADMIN, ClubRole.Role.LEADER));
+    User user = constructUserEntity(clubDetails.getOwner(), savedClub, roles);
+    return userService.createUser(user);
+  }
+
+  @Transactional
+  @Override
   public List<UserDTO> registerFamily(FamilyRequestModel familyDetails) {
     List<CreateUserModel> parentsDetails = familyDetails.getParents();
     List<CreateChildRequestModel> childrenDetails = familyDetails.getChildren();

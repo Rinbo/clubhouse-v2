@@ -19,6 +19,8 @@ public interface RegistrationService {
 
   UserDTO registerClub(@Valid CreateClubModel clubDetails);
 
+  UserDTO registerClub(@Valid CreateClubModel clubDetails, String clubId);
+
   List<UserDTO> registerFamily(@Valid FamilyRequestModel familyDetails);
 
   UserDTO registerUser(@Valid CreateUserModel userDetails);
