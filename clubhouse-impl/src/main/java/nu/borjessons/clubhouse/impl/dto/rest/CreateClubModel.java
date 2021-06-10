@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.controller.model.request;
+package nu.borjessons.clubhouse.impl.dto.rest;
 
 import java.io.Serializable;
 

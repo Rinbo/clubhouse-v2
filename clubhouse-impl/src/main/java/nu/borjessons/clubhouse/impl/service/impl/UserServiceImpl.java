@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.controller.model.request.AdminUpdateUserModel;
-import nu.borjessons.clubhouse.impl.controller.model.request.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubRole;
@@ -21,6 +19,8 @@ import nu.borjessons.clubhouse.impl.data.ClubRole.Role;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
+import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.repository.AddressRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
 import nu.borjessons.clubhouse.impl.service.ClubService;
@@ -70,11 +70,6 @@ public class UserServiceImpl implements UserService {
   @Override
   public User getUserByEmail(String email) {
     return userRepository.findByEmail(email).orElseThrow();
-  }
-
-  @Override
-  public UserDetails loadUserByUsername(String username) {
-    return userRepository.findByEmail(username).orElseThrow();
   }
 
   @Override
@@ -173,6 +168,11 @@ public class UserServiceImpl implements UserService {
     User user = userRepository.findByEmail(email).orElseThrow();
     user.setLastLoginTime(LocalDateTime.now());
     userRepository.save(user);
+  }
+
+  @Override
+  public UserDetails loadUserByUsername(String username) {
+    return userRepository.findByEmail(username).orElseThrow();
   }
 
   private void updateUserRoles(User user, Club club, Set<Role> roles) {

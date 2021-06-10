@@ -5,13 +5,13 @@ import java.util.Set;
 
 import javax.validation.Valid;
 
-import nu.borjessons.clubhouse.impl.controller.model.request.CreateChildRequestModel;
-import nu.borjessons.clubhouse.impl.controller.model.request.CreateClubModel;
-import nu.borjessons.clubhouse.impl.controller.model.request.CreateUserModel;
-import nu.borjessons.clubhouse.impl.controller.model.request.FamilyRequestModel;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
+import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 
 public interface RegistrationService {
 

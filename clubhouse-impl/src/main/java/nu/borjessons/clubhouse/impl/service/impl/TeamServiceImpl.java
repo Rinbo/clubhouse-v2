@@ -1,43 +1,31 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.controller.model.request.TeamRequestModel;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.TeamDTO;
+import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
 import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 import nu.borjessons.clubhouse.impl.service.TeamService;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class TeamServiceImpl implements TeamService {
 
-  private final TeamRepository teamRepository;
   private final ClubService clubService;
+  private final TeamRepository teamRepository;
 
   @Override
   public Team getTeamById(String teamId) {
     return teamRepository.findByTeamId(teamId).orElseThrow();
-  }
-
-  @Override
-  @Transactional
-  public TeamDTO createTeam(Club club, TeamRequestModel teamModel, Set<User> leaders) {
-    Team team = new Team();
-    team.setName(teamModel.getName());
-    team.setMinAge(teamModel.getMinAge());
-    team.setMaxAge(teamModel.getMaxAge());
-    team.setLeaders(leaders);
-    club.addTeam(team);
-
-    return new TeamDTO(teamRepository.save(team));
   }
 
   @Override
@@ -66,15 +54,28 @@ public class TeamServiceImpl implements TeamService {
   }
 
   @Override
-  public void removeMemberFromTeam(User member, Team team) {
-    team.removeMember(member);
-    teamRepository.save(team);
-  }
-
-  @Override
   public TeamDTO addLeaderToTeam(User leader, Team team) {
     team.addLeader(leader);
     return new TeamDTO(teamRepository.save(team));
+  }
+
+  @Override
+  @Transactional
+  public TeamDTO createTeam(Club club, TeamRequestModel teamModel, Set<User> leaders) {
+    Team team = new Team();
+    team.setName(teamModel.getName());
+    team.setMinAge(teamModel.getMinAge());
+    team.setMaxAge(teamModel.getMaxAge());
+    team.setLeaders(leaders);
+    club.addTeam(team);
+
+    return new TeamDTO(teamRepository.save(team));
+  }
+
+  @Override
+  public void removeMemberFromTeam(User member, Team team) {
+    team.removeMember(member);
+    teamRepository.save(team);
   }
 
   @Override

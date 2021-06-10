@@ -1,8 +1,8 @@
 package nu.borjessons.clubhouse.integration.tests.util;
 
-import nu.borjessons.clubhouse.impl.controller.model.request.CreateClubModel;
-import nu.borjessons.clubhouse.impl.controller.model.request.CreateUserModel;
 import nu.borjessons.clubhouse.impl.data.Club;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 
 public class ClubUtil {

@@ -16,8 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.controller.model.request.UserLoginRequestModel;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.dto.rest.UserLoginRequestModel;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
 @RequiredArgsConstructor

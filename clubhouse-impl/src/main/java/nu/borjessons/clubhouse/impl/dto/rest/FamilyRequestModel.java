@@ -1,13 +1,14 @@
-package nu.borjessons.clubhouse.impl.controller.model.request;
+package nu.borjessons.clubhouse.impl.dto.rest;
+
+import java.io.Serializable;
+import java.util.List;
+
+import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.util.List;
 
 @Getter
 @Setter
@@ -16,13 +17,10 @@ import java.util.List;
 public class FamilyRequestModel implements Serializable {
 
   private static final long serialVersionUID = 1L;
-
-  @NotNull(message = "Parent filed cannot be null")
-  private List<CreateUserModel> parents;
-
   @NotNull(message = "Children field cannot be null")
   private List<CreateChildRequestModel> children;
-
   @NotNull(message = "Club id cannot be null")
   private String clubId;
+  @NotNull(message = "Parent filed cannot be null")
+  private List<CreateUserModel> parents;
 }

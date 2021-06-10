@@ -5,11 +5,11 @@ import java.util.Set;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import nu.borjessons.clubhouse.impl.controller.model.request.AdminUpdateUserModel;
-import nu.borjessons.clubhouse.impl.controller.model.request.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
+import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 
 public interface UserService extends UserDetailsService {
 

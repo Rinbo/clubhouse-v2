@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.controller;
+package nu.borjessons.clubhouse.impl.controller.principal;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -9,7 +9,7 @@ import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
-class UserControllerTest {
+class PrincipalControllerTest {
   private static void verifyUserDTO(UserDTO expectedUserDTO, UserDTO userDTO) {
     Assertions.assertEquals(expectedUserDTO.getUserId(), userDTO.getUserId());
     Assertions.assertEquals(expectedUserDTO.getEmail(), userDTO.getEmail());
@@ -21,9 +21,9 @@ class UserControllerTest {
   void getSelfTest() {
     final User user = TestUtil.getClubUser(TestUtil.USER_1);
     final UserService userService = Mockito.mock(UserService.class);
-    final UserController userController = new UserController(userService);
+    final PrincipalController principalController = new PrincipalController(userService);
 
-    UserDTO userDTO = userController.getSelf(user);
+    UserDTO userDTO = principalController.getSelf(user);
     UserDTO expectedUserDTO = UserDTO.create(user);
     verifyUserDTO(expectedUserDTO, userDTO);
     Mockito.verifyNoInteractions(userService);

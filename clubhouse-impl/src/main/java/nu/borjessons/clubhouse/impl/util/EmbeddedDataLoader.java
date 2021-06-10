@@ -10,12 +10,12 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nu.borjessons.clubhouse.impl.controller.model.request.CreateChildRequestModel;
-import nu.borjessons.clubhouse.impl.controller.model.request.CreateClubModel;
-import nu.borjessons.clubhouse.impl.controller.model.request.CreateUserModel;
-import nu.borjessons.clubhouse.impl.controller.model.request.FamilyRequestModel;
 import nu.borjessons.clubhouse.impl.data.Club.Type;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
+import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 import nu.borjessons.clubhouse.impl.service.RegistrationService;
 
 @Component

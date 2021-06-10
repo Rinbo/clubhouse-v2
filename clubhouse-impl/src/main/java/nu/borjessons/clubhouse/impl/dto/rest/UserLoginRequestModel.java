@@ -1,11 +1,11 @@
-package nu.borjessons.clubhouse.impl.controller.model.request;
+package nu.borjessons.clubhouse.impl.dto.rest;
+
+import javax.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -13,9 +13,8 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class UserLoginRequestModel {
 
-  @NotNull(message = "Username cannot be null")
-  private String username;
-
   @NotNull(message = "Password cannot be null")
   private String password;
+  @NotNull(message = "Username cannot be null")
+  private String username;
 }

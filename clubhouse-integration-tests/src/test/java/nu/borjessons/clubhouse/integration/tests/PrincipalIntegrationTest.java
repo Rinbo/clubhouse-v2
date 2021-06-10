@@ -5,18 +5,38 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import nu.borjessons.clubhouse.impl.controller.model.request.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 
 class PrincipalIntegrationTest {
   private static String getClubId(UserDTO userDTO) {
     return userDTO.getClubs().stream().findFirst().orElseThrow().getClubId();
+  }
+
+  @Test
+  void authTest() throws JsonProcessingException {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String adminToken = IntegrationTestHelper.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      final List<UserDTO> users = IntegrationTestHelper.getClubUsers(EmbeddedDataLoader.CLUB1_ID, adminToken);
+      Assertions.assertNotNull(users);
+      Assertions.assertEquals(5, users.size());
+
+      final String userToken = IntegrationTestHelper.loginUser("pops@ex.com", EmbeddedDataLoader.DEFAULT_PASSWORD);
+
+      try {
+        IntegrationTestHelper.getClubUsers(EmbeddedDataLoader.CLUB1_ID, userToken);
+      } catch (HttpClientErrorException e) {
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+      }
+    }
   }
 
   @Test

@@ -9,15 +9,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.controller.model.request.AddressModel;
-import nu.borjessons.clubhouse.impl.controller.model.request.CreateChildRequestModel;
-import nu.borjessons.clubhouse.impl.controller.model.request.CreateClubModel;
-import nu.borjessons.clubhouse.impl.controller.model.request.CreateUserModel;
 import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubRole;
 import nu.borjessons.clubhouse.impl.data.ClubRole.Role;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.dto.rest.AddressModel;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 
 @Component
 @RequiredArgsConstructor
