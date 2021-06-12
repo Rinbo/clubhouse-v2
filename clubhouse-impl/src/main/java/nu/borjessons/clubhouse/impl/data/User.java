@@ -37,10 +37,10 @@ public class User extends BaseEntity implements UserDetails {
       mappedBy = "user",
       cascade = CascadeType.ALL,
       orphanRemoval = true,
-      fetch = FetchType.EAGER)
+      fetch = FetchType.LAZY)
   private Set<Address> addresses = new HashSet<>();
 
-  @ManyToMany(mappedBy = "parents", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+  @ManyToMany(mappedBy = "parents", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
   private Set<User> children = new HashSet<>();
 
   @Column(nullable = false)
@@ -66,7 +66,7 @@ public class User extends BaseEntity implements UserDetails {
 
   private boolean managedAccount;
 
-  @ManyToMany(fetch = FetchType.EAGER)
+  @ManyToMany(fetch = FetchType.LAZY)
   private Set<User> parents = new HashSet<>();
 
   @OneToMany(
@@ -106,21 +106,6 @@ public class User extends BaseEntity implements UserDetails {
     parent.addChild(this);
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    User other = (User) obj;
-    if (userId == null) {
-      return other.userId == null;
-    } else
-      return userId.equals(other.userId);
-  }
-
   public Set<Address> getAddresses() {
     if (!parents.isEmpty())
       return parents.stream()
@@ -152,47 +137,14 @@ public class User extends BaseEntity implements UserDetails {
     return Set.of();
   }
 
-  public Collection<GrantedAuthority> getAuthorities(String clubId) {
-    return roles.stream()
-        .filter(clubRole -> clubRole.getClub().getClubId().equals(clubId))
-        .collect(Collectors.toSet());
-  }
-
-  public Optional<Club> getClubByClubId(String clubId) {
-    return this.getClubs()
-        .stream()
-        .filter(club -> club.getClubId().equals(clubId)).findFirst();
-  }
-
-  public Set<Club> getClubs() {
-    return roles.stream()
-        .map(ClubRole::getClub)
-        .collect(Collectors.toSet());
-  }
-
   @Override
   public String getPassword() {
     return encryptedPassword;
   }
 
-  public Set<String> getRolesForClub(String clubId) {
-    return roles.stream()
-        .filter(clubRole -> clubRole.getClub().getClubId().equals(clubId))
-        .map(clubRole -> clubRole.getRole().name())
-        .collect(Collectors.toSet());
-  }
-
   @Override
   public String getUsername() {
     return email;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((userId == null) ? 0 : userId.hashCode());
-    return result;
   }
 
   @Override
@@ -213,6 +165,54 @@ public class User extends BaseEntity implements UserDetails {
   @Override
   public boolean isEnabled() {
     return true;
+  }
+
+  public Collection<GrantedAuthority> getAuthorities(String clubId) {
+    return roles.stream()
+        .filter(clubRole -> clubRole.getClub().getClubId().equals(clubId))
+        .collect(Collectors.toSet());
+  }
+
+  public Optional<Club> getClubByClubId(String clubId) {
+    return this.getClubs()
+        .stream()
+        .filter(club -> club.getClubId().equals(clubId)).findFirst();
+  }
+
+  public Set<Club> getClubs() {
+    return roles.stream()
+        .map(ClubRole::getClub)
+        .collect(Collectors.toSet());
+  }
+
+  public Set<String> getRolesForClub(String clubId) {
+    return roles.stream()
+        .filter(clubRole -> clubRole.getClub().getClubId().equals(clubId))
+        .map(clubRole -> clubRole.getRole().name())
+        .collect(Collectors.toSet());
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    User other = (User) obj;
+    if (userId == null) {
+      return other.userId == null;
+    } else
+      return userId.equals(other.userId);
   }
 
   public void removeAddress(Address address) {

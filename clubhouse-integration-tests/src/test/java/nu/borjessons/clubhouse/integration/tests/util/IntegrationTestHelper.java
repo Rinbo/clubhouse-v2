@@ -110,7 +110,7 @@ public class IntegrationTestHelper {
 
     HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.add("clubId", clubId);
-    HttpEntity<UserLoginRequestModel> httpEntity = new HttpEntity<>(new UserLoginRequestModel(email, password), httpHeaders);
+    HttpEntity<UserLoginRequestModel> httpEntity = new HttpEntity<>(new UserLoginRequestModel(password, email), httpHeaders);
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, String.class);
     HttpHeaders headers = response.getHeaders();
     List<String> authHeader = headers.get("Authorization");

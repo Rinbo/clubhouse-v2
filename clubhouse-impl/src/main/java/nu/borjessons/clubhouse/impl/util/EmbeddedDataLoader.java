@@ -2,6 +2,7 @@ package nu.borjessons.clubhouse.impl.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.Club.Type;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.rest.AddressModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
@@ -70,6 +72,12 @@ public class EmbeddedDataLoader {
 
   @PostConstruct
   private void loadData() {
+    final AddressModel addressModel = new AddressModel();
+    addressModel.setCity("Gothenburg");
+    addressModel.setCountry("Sweden");
+    addressModel.setStreet("Elm Street 5");
+    addressModel.setPostalCode("666");
+
     CreateUserModel owner = new CreateUserModel();
     owner.setFirstName("Robin");
     owner.setLastName(BORJESSON);
@@ -77,6 +85,7 @@ public class EmbeddedDataLoader {
     owner.setClubId("dummy");
     owner.setEmail(OWNER_EMAIL);
     owner.setPassword(DEFAULT_PASSWORD);
+    owner.setAddresses(Set.of(addressModel));
 
     CreateClubModel clubModel = new CreateClubModel();
     clubModel.setName("Fritiof Sports");

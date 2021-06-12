@@ -22,7 +22,6 @@ import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 @Component
 @RequiredArgsConstructor
 public class ClubhouseMappers {
-
   private static final String EMAIL_EXTENSION = "@clubhouse.nu";
   private final PasswordEncoder passwordEncoder;
 
@@ -50,8 +49,8 @@ public class ClubhouseMappers {
     return new Club(clubDetails.getName(), clubDetails.getType(), clubId);
   }
 
-  public Set<ClubRole> mapClubRoles(Set<Role> roles, User user, Club club) {
-    return roles.stream().map(role -> new ClubRole(role, user, club)).collect(Collectors.toSet());
+  public void mapClubRoles(Set<Role> roles, User user, Club club) {
+    roles.forEach(role -> new ClubRole(role, user, club));
   }
 
   public User userCreationModelToUser(CreateUserModel userDetails) {

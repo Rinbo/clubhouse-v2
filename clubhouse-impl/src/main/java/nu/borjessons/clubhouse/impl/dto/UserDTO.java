@@ -22,9 +22,11 @@ public final class UserDTO {
         .dateOfBirth(user.getDateOfBirth().toString())
         .childrenIds(user.getChildren().stream().map(User::getUserId).collect(Collectors.toSet()))
         .parentIds(user.getParents().stream().map(User::getUserId).collect(Collectors.toSet()))
+        .addresses(user.getAddresses().stream().map(AddressDTO::new).collect(Collectors.toSet()))
         .build();
   }
 
+  private final Set<AddressDTO> addresses;
   private final Set<String> childrenIds;
   private final Set<ClubDTO> clubs;
   private final String dateOfBirth;

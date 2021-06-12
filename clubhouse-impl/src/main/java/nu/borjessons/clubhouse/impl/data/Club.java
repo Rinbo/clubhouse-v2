@@ -45,7 +45,7 @@ public class Club extends BaseEntity {
       mappedBy = "club",
       cascade = CascadeType.ALL,
       orphanRemoval = true,
-      fetch = FetchType.EAGER)
+      fetch = FetchType.LAZY)
   private Set<Team> teams = new HashSet<>();
 
   @Column(nullable = false)
@@ -69,21 +69,6 @@ public class Club extends BaseEntity {
   public void addTeam(Team team) {
     teams.add(team);
     team.setClub(this);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    Club other = (Club) obj;
-    if (clubId == null) {
-      return other.clubId == null;
-    } else
-      return clubId.equals(other.clubId);
   }
 
   public Set<User> getManagedUsers() {
@@ -118,6 +103,21 @@ public class Club extends BaseEntity {
     int result = 1;
     result = prime * result + ((clubId == null) ? 0 : clubId.hashCode());
     return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Club other = (Club) obj;
+    if (clubId == null) {
+      return other.clubId == null;
+    } else
+      return clubId.equals(other.clubId);
   }
 
   public void removeClubRole(ClubRole clubRole) {

@@ -1,22 +1,23 @@
 package nu.borjessons.clubhouse.impl.dto;
 
+import java.io.Serializable;
+
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import nu.borjessons.clubhouse.impl.data.Address;
 
-import java.io.Serializable;
-
 @Getter
 @Setter
+@NoArgsConstructor
 public class AddressDTO implements Serializable {
-
   private static final long serialVersionUID = 1L;
 
   private String addressId;
   private String city;
   private String country;
-  private String street;
   private String postalCode;
+  private String street;
 
   public AddressDTO(Address address) {
     addressId = address.getAddressId();
