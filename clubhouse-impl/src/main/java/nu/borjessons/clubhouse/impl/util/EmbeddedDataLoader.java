@@ -1,8 +1,11 @@
 package nu.borjessons.clubhouse.impl.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -12,12 +15,15 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.Club.Type;
+import nu.borjessons.clubhouse.impl.data.Role;
+import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.AddressModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
+import nu.borjessons.clubhouse.impl.repository.RoleRepository;
 import nu.borjessons.clubhouse.impl.service.RegistrationService;
 
 @Component
@@ -31,6 +37,7 @@ public class EmbeddedDataLoader {
   public static final String OWNER_EMAIL = "owner@ex.com";
 
   private final RegistrationService registrationService;
+  private final RoleRepository roleRepository;
 
   private FamilyRequestModel createFamilyRequestModel(String clubId) {
     FamilyRequestModel familyModel = new FamilyRequestModel();
@@ -72,6 +79,9 @@ public class EmbeddedDataLoader {
 
   @PostConstruct
   private void loadData() {
+
+    createNonExistentRoles();
+
     final AddressModel addressModel = new AddressModel();
     addressModel.setCity("Gothenburg");
     addressModel.setCountry("Sweden");
@@ -105,5 +115,18 @@ public class EmbeddedDataLoader {
     FamilyRequestModel familyModel = createFamilyRequestModel(clubId);
     registrationService.registerFamily(familyModel);
     log.info("Created family {}", familyModel);
+  }
+
+  private void createNonExistentRoles() {
+    Collection<Role> existingRoleNames = roleRepository.findAll().stream().map(RoleEntity::getName).collect(Collectors.toSet());
+    Collection<Role> allRoles = Arrays.asList(Role.values());
+    allRoles.removeIf(existingRoleNames::contains);
+    roleRepository.saveAll(allRoles.stream().map(this::getRoleEntity).collect(Collectors.toList()));
+  }
+
+  private RoleEntity getRoleEntity(Role role) {
+    final RoleEntity roleEntity = new RoleEntity();
+    roleEntity.setName(role);
+    return roleEntity;
   }
 }

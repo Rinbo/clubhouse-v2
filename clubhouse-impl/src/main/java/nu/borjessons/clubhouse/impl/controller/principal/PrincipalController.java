@@ -29,8 +29,8 @@ public class PrincipalController {
   }
 
   @GetMapping("/roles")
-  public ClubRole.Role[] getRolesNames() {
-    return ClubRole.Role.values();
+  public ClubRole.RoleTemp[] getRolesNames() {
+    return ClubRole.RoleTemp.values();
   }
 
   @GetMapping()

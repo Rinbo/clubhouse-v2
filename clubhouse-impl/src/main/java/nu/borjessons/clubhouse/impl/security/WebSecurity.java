@@ -23,6 +23,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
 @Configuration
@@ -34,6 +35,12 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
   private final JWTUtil jwtUtil;
   private final PasswordEncoder passwordEncoder;
   private final UserService userService;
+  private final ClubUserRepository clubUserRepository;
+
+  @Override
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.userDetailsService(userService).passwordEncoder(passwordEncoder);
+  }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
@@ -50,16 +57,11 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         .authenticated()
         .and()
         .addFilter(new AuthenticationFilter(authenticationManager(), jwtUtil, userService))
-        .addFilter(new AuthorizationFilter(authenticationManager(), userService, jwtUtil))
+        .addFilter(new AuthorizationFilter(authenticationManager(), clubUserRepository, userService, jwtUtil))
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
     http.headers().frameOptions().disable();
-  }
-
-  @Override
-  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(userService).passwordEncoder(passwordEncoder);
   }
 
   @Bean

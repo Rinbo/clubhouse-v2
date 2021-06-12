@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubRole;
-import nu.borjessons.clubhouse.impl.data.ClubRole.Role;
+import nu.borjessons.clubhouse.impl.data.ClubRole.RoleTemp;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.rest.AddressModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
@@ -49,7 +49,7 @@ public class ClubhouseMappers {
     return new Club(clubDetails.getName(), clubDetails.getType(), clubId);
   }
 
-  public void mapClubRoles(Set<Role> roles, User user, Club club) {
+  public void mapClubRoles(Set<RoleTemp> roles, User user, Club club) {
     roles.forEach(role -> new ClubRole(role, user, club));
   }
 

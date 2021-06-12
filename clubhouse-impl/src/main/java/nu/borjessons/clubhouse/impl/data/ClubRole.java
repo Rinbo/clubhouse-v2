@@ -41,14 +41,13 @@ public class ClubRole extends BaseEntity implements GrantedAuthority {
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   @Getter
+  private RoleTemp role;
 
-  private Role role;
   @ManyToOne
   @Getter
-
   private User user;
 
-  public ClubRole(Role role, User user, Club club) {
+  public ClubRole(RoleTemp role, User user, Club club) {
     this.role = role;
     setUser(Objects.requireNonNull(user));
     setClub(Objects.requireNonNull(club));
@@ -59,6 +58,19 @@ public class ClubRole extends BaseEntity implements GrantedAuthority {
     club.removeClubRole(this);
     user = null;
     club = null;
+  }
+
+  @Override
+  public String getAuthority() {
+    return ROLE_PREFIX + role;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((clubRoleId == null) ? 0 : clubRoleId.hashCode());
+    return result;
   }
 
   @Override
@@ -76,19 +88,6 @@ public class ClubRole extends BaseEntity implements GrantedAuthority {
       return clubRoleId.equals(other.clubRoleId);
   }
 
-  @Override
-  public String getAuthority() {
-    return ROLE_PREFIX + role;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((clubRoleId == null) ? 0 : clubRoleId.hashCode());
-    return result;
-  }
-
   private void setClub(Club club) {
     this.club = club;
     club.addClubRole(this);
@@ -99,7 +98,7 @@ public class ClubRole extends BaseEntity implements GrantedAuthority {
     user.addClubRole(this);
   }
 
-  public enum Role {
+  public enum RoleTemp {
     ADMIN,
     USER,
     SYSTEM_ADMIN,

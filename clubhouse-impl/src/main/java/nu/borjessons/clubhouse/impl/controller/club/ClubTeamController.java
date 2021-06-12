@@ -63,7 +63,7 @@ public class ClubTeamController {
         .getUsers()
         .stream()
         .filter(user -> teamModel.getLeaderIds().contains(user.getUserId()))
-        .filter(user -> user.getRolesForClub(clubId).contains(ClubRole.Role.LEADER.name()))
+        .filter(user -> user.getRolesForClub(clubId).contains(ClubRole.RoleTemp.LEADER.name()))
         .collect(Collectors.toSet());
 
     return teamService.createTeam(club, teamModel, leaders);
@@ -147,7 +147,7 @@ public class ClubTeamController {
         .getUsers()
         .stream()
         .filter(user -> user.getUserId().equals(userId))
-        .filter(user -> user.getRolesForClub(clubId).contains(ClubRole.Role.LEADER.name()))
+        .filter(user -> user.getRolesForClub(clubId).contains(ClubRole.RoleTemp.LEADER.name()))
         .findFirst()
         .orElseThrow();
 
@@ -163,7 +163,7 @@ public class ClubTeamController {
         .getUsers()
         .stream()
         .filter(user -> teamModel.getLeaderIds().contains(user.getUserId()))
-        .filter(user -> user.getRolesForClub(club.getClubId()).contains(ClubRole.Role.LEADER.name()))
+        .filter(user -> user.getRolesForClub(club.getClubId()).contains(ClubRole.RoleTemp.LEADER.name()))
         .collect(Collectors.toSet());
 
     return teamService.updateTeam(club, teamId, teamModel, leaders);

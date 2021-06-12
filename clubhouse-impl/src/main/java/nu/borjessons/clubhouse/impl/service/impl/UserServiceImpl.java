@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubRole;
-import nu.borjessons.clubhouse.impl.data.ClubRole.Role;
+import nu.borjessons.clubhouse.impl.data.ClubRole.RoleTemp;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
@@ -149,13 +149,13 @@ public class UserServiceImpl implements UserService {
     });
 
     if (!parent.getChildren().isEmpty()) {
-      ClubRole clubRole = new ClubRole(Role.PARENT, parent, club);
+      ClubRole clubRole = new ClubRole(RoleTemp.PARENT, parent, club);
       parent.addClubRole(clubRole);
       club.addClubRole(clubRole);
     } else {
       parent.getRoles()
           .stream()
-          .filter(clubRole -> clubRole.getClub().equals(club) && clubRole.getRole().equals(Role.PARENT))
+          .filter(clubRole -> clubRole.getClub().equals(club) && clubRole.getRole().equals(RoleTemp.PARENT))
           .collect(Collectors.toSet())
           .forEach(ClubRole::doOrphan);
     }
@@ -175,7 +175,7 @@ public class UserServiceImpl implements UserService {
     return userRepository.findByEmail(username).orElseThrow();
   }
 
-  private void updateUserRoles(User user, Club club, Set<Role> roles) {
+  private void updateUserRoles(User user, Club club, Set<RoleTemp> roles) {
     String clubId = club.getClubId();
     Set<ClubRole> allRoles = user.getRoles();
     Set<ClubRole> rolesInClub = allRoles
@@ -186,7 +186,7 @@ public class UserServiceImpl implements UserService {
     rolesInClub.forEach(user::removeClubRole);
     clubhouseMappers.mapClubRoles(roles, user, club);
 
-    if (!roles.contains(Role.LEADER)) {
+    if (!roles.contains(RoleTemp.LEADER)) {
       Set<Team> teams = club.getTeams();
       teams.forEach(team -> team.removeLeader(user));
       clubService.saveClub(club);

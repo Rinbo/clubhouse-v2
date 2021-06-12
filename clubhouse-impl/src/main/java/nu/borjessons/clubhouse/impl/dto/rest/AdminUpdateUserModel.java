@@ -12,5 +12,5 @@ import nu.borjessons.clubhouse.impl.data.ClubRole;
 @Setter
 public class AdminUpdateUserModel extends UpdateUserModel {
   @NotNull(message = "You must provide roles")
-  private Set<ClubRole.Role> roles;
+  private Set<ClubRole.RoleTemp> roles;
 }

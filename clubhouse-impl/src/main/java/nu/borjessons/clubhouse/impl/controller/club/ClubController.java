@@ -38,7 +38,7 @@ public class ClubController {
         .orElseThrow()
         .getUsers()
         .stream()
-        .filter(user -> user.getRolesForClub(clubId).contains(ClubRole.Role.LEADER.name()))
+        .filter(user -> user.getRolesForClub(clubId).contains(ClubRole.RoleTemp.LEADER.name()))
         .map(BaseUserDTO::new)
         .collect(Collectors.toSet());
   }
