@@ -45,7 +45,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   @Override
   public UserDTO registerChildren(User parent, Club club, List<CreateChildRequestModel> childDetails) {
     addChildren(parent, childDetails);
-    ClubUser clubUser = clubUserRepository.findByUserIdAndClubStringId(parent.getId(), club.getClubId()).orElseThrow();
+    ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(parent.getId(), club.getId()).orElseThrow();
     getRoleEntities(Set.of(Role.PARENT)).forEach(clubUser::addRoleEntity);
     return UserDTO.create(clubUserRepository.save(clubUser).getUser());
   }
@@ -54,7 +54,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   @Override
   public UserDTO registerClub(CreateClubModel clubDetails) {
     Club club = clubRepository.save(clubhouseMappers.clubCreationModelToClub(clubDetails));
-    User user = userRepository.save(constructUserEntity(clubDetails.getOwner()));
+    User user = constructUserEntity(clubDetails.getOwner());
     ClubUser clubUser = registerClubUserWithRoles(club, user, OWNER_ROLES);
     return UserDTO.create(clubUser.getUser());
   }
@@ -63,7 +63,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   @Override
   public UserDTO registerClub(CreateClubModel clubDetails, String clubId) {
     Club club = clubRepository.save(clubhouseMappers.clubCreationModelToClub(clubDetails, clubId));
-    User user = userRepository.save(constructUserEntity(clubDetails.getOwner()));
+    User user = constructUserEntity(clubDetails.getOwner());
     ClubUser clubUser = registerClubUserWithRoles(club, user, OWNER_ROLES);
     return UserDTO.create(clubUser.getUser());
   }
@@ -81,7 +81,6 @@ public class RegistrationServiceImpl implements RegistrationService {
         .stream()
         .map(this::constructUserEntity)
         .map(parent -> addChildren(parent, childrenDetails))
-        .map(userRepository::save)
         .collect(Collectors.toList());
 
     parents.forEach(parent -> registerClubUserWithRoles(club, parent, roles));
@@ -94,14 +93,14 @@ public class RegistrationServiceImpl implements RegistrationService {
   public UserDTO registerUser(CreateUserModel userDetails) {
     List<CreateChildRequestModel> childrenDetails = userDetails.getChildren();
     Club club = clubService.getClubByClubId(userDetails.getClubId());
+
     User user = constructUserEntity(userDetails);
     addChildren(user, childrenDetails);
 
-    User savedUser = userRepository.save(user);
     Set<Role> roles = new HashSet<>(Collections.singletonList(Role.USER));
     if (!childrenDetails.isEmpty()) roles.add(Role.PARENT);
 
-    ClubUser clubUser = registerClubUserWithRoles(club, savedUser, roles);
+    ClubUser clubUser = registerClubUserWithRoles(club, user, roles);
 
     return UserDTO.create(clubUser.getUser());
   }

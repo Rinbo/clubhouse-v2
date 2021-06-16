@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl.data;
 import java.io.Serializable;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -28,7 +29,7 @@ public class ClubUser extends BaseEntity implements Serializable {
   @ManyToOne
   private Club club;
 
-  @ManyToOne
+  @ManyToOne(cascade = CascadeType.PERSIST)
   private User user;
 
   @ManyToMany(fetch = FetchType.EAGER)

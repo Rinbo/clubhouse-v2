@@ -33,6 +33,13 @@ import lombok.Setter;
 public class User extends BaseEntity implements UserDetails {
   private static final long serialVersionUID = -1098642930133262484L;
 
+  @Id
+  @GeneratedValue
+  private long id;
+
+  @Column(nullable = false, unique = true)
+  private final String userId;
+
   @OneToMany(
       mappedBy = "user",
       cascade = CascadeType.ALL,
@@ -55,10 +62,6 @@ public class User extends BaseEntity implements UserDetails {
   @Column(nullable = false, length = 50)
   private String firstName;
 
-  @Id
-  @GeneratedValue
-  private long id;
-
   private LocalDateTime lastLoginTime;
 
   @Column(nullable = false, length = 50)
@@ -75,9 +78,6 @@ public class User extends BaseEntity implements UserDetails {
       orphanRemoval = true,
       fetch = FetchType.EAGER)
   private Set<ClubRole> roles = new HashSet<>();
-
-  @Column(nullable = false, unique = true)
-  private final String userId;
 
   public User() {
     userId = UUID.randomUUID().toString();
