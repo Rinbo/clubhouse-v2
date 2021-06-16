@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -95,7 +94,7 @@ public class EmbeddedDataLoader {
     owner.setClubId("dummy");
     owner.setEmail(OWNER_EMAIL);
     owner.setPassword(DEFAULT_PASSWORD);
-    owner.setAddresses(Set.of(addressModel));
+    owner.setAddresses(List.of(addressModel));
 
     CreateClubModel clubModel = new CreateClubModel();
     clubModel.setName("Fritiof Sports");

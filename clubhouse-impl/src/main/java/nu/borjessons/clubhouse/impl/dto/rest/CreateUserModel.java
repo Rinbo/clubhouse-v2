@@ -1,8 +1,8 @@
 package nu.borjessons.clubhouse.impl.dto.rest;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -22,9 +22,9 @@ import lombok.ToString;
 public class CreateUserModel implements Serializable {
   private static final long serialVersionUID = 1L;
 
-  private Set<AddressModel> addresses = new HashSet<>();
+  private List<AddressModel> addresses = new ArrayList<>();
 
-  private Set<CreateChildRequestModel> children = new HashSet<>();
+  private List<CreateChildRequestModel> children = new ArrayList<>();
 
   @NotNull(message = "A user cannot be created without a club")
   private String clubId;

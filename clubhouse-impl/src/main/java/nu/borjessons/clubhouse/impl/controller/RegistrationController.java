@@ -1,7 +1,6 @@
 package nu.borjessons.clubhouse.impl.controller;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -31,7 +30,7 @@ public class RegistrationController {
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/clubs/{clubId}/register/children/{parentId}")
   public UserDTO registerChildren(@AuthenticationPrincipal User principal, @PathVariable String parentId, @PathVariable String clubId,
-      @Valid @RequestBody Set<CreateChildRequestModel> childModels) {
+      @Valid @RequestBody List<CreateChildRequestModel> childModels) {
     Club club = principal.getClubByClubId(clubId).orElseThrow();
     User parent = club.getUser(parentId).orElseThrow();
     return registrationService.registerChildren(parent, club, childModels);
@@ -55,7 +54,7 @@ public class RegistrationController {
   @PreAuthorize("hasRole('USER')")
   @PostMapping("/clubs/{clubId}/register/principal/children")
   public UserDTO selfRegisterChildren(@AuthenticationPrincipal User principal, @PathVariable String clubId,
-      @Valid @RequestBody Set<CreateChildRequestModel> childModels) {
+      @Valid @RequestBody List<CreateChildRequestModel> childModels) {
     return registrationService.registerChildren(principal, principal.getClubByClubId(clubId).orElseThrow(), childModels);
   }
 }

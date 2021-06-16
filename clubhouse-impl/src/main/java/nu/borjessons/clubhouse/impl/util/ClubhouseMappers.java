@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.impl.util;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,7 +26,7 @@ public class ClubhouseMappers {
   private static final String EMAIL_EXTENSION = "@clubhouse.nu";
   private final PasswordEncoder passwordEncoder;
 
-  public Set<Address> addressModelToAddress(Set<AddressModel> addressModels) {
+  public Set<Address> addressModelToAddress(List<AddressModel> addressModels) {
     return addressModels.stream().map(this::addressOf).collect(Collectors.toSet());
   }
 

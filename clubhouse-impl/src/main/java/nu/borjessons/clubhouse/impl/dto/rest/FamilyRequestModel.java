@@ -15,12 +15,14 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class FamilyRequestModel implements Serializable {
-
   private static final long serialVersionUID = 1L;
+
   @NotNull(message = "Children field cannot be null")
   private List<CreateChildRequestModel> children;
+
   @NotNull(message = "Club id cannot be null")
   private String clubId;
+
   @NotNull(message = "Parent filed cannot be null")
   private List<CreateUserModel> parents;
 }

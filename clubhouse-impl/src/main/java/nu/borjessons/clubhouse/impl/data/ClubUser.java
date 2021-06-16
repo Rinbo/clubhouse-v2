@@ -1,7 +1,7 @@
 package nu.borjessons.clubhouse.impl.data;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -32,5 +32,9 @@ public class ClubUser extends BaseEntity implements Serializable {
   private User user;
 
   @ManyToMany(fetch = FetchType.EAGER)
-  private Collection<RoleEntity> roles;
+  private Set<RoleEntity> roles;
+
+  public void addRoleEntity(RoleEntity roleEntity) {
+    roles.add(roleEntity);
+  }
 }
