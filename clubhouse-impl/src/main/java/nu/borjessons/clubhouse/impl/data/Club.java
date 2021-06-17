@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.data;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -25,21 +26,24 @@ import lombok.Setter;
 public class Club extends BaseEntity {
   private static final long serialVersionUID = -5573907533182487531L;
 
+  @Id
+  @GeneratedValue
+  private long id;
+
   @Column(nullable = false, unique = true)
   private final String clubId;
 
   @OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.EAGER)
   private Set<ClubRole> clubRoles = new HashSet<>();
 
-  @Id
-  @GeneratedValue
-  private long id;
-
   @Column(nullable = false, length = 120, unique = true)
   private String name;
 
   @Column(nullable = false, length = 120, unique = true)
   private String path;
+
+  @Column(nullable = false)
+  private Type type;
 
   @OneToMany(
       mappedBy = "club",
@@ -48,8 +52,8 @@ public class Club extends BaseEntity {
       fetch = FetchType.LAZY)
   private Set<Team> teams = new HashSet<>();
 
-  @Column(nullable = false)
-  private Type type;
+  @OneToMany(mappedBy = "club", fetch = FetchType.LAZY)
+  private Collection<ClubUser> clubUsers;
 
   public Club(String name, Type type, String clubId) {
     this.name = name;
@@ -86,8 +90,8 @@ public class Club extends BaseEntity {
   }
 
   public Set<User> getUsers() {
-    return clubRoles.stream()
-        .map(ClubRole::getUser)
+    return clubUsers.stream()
+        .map(ClubUser::getUser)
         .map(user -> {
           Set<User> combinedSet = new HashSet<>(user.getChildren());
           combinedSet.add(user);

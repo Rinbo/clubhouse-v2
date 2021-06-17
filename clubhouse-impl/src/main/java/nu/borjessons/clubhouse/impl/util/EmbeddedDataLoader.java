@@ -78,7 +78,6 @@ public class EmbeddedDataLoader {
 
   @PostConstruct
   private void loadData() {
-
     createNonExistentRoles();
 
     final AddressModel addressModel = new AddressModel();
@@ -103,15 +102,9 @@ public class EmbeddedDataLoader {
 
     UserDTO dto = registrationService.registerClub(clubModel, CLUB1_ID);
 
-    String clubId = dto.getClubs()
-        .stream()
-        .findFirst()
-        .orElseThrow()
-        .getClubId();
+    log.info("Created club: {} and user {}", CLUB1_ID, dto.getEmail());
 
-    log.info("Created club: {} and user {}", clubId, dto.getEmail());
-
-    FamilyRequestModel familyModel = createFamilyRequestModel(clubId);
+    FamilyRequestModel familyModel = createFamilyRequestModel(CLUB1_ID);
     registrationService.registerFamily(familyModel);
     log.info("Created family {}", familyModel);
   }

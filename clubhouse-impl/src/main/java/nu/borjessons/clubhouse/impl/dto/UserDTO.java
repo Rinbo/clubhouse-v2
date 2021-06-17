@@ -34,6 +34,5 @@ public final class UserDTO {
   private final String firstName;
   private final String lastName;
   private final Set<String> parentIds;
-  private final Set<String> roles;
   private final String userId;
 }

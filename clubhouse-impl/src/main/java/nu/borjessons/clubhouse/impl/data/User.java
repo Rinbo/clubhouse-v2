@@ -50,6 +50,9 @@ public class User extends BaseEntity implements UserDetails {
   @ManyToMany(mappedBy = "parents", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
   private Set<User> children = new HashSet<>();
 
+  @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+  private Set<User> parents = new HashSet<>();
+
   @Column(nullable = false)
   private LocalDate dateOfBirth;
 
@@ -68,9 +71,6 @@ public class User extends BaseEntity implements UserDetails {
   private String lastName;
 
   private boolean managedAccount;
-
-  @ManyToMany(fetch = FetchType.LAZY)
-  private Set<User> parents = new HashSet<>();
 
   @OneToMany(
       mappedBy = "user",
