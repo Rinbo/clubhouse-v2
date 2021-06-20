@@ -14,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.Club;
-import nu.borjessons.clubhouse.impl.data.ClubRole;
-import nu.borjessons.clubhouse.impl.data.ClubRole.RoleTemp;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;

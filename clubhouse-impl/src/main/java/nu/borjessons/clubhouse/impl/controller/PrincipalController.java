@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.controller.principal;
+package nu.borjessons.clubhouse.impl.controller;
 
 import javax.validation.Valid;
 
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.data.ClubRole;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;

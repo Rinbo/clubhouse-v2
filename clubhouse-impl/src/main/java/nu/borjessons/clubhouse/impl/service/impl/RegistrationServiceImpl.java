@@ -13,9 +13,9 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
-import nu.borjessons.clubhouse.impl.data.Role;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
@@ -41,9 +41,9 @@ public class RegistrationServiceImpl implements RegistrationService {
 
   @Transactional
   @Override
-  public UserDTO registerChildren(User parent, Club club, List<CreateChildRequestModel> childDetails) {
-    addChildren(parent, mapChildModelToUser(childDetails));
-    ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(parent.getId(), club.getId()).orElseThrow();
+  public UserDTO registerChildren(String userId, String clubId, List<CreateChildRequestModel> childDetails) {
+    ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(userId, clubId).orElseThrow();
+    addChildren(clubUser.getUser(), mapChildModelToUser(childDetails));
     getRoleEntities(Set.of(Role.PARENT)).forEach(clubUser::addRoleEntity);
     return UserDTO.create(clubUserRepository.save(clubUser).getUser());
   }

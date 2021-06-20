@@ -1,13 +1,16 @@
 package nu.borjessons.clubhouse.impl.service;
 
-import nu.borjessons.clubhouse.impl.data.Club;
-import nu.borjessons.clubhouse.impl.dto.ClubDTO;
-
+import java.util.Collection;
 import java.util.Set;
 
-public interface ClubService {
+import nu.borjessons.clubhouse.impl.data.Club;
+import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 
-  Club saveClub(Club club);
+public interface ClubService {
+  Collection<User> getLeaders(String clubId);
+
+  void saveClub(Club club);
 
   Club getClubByClubId(String clubId);
 

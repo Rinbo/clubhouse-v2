@@ -6,7 +6,6 @@ import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Club;
-import nu.borjessons.clubhouse.impl.data.ClubRole;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.User;
 

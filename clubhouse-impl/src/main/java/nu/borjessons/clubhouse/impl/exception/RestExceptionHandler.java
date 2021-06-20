@@ -1,6 +1,14 @@
-package nu.borjessons.clubhouse.impl.controller.exception;
+package nu.borjessons.clubhouse.impl.exception;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import javax.persistence.NoResultException;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,13 +19,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.NoResultException;
-import javax.servlet.http.HttpServletRequest;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import lombok.extern.slf4j.Slf4j;
+import nu.borjessons.clubhouse.impl.dto.ErrorMessage;
 
 @ControllerAdvice
 @Slf4j

@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.data;
+package nu.borjessons.clubhouse.impl.dto;
 
 public enum Role {
   ADMIN,

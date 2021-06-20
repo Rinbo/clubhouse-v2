@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.impl.data;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
+import nu.borjessons.clubhouse.impl.dto.Role;
 
 @Setter
 @Getter
@@ -27,4 +29,15 @@ public class RoleEntity implements Serializable {
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private Role name;
+
+  @Override public int hashCode() {
+    return Objects.hash(name);
+  }
+
+  @Override public boolean equals(Object other) {
+    if (this == other) return true;
+    if (other == null || getClass() != other.getClass()) return false;
+    RoleEntity otherRoleEntity = (RoleEntity) other;
+    return name == otherRoleEntity.name;
+  }
 }

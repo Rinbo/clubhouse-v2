@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
@@ -27,16 +26,6 @@ import nu.borjessons.clubhouse.impl.service.RegistrationService;
 @RestController
 public class RegistrationController {
   private final RegistrationService registrationService;
-
-  @PreAuthorize("hasRole('ADMIN')")
-  @PostMapping("/clubs/{clubId}/register-children")
-  public UserDTO registerChildren(@AuthenticationPrincipal User principal, @PathVariable String clubId, @RequestParam String parentId,
-      @Valid @RequestBody List<CreateChildRequestModel> childModels) {
-    // Do I not just want to pass on the parentId and the clubId and then fetch that clubUser with clubUser repository?
-    Club club = principal.getClubByClubId(clubId).orElseThrow();
-    User parent = club.getUser(parentId).orElseThrow();
-    return registrationService.registerChildren(parent, club, childModels);
-  }
 
   @PostMapping(SecurityConstants.CLUB_REGISTRATION_URL)
   public UserDTO registerClub(@Valid @RequestBody CreateClubModel clubDetails) {
@@ -53,10 +42,10 @@ public class RegistrationController {
     return registrationService.registerUser(userDetails);
   }
 
-  @PreAuthorize("hasRole('USER')")
-  @PostMapping("/clubs/{clubId}/register/principal/children")
-  public UserDTO selfRegisterChildren(@AuthenticationPrincipal User principal, @PathVariable String clubId,
+  @PreAuthorize("hasRole('ADMIN') or #parentId == authentication.principal.userId")
+  @PostMapping("/clubs/{clubId}/register-children")
+  public UserDTO registerChildren(@AuthenticationPrincipal User principal, @PathVariable String clubId, @RequestParam String parentId,
       @Valid @RequestBody List<CreateChildRequestModel> childModels) {
-    return registrationService.registerChildren(principal, principal.getClubByClubId(clubId).orElseThrow(), childModels);
+    return registrationService.registerChildren(parentId, clubId, childModels);
   }
 }

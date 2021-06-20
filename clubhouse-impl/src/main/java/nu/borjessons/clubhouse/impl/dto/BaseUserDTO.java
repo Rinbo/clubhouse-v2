@@ -7,7 +7,6 @@ import nu.borjessons.clubhouse.impl.data.User;
 @Getter
 @NoArgsConstructor
 public class BaseUserDTO {
-
   private String userId;
   private String firstName;
   private String lastName;

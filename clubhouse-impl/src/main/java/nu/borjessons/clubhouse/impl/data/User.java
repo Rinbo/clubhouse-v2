@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -72,13 +71,6 @@ public class User extends BaseEntity implements UserDetails {
 
   private boolean managedAccount;
 
-  @OneToMany(
-      mappedBy = "user",
-      cascade = CascadeType.ALL,
-      orphanRemoval = true,
-      fetch = FetchType.EAGER)
-  private Set<ClubRole> roles = new HashSet<>();
-
   public User() {
     userId = UUID.randomUUID().toString();
   }
@@ -95,10 +87,6 @@ public class User extends BaseEntity implements UserDetails {
   public void addChild(User child) {
     children.add(child);
     child.parents.add(this);
-  }
-
-  public void addClubRole(ClubRole clubRole) {
-    roles.add(clubRole);
   }
 
   public void addParent(User parent) {
@@ -167,31 +155,6 @@ public class User extends BaseEntity implements UserDetails {
     return true;
   }
 
-  public Collection<GrantedAuthority> getAuthorities(String clubId) {
-    return roles.stream()
-        .filter(clubRole -> clubRole.getClub().getClubId().equals(clubId))
-        .collect(Collectors.toSet());
-  }
-
-  public Optional<Club> getClubByClubId(String clubId) {
-    return this.getClubs()
-        .stream()
-        .filter(club -> club.getClubId().equals(clubId)).findFirst();
-  }
-
-  public Set<Club> getClubs() {
-    return roles.stream()
-        .map(ClubRole::getClub)
-        .collect(Collectors.toSet());
-  }
-
-  public Set<String> getRolesForClub(String clubId) {
-    return roles.stream()
-        .filter(clubRole -> clubRole.getClub().getClubId().equals(clubId))
-        .map(clubRole -> clubRole.getRole().name())
-        .collect(Collectors.toSet());
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -223,10 +186,6 @@ public class User extends BaseEntity implements UserDetails {
   public void removeChild(User child) {
     children.remove(child);
     child.parents.remove(this);
-  }
-
-  public void removeClubRole(ClubRole clubRole) {
-    roles.remove(clubRole);
   }
 
   public void removeParent(User parent) {

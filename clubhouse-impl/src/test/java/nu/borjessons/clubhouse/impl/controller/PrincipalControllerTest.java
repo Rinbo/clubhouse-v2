@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.controller.principal;
+package nu.borjessons.clubhouse.impl.controller;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

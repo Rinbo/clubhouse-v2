@@ -91,7 +91,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
   }
 
   private Collection<GrantedAuthority> getClubUserAuthorities(long userId, String clubId) {
-    final Collection<RoleEntity> roleEntities = clubUserRepository.findByUserIdAndClubStringId(userId, clubId).map(ClubUser::getRoles).orElse(Set.of());
+    final Collection<RoleEntity> roleEntities = clubUserRepository.findByUserIdAndClubId(userId, clubId).map(ClubUser::getRoles).orElse(Set.of());
     return roleEntities.stream().map(this::getGrantedAuthority).collect(Collectors.toSet());
   }
 

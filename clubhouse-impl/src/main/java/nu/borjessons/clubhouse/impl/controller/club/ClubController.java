@@ -1,18 +1,15 @@
 package nu.borjessons.clubhouse.impl.controller.club;
 
-import java.util.Set;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.data.ClubRole;
-import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.BaseUserDTO;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
@@ -32,25 +29,22 @@ public class ClubController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/{clubId}/leaders")
-  public Set<BaseUserDTO> getLeaders(@AuthenticationPrincipal User principal, @PathVariable String clubId) {
-    return principal
-        .getClubByClubId(clubId)
-        .orElseThrow()
-        .getUsers()
+  public Collection<BaseUserDTO> getLeaders(@PathVariable String clubId) {
+    return clubService
+        .getLeaders(clubId)
         .stream()
-        .filter(user -> user.getRolesForClub(clubId).contains(ClubRole.RoleTemp.LEADER.name()))
         .map(BaseUserDTO::new)
-        .collect(Collectors.toSet());
+        .collect(Collectors.toList());
   }
 
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping(path = "/{clubId}/users")
-  public Set<UserDTO> getUsers(@PathVariable String clubId) {
+  public Collection<UserDTO> getUsers(@PathVariable String clubId) {
     return clubService
         .getClubByClubId(clubId)
         .getUsers()
         .stream()
         .map(UserDTO::create)
-        .collect(Collectors.toSet());
+        .collect(Collectors.toList());
   }
 }

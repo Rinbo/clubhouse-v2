@@ -12,8 +12,6 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.Club;
-import nu.borjessons.clubhouse.impl.data.ClubRole;
-import nu.borjessons.clubhouse.impl.data.ClubRole.RoleTemp;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.rest.AddressModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;

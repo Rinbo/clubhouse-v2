@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.controller.exception;
+package nu.borjessons.clubhouse.impl.dto;
 
 import java.time.LocalDateTime;
 import java.util.Map;

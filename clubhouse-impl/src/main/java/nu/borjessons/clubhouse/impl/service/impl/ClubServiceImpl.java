@@ -1,28 +1,43 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Club;
+import nu.borjessons.clubhouse.impl.data.Team;
+import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.service.ClubService;
-import org.springframework.stereotype.Service;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ClubServiceImpl implements ClubService {
-
   private final ClubRepository clubRepository;
 
   @Override
-  public Club saveClub(Club club) {
-    return clubRepository.save(club);
+  public Collection<User> getLeaders(String clubId) {
+    Club club = clubRepository.findByClubId(clubId).orElseThrow();
+    return club.getTeams()
+        .stream()
+        .map(Team::getLeaders)
+        .flatMap(Set::stream)
+        .collect(Collectors.toList());
   }
 
   @Override
-  public Club getClubByClubId(String clubId) { return clubRepository.findByClubId(clubId).orElseThrow(); }
+  public void saveClub(Club club) {
+    clubRepository.save(club);
+  }
+
+  @Override
+  public Club getClubByClubId(String clubId) {
+    return clubRepository.findByClubId(clubId).orElseThrow();
+  }
 
   @Override
   public Set<ClubDTO> getAllClubs() {

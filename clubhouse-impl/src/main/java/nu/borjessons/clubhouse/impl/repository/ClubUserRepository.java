@@ -11,7 +11,8 @@ import nu.borjessons.clubhouse.impl.data.ClubUser;
 @Repository
 public interface ClubUserRepository extends JpaRepository<ClubUser, Long> {
   @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id = ?1 AND club_id IN (SELECT id from club where club_id = ?2)")
-  Optional<ClubUser> findByUserIdAndClubStringId(long userId, String clubId);
+  Optional<ClubUser> findByUserIdAndClubId(long userId, String clubId);
 
-  Optional<ClubUser> findByUserIdAndClubId(long userId, long clubId);
+  @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id IN (SELECT id from User where user_id=?1) AND club_id IN (SELECT id from club where club_id = ?2)")
+  Optional<ClubUser> findByUserIdAndClubId(String userId, String clubId);
 }
