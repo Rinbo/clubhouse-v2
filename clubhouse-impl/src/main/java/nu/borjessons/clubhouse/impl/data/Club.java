@@ -13,6 +13,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -22,7 +23,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "club")
+@Table(name = "club", indexes = @Index(name = "ix_club_id", columnList = "clubId"))
 public class Club extends BaseEntity {
   private static final long serialVersionUID = -5573907533182487531L;
 

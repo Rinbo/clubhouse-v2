@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -28,9 +29,10 @@ public class RegistrationController {
   private final RegistrationService registrationService;
 
   @PreAuthorize("hasRole('ADMIN')")
-  @PostMapping("/clubs/{clubId}/register/children/{parentId}")
-  public UserDTO registerChildren(@AuthenticationPrincipal User principal, @PathVariable String parentId, @PathVariable String clubId,
+  @PostMapping("/clubs/{clubId}/register-children")
+  public UserDTO registerChildren(@AuthenticationPrincipal User principal, @PathVariable String clubId, @RequestParam String parentId,
       @Valid @RequestBody List<CreateChildRequestModel> childModels) {
+    // Do I not just want to pass on the parentId and the clubId and then fetch that clubUser with clubUser repository?
     Club club = principal.getClubByClubId(clubId).orElseThrow();
     User parent = club.getUser(parentId).orElseThrow();
     return registrationService.registerChildren(parent, club, childModels);
