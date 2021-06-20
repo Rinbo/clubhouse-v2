@@ -4,13 +4,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.User;
-import nu.borjessons.clubhouse.impl.dto.TeamDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
 import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 import nu.borjessons.clubhouse.impl.service.ClubService;
@@ -19,69 +17,20 @@ import nu.borjessons.clubhouse.impl.service.TeamService;
 @RequiredArgsConstructor
 @Service
 public class TeamServiceImpl implements TeamService {
-
   private final ClubService clubService;
   private final TeamRepository teamRepository;
+
+  public Team addMemberToTeam(String clubId, String teamId, String userId) {
+    Club club = clubService.getClubByClubId(clubId);
+    Team team = club.getTeamByTeamId(teamId).orElseThrow();
+    User user = club.getUser(userId).orElseThrow();
+    team.addMember(user);
+    return teamRepository.save(team);
+  }
 
   @Override
   public Team getTeamById(String teamId) {
     return teamRepository.findByTeamId(teamId).orElseThrow();
-  }
-
-  @Override
-  public TeamDTO addMemberToTeam(User member, Team team) {
-    team.addMember(member);
-    return new TeamDTO(teamRepository.save(team));
-  }
-
-  @Override
-  public TeamDTO updateTeamMembers(Club club, String teamId, Set<String> memberIds) {
-    Team team = club.getTeams()
-        .stream()
-        .filter(t -> t.getTeamId().equals(teamId))
-        .findFirst()
-        .orElseThrow();
-
-    Set<User> members = club
-        .getUsers()
-        .stream()
-        .filter(user -> memberIds.contains(user.getUserId()))
-        .collect(Collectors.toSet());
-
-    team.setMembers(members);
-
-    return new TeamDTO(teamRepository.save(team));
-  }
-
-  @Override
-  public TeamDTO addLeaderToTeam(User leader, Team team) {
-    team.addLeader(leader);
-    return new TeamDTO(teamRepository.save(team));
-  }
-
-  @Override
-  @Transactional
-  public TeamDTO createTeam(Club club, TeamRequestModel teamModel, Set<User> leaders) {
-    Team team = new Team();
-    team.setName(teamModel.getName());
-    team.setMinAge(teamModel.getMinAge());
-    team.setMaxAge(teamModel.getMaxAge());
-    team.setLeaders(leaders);
-    club.addTeam(team);
-
-    return new TeamDTO(teamRepository.save(team));
-  }
-
-  @Override
-  public void removeMemberFromTeam(User member, Team team) {
-    team.removeMember(member);
-    teamRepository.save(team);
-  }
-
-  @Override
-  public TeamDTO removeLeaderFromTeam(User leader, Team team) {
-    team.removeLeader(leader);
-    return new TeamDTO(teamRepository.save(team));
   }
 
   @Override
@@ -93,20 +42,74 @@ public class TeamServiceImpl implements TeamService {
   }
 
   @Override
-  public TeamDTO updateTeam(Club club, String teamId, TeamRequestModel teamModel, Set<User> leaders) {
-    Team team = club
-        .getTeams()
+  public Team updateTeamMembers(String clubId, String teamId, Set<String> userIds) {
+    Club club = clubService.getClubByClubId(clubId);
+    Team team = club.getTeamByTeamId(teamId).orElseThrow();
+
+    Set<User> members = club
+        .getUsers()
         .stream()
-        .filter(t -> t.getTeamId().equals(teamId))
-        .findFirst()
-        .orElseThrow();
+        .filter(user -> userIds.contains(user.getUserId()))
+        .collect(Collectors.toSet());
+
+    team.setMembers(members);
+    return teamRepository.save(team);
+  }
+
+  @Override
+  public Team createTeam(String clubId, TeamRequestModel teamModel) {
+    Club club = clubService.getClubByClubId(clubId);
+    Set<User> leaders = getClubLeaders(teamModel.getLeaderIds(), club);
+
+    Team team = new Team();
+    team.setName(teamModel.getName());
+    team.setMinAge(teamModel.getMinAge());
+    team.setMaxAge(teamModel.getMaxAge());
+    team.setLeaders(leaders);
+
+    club.addTeam(team);
+    return teamRepository.save(team);
+  }
+
+  @Override
+  public Team removeMemberFromTeam(String clubId, String teamId, String userId) {
+    Club club = clubService.getClubByClubId(clubId);
+    Team team = club.getTeamByTeamId(teamId).orElseThrow();
+    User user = club.getUser(userId).orElseThrow();
+    team.removeMember(user);
+    return teamRepository.save(team);
+  }
+
+  @Override public Team removeLeaderFromTeam(String clubId, String teamId, String userId) {
+    Club club = clubService.getClubByClubId(clubId);
+    Team team = club.getTeamByTeamId(teamId).orElseThrow();
+    User leader = club.getUser(userId).orElseThrow();
+    team.removeLeader(leader);
+    return teamRepository.save(team);
+  }
+
+  @Override
+  public Team updateTeam(String clubId, String teamId, TeamRequestModel teamModel) {
+    Club club = clubService.getClubByClubId(clubId);
+    Team team = club.getTeamByTeamId(teamId).orElseThrow();
+    Set<User> leaders = getClubLeaders(teamModel.getLeaderIds(), club);
 
     team.setName(teamModel.getName());
-    team.setLeaders(leaders);
-    team.setMaxAge(teamModel.getMaxAge());
     team.setMinAge(teamModel.getMinAge());
+    team.setMaxAge(teamModel.getMaxAge());
+    team.setLeaders(leaders);
 
-    return new TeamDTO(teamRepository.save(team));
+    club.addTeam(team);
+    return teamRepository.save(team);
+  }
+
+  private Set<User> getClubLeaders(Set<String> leaderIds, Club club) {
+    return club.getTeams()
+        .stream()
+        .map(Team::getLeaders)
+        .flatMap(Set::stream)
+        .filter(user -> leaderIds.contains(user.getUserId()))
+        .collect(Collectors.toSet());
   }
 
   private void removeUsers(Set<User> users, Team team) {

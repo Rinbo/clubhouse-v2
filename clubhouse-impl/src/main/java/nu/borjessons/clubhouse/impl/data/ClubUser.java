@@ -27,10 +27,10 @@ public class ClubUser extends BaseEntity implements Serializable {
   @GeneratedValue
   private long id;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   private Club club;
 
-  @ManyToOne(cascade = CascadeType.PERSIST)
+  @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
   private User user;
 
   @ManyToMany(fetch = FetchType.EAGER)

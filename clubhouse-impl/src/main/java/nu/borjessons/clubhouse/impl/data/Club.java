@@ -34,9 +34,6 @@ public class Club extends BaseEntity {
   @Column(nullable = false, unique = true)
   private final String clubId;
 
-  @OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.EAGER)
-  private Set<ClubRole> clubRoles = new HashSet<>();
-
   @Column(nullable = false, length = 120, unique = true)
   private String name;
 
@@ -53,7 +50,7 @@ public class Club extends BaseEntity {
       fetch = FetchType.LAZY)
   private Set<Team> teams = new HashSet<>();
 
-  @OneToMany(mappedBy = "club", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.LAZY)
   private Collection<ClubUser> clubUsers;
 
   public Club(String name, Type type, String clubId) {
@@ -67,10 +64,6 @@ public class Club extends BaseEntity {
     clubId = UUID.randomUUID().toString();
   }
 
-  public void addClubRole(ClubRole clubRole) {
-    this.clubRoles.add(clubRole);
-  }
-
   public void addTeam(Team team) {
     teams.add(team);
     team.setClub(this);
@@ -81,6 +74,10 @@ public class Club extends BaseEntity {
         .map(User::getChildren)
         .flatMap(Set::stream)
         .collect(Collectors.toSet());
+  }
+
+  public Optional<Team> getTeamByTeamId(String teamId) {
+    return getTeams().stream().filter(team -> team.getTeamId().equals(teamId)).findFirst();
   }
 
   public Optional<User> getUser(String userId) {
@@ -125,8 +122,8 @@ public class Club extends BaseEntity {
       return clubId.equals(other.clubId);
   }
 
-  public void removeClubRole(ClubRole clubRole) {
-    this.clubRoles.remove(clubRole);
+  public void removeClubUser(ClubUser clubUser) {
+    clubUsers.remove(clubUser);
   }
 
   public enum Type {
