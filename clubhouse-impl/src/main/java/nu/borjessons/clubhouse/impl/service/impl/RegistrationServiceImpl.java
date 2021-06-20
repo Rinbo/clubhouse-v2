@@ -53,7 +53,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   public UserDTO registerClub(CreateClubModel clubDetails) {
     Club club = clubRepository.save(clubhouseMappers.clubCreationModelToClub(clubDetails));
     User user = constructUserEntity(clubDetails.getOwner());
-    ClubUser clubUser = registerClubUserWithRoles(club, user, OWNER_ROLES);
+    ClubUser clubUser = createClubUser(club, getRoleEntities(OWNER_ROLES), user);
     return UserDTO.create(clubUser.getUser());
   }
 
@@ -62,7 +62,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   public UserDTO registerClub(CreateClubModel clubDetails, String clubId) {
     Club club = clubRepository.save(clubhouseMappers.clubCreationModelToClub(clubDetails, clubId));
     User user = constructUserEntity(clubDetails.getOwner());
-    ClubUser clubUser = registerClubUserWithRoles(club, user, OWNER_ROLES);
+    ClubUser clubUser = createClubUser(club, getRoleEntities(OWNER_ROLES), user);
     return UserDTO.create(clubUser.getUser());
   }
 
@@ -72,8 +72,10 @@ public class RegistrationServiceImpl implements RegistrationService {
     List<CreateUserModel> parentsDetails = familyDetails.getParents();
     Set<User> children = mapChildModelToUser(familyDetails.getChildren());
     Club club = clubService.getClubByClubId(familyDetails.getClubId());
+
     Set<Role> roles = new HashSet<>(Collections.singletonList(Role.USER));
     if (!children.isEmpty()) roles.add(Role.PARENT);
+    Set<RoleEntity> roleEntities = getRoleEntities(roles);
 
     List<User> parents = parentsDetails
         .stream()
@@ -81,7 +83,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         .map(parent -> addChildren(parent, children))
         .collect(Collectors.toList());
 
-    parents.forEach(parent -> registerClubUserWithRoles(club, parent, roles));
+    parents.forEach(parent -> createClubUser(club, roleEntities, parent));
 
     return parents.stream().map(UserDTO::create).collect(Collectors.toList());
   }
@@ -98,7 +100,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     Set<Role> roles = new HashSet<>(Collections.singletonList(Role.USER));
     if (!children.isEmpty()) roles.add(Role.PARENT);
 
-    ClubUser clubUser = registerClubUserWithRoles(club, user, roles);
+    ClubUser clubUser = createClubUser(club, getRoleEntities(roles), user);
 
     return UserDTO.create(clubUser.getUser());
   }
@@ -112,11 +114,6 @@ public class RegistrationServiceImpl implements RegistrationService {
   private User addChildren(User parent, Set<User> children) {
     children.forEach(parent::addChild);
     return parent;
-  }
-
-  private ClubUser registerClubUserWithRoles(Club club, User user, Set<Role> roles) {
-    Set<RoleEntity> roleEntities = getRoleEntities(roles);
-    return createClubUser(club, roleEntities, user);
   }
 
   private ClubUser createClubUser(Club club, Set<RoleEntity> roleEntities, User user) {
