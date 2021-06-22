@@ -5,6 +5,7 @@ import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
@@ -16,7 +17,10 @@ import lombok.Setter;
 @Setter
 public class Address extends BaseEntity {
   private static final long serialVersionUID = 8296297244892527350L;
-
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
+  
   @Column(nullable = false, unique = true)
   private final String addressId = UUID.randomUUID().toString();
 
@@ -26,10 +30,6 @@ public class Address extends BaseEntity {
   @Column(length = 30, nullable = false)
   private String country;
 
-  @Id
-  @GeneratedValue
-  private long id;
-
   @Column(length = 10, nullable = false)
   private String postalCode;
 
@@ -38,6 +38,14 @@ public class Address extends BaseEntity {
 
   @ManyToOne
   private User user;
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((addressId == null) ? 0 : addressId.hashCode());
+    return result;
+  }
 
   @Override
   public boolean equals(Object obj) {
@@ -52,13 +60,5 @@ public class Address extends BaseEntity {
       return other.addressId == null;
     } else
       return addressId.equals(other.addressId);
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((addressId == null) ? 0 : addressId.hashCode());
-    return result;
   }
 }

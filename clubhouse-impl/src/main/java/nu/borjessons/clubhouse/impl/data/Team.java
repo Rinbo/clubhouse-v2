@@ -8,29 +8,31 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Entity
 @Table(name = "team")
 public class Team extends BaseEntity {
   private static final long serialVersionUID = -6778870690760953845L;
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
+
+  @Column(nullable = false, unique = true)
+  private final String teamId;
+
   @ManyToOne
   private Club club;
-
-  @Id
-  @GeneratedValue
-  private long id;
 
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<User> leaders = new HashSet<>();
@@ -45,15 +47,24 @@ public class Team extends BaseEntity {
   @Column(nullable = false)
   private String name;
 
-  @Column(nullable = false, unique = true)
-  private String teamId = UUID.randomUUID().toString();
+  public Team(String teamId) {
+    this.teamId = teamId;
+  }
 
-  public void addLeader(User leader) {
-    leaders.add(leader);
+  public Team() {
+    this.teamId = UUID.randomUUID().toString();
   }
 
   public void addMember(User user) {
     members.add(user);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((teamId == null) ? 0 : teamId.hashCode());
+    return result;
   }
 
   @Override
@@ -64,14 +75,6 @@ public class Team extends BaseEntity {
       return false;
     Team other = (Team) obj;
     return teamId.equals(other.teamId);
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((teamId == null) ? 0 : teamId.hashCode());
-    return result;
   }
 
   public void removeLeader(User leader) {

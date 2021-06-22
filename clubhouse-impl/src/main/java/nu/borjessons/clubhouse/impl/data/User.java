@@ -2,6 +2,7 @@ package nu.borjessons.clubhouse.impl.data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +14,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.ManyToMany;
@@ -33,7 +35,7 @@ public class User extends BaseEntity implements UserDetails {
   private static final long serialVersionUID = -1098642930133262484L;
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
   @Column(nullable = false, unique = true)
@@ -51,6 +53,13 @@ public class User extends BaseEntity implements UserDetails {
 
   @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
   private Set<User> parents = new HashSet<>();
+
+  @OneToMany(
+      mappedBy = "user",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.LAZY)
+  private Collection<ClubUser> clubUsers = new ArrayList<>();
 
   @Column(nullable = false)
   private LocalDate dateOfBirth;
@@ -77,6 +86,11 @@ public class User extends BaseEntity implements UserDetails {
 
   public User(String userId) {
     this.userId = userId;
+  }
+
+  public void addClubUser(ClubUser clubUser) {
+    clubUsers.add(clubUser);
+    clubUser.setUser(this);
   }
 
   public void addAddress(Address address) {

@@ -10,16 +10,12 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 
 class PrincipalIntegrationTest {
-  private static String getClubId(UserDTO userDTO) {
-    return userDTO.getClubs().stream().findFirst().orElseThrow().getClubId();
-  }
 
   @Test
   void authTest() throws JsonProcessingException {
@@ -36,31 +32,6 @@ class PrincipalIntegrationTest {
       } catch (HttpClientErrorException e) {
         Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
       }
-    }
-  }
-
-  @Test
-  void getClubById() throws JsonProcessingException {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
-      final String token = IntegrationTestHelper.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-
-      final UserDTO self = IntegrationTestHelper.getSelf(token);
-      final String clubId = getClubId(self);
-      final ClubDTO club = IntegrationTestHelper.getClub(clubId, token);
-      Assertions.assertNotNull(club);
-      Assertions.assertEquals(clubId, club.getClubId());
-    }
-  }
-
-  @Test
-  void getClubUsers() throws JsonProcessingException {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
-      final String token = IntegrationTestHelper.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-
-      final UserDTO self = IntegrationTestHelper.getSelf(token);
-      final List<UserDTO> users = IntegrationTestHelper.getClubUsers(getClubId(self), token);
-      Assertions.assertNotNull(users);
-      Assertions.assertEquals(5, users.size());
     }
   }
 

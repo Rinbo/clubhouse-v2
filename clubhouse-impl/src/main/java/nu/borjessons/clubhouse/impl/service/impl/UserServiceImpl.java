@@ -2,7 +2,6 @@ package nu.borjessons.clubhouse.impl.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,10 +42,16 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public UserDTO getById(long id) {
+    return UserDTO.create(getUser(id));
+  }
+
+  @Override
   @Transactional
-  public void deleteUser(User user) {
-    Set<User> children = user.getChildren();
-    user.setChildren(new HashSet<>());
+  public void deleteUser(long id) {
+    User user = getUser(id);
+    Set<User> children = Set.copyOf(user.getChildren());
+
     children.forEach(child -> {
       child.removeParent(user);
       if (child.getParents().isEmpty()) {
@@ -89,5 +94,9 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserDetails loadUserByUsername(String username) {
     return userRepository.findByEmail(username).orElseThrow();
+  }
+
+  private User getUser(long id) {
+    return userRepository.findById(id).orElseThrow();
   }
 }

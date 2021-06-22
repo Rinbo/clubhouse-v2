@@ -24,12 +24,12 @@ public class PrincipalController {
 
   @DeleteMapping()
   public void deleteSelf(@AuthenticationPrincipal User principal) {
-    userService.deleteUser(principal);
+    userService.deleteUser(principal.getId());
   }
 
   @GetMapping()
   public UserDTO getSelf(@AuthenticationPrincipal User principal) {
-    return UserDTO.create(principal);
+    return userService.getById(principal.getId());
   }
 
   @PutMapping()

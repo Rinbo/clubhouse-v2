@@ -64,9 +64,8 @@ public class TestUtil {
     child.setManagedAccount(true);
     child.addParent(dad);
 
-    Team team = new Team();
+    Team team = new Team(TEAM_1_ID);
     team.addMember(user1);
-    team.setTeamId(TEAM_1_ID);
     team.setId(1);
     team.setName("Team 1");
     team.setMinAge(5);

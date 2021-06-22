@@ -24,7 +24,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.repository.RoleRepository;
-import nu.borjessons.clubhouse.impl.service.ClubService;
+import nu.borjessons.clubhouse.impl.repository.UserRepository;
 import nu.borjessons.clubhouse.impl.service.RegistrationService;
 import nu.borjessons.clubhouse.impl.util.ClubhouseMappers;
 
@@ -34,10 +34,10 @@ public class RegistrationServiceImpl implements RegistrationService {
   private static final Set<Role> OWNER_ROLES = Set.of(Role.USER, Role.OWNER, Role.ADMIN, Role.LEADER);
 
   private final ClubRepository clubRepository;
-  private final ClubService clubService;
   private final ClubhouseMappers clubhouseMappers;
   private final ClubUserRepository clubUserRepository;
   private final RoleRepository roleRepository;
+  private final UserRepository userRepository;
 
   @Transactional
   @Override
@@ -52,18 +52,16 @@ public class RegistrationServiceImpl implements RegistrationService {
   @Override
   public UserDTO registerClub(CreateClubModel clubDetails) {
     Club club = clubRepository.save(clubhouseMappers.clubCreationModelToClub(clubDetails));
-    User user = constructUserEntity(clubDetails.getOwner());
-    ClubUser clubUser = createClubUser(club, getRoleEntities(OWNER_ROLES), user);
-    return UserDTO.create(clubUser.getUser());
+    User user = createClubUser(club, getRoleEntities(OWNER_ROLES), constructUserEntity(clubDetails.getOwner()));
+    return UserDTO.create(user);
   }
 
   @Transactional
   @Override
   public UserDTO registerClub(CreateClubModel clubDetails, String clubId) {
     Club club = clubRepository.save(clubhouseMappers.clubCreationModelToClub(clubDetails, clubId));
-    User user = constructUserEntity(clubDetails.getOwner());
-    ClubUser clubUser = createClubUser(club, getRoleEntities(OWNER_ROLES), user);
-    return UserDTO.create(clubUser.getUser());
+    User user = createClubUser(club, getRoleEntities(OWNER_ROLES), constructUserEntity(clubDetails.getOwner()));
+    return UserDTO.create(user);
   }
 
   @Transactional
@@ -71,7 +69,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   public List<UserDTO> registerFamily(FamilyRequestModel familyDetails) {
     List<CreateUserModel> parentsDetails = familyDetails.getParents();
     Set<User> children = mapChildModelToUser(familyDetails.getChildren());
-    Club club = clubService.getClubByClubId(familyDetails.getClubId());
+    Club club = clubRepository.findByClubId(familyDetails.getClubId()).orElseThrow();
 
     Set<Role> roles = new HashSet<>(Collections.singletonList(Role.USER));
     if (!children.isEmpty()) roles.add(Role.PARENT);
@@ -92,7 +90,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   @Override
   public UserDTO registerUser(CreateUserModel userDetails) {
     Set<User> children = mapChildModelToUser(userDetails.getChildren());
-    Club club = clubService.getClubByClubId(userDetails.getClubId());
+    Club club = clubRepository.findByClubId(userDetails.getClubId()).orElseThrow();
 
     User user = constructUserEntity(userDetails);
     addChildren(user, children);
@@ -100,9 +98,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     Set<Role> roles = new HashSet<>(Collections.singletonList(Role.USER));
     if (!children.isEmpty()) roles.add(Role.PARENT);
 
-    ClubUser clubUser = createClubUser(club, getRoleEntities(roles), user);
-
-    return UserDTO.create(clubUser.getUser());
+    return UserDTO.create(createClubUser(club, getRoleEntities(roles), user));
   }
 
   private Set<User> mapChildModelToUser(List<CreateChildRequestModel> childrenDetails) {
@@ -116,12 +112,12 @@ public class RegistrationServiceImpl implements RegistrationService {
     return parent;
   }
 
-  private ClubUser createClubUser(Club club, Set<RoleEntity> roleEntities, User user) {
+  private User createClubUser(Club club, Set<RoleEntity> roleEntities, User user) {
     ClubUser clubUser = new ClubUser();
-    clubUser.setUser(user);
-    clubUser.setRoles(roleEntities);
+    user.addClubUser(clubUser);
     club.addClubUser(clubUser);
-    return clubUserRepository.save(clubUser);
+    clubUser.setRoles(roleEntities);
+    return userRepository.save(user);
   }
 
   private Set<RoleEntity> getRoleEntities(Set<Role> myRoles) {

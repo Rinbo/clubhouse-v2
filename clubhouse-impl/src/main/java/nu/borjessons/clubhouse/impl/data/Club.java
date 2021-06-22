@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.data;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
@@ -28,7 +30,7 @@ public class Club extends BaseEntity {
   private static final long serialVersionUID = -5573907533182487531L;
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
   @Column(nullable = false, unique = true)
@@ -51,7 +53,7 @@ public class Club extends BaseEntity {
   private Set<Team> teams = new HashSet<>();
 
   @OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.LAZY)
-  private Collection<ClubUser> clubUsers;
+  private Collection<ClubUser> clubUsers = new ArrayList<>();
 
   public Club(String name, Type type, String clubId) {
     this.name = name;

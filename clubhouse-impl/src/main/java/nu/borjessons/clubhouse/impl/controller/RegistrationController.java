@@ -5,7 +5,6 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
@@ -44,8 +42,7 @@ public class RegistrationController {
 
   @PreAuthorize("hasRole('ADMIN') or #parentId == authentication.principal.userId")
   @PostMapping("/clubs/{clubId}/register-children")
-  public UserDTO registerChildren(@AuthenticationPrincipal User principal, @PathVariable String clubId, @RequestParam String parentId,
-      @Valid @RequestBody List<CreateChildRequestModel> childModels) {
+  public UserDTO registerChildren(@PathVariable String clubId, @RequestParam String parentId, @Valid @RequestBody List<CreateChildRequestModel> childModels) {
     return registrationService.registerChildren(parentId, clubId, childModels);
   }
 }

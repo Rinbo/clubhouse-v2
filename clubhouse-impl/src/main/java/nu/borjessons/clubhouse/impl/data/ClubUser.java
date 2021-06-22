@@ -3,10 +3,10 @@ package nu.borjessons.clubhouse.impl.data;
 import java.io.Serializable;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -24,13 +24,13 @@ public class ClubUser extends BaseEntity implements Serializable {
   private static final long serialVersionUID = 1429757107786078376L;
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   private Club club;
 
-  @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   private User user;
 
   @ManyToMany(fetch = FetchType.EAGER)
