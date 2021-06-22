@@ -14,7 +14,6 @@ import nu.borjessons.clubhouse.impl.data.User;
 public final class UserDTO {
   public static UserDTO create(User user) {
     return UserDTO.builder()
-        .clubs(user.getClubs().stream().map(ClubDTO::new).collect(Collectors.toSet()))
         .userId(user.getUserId())
         .email(user.getEmail())
         .firstName(user.getFirstName())
@@ -28,7 +27,6 @@ public final class UserDTO {
 
   private final Set<AddressDTO> addresses;
   private final Set<String> childrenIds;
-  private final Set<ClubDTO> clubs;
   private final String dateOfBirth;
   private final String email;
   private final String firstName;

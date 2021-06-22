@@ -99,6 +99,16 @@ public class Club extends BaseEntity {
         .collect(Collectors.toSet());
   }
 
+  public void removeClubUser(ClubUser clubUser) {
+    clubUsers.remove(clubUser);
+    clubUser.setClub(null);
+  }
+
+  public void addClubUser(ClubUser clubUser) {
+    clubUsers.add(clubUser);
+    clubUser.setClub(this);
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -120,10 +130,6 @@ public class Club extends BaseEntity {
       return other.clubId == null;
     } else
       return clubId.equals(other.clubId);
-  }
-
-  public void removeClubUser(ClubUser clubUser) {
-    clubUsers.remove(clubUser);
   }
 
   public enum Type {

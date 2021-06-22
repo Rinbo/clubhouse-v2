@@ -48,10 +48,6 @@ public class ClubhouseMappers {
     return new Club(clubDetails.getName(), clubDetails.getType(), clubId);
   }
 
-  public void mapClubRoles(Set<RoleTemp> roles, User user, Club club) {
-    roles.forEach(role -> new ClubRole(role, user, club));
-  }
-
   public User userCreationModelToUser(CreateUserModel userDetails) {
     User user = new User(UUID.randomUUID().toString());
     user.setEmail(userDetails.getEmail().toLowerCase().trim());

@@ -29,6 +29,7 @@ public class ClubUserServiceImpl implements ClubUserService {
   private final AddressRepository addressRepository;
   private final RoleRepository roleRepository;
 
+  // TODO test this rigorously since the mapping relationship is uncertain
   @Override
   public void removeUserFromClub(String userId, String clubId) {
     ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(userId, clubId).orElseThrow();

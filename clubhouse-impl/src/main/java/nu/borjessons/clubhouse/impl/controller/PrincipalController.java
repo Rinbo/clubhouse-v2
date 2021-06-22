@@ -27,11 +27,6 @@ public class PrincipalController {
     userService.deleteUser(principal);
   }
 
-  @GetMapping("/roles")
-  public ClubRole.RoleTemp[] getRolesNames() {
-    return ClubRole.RoleTemp.values();
-  }
-
   @GetMapping()
   public UserDTO getSelf(@AuthenticationPrincipal User principal) {
     return UserDTO.create(principal);

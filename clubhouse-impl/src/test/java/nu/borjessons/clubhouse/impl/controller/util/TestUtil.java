@@ -64,13 +64,6 @@ public class TestUtil {
     child.setManagedAccount(true);
     child.addParent(dad);
 
-    Set<ClubRole.RoleTemp> ownerRoles = Set.of(ClubRole.RoleTemp.OWNER, ClubRole.RoleTemp.ADMIN, ClubRole.RoleTemp.USER, ClubRole.RoleTemp.LEADER);
-    Set<ClubRole.RoleTemp> userRoles = Set.of(ClubRole.RoleTemp.USER);
-    Set<ClubRole.RoleTemp> parentRoles = Set.of(ClubRole.RoleTemp.USER, ClubRole.RoleTemp.PARENT);
-    ownerRoles.forEach(role -> new ClubRole(role, owner, club));
-    userRoles.forEach(role -> new ClubRole(role, user1, club));
-    parentRoles.forEach(role -> new ClubRole(role, dad, club));
-
     Team team = new Team();
     team.addMember(user1);
     team.setTeamId(TEAM_1_ID);

@@ -118,9 +118,9 @@ public class RegistrationServiceImpl implements RegistrationService {
 
   private ClubUser createClubUser(Club club, Set<RoleEntity> roleEntities, User user) {
     ClubUser clubUser = new ClubUser();
-    clubUser.setClub(club);
     clubUser.setUser(user);
     clubUser.setRoles(roleEntities);
+    club.addClubUser(clubUser);
     return clubUserRepository.save(clubUser);
   }
 
