@@ -13,6 +13,7 @@ import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.Role;
+import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.repository.AddressRepository;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
@@ -32,13 +33,13 @@ public class ClubUserServiceImpl implements ClubUserService {
   // TODO test this rigorously since the mapping relationship is uncertain
   @Override
   public void removeUserFromClub(String userId, String clubId) {
-    ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(userId, clubId).orElseThrow();
+    ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(clubId, userId).orElseThrow();
     clubUserRepository.delete(clubUser);
   }
 
   @Override
   public User updateUser(String userId, String clubId, AdminUpdateUserModel userDetails) {
-    ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(userId, clubId).orElseThrow();
+    ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(clubId, userId).orElseThrow();
     User user = clubUser.getUser();
     updateUserDetails(userDetails, user);
     updateAddresses(user, clubhouseMappers.addressModelToAddress(userDetails.getAddresses()));
@@ -48,7 +49,7 @@ public class ClubUserServiceImpl implements ClubUserService {
 
   @Override
   public User addExistingChildrenToUser(String userId, String clubId, Set<String> childrenIds) {
-    ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(userId, clubId).orElseThrow();
+    ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(clubId, userId).orElseThrow();
     User user = clubUser.getUser();
     Club club = clubUser.getClub();
     Set<User> children = club.getManagedUsers().stream().filter(child -> childrenIds.contains(child.getUserId())).collect(Collectors.toSet());
@@ -56,8 +57,13 @@ public class ClubUserServiceImpl implements ClubUserService {
     return clubUserRepository.save(clubUser).getUser();
   }
 
+  @Override public UserDTO getClubUser(String clubId, String userId) {
+    final ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(clubId, userId).orElseThrow();
+    return UserDTO.create(clubUser.getUser());
+  }
+
   private void updateRoles(ClubUser clubUser, Set<Role> roles) {
-    Set<RoleEntity> roleEntities = roleRepository.findByRoleNames(roles.stream().map(Role::toString).collect(Collectors.toSet()));
+    final Set<RoleEntity> roleEntities = roleRepository.findByRoleNames(roles.stream().map(Role::toString).collect(Collectors.toSet()));
     clubUser.setRoles(roleEntities);
   }
 

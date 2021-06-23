@@ -58,11 +58,7 @@ public class ClubUserController {
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/clubs/{clubId}/user/{userId}")
   public UserDTO getUser(@PathVariable String clubId, @PathVariable String userId) {
-    User user = clubService
-        .getClubByClubId(clubId)
-        .getUser(userId)
-        .orElseThrow();
-    return UserDTO.create(user);
+    return clubUserService.getClubUser(clubId, userId);
   }
 
   @PreAuthorize("hasRole('ADMIN')")

@@ -1,7 +1,14 @@
 package nu.borjessons.clubhouse.impl.controller.util;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Set;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -30,6 +37,13 @@ public class TestUtil {
         .filter(team -> team.getTeamId().equals(teamId))
         .findFirst()
         .orElseThrow();
+  }
+
+  public static String getJsonStringFromFile(String filename) throws IOException {
+    try (Reader reader = Files.newBufferedReader(Paths.get("/src/test/resources", filename))) {
+      JsonNode jsonNode = new ObjectMapper().readTree(reader);
+      return jsonNode.toString();
+    }
   }
 
   private static Club createClub() {

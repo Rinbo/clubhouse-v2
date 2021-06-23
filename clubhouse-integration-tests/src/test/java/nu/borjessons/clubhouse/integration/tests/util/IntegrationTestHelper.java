@@ -3,10 +3,6 @@ package nu.borjessons.clubhouse.integration.tests.util;
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +19,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
@@ -61,13 +56,6 @@ public class IntegrationTestHelper {
     return Arrays.stream(clubs).collect(Collectors.toList());
   }
 
-  public static String getJsonStringFromFile(String filename) throws IOException {
-    try (Reader reader = Files.newBufferedReader(Paths.get("/src/test/resources", filename))) {
-      JsonNode jsonNode = new ObjectMapper().readTree(reader);
-      return jsonNode.toString();
-    }
-  }
-
   public static List<String> getRoles(String token, ClubDTO clubDTO) {
     UriComponentsBuilder builder = UriComponentsBuilder
         .fromHttpUrl(BASE_URL)
@@ -79,7 +67,7 @@ public class IntegrationTestHelper {
   }
 
   public static UserDTO getSelf(String token) throws JsonProcessingException {
-    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path("/users/principal");
+    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL).path("/principal");
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = getVoidHttpEntity(token);
 
@@ -147,7 +135,17 @@ public class IntegrationTestHelper {
     return deserializeJsonBody(response.getBody(), UserDTO.class);
   }
 
-  private static <T> T deserializeJsonBody(String body, Class<T> clazz) throws JsonProcessingException {
+  public static UriComponentsBuilder getUriBuilder(String path) {
+    return UriComponentsBuilder.fromHttpUrl(BASE_URL).path(path);
+  }
+
+  public static <T, U> ResponseEntity<U> postRequest(String uri, String token, T requestObject, Class<U> returnType) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<T> entity = getHttpEntity(token, requestObject);
+    return restTemplate.exchange(uri, HttpMethod.POST, entity, returnType);
+  }
+
+  public static <T> T deserializeJsonBody(String body, Class<T> clazz) throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new ParameterNamesModule());
     mapper.setVisibility(FIELD, ANY);
@@ -178,8 +176,9 @@ public class IntegrationTestHelper {
     return restTemplate.exchange(uri, HttpMethod.GET, entity, clazz);
   }
 
-  private static UriComponentsBuilder getUriBuilder(String path) {
-    return UriComponentsBuilder.fromHttpUrl(BASE_URL).path(path);
+  private static <T> HttpEntity<T> getHttpEntity(String token, T requestObject) {
+    HttpHeaders headers = getHttpHeaders(token);
+    return new HttpEntity<T>(requestObject, headers);
   }
 
   private static HttpEntity<Void> getVoidHttpEntity(String token) {
