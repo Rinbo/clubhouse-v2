@@ -14,7 +14,6 @@ import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import nu.borjessons.clubhouse.integration.tests.util.RegistrationTestHelper;
 
 class RegistrationIntegrationTest {
-
   public static final String DADDY = "pops@ex.com";
   public static final String PASSWORD = "password";
   public static final String SNORRE = "Snorre";
