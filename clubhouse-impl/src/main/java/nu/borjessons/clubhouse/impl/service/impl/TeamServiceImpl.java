@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.dto.TeamDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
 import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 import nu.borjessons.clubhouse.impl.service.ClubService;
@@ -20,17 +21,17 @@ public class TeamServiceImpl implements TeamService {
   private final ClubService clubService;
   private final TeamRepository teamRepository;
 
-  public Team addMemberToTeam(String clubId, String teamId, String userId) {
+  public TeamDTO addMemberToTeam(String clubId, String teamId, String userId) {
     Club club = clubService.getClubByClubId(clubId);
     Team team = club.getTeamByTeamId(teamId).orElseThrow();
     User user = club.getUser(userId).orElseThrow();
     team.addMember(user);
-    return teamRepository.save(team);
+    return new TeamDTO(teamRepository.save(team));
   }
 
   @Override
-  public Team getTeamById(String teamId) {
-    return teamRepository.findByTeamId(teamId).orElseThrow();
+  public TeamDTO getTeamById(String teamId) {
+    return new TeamDTO(teamRepository.findByTeamId(teamId).orElseThrow());
   }
 
   @Override
@@ -42,7 +43,7 @@ public class TeamServiceImpl implements TeamService {
   }
 
   @Override
-  public Team updateTeamMembers(String clubId, String teamId, Set<String> userIds) {
+  public TeamDTO updateTeamMembers(String clubId, String teamId, Set<String> userIds) {
     Club club = clubService.getClubByClubId(clubId);
     Team team = club.getTeamByTeamId(teamId).orElseThrow();
 
@@ -53,11 +54,11 @@ public class TeamServiceImpl implements TeamService {
         .collect(Collectors.toSet());
 
     team.setMembers(members);
-    return teamRepository.save(team);
+    return new TeamDTO(teamRepository.save(team));
   }
 
   @Override
-  public Team createTeam(String clubId, TeamRequestModel teamModel) {
+  public TeamDTO createTeam(String clubId, TeamRequestModel teamModel) {
     Club club = clubService.getClubByClubId(clubId);
     Set<User> leaders = getClubLeaders(teamModel.getLeaderIds(), club);
 
@@ -68,28 +69,29 @@ public class TeamServiceImpl implements TeamService {
     team.setLeaders(leaders);
 
     club.addTeam(team);
-    return teamRepository.save(team);
+    return new TeamDTO(teamRepository.save(team));
   }
 
   @Override
-  public Team removeMemberFromTeam(String clubId, String teamId, String userId) {
+  public TeamDTO removeMemberFromTeam(String clubId, String teamId, String userId) {
     Club club = clubService.getClubByClubId(clubId);
     Team team = club.getTeamByTeamId(teamId).orElseThrow();
     User user = club.getUser(userId).orElseThrow();
     team.removeMember(user);
-    return teamRepository.save(team);
+    return new TeamDTO(teamRepository.save(team));
   }
 
-  @Override public Team removeLeaderFromTeam(String clubId, String teamId, String userId) {
+  @Override
+  public TeamDTO removeLeaderFromTeam(String clubId, String teamId, String userId) {
     Club club = clubService.getClubByClubId(clubId);
     Team team = club.getTeamByTeamId(teamId).orElseThrow();
     User leader = club.getUser(userId).orElseThrow();
     team.removeLeader(leader);
-    return teamRepository.save(team);
+    return new TeamDTO(teamRepository.save(team));
   }
 
   @Override
-  public Team updateTeam(String clubId, String teamId, TeamRequestModel teamModel) {
+  public TeamDTO updateTeam(String clubId, String teamId, TeamRequestModel teamModel) {
     Club club = clubService.getClubByClubId(clubId);
     Team team = club.getTeamByTeamId(teamId).orElseThrow();
     Set<User> leaders = getClubLeaders(teamModel.getLeaderIds(), club);
@@ -100,7 +102,7 @@ public class TeamServiceImpl implements TeamService {
     team.setLeaders(leaders);
 
     club.addTeam(team);
-    return teamRepository.save(team);
+    return new TeamDTO(teamRepository.save(team));
   }
 
   private Set<User> getClubLeaders(Set<String> leaderIds, Club club) {

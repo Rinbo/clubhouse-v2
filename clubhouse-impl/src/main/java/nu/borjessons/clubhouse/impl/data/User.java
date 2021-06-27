@@ -93,6 +93,11 @@ public class User extends BaseEntity implements UserDetails {
     clubUser.setUser(this);
   }
 
+  public void removeClubUser(ClubUser clubUser) {
+    clubUsers.remove(clubUser);
+    clubUser.setUser(null);
+  }
+
   public void addAddress(Address address) {
     addresses.add(address);
     address.setUser(this);

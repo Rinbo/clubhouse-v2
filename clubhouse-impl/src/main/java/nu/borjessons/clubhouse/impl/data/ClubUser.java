@@ -39,4 +39,9 @@ public class ClubUser extends BaseEntity implements Serializable {
   public void addRoleEntity(RoleEntity roleEntity) {
     roles.add(roleEntity);
   }
+
+  public void doOrphan() {
+    club.removeClubUser(this);
+    user.removeClubUser(this);
+  }
 }

@@ -37,13 +37,13 @@ public class ClubTeamController {
   public TeamDTO addChildrenToTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
       @RequestParam String childId) {
     resourceAuthorization.isChildOfUser(childId, principal);
-    return new TeamDTO(teamService.addMemberToTeam(clubId, teamId, childId));
+    return teamService.addMemberToTeam(clubId, teamId, childId);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping(path = "/clubs/{clubId}/teams")
   public TeamDTO createTeam(@PathVariable String clubId, @RequestBody @Valid TeamRequestModel teamModel) {
-    return new TeamDTO(teamService.createTeam(clubId, teamModel));
+    return teamService.createTeam(clubId, teamModel);
   }
 
   @PreAuthorize("hasRole('USER')")
@@ -78,30 +78,30 @@ public class ClubTeamController {
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/join")
   public TeamDTO joinTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId) {
-    return new TeamDTO(teamService.addMemberToTeam(clubId, teamId, principal.getUserId()));
+    return teamService.addMemberToTeam(clubId, teamId, principal.getUserId());
   }
 
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/leave")
   public TeamDTO leaveTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId) {
-    return new TeamDTO(teamService.removeMemberFromTeam(clubId, teamId, principal.getUserId()));
+    return teamService.removeMemberFromTeam(clubId, teamId, principal.getUserId());
   }
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/remove-leader")
   public TeamDTO removeLeader(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId, @RequestParam String userId) {
-    return new TeamDTO(teamService.removeLeaderFromTeam(clubId, teamId, userId));
+    return teamService.removeLeaderFromTeam(clubId, teamId, userId);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}")
   public TeamDTO updateTeam(@PathVariable String clubId, @PathVariable String teamId, @RequestBody @Valid TeamRequestModel teamModel) {
-    return new TeamDTO(teamService.updateTeam(clubId, teamId, teamModel));
+    return teamService.updateTeam(clubId, teamId, teamModel);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/members")
   public TeamDTO updateTeamMembers(@PathVariable String clubId, @PathVariable String teamId, @RequestBody Set<String> userIds) {
-    return new TeamDTO(teamService.updateTeamMembers(clubId, teamId, userIds));
+    return teamService.updateTeamMembers(clubId, teamId, userIds);
   }
 }
