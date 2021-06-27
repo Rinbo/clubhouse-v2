@@ -34,6 +34,6 @@ public class PrincipalController {
 
   @PutMapping()
   public UserDTO updateSelf(@AuthenticationPrincipal User principal, @Valid @RequestBody UpdateUserModel userDetails) {
-    return userService.updateUser(principal, userDetails);
+    return userService.updateUser(principal.getId(), userDetails);
   }
 }

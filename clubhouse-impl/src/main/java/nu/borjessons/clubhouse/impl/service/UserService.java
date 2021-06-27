@@ -20,7 +20,7 @@ public interface UserService extends UserDetailsService {
 
   User getUserByEmail(String username);
 
-  UserDTO updateUser(User user, UpdateUserModel userDetails);
+  UserDTO updateUser(long id, UpdateUserModel userDetails);
 
   void updateUserLoginTime(String email);
 }

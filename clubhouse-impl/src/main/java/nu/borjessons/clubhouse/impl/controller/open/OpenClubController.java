@@ -11,18 +11,18 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 
-@RequestMapping("/clubs/public")
+@RequestMapping("/public")
 @RequiredArgsConstructor
 @RestController
 public class OpenClubController {
   private final ClubService clubService;
 
-  @GetMapping(path = "/public")
+  @GetMapping(path = "/clubs")
   public Set<ClubDTO> getAllClubs() {
     return clubService.getAllClubs();
   }
 
-  @GetMapping(path = "/public/{pathname}")
+  @GetMapping(path = "/public/clubs/{pathname}")
   public ClubDTO getPublicClub(@PathVariable String pathname) {
     return clubService.getPublicClub(pathname);
   }

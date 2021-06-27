@@ -1,27 +1,42 @@
 package nu.borjessons.clubhouse.integration.tests.util;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.Assertions;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import nu.borjessons.clubhouse.impl.data.Club;
+import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
-import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
-import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 
 public class ClubUtil {
-  private static CreateClubModel getCreateClubModel(String ownerEmail) {
-    CreateClubModel createClubModel = new CreateClubModel();
+  public static CreateClubModel createClubModel(String firstName) {
+    CreateClubModel clubModel = new CreateClubModel();
+    clubModel.setName(firstName + " Sports");
+    clubModel.setType(Club.Type.SPORT);
+    clubModel.setOwner(UserUtil.createUserModel(firstName));
+    return clubModel;
+  }
 
-    CreateUserModel createUserModel = new CreateUserModel();
-    createUserModel.setClubId("Dummy");
-    createUserModel.setFirstName("Owner2");
-    createUserModel.setLastName("Lastname");
-    createUserModel.setEmail(ownerEmail);
-    createUserModel.setDateOfBirth("1982-03-16");
-    createUserModel.setPassword(EmbeddedDataLoader.DEFAULT_PASSWORD);
+  public static List<ClubDTO> getClubs() {
+    UriComponentsBuilder builder = RestUtil.getUriBuilder("/public/clubs");
+    RestTemplate restTemplate = new RestTemplate();
+    ResponseEntity<ClubDTO[]> responseEntity = restTemplate.getForEntity(builder.toUriString(), ClubDTO[].class);
+    ClubDTO[] clubs = responseEntity.getBody();
+    Assertions.assertNotNull(clubs);
+    return Arrays.stream(clubs).collect(Collectors.toList());
+  }
 
-    createClubModel.setName("Cool Club");
-    createClubModel.setType(Club.Type.MISC);
-    createClubModel.setOwner(createUserModel);
-
-    return createClubModel;
+  public static ClubDTO getClub(String clubId, String token) {
+    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}").buildAndExpand(clubId).toUriString();
+    final ResponseEntity<ClubDTO> response = RestUtil.getResponse(uri, token, ClubDTO.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
   }
 
   private ClubUtil() {

@@ -70,7 +70,8 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public UserDTO updateUser(User user, UpdateUserModel userDetails) {
+  public UserDTO updateUser(long id, UpdateUserModel userDetails) {
+    User user = getUser(id);
     user.setFirstName(userDetails.getFirstName());
     user.setLastName(userDetails.getLastName());
     user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
