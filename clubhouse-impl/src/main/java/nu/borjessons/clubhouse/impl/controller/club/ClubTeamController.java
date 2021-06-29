@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.controller.club;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,9 +36,9 @@ public class ClubTeamController {
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/add-child")
   public TeamDTO addChildrenToTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
-      @RequestParam String childId) {
-    resourceAuthorization.isChildOfUser(childId, principal);
-    return teamService.addMemberToTeam(clubId, teamId, childId);
+      @RequestParam String clubUserId) {
+    resourceAuthorization.isChildOfUser(clubUserId, principal);
+    return teamService.addMemberToTeam(clubId, teamId, clubUserId);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -89,8 +90,9 @@ public class ClubTeamController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/remove-leader")
-  public TeamDTO removeLeader(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId, @RequestParam String userId) {
-    return teamService.removeLeaderFromTeam(clubId, teamId, userId);
+  public TeamDTO removeLeader(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
+      @RequestParam String clubUserId) {
+    return teamService.removeLeaderFromTeam(clubId, teamId, clubUserId);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -101,7 +103,7 @@ public class ClubTeamController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/members")
-  public TeamDTO updateTeamMembers(@PathVariable String clubId, @PathVariable String teamId, @RequestBody Set<String> userIds) {
+  public TeamDTO updateTeamMembers(@PathVariable String clubId, @PathVariable String teamId, @RequestBody List<String> userIds) {
     return teamService.updateTeamMembers(clubId, teamId, userIds);
   }
 }

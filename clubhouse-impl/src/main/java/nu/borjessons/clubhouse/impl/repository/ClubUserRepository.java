@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,9 +11,12 @@ import nu.borjessons.clubhouse.impl.data.ClubUser;
 
 @Repository
 public interface ClubUserRepository extends JpaRepository<ClubUser, Long> {
-  @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id = ?1 AND club_id IN (SELECT id from club where club_id = ?2)")
-  Optional<ClubUser> findByUserIdAndClubId(long userId, String clubId);
+  @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id = ?2 AND club_id IN (SELECT id from club where club_id = ?1)")
+  Optional<ClubUser> findByClubIdAndUserId(String clubId, long userId);
 
   @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id IN (SELECT id from User where user_id=?2) AND club_id IN (SELECT id from club where club_id = ?1)")
-  Optional<ClubUser> findByUserIdAndClubId(String clubId, String userId);
+  Optional<ClubUser> findByClubIdAndUserId(String clubId, String userId);
+
+  @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id IN (SELECT id from User where user_id in (?2)) AND club_id IN (SELECT id from club where club_id = ?1)")
+  List<ClubUser> findByClubIdAndUserIds(String clubId, List<String> userIds);
 }

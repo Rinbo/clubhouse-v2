@@ -1,8 +1,8 @@
 package nu.borjessons.clubhouse.impl.dto.rest;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -18,7 +18,7 @@ public class TeamRequestModel implements Serializable {
   private static final long serialVersionUID = 1L;
 
   @NotNull(message = "LeaderId list cannot be null")
-  private Set<String> leaderIds = new HashSet<>();
+  private List<String> leaderIds = new ArrayList<>();
 
   @NotNull(message = "Maximum age limit cannot be null")
   @Min(0)

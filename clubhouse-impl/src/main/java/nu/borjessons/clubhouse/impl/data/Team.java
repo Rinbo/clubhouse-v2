@@ -1,7 +1,7 @@
 package nu.borjessons.clubhouse.impl.data;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -35,12 +35,12 @@ public class Team extends BaseEntity {
   private Club club;
 
   @ManyToMany(fetch = FetchType.LAZY)
-  private Set<User> leaders = new HashSet<>();
+  private Collection<ClubUser> leaders = new ArrayList<>();
 
   private int maxAge;
 
   @ManyToMany(fetch = FetchType.LAZY)
-  private Set<User> members = new HashSet<>();
+  private Collection<ClubUser> members = new ArrayList<>();
 
   private int minAge;
 
@@ -55,8 +55,8 @@ public class Team extends BaseEntity {
     this.teamId = UUID.randomUUID().toString();
   }
 
-  public void addMember(User user) {
-    members.add(user);
+  public void addMember(ClubUser clubUser) {
+    members.add(clubUser);
   }
 
   @Override
@@ -77,11 +77,11 @@ public class Team extends BaseEntity {
     return teamId.equals(other.teamId);
   }
 
-  public void removeLeader(User leader) {
+  public void removeLeader(ClubUser leader) {
     leaders.remove(leader);
   }
 
-  public void removeMember(User user) {
-    members.remove(user);
+  public void removeMember(ClubUser member) {
+    members.remove(member);
   }
 }

@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -72,33 +73,26 @@ public class Club extends BaseEntity {
   }
 
   public Set<User> getManagedUsers() {
-    return getUsers().stream()
-        .map(User::getChildren)
-        .flatMap(Set::stream)
+    return clubUsers.stream()
+        .map(ClubUser::getUser)
+        .filter(User::isManagedAccount)
         .collect(Collectors.toSet());
+  }
+
+  public List<ClubUser> getClubUsers(List<String> userIds) {
+    return clubUsers.stream()
+        .filter(clubUser -> userIds.contains(clubUser.getUser().getUserId()))
+        .collect(Collectors.toList());
+  }
+
+  public Optional<ClubUser> getClubUser(String userId) {
+    return clubUsers.stream()
+        .filter(clubUser -> clubUser.getUser().getUserId()
+            .equals(userId)).findFirst();
   }
 
   public Optional<Team> getTeamByTeamId(String teamId) {
     return getTeams().stream().filter(team -> team.getTeamId().equals(teamId)).findFirst();
-  }
-
-  public Optional<User> getUser(String userId) {
-    return getUsers()
-        .stream()
-        .filter(user -> user.getUserId().equals(userId))
-        .findFirst();
-  }
-
-  public Set<User> getUsers() {
-    return clubUsers.stream()
-        .map(ClubUser::getUser)
-        .map(user -> {
-          Set<User> combinedSet = new HashSet<>(user.getChildren());
-          combinedSet.add(user);
-          return combinedSet;
-        })
-        .flatMap(Set::stream)
-        .collect(Collectors.toSet());
   }
 
   public void removeClubUser(ClubUser clubUser) {

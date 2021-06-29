@@ -1,7 +1,10 @@
 package nu.borjessons.clubhouse.impl.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -27,11 +30,19 @@ public class ClubUser extends BaseEntity implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
+  private final String clubUserId = UUID.randomUUID().toString();
+
   @ManyToOne(fetch = FetchType.LAZY)
   private Club club;
 
   @ManyToOne(fetch = FetchType.LAZY)
   private User user;
+
+  @ManyToMany(mappedBy = "leaders", fetch = FetchType.LAZY)
+  private Collection<Team> managedTeams = new ArrayList<>();
+
+  @ManyToMany(mappedBy = "members", fetch = FetchType.LAZY)
+  private Collection<Team> teams = new ArrayList<>();
 
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<RoleEntity> roles;

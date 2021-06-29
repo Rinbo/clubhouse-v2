@@ -52,7 +52,7 @@ public class ClubUserServiceImpl implements ClubUserService {
   @Override
   @Transactional
   public void removeUserFromClub(String userId, String clubId) {
-    ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(clubId, userId).orElseThrow();
+    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     User user = clubUser.getUser();
     // Get users children and call teamService::removeUsersFromAllTeams ?
     // What if the other parent is still in the club?
@@ -65,7 +65,7 @@ public class ClubUserServiceImpl implements ClubUserService {
   @Override
   @Transactional
   public UserDTO updateUser(String userId, String clubId, AdminUpdateUserModel userDetails) {
-    ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(clubId, userId).orElseThrow();
+    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     User user = clubUser.getUser();
     updateUserDetails(userDetails, user);
     updateAddresses(user, clubhouseMappers.addressModelToAddress(userDetails.getAddresses()));
@@ -76,7 +76,7 @@ public class ClubUserServiceImpl implements ClubUserService {
   @Override
   @Transactional
   public User addExistingChildrenToUser(String userId, String clubId, Set<String> childrenIds) {
-    ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(clubId, userId).orElseThrow();
+    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     User user = clubUser.getUser();
     Club club = clubUser.getClub();
     Set<User> children = club.getManagedUsers().stream().filter(child -> childrenIds.contains(child.getUserId())).collect(Collectors.toSet());
@@ -86,7 +86,7 @@ public class ClubUserServiceImpl implements ClubUserService {
 
   @Override
   public UserDTO getClubUser(String clubId, String userId) {
-    final ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(clubId, userId).orElseThrow();
+    final ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     return UserDTO.create(clubUser.getUser());
   }
 

@@ -42,7 +42,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   @Transactional
   @Override
   public UserDTO registerChildren(String userId, String clubId, List<CreateChildRequestModel> childDetails) {
-    ClubUser clubUser = clubUserRepository.findByUserIdAndClubId(clubId, userId).orElseThrow();
+    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     addChildren(clubUser.getUser(), mapChildModelToUser(childDetails));
     getRoleEntities(Set.of(Role.PARENT)).forEach(clubUser::addRoleEntity);
     return UserDTO.create(clubUserRepository.save(clubUser).getUser());

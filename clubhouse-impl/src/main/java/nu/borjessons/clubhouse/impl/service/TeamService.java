@@ -1,9 +1,7 @@
 package nu.borjessons.clubhouse.impl.service;
 
-import java.util.Set;
+import java.util.List;
 
-import nu.borjessons.clubhouse.impl.data.Club;
-import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.TeamDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
 
@@ -12,9 +10,7 @@ public interface TeamService {
 
   TeamDTO getTeamById(String teamId);
 
-  void removeUsersFromAllTeams(Set<User> users, Club club);
-
-  TeamDTO updateTeamMembers(String clubId, String teamId, Set<String> userIds);
+  TeamDTO updateTeamMembers(String clubId, String teamId, List<String> userIds);
 
   TeamDTO createTeam(String clubId, TeamRequestModel teamModel);
 
