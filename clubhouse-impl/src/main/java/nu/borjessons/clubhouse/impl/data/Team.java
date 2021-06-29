@@ -31,15 +31,15 @@ public class Team extends BaseEntity {
   @Column(nullable = false, unique = true)
   private final String teamId;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   private Club club;
 
-  @ManyToMany(fetch = FetchType.EAGER)
+  @ManyToMany(fetch = FetchType.LAZY)
   private Set<User> leaders = new HashSet<>();
 
   private int maxAge;
 
-  @ManyToMany(fetch = FetchType.EAGER)
+  @ManyToMany(fetch = FetchType.LAZY)
   private Set<User> members = new HashSet<>();
 
   private int minAge;

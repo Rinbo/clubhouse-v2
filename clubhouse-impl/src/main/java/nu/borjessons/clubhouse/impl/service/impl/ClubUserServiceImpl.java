@@ -40,6 +40,15 @@ public class ClubUserServiceImpl implements ClubUserService {
   // the club relationship. I will be playing catchup forever. Can the teams relationship be tied to
   // club user instead? Not in the current implementation because managed users (children) do not have
   // a club user. Put children relation in ClubUser instead? No
+  //
+  // What about creating a ClubUser for managed users in the same way as normal users
+  // And simply having the Parent be able to manage that user. Also, team relation will have to be
+  // in the ClubUser entity. Some of the complexity would be shifted to creating the managed
+  // user the first time a family registers. Similarly, if a new child is added it will have to
+  // This is perhaps the way it has to be. That way we have the coupling between clubs and teams
+  // and users, and children are simply normal users in that club. Of course if a parent
+  // joins another club, he/she will have to "active" his her children in the new club.
+  // "Select which children you want to active in this club" when joining.N
   @Override
   @Transactional
   public void removeUserFromClub(String userId, String clubId) {
