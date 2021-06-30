@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Club;
+import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.User;
 
@@ -27,7 +28,7 @@ public class TestUtil {
   public static final Club CLUB1 = createClub();
 
   public static User getClubUser(String userId) {
-    return CLUB1.getUser(userId).orElseThrow();
+    return CLUB1.getClubUser(userId).orElseThrow().getUser();
   }
 
   public static Team getTeam(String teamId) {
@@ -56,12 +57,22 @@ public class TestUtil {
     owner.setDateOfBirth(LocalDate.of(1982, 2, 15));
     owner.setId(1);
 
+    ClubUser clubOwner = new ClubUser();
+    clubOwner.setUser(owner);
+    clubOwner.setClub(club);
+    clubOwner.setRoles(Set.of());
+
     User user1 = new User(USER_1);
     user1.setFirstName("User1");
     user1.setLastName("User1son");
     user1.setEmail("user1@outlook.com");
     user1.setDateOfBirth(LocalDate.of(1982, 2, 15));
     user1.setId(2);
+
+    ClubUser clubUser = new ClubUser();
+    clubUser.setUser(user1);
+    clubUser.setClub(club);
+    clubUser.setRoles(Set.of());
 
     User dad = new User(PARENT_1_ID);
     dad.setEmail("dad@outlook.com");
@@ -79,12 +90,12 @@ public class TestUtil {
     child.addParent(dad);
 
     Team team = new Team(TEAM_1_ID);
-    team.addMember(user1);
+    team.addMember(clubUser);
     team.setId(1);
     team.setName("Team 1");
     team.setMinAge(5);
     team.setMaxAge(90);
-    team.setLeaders(Set.of(owner));
+    team.setLeaders(Set.of(clubOwner));
 
     club.addTeam(team);
 

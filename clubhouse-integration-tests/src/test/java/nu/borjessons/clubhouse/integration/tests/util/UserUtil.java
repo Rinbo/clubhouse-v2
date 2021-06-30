@@ -15,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
@@ -48,10 +49,10 @@ public class UserUtil {
     return authHeader.get(0);
   }
 
-  public static List<UserDTO> getClubUsers(String clubId, String token) throws JsonProcessingException {
+  public static List<ClubUserDTO> getClubUsers(String clubId, String token) throws JsonProcessingException {
     final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users").buildAndExpand(clubId).toUriString();
     final ResponseEntity<String> response = RestUtil.getResponse(uri, token, String.class);
-    final UserDTO[] userDTOs = RestUtil.deserializeJsonBody(response.getBody(), UserDTO[].class);
+    final ClubUserDTO[] userDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);
     return Arrays.stream(userDTOs).collect(Collectors.toList());
   }
 

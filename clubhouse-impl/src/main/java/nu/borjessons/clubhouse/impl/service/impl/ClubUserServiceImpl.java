@@ -57,7 +57,7 @@ public class ClubUserServiceImpl implements ClubUserService {
     // Get users children and call teamService::removeUsersFromAllTeams ?
     // What if the other parent is still in the club?
     // I probably have to write a specific method just for this case
-    teamService.removeUsersFromAllTeams(user.getChildren(), clubUser.getClub());
+    //teamService.removeUsersFromAllTeams(user.getChildren(), clubUser.getClub());
     clubUser.doOrphan();
     clubUserRepository.delete(clubUser);
   }

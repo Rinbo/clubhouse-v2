@@ -9,6 +9,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
@@ -43,7 +44,7 @@ class RegistrationIntegrationTest {
   void adminRegistersNewChildTest() throws JsonProcessingException {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, PASSWORD);
-      List<UserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, token);
+      List<ClubUserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, token);
       String daddyId = getUserIdByEmail(users, DAD_EMAIL);
 
       UserDTO daddyWithOneMoreKid = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB1_ID, CHILD_NAME, daddyId, token);
@@ -66,7 +67,7 @@ class RegistrationIntegrationTest {
     }
   }
 
-  private String getUserIdByEmail(List<UserDTO> users, String email) {
+  private String getUserIdByEmail(List<ClubUserDTO> users, String email) {
     return users
         .stream()
         .filter(user -> user.getEmail().equals(email))

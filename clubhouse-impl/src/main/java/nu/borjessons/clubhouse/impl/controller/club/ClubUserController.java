@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.User;
-import nu.borjessons.clubhouse.impl.dto.BaseUserDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.service.ClubService;
@@ -37,13 +37,13 @@ public class ClubUserController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/clubs/{clubId}/user/age-range")
-  public Collection<BaseUserDTO> getUsersByAgeRange(@PathVariable String clubId, @RequestParam int minAge, @RequestParam int maxAge) {
+  public Collection<ClubUserDTO> getUsersByAgeRange(@PathVariable String clubId, @RequestParam int minAge, @RequestParam int maxAge) {
     return clubService
         .getClubByClubId(clubId)
-        .getUsers()
+        .getClubUsers()
         .stream()
-        .filter(user -> user.getAge() >= minAge && user.getAge() <= maxAge)
-        .map(BaseUserDTO::new)
+        .filter(clubUser -> clubUser.getUser().getAge() >= minAge && clubUser.getUser().getAge() <= maxAge)
+        .map(ClubUserDTO::new)
         .collect(Collectors.toList());
   }
 

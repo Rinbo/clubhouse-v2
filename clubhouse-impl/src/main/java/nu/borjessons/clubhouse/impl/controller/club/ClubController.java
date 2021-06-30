@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.dto.BaseUserDTO;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 
 @RequestMapping("/clubs")
@@ -29,22 +28,19 @@ public class ClubController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/{clubId}/leaders")
-  public Collection<BaseUserDTO> getLeaders(@PathVariable String clubId) {
-    return clubService
-        .getLeaders(clubId)
-        .stream()
-        .map(BaseUserDTO::new)
-        .collect(Collectors.toList());
+  public Collection<ClubUserDTO> getLeaders(@PathVariable String clubId) {
+    return clubService.getLeaders(clubId);
   }
 
+  //TODO return ClubUserDTO instead - Shouldn't service return List of DTOs?
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping(path = "/{clubId}/users")
-  public Collection<UserDTO> getUsers(@PathVariable String clubId) {
+  public Collection<ClubUserDTO> getUsers(@PathVariable String clubId) {
     return clubService
         .getClubByClubId(clubId)
-        .getUsers()
+        .getClubUsers()
         .stream()
-        .map(UserDTO::create)
+        .map(ClubUserDTO::new)
         .collect(Collectors.toList());
   }
 }

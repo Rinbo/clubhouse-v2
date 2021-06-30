@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.Team;
-import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 
@@ -20,12 +20,13 @@ public class ClubServiceImpl implements ClubService {
   private final ClubRepository clubRepository;
 
   @Override
-  public Collection<User> getLeaders(String clubId) {
+  public Collection<ClubUserDTO> getLeaders(String clubId) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     return club.getTeams()
         .stream()
         .map(Team::getLeaders)
-        .flatMap(Set::stream)
+        .flatMap(Collection::stream)
+        .map(ClubUserDTO::new)
         .collect(Collectors.toList());
   }
 

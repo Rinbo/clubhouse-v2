@@ -10,6 +10,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
@@ -22,9 +23,9 @@ class PrincipalIntegrationTest {
   void authTest() throws JsonProcessingException {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String adminToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final List<UserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, adminToken);
+      final List<ClubUserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, adminToken);
       Assertions.assertNotNull(users);
-      Assertions.assertEquals(5, users.size());
+      Assertions.assertEquals(3, users.size());
 
       final String userToken = UserUtil.loginUser("pops@ex.com", EmbeddedDataLoader.DEFAULT_PASSWORD);
 
