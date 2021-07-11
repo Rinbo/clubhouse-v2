@@ -17,21 +17,31 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
+import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.UserLoginRequestModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 
 public class UserUtil {
-  public static CreateUserModel createUserModel(String firstName) {
+  public static CreateUserModel createUserModel(String clubId, String firstName) {
     CreateUserModel createUserModel = new CreateUserModel();
     createUserModel.setFirstName(firstName);
     createUserModel.setLastName("Genericsson");
     createUserModel.setDateOfBirth("1980-01-01");
-    createUserModel.setClubId("dummy");
+    createUserModel.setClubId(clubId);
     createUserModel.setEmail(firstName + "@ex.com");
     createUserModel.setPassword(EmbeddedDataLoader.DEFAULT_PASSWORD);
     return createUserModel;
+  }
+
+  public static CreateChildRequestModel createChildRequestModel(String firstName) {
+    CreateChildRequestModel childRequestModel = new CreateChildRequestModel();
+    childRequestModel.setFirstName(firstName);
+    childRequestModel.setLastName("Childsson");
+    childRequestModel.setDateOfBirth("2020-01-01");
+    return childRequestModel;
   }
 
   public static String loginUser(String email, String password) {
@@ -75,6 +85,24 @@ public class UserUtil {
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.PUT, entity, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return RestUtil.deserializeJsonBody(response.getBody(), UserDTO.class);
+  }
+
+  public static FamilyRequestModel createFamilyModel(String clubId, String surname) {
+    FamilyRequestModel familyRequestModel = new FamilyRequestModel();
+    familyRequestModel.setClubId(clubId);
+
+    CreateUserModel dad = createUserModel(clubId, "Pappa");
+    dad.setLastName(surname);
+
+    CreateUserModel mom = createUserModel(clubId, "Mamma");
+    mom.setLastName(surname);
+
+    CreateChildRequestModel child = createChildRequestModel("Lilleman");
+    child.setLastName(surname);
+
+    familyRequestModel.setParents(List.of(dad, mom));
+    familyRequestModel.setChildren(List.of(child));
+    return familyRequestModel;
   }
 
   private UserUtil() {

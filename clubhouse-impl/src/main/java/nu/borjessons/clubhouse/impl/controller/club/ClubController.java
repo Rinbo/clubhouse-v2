@@ -32,7 +32,6 @@ public class ClubController {
     return clubService.getLeaders(clubId);
   }
 
-  //TODO return ClubUserDTO instead - Shouldn't service return List of DTOs?
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping(path = "/{clubId}/users")
   public Collection<ClubUserDTO> getUsers(@PathVariable String clubId) {

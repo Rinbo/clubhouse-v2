@@ -12,6 +12,8 @@ import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
+import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.ClubUtil;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
@@ -22,6 +24,18 @@ class RegistrationIntegrationTest {
   public static final String DAD_EMAIL = "pops@ex.com";
   public static final String PASSWORD = "password";
   public static final String CHILD_NAME = "Generic";
+
+  @Test
+  void registerUser() throws Exception {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String firstName = "Dustin";
+      CreateUserModel createUserModel = UserUtil.createUserModel(EmbeddedDataLoader.CLUB1_ID, firstName);
+      UserDTO userDTO = RegistrationUtil.registerUser(createUserModel);
+      Assertions.assertNotNull(userDTO);
+      Assertions.assertEquals(firstName, userDTO.getFirstName());
+      validatePersistence(6);
+    }
+  }
 
   @Test
   void dadRegistersNewChildTest() throws JsonProcessingException {
@@ -65,6 +79,28 @@ class RegistrationIntegrationTest {
       final List<ClubDTO> clubs = ClubUtil.getClubs();
       Assertions.assertTrue(clubs.stream().anyMatch(club -> club.getName().equals(name + " Sports")));
     }
+  }
+
+  @Test
+  void registerFamily() throws JsonProcessingException {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String surname = "Garfield";
+      FamilyRequestModel familyRequestModel = UserUtil.createFamilyModel(EmbeddedDataLoader.CLUB1_ID, surname);
+      List<UserDTO> userDTOs = RegistrationUtil.registerFamily(familyRequestModel);
+      Assertions.assertNotNull(userDTOs);
+      Assertions.assertEquals(2, userDTOs.size());
+
+      List<ClubUserDTO> clubUsers = validatePersistence(8);
+      long familyCount = clubUsers.stream().map(ClubUserDTO::getLastName).filter(lastName -> lastName.equals(surname)).count();
+      Assertions.assertEquals(3, familyCount);
+    }
+  }
+
+  private List<ClubUserDTO> validatePersistence(int expectedCount) throws JsonProcessingException {
+    String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, PASSWORD);
+    List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, token);
+    Assertions.assertEquals(expectedCount, clubUsers.size());
+    return clubUsers;
   }
 
   private String getUserIdByEmail(List<ClubUserDTO> users, String email) {

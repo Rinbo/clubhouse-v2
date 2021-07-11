@@ -15,7 +15,6 @@ import lombok.ToString;
 @Setter
 @ToString
 public class CreateChildRequestModel implements Serializable {
-
   private static final long serialVersionUID = 1L;
   @NotNull(message = "Date of birth cannot be null")
   @DateTimeFormat(pattern = "yyyy-MM-dd")

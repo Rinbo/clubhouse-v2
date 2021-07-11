@@ -1,6 +1,8 @@
 package nu.borjessons.clubhouse.integration.tests.util;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpEntity;
@@ -15,6 +17,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
+import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
+import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 import nu.borjessons.clubhouse.impl.security.SecurityConstants;
 
 public class RegistrationUtil {
@@ -34,6 +38,24 @@ public class RegistrationUtil {
     UriComponentsBuilder builder = RestUtil.getUriBuilder(SecurityConstants.CLUB_REGISTRATION_URL);
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<CreateClubModel> httpEntity = new HttpEntity<>(createClubModel);
+    ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return RestUtil.deserializeJsonBody(response.getBody(), UserDTO.class);
+  }
+
+  public static List<UserDTO> registerFamily(FamilyRequestModel familyRequestModel) throws JsonProcessingException {
+    UriComponentsBuilder builder = RestUtil.getUriBuilder(SecurityConstants.FAMILY_REGISTRATION_URL);
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<FamilyRequestModel> httpEntity = new HttpEntity<>(familyRequestModel);
+    ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return Arrays.stream(RestUtil.deserializeJsonBody(response.getBody(), UserDTO[].class)).collect(Collectors.toList());
+  }
+
+  public static UserDTO registerUser(CreateUserModel createUserModel) throws JsonProcessingException {
+    UriComponentsBuilder builder = RestUtil.getUriBuilder(SecurityConstants.USER_REGISTRATION_URL);
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<CreateUserModel> httpEntity = new HttpEntity<>(createUserModel);
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return RestUtil.deserializeJsonBody(response.getBody(), UserDTO.class);

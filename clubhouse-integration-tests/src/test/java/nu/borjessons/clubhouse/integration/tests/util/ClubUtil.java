@@ -19,7 +19,7 @@ public class ClubUtil {
     CreateClubModel clubModel = new CreateClubModel();
     clubModel.setName(firstName + " Sports");
     clubModel.setType(Club.Type.SPORT);
-    clubModel.setOwner(UserUtil.createUserModel(firstName));
+    clubModel.setOwner(UserUtil.createUserModel("dummy", firstName));
     return clubModel;
   }
 

@@ -7,12 +7,14 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class ClubUserDTO {
   private String firstName;

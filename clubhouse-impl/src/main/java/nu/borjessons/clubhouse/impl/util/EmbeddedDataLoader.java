@@ -15,8 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.Club.Type;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
-import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.Role;
+import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.AddressModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
@@ -100,9 +100,9 @@ public class EmbeddedDataLoader {
     clubModel.setType(Type.SPORT);
     clubModel.setOwner(owner);
 
-    ClubUserDTO dto = registrationService.registerClub(clubModel, CLUB1_ID);
+    UserDTO userDTO = registrationService.registerClub(clubModel, CLUB1_ID);
 
-    log.info("Created club: {} and user {}", CLUB1_ID, dto.getEmail());
+    log.info("Created club: {} and user {}", CLUB1_ID, userDTO.getEmail());
 
     FamilyRequestModel familyModel = createFamilyRequestModel(CLUB1_ID);
     registrationService.registerFamily(familyModel);

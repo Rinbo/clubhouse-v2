@@ -25,7 +25,7 @@ class PrincipalIntegrationTest {
       final String adminToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       final List<ClubUserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, adminToken);
       Assertions.assertNotNull(users);
-      Assertions.assertEquals(3, users.size());
+      Assertions.assertEquals(5, users.size());
 
       final String userToken = UserUtil.loginUser("pops@ex.com", EmbeddedDataLoader.DEFAULT_PASSWORD);
 
