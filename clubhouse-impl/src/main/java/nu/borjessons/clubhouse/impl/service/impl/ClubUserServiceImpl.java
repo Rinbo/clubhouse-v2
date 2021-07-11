@@ -26,6 +26,7 @@ import nu.borjessons.clubhouse.impl.util.ClubhouseUtils;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ClubUserServiceImpl implements ClubUserService {
   private final ClubUserRepository clubUserRepository;
   private final ClubhouseMappers clubhouseMappers;
@@ -48,9 +49,8 @@ public class ClubUserServiceImpl implements ClubUserService {
   // This is perhaps the way it has to be. That way we have the coupling between clubs and teams
   // and users, and children are simply normal users in that club. Of course if a parent
   // joins another club, he/she will have to "active" his her children in the new club.
-  // "Select which children you want to active in this club" when joining.N
+  // "Select which children you want to active in this club" when joining.
   @Override
-  @Transactional
   public void removeUserFromClub(String userId, String clubId) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     User user = clubUser.getUser();
@@ -63,7 +63,6 @@ public class ClubUserServiceImpl implements ClubUserService {
   }
 
   @Override
-  @Transactional
   public UserDTO updateUser(String userId, String clubId, AdminUpdateUserModel userDetails) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     User user = clubUser.getUser();
@@ -74,7 +73,6 @@ public class ClubUserServiceImpl implements ClubUserService {
   }
 
   @Override
-  @Transactional
   public User addExistingChildrenToUser(String userId, String clubId, Set<String> childrenIds) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     User user = clubUser.getUser();

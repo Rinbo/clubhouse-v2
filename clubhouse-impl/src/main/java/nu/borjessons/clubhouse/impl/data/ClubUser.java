@@ -51,6 +51,8 @@ public class ClubUser extends BaseEntity implements Serializable {
     roles.add(roleEntity);
   }
 
+  // Might not be necessary. Might be that only the owner has to call add/remove when it is
+  // modified. Test it!
   public void doOrphan() {
     club.removeClubUser(this);
     user.removeClubUser(this);
