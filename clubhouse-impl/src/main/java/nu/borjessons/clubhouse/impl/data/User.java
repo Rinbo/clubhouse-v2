@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -111,6 +112,10 @@ public class User extends BaseEntity implements UserDetails {
   public void addParent(User parent) {
     parents.add(parent);
     parent.addChild(this);
+  }
+
+  public Optional<ClubUser> getClubUser(String clubId) {
+    return clubUsers.stream().filter(clubUser -> clubUser.getClub().getClubId().equals(clubId)).findFirst();
   }
 
   public Set<Address> getAddresses() {
