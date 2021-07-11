@@ -4,20 +4,20 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 
 public interface RegistrationService {
-  UserDTO registerChildren(String userId, String clubId, @Valid List<CreateChildRequestModel> childModels);
+  ClubUserDTO registerChildren(String userId, String clubId, @Valid List<CreateChildRequestModel> childModels);
 
-  UserDTO registerClub(@Valid CreateClubModel clubDetails);
+  ClubUserDTO registerClub(@Valid CreateClubModel clubDetails);
 
-  UserDTO registerClub(@Valid CreateClubModel clubDetails, String clubId);
+  ClubUserDTO registerClub(@Valid CreateClubModel clubDetails, String clubId);
 
-  List<UserDTO> registerFamily(@Valid FamilyRequestModel familyDetails);
+  List<ClubUserDTO> registerFamily(@Valid FamilyRequestModel familyDetails);
 
-  UserDTO registerUser(@Valid CreateUserModel userDetails);
+  ClubUserDTO registerUser(@Valid CreateUserModel userDetails);
 }

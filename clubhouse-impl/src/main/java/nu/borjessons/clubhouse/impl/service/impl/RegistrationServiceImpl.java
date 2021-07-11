@@ -15,8 +15,8 @@ import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.Role;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
@@ -41,64 +41,73 @@ public class RegistrationServiceImpl implements RegistrationService {
 
   @Transactional
   @Override
-  public UserDTO registerChildren(String userId, String clubId, List<CreateChildRequestModel> childDetails) {
+  public ClubUserDTO registerChildren(String userId, String clubId, List<CreateChildRequestModel> childDetails) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
-    addChildren(clubUser.getUser(), mapChildModelToUser(childDetails));
+    Set<User> children = mapChildModelToUser(childDetails);
+    children.forEach(child -> createClubUser(clubUser.getClub(), getRoleEntities(Set.of(Role.CHILD)), child));
+    addChildrenToParent(clubUser.getUser(), children);
     getRoleEntities(Set.of(Role.PARENT)).forEach(clubUser::addRoleEntity);
-    return UserDTO.create(clubUserRepository.save(clubUser).getUser());
+    return new ClubUserDTO(clubUserRepository.save(clubUser));
   }
 
   @Transactional
   @Override
-  public UserDTO registerClub(CreateClubModel clubDetails) {
+  public ClubUserDTO registerClub(CreateClubModel clubDetails) {
     Club club = clubRepository.save(clubhouseMappers.clubCreationModelToClub(clubDetails));
-    User user = createClubUser(club, getRoleEntities(OWNER_ROLES), constructUserEntity(clubDetails.getOwner()));
-    return UserDTO.create(user);
+    ClubUser clubUser = createClubUser(club, getRoleEntities(OWNER_ROLES), constructUserEntity(clubDetails.getOwner()));
+    return new ClubUserDTO(clubUser);
   }
 
   @Transactional
   @Override
-  public UserDTO registerClub(CreateClubModel clubDetails, String clubId) {
+  public ClubUserDTO registerClub(CreateClubModel clubDetails, String clubId) {
     Club club = clubRepository.save(clubhouseMappers.clubCreationModelToClub(clubDetails, clubId));
-    User user = createClubUser(club, getRoleEntities(OWNER_ROLES), constructUserEntity(clubDetails.getOwner()));
-    return UserDTO.create(user);
+    ClubUser clubUser = createClubUser(club, getRoleEntities(OWNER_ROLES), constructUserEntity(clubDetails.getOwner()));
+    return new ClubUserDTO(clubUser);
   }
 
   @Transactional
   @Override
-  public List<UserDTO> registerFamily(FamilyRequestModel familyDetails) {
+  public List<ClubUserDTO> registerFamily(FamilyRequestModel familyDetails) {
     List<CreateUserModel> parentsDetails = familyDetails.getParents();
     Set<User> children = mapChildModelToUser(familyDetails.getChildren());
     Club club = clubRepository.findByClubId(familyDetails.getClubId()).orElseThrow();
 
     Set<Role> roles = new HashSet<>(Collections.singletonList(Role.USER));
     if (!children.isEmpty()) roles.add(Role.PARENT);
-    Set<RoleEntity> roleEntities = getRoleEntities(roles);
+    Set<RoleEntity> parentRoleEntities = getRoleEntities(roles);
 
     List<User> parents = parentsDetails
         .stream()
         .map(this::constructUserEntity)
-        .map(parent -> addChildren(parent, children))
+        .map(parent -> addChildrenToParent(parent, children))
         .collect(Collectors.toList());
 
-    parents.forEach(parent -> createClubUser(club, roleEntities, parent));
+    List<ClubUser> parentClubUsers = parents
+        .stream()
+        .map(parent -> createClubUser(club, parentRoleEntities, parent))
+        .collect(Collectors.toList());
 
-    return parents.stream().map(UserDTO::create).collect(Collectors.toList());
+    children.forEach(child -> createClubUser(club, getRoleEntities(Set.of(Role.CHILD)), child));
+
+    return parentClubUsers.stream().map(ClubUserDTO::new).collect(Collectors.toList());
   }
 
   @Transactional
   @Override
-  public UserDTO registerUser(CreateUserModel userDetails) {
-    Set<User> children = mapChildModelToUser(userDetails.getChildren());
+  public ClubUserDTO registerUser(CreateUserModel userDetails) {
     Club club = clubRepository.findByClubId(userDetails.getClubId()).orElseThrow();
+    Set<User> children = mapChildModelToUser(userDetails.getChildren());
 
     User user = constructUserEntity(userDetails);
-    addChildren(user, children);
+    children.forEach(child -> createClubUser(club, getRoleEntities(Set.of(Role.CHILD)), child));
+    addChildrenToParent(user, children);
 
     Set<Role> roles = new HashSet<>(Collections.singletonList(Role.USER));
     if (!children.isEmpty()) roles.add(Role.PARENT);
 
-    return UserDTO.create(createClubUser(club, getRoleEntities(roles), user));
+    ClubUser clubUser = createClubUser(club, getRoleEntities(roles), user);
+    return new ClubUserDTO(clubUser);
   }
 
   private Set<User> mapChildModelToUser(List<CreateChildRequestModel> childrenDetails) {
@@ -107,17 +116,17 @@ public class RegistrationServiceImpl implements RegistrationService {
         .collect(Collectors.toSet());
   }
 
-  private User addChildren(User parent, Set<User> children) {
+  private User addChildrenToParent(User parent, Set<User> children) {
     children.forEach(parent::addChild);
     return parent;
   }
 
-  private User createClubUser(Club club, Set<RoleEntity> roleEntities, User user) {
+  private ClubUser createClubUser(Club club, Set<RoleEntity> roleEntities, User user) {
     ClubUser clubUser = new ClubUser();
     user.addClubUser(clubUser);
     club.addClubUser(clubUser);
     clubUser.setRoles(roleEntities);
-    return userRepository.save(user);
+    return clubUserRepository.save(clubUser);
   }
 
   private Set<RoleEntity> getRoleEntities(Set<Role> myRoles) {

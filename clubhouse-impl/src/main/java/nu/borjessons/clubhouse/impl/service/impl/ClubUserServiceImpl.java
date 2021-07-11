@@ -53,7 +53,6 @@ public class ClubUserServiceImpl implements ClubUserService {
   @Override
   public void removeUserFromClub(String userId, String clubId) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
-    User user = clubUser.getUser();
     // Get users children and call teamService::removeUsersFromAllTeams ?
     // What if the other parent is still in the club?
     // I probably have to write a specific method just for this case
