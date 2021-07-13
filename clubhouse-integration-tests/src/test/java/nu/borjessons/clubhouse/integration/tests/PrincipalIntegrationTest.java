@@ -60,4 +60,37 @@ class PrincipalIntegrationTest {
       Assertions.assertEquals("1900-01-01", userDTO.getDateOfBirth());
     }
   }
+
+  /**
+   * There are two parents in the club that both share the same set of two children.
+   * When Papa deletes himself the children remains in the club because mommy is still there,
+   * but once she deletes herself both the children are deleted as well.
+   */
+  @Test
+  void deleteSelf() throws JsonProcessingException {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      Assertions.assertEquals(5, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
+
+      final String papaToken = UserUtil.loginUser("pops@ex.com", EmbeddedDataLoader.DEFAULT_PASSWORD);
+      UserUtil.deleteSelf(papaToken);
+
+      Assertions.assertEquals(4, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
+
+      final String mamaToken = UserUtil.loginUser("mommy@ex.com", EmbeddedDataLoader.DEFAULT_PASSWORD);
+      UserUtil.deleteSelf(mamaToken);
+
+      Assertions.assertEquals(1, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
+    }
+  }
+
+  @Test
+  void getSelf() throws JsonProcessingException {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      final UserDTO self = UserUtil.getSelf(ownerToken);
+      Assertions.assertNotNull(self);
+      Assertions.assertEquals(EmbeddedDataLoader.OWNER_EMAIL, self.getEmail());
+    }
+  }
 }

@@ -105,6 +105,15 @@ public class UserUtil {
     return familyRequestModel;
   }
 
+  public static void deleteSelf(String token) {
+    UriComponentsBuilder builder = RestUtil.getUriBuilder("/principal");
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
+
+    ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
   private UserUtil() {
     throw new IllegalStateException("Utility class");
   }

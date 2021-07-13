@@ -51,15 +51,7 @@ public class UserServiceImpl implements UserService {
   public void deleteUser(long id) {
     User user = getUser(id);
     Set<User> children = Set.copyOf(user.getChildren());
-
-    children.forEach(child -> {
-      child.removeParent(user);
-      if (child.getParents().isEmpty()) {
-        userRepository.delete(child);
-      } else {
-        userRepository.save(child);
-      }
-    });
+    children.forEach(child -> updateOrDeleteChild(child, user));
     userRepository.delete(user);
   }
 
@@ -95,6 +87,15 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserDetails loadUserByUsername(String username) {
     return userRepository.findByEmail(username).orElseThrow();
+  }
+
+  private void updateOrDeleteChild(User child, User parent) {
+    child.removeParent(parent);
+    if (child.getParents().isEmpty()) {
+      userRepository.delete(child);
+    } else {
+      userRepository.save(child);
+    }
   }
 
   private User getUser(long id) {

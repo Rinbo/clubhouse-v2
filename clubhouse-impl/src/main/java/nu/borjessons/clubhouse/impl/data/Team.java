@@ -34,15 +34,15 @@ public class Team extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   private Club club;
 
-  @ManyToMany(fetch = FetchType.LAZY)
+  @ManyToMany(mappedBy = "managedTeams", fetch = FetchType.LAZY)
   private List<ClubUser> leaders = new ArrayList<>();
 
-  private int maxAge;
-
-  @ManyToMany(fetch = FetchType.LAZY)
+  @ManyToMany(mappedBy = "teams", fetch = FetchType.LAZY)
   private List<ClubUser> members = new ArrayList<>();
 
   private int minAge;
+
+  private int maxAge;
 
   @Column(nullable = false)
   private String name;
