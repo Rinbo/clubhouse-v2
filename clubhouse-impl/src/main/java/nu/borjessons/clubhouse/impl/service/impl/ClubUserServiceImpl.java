@@ -34,30 +34,14 @@ public class ClubUserServiceImpl implements ClubUserService {
   private final UserRepository userRepository;
   private final RoleRepository roleRepository;
 
-  // TODO test this rigorously since the mapping relationship is uncertain
-  // If user is a parent will it not mean some children can be left in a team of this club?
-  // What if this method is called on a managed user? Then it will throw a NoSuchElementException
-  // Here we are getting into the reason why it is such a bad idea to have team members decoupled from
-  // the club relationship. I will be playing catchup forever. Can the teams relationship be tied to
-  // club user instead? Not in the current implementation because managed users (children) do not have
-  // a club user. Put children relation in ClubUser instead? No
-  //
-  // What about creating a ClubUser for managed users in the same way as normal users
-  // And simply having the Parent be able to manage that user. Also, team relation will have to be
-  // in the ClubUser entity. Some of the complexity would be shifted to creating the managed
-  // user the first time a family registers. Similarly, if a new child is added it will have to
-  // This is perhaps the way it has to be. That way we have the coupling between clubs and teams
-  // and users, and children are simply normal users in that club. Of course if a parent
-  // joins another club, he/she will have to "active" his her children in the new club.
-  // "Select which children you want to active in this club" when joining.
+  /**
+   * When a parent leaves the children say in that club
+   * Parent or admin is prompted if children should be removed also.
+   */
   @Override
   public void removeUserFromClub(String userId, String clubId) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
-    // Get users children and call teamService::removeUsersFromAllTeams ?
-    // What if the other parent is still in the club?
-    // I probably have to write a specific method just for this case
-    //teamService.removeUsersFromAllTeams(user.getChildren(), clubUser.getClub());
-    clubUser.doOrphan();
+    clubUser.doOrphan(); // Do I need this?
     clubUserRepository.delete(clubUser);
   }
 

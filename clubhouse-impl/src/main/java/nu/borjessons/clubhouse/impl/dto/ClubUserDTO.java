@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,7 +17,9 @@ import nu.borjessons.clubhouse.impl.data.User;
 @Setter
 @ToString
 @NoArgsConstructor
-public class ClubUserDTO {
+public class ClubUserDTO implements Serializable {
+  private static final long serialVersionUID = 7264890058314991499L;
+
   private String firstName;
   private String lastName;
   private String email;

@@ -22,6 +22,7 @@ public final class UserDTO {
         .childrenIds(user.getChildren().stream().map(User::getUserId).collect(Collectors.toSet()))
         .parentIds(user.getParents().stream().map(User::getUserId).collect(Collectors.toSet()))
         .addresses(user.getAddresses().stream().map(AddressDTO::new).collect(Collectors.toSet()))
+        .isManagedUser(user.isManagedAccount())
         .build();
   }
 
@@ -33,4 +34,5 @@ public final class UserDTO {
   private final String lastName;
   private final Set<String> parentIds;
   private final String userId;
+  private final boolean isManagedUser;
 }

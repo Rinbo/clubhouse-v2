@@ -10,8 +10,6 @@ import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 public interface ClubService {
   Collection<ClubUserDTO> getLeaders(String clubId);
 
-  void saveClub(Club club);
-
   Club getClubByClubId(String clubId);
 
   Set<ClubDTO> getAllClubs();

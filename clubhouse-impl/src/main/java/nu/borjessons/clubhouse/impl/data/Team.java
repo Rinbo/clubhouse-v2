@@ -1,7 +1,7 @@
 package nu.borjessons.clubhouse.impl.data;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -35,12 +35,12 @@ public class Team extends BaseEntity {
   private Club club;
 
   @ManyToMany(fetch = FetchType.LAZY)
-  private Collection<ClubUser> leaders = new ArrayList<>();
+  private List<ClubUser> leaders = new ArrayList<>();
 
   private int maxAge;
 
   @ManyToMany(fetch = FetchType.LAZY)
-  private Collection<ClubUser> members = new ArrayList<>();
+  private List<ClubUser> members = new ArrayList<>();
 
   private int minAge;
 

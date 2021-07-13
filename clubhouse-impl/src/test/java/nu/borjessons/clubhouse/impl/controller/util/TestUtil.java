@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -95,7 +96,7 @@ public class TestUtil {
     team.setName("Team 1");
     team.setMinAge(5);
     team.setMaxAge(90);
-    team.setLeaders(Set.of(clubOwner));
+    team.setLeaders(List.of(clubOwner));
 
     club.addTeam(team);
 

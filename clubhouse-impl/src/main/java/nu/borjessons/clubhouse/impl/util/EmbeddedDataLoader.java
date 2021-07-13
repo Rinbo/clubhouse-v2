@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -16,14 +17,19 @@ import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.Club.Type;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.dto.Role;
+import nu.borjessons.clubhouse.impl.dto.TeamDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.AddressModel;
+import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
+import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
 import nu.borjessons.clubhouse.impl.repository.RoleRepository;
+import nu.borjessons.clubhouse.impl.service.ClubUserService;
 import nu.borjessons.clubhouse.impl.service.RegistrationService;
+import nu.borjessons.clubhouse.impl.service.TeamService;
 
 @Component
 @Profile({"local", "test"})
@@ -35,14 +41,16 @@ public class EmbeddedDataLoader {
   public static final String DEFAULT_PASSWORD = "password";
   public static final String OWNER_EMAIL = "owner@ex.com";
 
+  private final ClubUserService clubUserService;
   private final RegistrationService registrationService;
   private final RoleRepository roleRepository;
+  private final TeamService teamService;
 
-  private FamilyRequestModel createFamilyRequestModel(String clubId) {
+  private FamilyRequestModel createFamilyRequestModel() {
     FamilyRequestModel familyModel = new FamilyRequestModel();
-    familyModel.setClubId(clubId);
+    familyModel.setClubId(CLUB1_ID);
     CreateUserModel father = new CreateUserModel();
-    father.setClubId(clubId);
+    father.setClubId(CLUB1_ID);
     father.setEmail("pops@ex.com");
     father.setFirstName("Pappa");
     father.setLastName(BORJESSON);
@@ -50,7 +58,7 @@ public class EmbeddedDataLoader {
     father.setPassword(DEFAULT_PASSWORD);
 
     CreateUserModel mother = new CreateUserModel();
-    mother.setClubId(clubId);
+    mother.setClubId(CLUB1_ID);
     mother.setEmail("mommy@ex.com");
     mother.setFirstName("Mamma");
     mother.setLastName(BORJESSON);
@@ -104,9 +112,35 @@ public class EmbeddedDataLoader {
 
     log.info("Created club: {} and user {}", CLUB1_ID, userDTO.getEmail());
 
-    FamilyRequestModel familyModel = createFamilyRequestModel(CLUB1_ID);
-    registrationService.registerFamily(familyModel);
+    FamilyRequestModel familyModel = createFamilyRequestModel();
+    List<UserDTO> familyMembers = registrationService.registerFamily(familyModel);
     log.info("Created family {}", familyModel);
+
+    UserDTO parent = familyMembers.get(0);
+    updateRole(parent, Set.of(Role.PARENT, Role.USER, Role.LEADER));
+    TeamRequestModel teamModel = createTeamModel(parent.getUserId());
+
+    TeamDTO team = teamService.createTeam(CLUB1_ID, teamModel);
+    TeamDTO updateTeamDTO = teamService.updateTeamMembers(CLUB1_ID, team.getTeamId(), new ArrayList<>(parent.getChildrenIds()));
+    log.info("created team: {}", updateTeamDTO);
+  }
+
+  private void updateRole(UserDTO parent, Set<Role> roles) {
+    AdminUpdateUserModel userDetails = new AdminUpdateUserModel();
+    userDetails.setFirstName(parent.getFirstName());
+    userDetails.setLastName(parent.getLastName());
+    userDetails.setDateOfBirth(parent.getDateOfBirth());
+    userDetails.setRoles(roles);
+    clubUserService.updateUser(parent.getUserId(), CLUB1_ID, userDetails);
+  }
+
+  private TeamRequestModel createTeamModel(String leaderId) {
+    TeamRequestModel teamRequestModel = new TeamRequestModel();
+    teamRequestModel.setName("Cool Team");
+    teamRequestModel.setMinAge(5);
+    teamRequestModel.setMaxAge(12);
+    teamRequestModel.setLeaderIds(List.of(leaderId));
+    return teamRequestModel;
   }
 
   private void createNonExistentRoles() {

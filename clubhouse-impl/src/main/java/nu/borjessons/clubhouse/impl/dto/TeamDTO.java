@@ -5,11 +5,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
+import lombok.ToString;
 import nu.borjessons.clubhouse.impl.data.Team;
 
 @Getter
+@ToString
 public class TeamDTO implements Serializable {
-
   private static final long serialVersionUID = 1L;
 
   private final String teamId;

@@ -36,9 +36,9 @@ public class ClubTeamController {
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/add-child")
   public TeamDTO addChildrenToTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
-      @RequestParam String clubUserId) {
-    resourceAuthorization.isChildOfUser(clubUserId, principal);
-    return teamService.addMemberToTeam(clubId, teamId, clubUserId);
+      @RequestParam String childId) {
+    resourceAuthorization.isChildOfUser(childId, principal);
+    return teamService.addMemberToTeam(clubId, teamId, childId);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -50,12 +50,7 @@ public class ClubTeamController {
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/clubs/{clubId}/my-teams")
   public Set<TeamDTO> getMyTeams(@AuthenticationPrincipal User principal, @PathVariable String clubId) {
-    Club club = clubService.getClubByClubId(clubId);
-    return club.getTeams()
-        .stream()
-        .filter(team -> team.getMembers().contains(principal))
-        .map(TeamDTO::new)
-        .collect(Collectors.toSet());
+    return teamService.getTeamsByUserId(clubId, principal.getUserId());
   }
 
   @PreAuthorize("hasRole('USER')")
