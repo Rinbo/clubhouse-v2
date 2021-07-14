@@ -36,7 +36,7 @@ public class ClubUserServiceImpl implements ClubUserService {
   private final RoleRepository roleRepository;
 
   /**
-   * When a parent leaves the children say in that club
+   * When a parent leaves the children stay in that club
    * Parent or admin is prompted if children should be removed also.
    */
   @Override

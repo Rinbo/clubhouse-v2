@@ -40,6 +40,8 @@ public class EmbeddedDataLoader {
   public static final String CLUB1_ID = "club1";
   public static final String DEFAULT_PASSWORD = "password";
   public static final String OWNER_EMAIL = "owner@ex.com";
+  public static final String POPS_EMAIL = "pops@ex.com";
+  public static final String MOMMY_EMAIL = "mommy@ex.com";
 
   private final ClubUserService clubUserService;
   private final RegistrationService registrationService;
@@ -51,7 +53,7 @@ public class EmbeddedDataLoader {
     familyModel.setClubId(CLUB1_ID);
     CreateUserModel father = new CreateUserModel();
     father.setClubId(CLUB1_ID);
-    father.setEmail("pops@ex.com");
+    father.setEmail(POPS_EMAIL);
     father.setFirstName("Pappa");
     father.setLastName(BORJESSON);
     father.setDateOfBirth("1982-02-15");
@@ -59,7 +61,7 @@ public class EmbeddedDataLoader {
 
     CreateUserModel mother = new CreateUserModel();
     mother.setClubId(CLUB1_ID);
-    mother.setEmail("mommy@ex.com");
+    mother.setEmail(MOMMY_EMAIL);
     mother.setFirstName("Mamma");
     mother.setLastName(BORJESSON);
     mother.setDateOfBirth("1984-07-25");

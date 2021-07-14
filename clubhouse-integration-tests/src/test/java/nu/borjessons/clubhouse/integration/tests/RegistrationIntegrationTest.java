@@ -21,8 +21,6 @@ import nu.borjessons.clubhouse.integration.tests.util.RegistrationUtil;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
 class RegistrationIntegrationTest {
-  public static final String DAD_EMAIL = "pops@ex.com";
-  public static final String PASSWORD = "password";
   public static final String CHILD_NAME = "Generic";
 
   @Test
@@ -40,7 +38,7 @@ class RegistrationIntegrationTest {
   @Test
   void dadRegistersNewChildTest() throws JsonProcessingException {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
-      String token = UserUtil.loginUser(DAD_EMAIL, PASSWORD);
+      String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserDTO daddy = UserUtil.getSelf(token);
 
       Assertions.assertNotNull(daddy);
@@ -57,9 +55,9 @@ class RegistrationIntegrationTest {
   @Test
   void adminRegistersNewChildTest() throws JsonProcessingException {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
-      String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, PASSWORD);
+      String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       List<ClubUserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, token);
-      String daddyId = UserUtil.getUserIdByEmail(users, DAD_EMAIL).getUserId();
+      String daddyId = UserUtil.getUserIdByEmail(users, EmbeddedDataLoader.POPS_EMAIL).getUserId();
 
       UserDTO daddyWithOneMoreKid = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB1_ID, CHILD_NAME, daddyId, token);
 
@@ -97,7 +95,7 @@ class RegistrationIntegrationTest {
   }
 
   private List<ClubUserDTO> validatePersistence(int expectedCount) throws JsonProcessingException {
-    String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, PASSWORD);
+    String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
     List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, token);
     Assertions.assertEquals(expectedCount, clubUsers.size());
     return clubUsers;

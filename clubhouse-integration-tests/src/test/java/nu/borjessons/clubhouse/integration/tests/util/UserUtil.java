@@ -62,8 +62,8 @@ public class UserUtil {
   public static List<ClubUserDTO> getClubUsers(String clubId, String token) throws JsonProcessingException {
     final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users").buildAndExpand(clubId).toUriString();
     final ResponseEntity<String> response = RestUtil.getResponse(uri, token, String.class);
-    final ClubUserDTO[] userDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);
-    return Arrays.stream(userDTOs).collect(Collectors.toList());
+    final ClubUserDTO[] clubUserDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);
+    return Arrays.stream(clubUserDTOs).collect(Collectors.toList());
   }
 
   public static UserDTO getSelf(String token) throws JsonProcessingException {
@@ -130,6 +130,28 @@ public class UserUtil {
         .filter(user -> user.getEmail().equals(email))
         .findFirst()
         .orElseThrow();
+  }
+
+  public static List<ClubUserDTO> getClubUsersByAge(String clubId, String token, int min, int max) throws JsonProcessingException {
+    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/age-range")
+        .queryParam("minAge", min)
+        .queryParam("maxAge", max)
+        .buildAndExpand(clubId).toUriString();
+
+    final ResponseEntity<String> response = RestUtil.getResponse(uri, token, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    final ClubUserDTO[] clubUserDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);
+    return Arrays.stream(clubUserDTOs).collect(Collectors.toList());
+  }
+
+  public static void removeClubUser(String clubId, String token, String userId) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
+
+    ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.DELETE, entity, ClubUserDTO.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
   private UserUtil() {
