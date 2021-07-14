@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import nu.borjessons.clubhouse.impl.data.User;
 @Setter
 @ToString
 @NoArgsConstructor
+@EqualsAndHashCode
 public class ClubUserDTO implements Serializable {
   private static final long serialVersionUID = 7264890058314991499L;
 

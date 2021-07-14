@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl.service;
 import java.util.Set;
 
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 
@@ -13,5 +14,5 @@ public interface ClubUserService {
 
   User addExistingChildrenToUser(String userId, String clubId, Set<String> childrenIds);
 
-  UserDTO getClubUser(String clubId, String userId);
+  ClubUserDTO getClubUser(String clubId, String userId);
 }

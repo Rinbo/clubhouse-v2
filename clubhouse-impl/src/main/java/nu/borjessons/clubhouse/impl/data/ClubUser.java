@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -29,8 +28,6 @@ public class ClubUser extends BaseEntity implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
-
-  private final String clubUserId = UUID.randomUUID().toString();
 
   @ManyToOne(fetch = FetchType.LAZY)
   private Club club;

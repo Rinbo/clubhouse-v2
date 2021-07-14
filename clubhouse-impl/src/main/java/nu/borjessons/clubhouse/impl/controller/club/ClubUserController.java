@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,13 +31,13 @@ public class ClubUserController {
   private final ClubUserService clubUserService;
 
   @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping("/clubs/{clubId}/user/{userId}")
-  public UserDTO getUser(@PathVariable String clubId, @PathVariable String userId) {
+  @GetMapping("/clubs/{clubId}/users/{userId}")
+  public ClubUserDTO getUser(@PathVariable String clubId, @PathVariable String userId) {
     return clubUserService.getClubUser(clubId, userId);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping("/clubs/{clubId}/user/age-range")
+  @GetMapping("/clubs/{clubId}/users/age-range")
   public Collection<ClubUserDTO> getUsersByAgeRange(@PathVariable String clubId, @RequestParam int minAge, @RequestParam int maxAge) {
     return clubService
         .getClubByClubId(clubId)
@@ -48,13 +49,13 @@ public class ClubUserController {
   }
 
   @PreAuthorize("hasRole('ADMIN')")
-  @PutMapping("/clubs/{clubId}/remove/{userId}")
+  @DeleteMapping("/clubs/{clubId}/users/{userId}")
   public void removeUserFromClub(@PathVariable String clubId, @PathVariable String userId) {
     clubUserService.removeUserFromClub(userId, clubId);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
-  @PutMapping("/clubs/{clubId}/{userId}")
+  @PutMapping("/clubs/{clubId}/users/{userId}")
   public UserDTO updateUser(@PathVariable String clubId, @PathVariable String userId, @Valid @RequestBody AdminUpdateUserModel userDetails) {
     return clubUserService.updateUser(userId, clubId, userDetails);
   }
@@ -66,7 +67,7 @@ public class ClubUserController {
    * can belong to several entities
    */
   @PreAuthorize("hasRole('ADMIN')")
-  @PostMapping("/clubId/{clubId}/children/{userId}")
+  @PostMapping("/clubId/{clubId}/users/{userId}/add-children")
   public UserDTO addExistingChildrenToUser(@PathVariable String clubId, @PathVariable String userId, @RequestBody Set<String> childrenIds) {
     User user = clubUserService.addExistingChildrenToUser(userId, clubId, childrenIds);
     return UserDTO.create(user);

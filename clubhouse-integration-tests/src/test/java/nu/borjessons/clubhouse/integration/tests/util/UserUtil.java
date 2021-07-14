@@ -77,6 +77,16 @@ public class UserUtil {
     return userDTO;
   }
 
+  public static ClubUserDTO getUser(String clubId, String token, String userId) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
+
+    ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.GET, entity, ClubUserDTO.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
+  }
+
   public static UserDTO updateSelf(String token, UpdateUserModel updateUserModel) throws JsonProcessingException {
     UriComponentsBuilder builder = RestUtil.getUriBuilder("/principal");
     RestTemplate restTemplate = new RestTemplate();
