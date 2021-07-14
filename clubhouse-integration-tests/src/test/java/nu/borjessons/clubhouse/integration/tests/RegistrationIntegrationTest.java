@@ -59,7 +59,7 @@ class RegistrationIntegrationTest {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, PASSWORD);
       List<ClubUserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, token);
-      String daddyId = getUserIdByEmail(users, DAD_EMAIL);
+      String daddyId = UserUtil.getUserIdByEmail(users, DAD_EMAIL).getUserId();
 
       UserDTO daddyWithOneMoreKid = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB1_ID, CHILD_NAME, daddyId, token);
 
@@ -101,14 +101,5 @@ class RegistrationIntegrationTest {
     List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, token);
     Assertions.assertEquals(expectedCount, clubUsers.size());
     return clubUsers;
-  }
-
-  private String getUserIdByEmail(List<ClubUserDTO> users, String email) {
-    return users
-        .stream()
-        .filter(user -> user.getEmail().equals(email))
-        .findFirst()
-        .orElseThrow()
-        .getUserId();
   }
 }

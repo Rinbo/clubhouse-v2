@@ -124,7 +124,16 @@ public class UserUtil {
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
+  public static ClubUserDTO getUserIdByEmail(List<ClubUserDTO> users, String email) {
+    return users
+        .stream()
+        .filter(user -> user.getEmail().equals(email))
+        .findFirst()
+        .orElseThrow();
+  }
+
   private UserUtil() {
     throw new IllegalStateException("Utility class");
   }
+
 }
