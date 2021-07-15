@@ -1,6 +1,8 @@
 package nu.borjessons.clubhouse.integration.tests;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -9,11 +11,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
+import nu.borjessons.clubhouse.impl.dto.Role;
+import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
 class ClubUserIntegrationTest {
+  private static void validateEquals(AdminUpdateUserModel updateUserModel, ClubUserDTO clubUserDTO) {
+    Assertions.assertEquals(updateUserModel.getFirstName(), clubUserDTO.getFirstName());
+    Assertions.assertEquals(updateUserModel.getLastName(), clubUserDTO.getLastName());
+    Assertions.assertEquals(updateUserModel.getDateOfBirth(), clubUserDTO.getDateOfBirth());
+    Assertions.assertEquals(updateUserModel.getRoles(), new HashSet<>(clubUserDTO.getRoles()));
+  }
+
   @Test
   void getClubUser() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
@@ -60,6 +71,19 @@ class ClubUserIntegrationTest {
 
       UserUtil.removeClubUser(EmbeddedDataLoader.CLUB1_ID, ownerToken, mommy.getUserId());
       Assertions.assertEquals(3, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
+    }
+  }
+
+  @Test
+  void updateClubUser() throws Exception {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      final List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken);
+      final ClubUserDTO papaBase = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
+      AdminUpdateUserModel updateUserModel = UserUtil.createAdminUpdateModel("Erik", "Johnson", "2000-01-01",
+          Set.of(Role.PARENT, Role.LEADER, Role.USER));
+
+      validateEquals(updateUserModel, UserUtil.updateClubUser(updateUserModel, EmbeddedDataLoader.CLUB1_ID, ownerToken, papaBase.getUserId()));
     }
   }
 }

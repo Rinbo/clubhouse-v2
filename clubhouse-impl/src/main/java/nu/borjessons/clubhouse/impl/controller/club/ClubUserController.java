@@ -56,7 +56,7 @@ public class ClubUserController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/clubs/{clubId}/users/{userId}")
-  public UserDTO updateUser(@PathVariable String clubId, @PathVariable String userId, @Valid @RequestBody AdminUpdateUserModel userDetails) {
+  public ClubUserDTO updateUser(@PathVariable String clubId, @PathVariable String userId, @Valid @RequestBody AdminUpdateUserModel userDetails) {
     return clubUserService.updateUser(userId, clubId, userDetails);
   }
 

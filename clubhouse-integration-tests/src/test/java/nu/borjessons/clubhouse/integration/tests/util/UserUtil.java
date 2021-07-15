@@ -2,6 +2,7 @@ package nu.borjessons.clubhouse.integration.tests.util;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
@@ -16,7 +17,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
+import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
@@ -87,16 +90,6 @@ public class UserUtil {
     return response.getBody();
   }
 
-  public static UserDTO updateSelf(String token, UpdateUserModel updateUserModel) throws JsonProcessingException {
-    UriComponentsBuilder builder = RestUtil.getUriBuilder("/principal");
-    RestTemplate restTemplate = new RestTemplate();
-    HttpHeaders headers = RestUtil.getHttpHeaders(token);
-    HttpEntity<UpdateUserModel> entity = new HttpEntity<>(updateUserModel, headers);
-    ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.PUT, entity, String.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    return RestUtil.deserializeJsonBody(response.getBody(), UserDTO.class);
-  }
-
   public static FamilyRequestModel createFamilyModel(String clubId, String surname) {
     FamilyRequestModel familyRequestModel = new FamilyRequestModel();
     familyRequestModel.setClubId(clubId);
@@ -152,6 +145,35 @@ public class UserUtil {
 
     ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.DELETE, entity, ClubUserDTO.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  public static ClubUserDTO updateClubUser(AdminUpdateUserModel updateUserModel, String clubId, String token, String userId) throws JsonProcessingException {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
+    RestTemplate restTemplate = new RestTemplate();
+    HttpHeaders headers = RestUtil.getHttpHeaders(token);
+    HttpEntity<UpdateUserModel> entity = new HttpEntity<>(updateUserModel, headers);
+    ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO.class);
+  }
+
+  public static UserDTO updateSelf(String token, UpdateUserModel updateUserModel) throws JsonProcessingException {
+    UriComponentsBuilder builder = RestUtil.getUriBuilder("/principal");
+    RestTemplate restTemplate = new RestTemplate();
+    HttpHeaders headers = RestUtil.getHttpHeaders(token);
+    HttpEntity<UpdateUserModel> entity = new HttpEntity<>(updateUserModel, headers);
+    ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.PUT, entity, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return RestUtil.deserializeJsonBody(response.getBody(), UserDTO.class);
+  }
+
+  public static AdminUpdateUserModel createAdminUpdateModel(String firstName, String lastName, String dateOfBirth, Set<Role> roles) {
+    AdminUpdateUserModel updateUserModel = new AdminUpdateUserModel();
+    updateUserModel.setFirstName(firstName);
+    updateUserModel.setLastName(lastName);
+    updateUserModel.setDateOfBirth(dateOfBirth);
+    updateUserModel.setRoles(roles);
+    return updateUserModel;
   }
 
   private UserUtil() {

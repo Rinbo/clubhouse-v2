@@ -15,7 +15,6 @@ import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.Role;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.repository.RoleRepository;
@@ -47,13 +46,13 @@ public class ClubUserServiceImpl implements ClubUserService {
   }
 
   @Override
-  public UserDTO updateUser(String userId, String clubId, AdminUpdateUserModel userDetails) {
+  public ClubUserDTO updateUser(String userId, String clubId, AdminUpdateUserModel userDetails) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     User user = clubUser.getUser();
     updateUserDetails(userDetails, user);
     updateAddresses(user, clubhouseMappers.addressModelToAddress(userDetails.getAddresses()));
     updateRoles(clubUser, userDetails.getRoles());
-    return UserDTO.create(userRepository.save(user));
+    return new ClubUserDTO(userRepository.save(user).getClubUser(clubId).orElseThrow());
   }
 
   @Override
