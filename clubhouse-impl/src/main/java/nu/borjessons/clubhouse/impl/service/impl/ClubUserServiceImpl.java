@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -9,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Address;
-import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
@@ -20,17 +20,14 @@ import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.repository.RoleRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
 import nu.borjessons.clubhouse.impl.service.ClubUserService;
-import nu.borjessons.clubhouse.impl.service.TeamService;
 import nu.borjessons.clubhouse.impl.util.ClubhouseMappers;
 import nu.borjessons.clubhouse.impl.util.ClubhouseUtils;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ClubUserServiceImpl implements ClubUserService {
   private final ClubUserRepository clubUserRepository;
   private final ClubhouseMappers clubhouseMappers;
-  private final TeamService teamService;
   private final UserRepository userRepository;
   private final RoleRepository roleRepository;
 
@@ -39,13 +36,14 @@ public class ClubUserServiceImpl implements ClubUserService {
    * Parent or admin is prompted if children should be removed also.
    */
   @Override
+  @Transactional
   public void removeUserFromClub(String userId, String clubId) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
-    clubUser.doOrphan(); // Do I need this?
     clubUserRepository.delete(clubUser);
   }
 
   @Override
+  @Transactional
   public ClubUserDTO updateUser(String userId, String clubId, AdminUpdateUserModel userDetails) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     User user = clubUser.getUser();
@@ -56,16 +54,19 @@ public class ClubUserServiceImpl implements ClubUserService {
   }
 
   @Override
-  public User addExistingChildrenToUser(String userId, String clubId, Set<String> childrenIds) {
-    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
-    User user = clubUser.getUser();
-    Club club = clubUser.getClub();
-    Set<User> children = club.getManagedUsers().stream().filter(child -> childrenIds.contains(child.getUserId())).collect(Collectors.toSet());
-    children.forEach(child -> child.addParent(user));
-    return clubUserRepository.save(clubUser).getUser();
+  @Transactional
+  public ClubUserDTO addExistingChildrenToUser(String userId, String clubId, List<String> childrenIds) {
+    User parent = userRepository.findByUserId(userId).orElseThrow();
+    List<ClubUser> childrenClubUsers = clubUserRepository.findByClubIdAndUserIds(clubId, childrenIds);
+    childrenClubUsers.stream()
+        .map(ClubUser::getUser)
+        .filter(User::isManagedAccount)
+        .forEach(child -> child.addParent(parent));
+    return new ClubUserDTO(userRepository.save(parent).getClubUser(clubId).orElseThrow());
   }
 
   @Override
+  @Transactional
   public ClubUserDTO getClubUser(String clubId, String userId) {
     final ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     return new ClubUserDTO(clubUser);

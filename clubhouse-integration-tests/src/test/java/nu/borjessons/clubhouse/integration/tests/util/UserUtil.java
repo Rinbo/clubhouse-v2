@@ -28,6 +28,16 @@ import nu.borjessons.clubhouse.impl.dto.rest.UserLoginRequestModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 
 public class UserUtil {
+  public static ClubUserDTO addExistingChildToClubUser(String clubId, String token, String userId, List<String> childrenIds) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/add-children").buildAndExpand(clubId, userId).toUriString();
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<List<String>> entity = RestUtil.getHttpEntity(token, childrenIds);
+
+    ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.PUT, entity, ClubUserDTO.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
+  }
+
   public static CreateUserModel createUserModel(String clubId, String firstName) {
     CreateUserModel createUserModel = new CreateUserModel();
     createUserModel.setFirstName(firstName);

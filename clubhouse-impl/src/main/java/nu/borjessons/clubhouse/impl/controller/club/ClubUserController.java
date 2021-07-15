@@ -1,7 +1,7 @@
 package nu.borjessons.clubhouse.impl.controller.club;
 
 import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -10,16 +10,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 import nu.borjessons.clubhouse.impl.service.ClubUserService;
@@ -67,9 +64,8 @@ public class ClubUserController {
    * can belong to several entities
    */
   @PreAuthorize("hasRole('ADMIN')")
-  @PostMapping("/clubId/{clubId}/users/{userId}/add-children")
-  public UserDTO addExistingChildrenToUser(@PathVariable String clubId, @PathVariable String userId, @RequestBody Set<String> childrenIds) {
-    User user = clubUserService.addExistingChildrenToUser(userId, clubId, childrenIds);
-    return UserDTO.create(user);
+  @PutMapping("/clubs/{clubId}/users/{userId}/add-children")
+  public ClubUserDTO addExistingChildrenToUser(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {
+    return clubUserService.addExistingChildrenToUser(userId, clubId, childrenIds);
   }
 }

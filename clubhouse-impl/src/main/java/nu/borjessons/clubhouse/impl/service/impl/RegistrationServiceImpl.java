@@ -40,16 +40,16 @@ public class RegistrationServiceImpl implements RegistrationService {
 
   @Override
   public UserDTO registerChildren(String userId, String clubId, List<CreateChildRequestModel> childDetails) {
-    User user = userRepository.findByUserId(userId).orElseThrow();
-    ClubUser clubUser = user.getClubUser(clubId).orElseThrow();
+    User parent = userRepository.findByUserId(userId).orElseThrow();
+    ClubUser clubUser = parent.getClubUser(clubId).orElseThrow();
     Set<User> children = mapChildModelToUser(childDetails);
 
     if (!children.isEmpty()) getRoleEntities(Set.of(Role.PARENT)).forEach(clubUser::addRoleEntity);
 
-    addChildrenToParent(user, children);
+    addChildrenToParent(parent, children);
     children.forEach(child -> addClubUser(clubUser.getClub(), getRoleEntities(Set.of(Role.CHILD)), child));
 
-    return UserDTO.create(userRepository.save(user));
+    return UserDTO.create(userRepository.save(parent));
   }
 
   @Override

@@ -1,8 +1,8 @@
 package nu.borjessons.clubhouse.impl.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.EqualsAndHashCode;
@@ -27,8 +27,8 @@ public class ClubUserDTO implements Serializable {
   private String email;
   private String dateOfBirth;
   private String clubId;
-  private List<String> childrenIds = new ArrayList<>();
-  private List<Role> roles;
+  private Set<String> childrenIds = new HashSet<>();
+  private Set<Role> roles;
   private String userId;
 
   public ClubUserDTO(ClubUser clubUser) {
@@ -37,8 +37,8 @@ public class ClubUserDTO implements Serializable {
     email = clubUser.getUser().getEmail();
     dateOfBirth = clubUser.getUser().getDateOfBirth().toString();
     clubId = clubUser.getClub().getClubId();
-    childrenIds = clubUser.getUser().getChildren().stream().map(User::getUserId).collect(Collectors.toList());
-    roles = clubUser.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toList());
+    childrenIds = clubUser.getUser().getChildren().stream().map(User::getUserId).collect(Collectors.toSet());
+    roles = clubUser.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toSet());
     userId = clubUser.getUser().getUserId();
   }
 }

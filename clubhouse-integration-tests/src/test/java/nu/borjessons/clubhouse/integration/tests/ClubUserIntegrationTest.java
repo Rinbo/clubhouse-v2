@@ -12,9 +12,11 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.Role;
+import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
+import nu.borjessons.clubhouse.integration.tests.util.RegistrationUtil;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
 class ClubUserIntegrationTest {
@@ -23,6 +25,21 @@ class ClubUserIntegrationTest {
     Assertions.assertEquals(updateUserModel.getLastName(), clubUserDTO.getLastName());
     Assertions.assertEquals(updateUserModel.getDateOfBirth(), clubUserDTO.getDateOfBirth());
     Assertions.assertEquals(updateUserModel.getRoles(), new HashSet<>(clubUserDTO.getRoles()));
+  }
+
+  @Test
+  void addExistingChildToUser() throws Exception {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      final List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken);
+      final ClubUserDTO papaClubUser = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
+      final ClubUserDTO mamaClubUser = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.MOMMY_EMAIL);
+      final UserDTO papaUser = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB1_ID, "Kevin", papaClubUser.getUserId(), ownerToken);
+      final ClubUserDTO updatedMamaClubUser = UserUtil.addExistingChildToClubUser(EmbeddedDataLoader.CLUB1_ID, ownerToken, mamaClubUser.getUserId(), List.of(
+          getDiffEntry(papaClubUser.getChildrenIds(), papaUser.getChildrenIds())));
+
+      Assertions.assertEquals(papaUser.getChildrenIds(), updatedMamaClubUser.getChildrenIds());
+    }
   }
 
   @Test
@@ -85,5 +102,12 @@ class ClubUserIntegrationTest {
 
       validateEquals(updateUserModel, UserUtil.updateClubUser(updateUserModel, EmbeddedDataLoader.CLUB1_ID, ownerToken, papaBase.getUserId()));
     }
+  }
+
+  /**
+   * Pre-supposes original set is smaller and that updated set is a super set of original
+   */
+  private String getDiffEntry(Set<String> originalSet, Set<String> updatedSet) {
+    return updatedSet.stream().filter(id -> !originalSet.contains(id)).findFirst().orElseThrow();
   }
 }
