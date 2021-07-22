@@ -42,13 +42,28 @@ public class EmbeddedDataLoader {
   public static final String OWNER_EMAIL = "owner@ex.com";
   public static final String POPS_EMAIL = "pops@ex.com";
   public static final String MOMMY_EMAIL = "mommy@ex.com";
+  public static final String USER_EMAIL = "user@ex.com";
+  public static final String USER_ID = "user1";
 
-  private final ClubUserService clubUserService;
-  private final RegistrationService registrationService;
-  private final RoleRepository roleRepository;
-  private final TeamService teamService;
+  private static CreateUserModel createOwnerModel() {
+    final AddressModel addressModel = new AddressModel();
+    addressModel.setCity("Gothenburg");
+    addressModel.setCountry("Sweden");
+    addressModel.setStreet("Elm Street 5");
+    addressModel.setPostalCode("666");
 
-  private FamilyRequestModel createFamilyRequestModel() {
+    CreateUserModel owner = new CreateUserModel();
+    owner.setFirstName("Robin");
+    owner.setLastName(BORJESSON);
+    owner.setDateOfBirth("1980-01-01");
+    owner.setClubId("dummy");
+    owner.setEmail(OWNER_EMAIL);
+    owner.setPassword(DEFAULT_PASSWORD);
+    owner.setAddresses(List.of(addressModel));
+    return owner;
+  }
+
+  private static FamilyRequestModel createFamilyRequestModel() {
     FamilyRequestModel familyModel = new FamilyRequestModel();
     familyModel.setClubId(CLUB1_ID);
     CreateUserModel father = new CreateUserModel();
@@ -86,33 +101,54 @@ public class EmbeddedDataLoader {
     return familyModel;
   }
 
+  private static CreateUserModel createNormalUser() {
+    CreateUserModel user = new CreateUserModel();
+    user.setClubId(CLUB1_ID);
+    user.setEmail(USER_EMAIL);
+    user.setFirstName("Normal");
+    user.setLastName("User");
+    user.setDateOfBirth("2008-01-01");
+    user.setPassword(DEFAULT_PASSWORD);
+    return user;
+  }
+
+  private static TeamRequestModel createTeamModel(String leaderId) {
+    TeamRequestModel teamRequestModel = new TeamRequestModel();
+    teamRequestModel.setName("Cool Team");
+    teamRequestModel.setMinAge(5);
+    teamRequestModel.setMaxAge(20);
+    teamRequestModel.setLeaderIds(List.of(leaderId));
+    return teamRequestModel;
+  }
+
+  private static RoleEntity getRoleEntity(Role role) {
+    final RoleEntity roleEntity = new RoleEntity();
+    roleEntity.setName(role);
+    return roleEntity;
+  }
+
+  private final ClubUserService clubUserService;
+  private final RegistrationService registrationService;
+  private final RoleRepository roleRepository;
+  private final TeamService teamService;
+
   @PostConstruct
   private void loadData() {
     createNonExistentRoles();
 
-    final AddressModel addressModel = new AddressModel();
-    addressModel.setCity("Gothenburg");
-    addressModel.setCountry("Sweden");
-    addressModel.setStreet("Elm Street 5");
-    addressModel.setPostalCode("666");
-
-    CreateUserModel owner = new CreateUserModel();
-    owner.setFirstName("Robin");
-    owner.setLastName(BORJESSON);
-    owner.setDateOfBirth("1980-01-01");
-    owner.setClubId("dummy");
-    owner.setEmail(OWNER_EMAIL);
-    owner.setPassword(DEFAULT_PASSWORD);
-    owner.setAddresses(List.of(addressModel));
+    CreateUserModel owner = createOwnerModel();
 
     CreateClubModel clubModel = new CreateClubModel();
     clubModel.setName("Fritiof Sports");
     clubModel.setType(Type.SPORT);
     clubModel.setOwner(owner);
 
-    UserDTO userDTO = registrationService.registerClub(clubModel, CLUB1_ID);
+    UserDTO ownerDTO = registrationService.registerClub(clubModel, CLUB1_ID);
+    log.info("Created club: {} and user {}", CLUB1_ID, ownerDTO.getEmail());
 
-    log.info("Created club: {} and user {}", CLUB1_ID, userDTO.getEmail());
+    CreateUserModel normalUser = createNormalUser();
+    UserDTO normalUserDTO = registrationService.registerUser(normalUser, USER_ID);
+    log.info("Created normal user: {}", normalUserDTO);
 
     FamilyRequestModel familyModel = createFamilyRequestModel();
     List<UserDTO> familyMembers = registrationService.registerFamily(familyModel);
@@ -123,7 +159,9 @@ public class EmbeddedDataLoader {
     TeamRequestModel teamModel = createTeamModel(parent.getUserId());
 
     TeamDTO team = teamService.createTeam(CLUB1_ID, teamModel);
-    TeamDTO updateTeamDTO = teamService.updateTeamMembers(CLUB1_ID, team.getTeamId(), new ArrayList<>(parent.getChildrenIds()));
+    ArrayList<String> teamMembers = new ArrayList<>(parent.getChildrenIds());
+    teamMembers.add(normalUserDTO.getUserId());
+    TeamDTO updateTeamDTO = teamService.updateTeamMembers(CLUB1_ID, team.getTeamId(), teamMembers);
     log.info("created team: {}", updateTeamDTO);
   }
 
@@ -136,25 +174,10 @@ public class EmbeddedDataLoader {
     clubUserService.updateUser(parent.getUserId(), CLUB1_ID, userDetails);
   }
 
-  private TeamRequestModel createTeamModel(String leaderId) {
-    TeamRequestModel teamRequestModel = new TeamRequestModel();
-    teamRequestModel.setName("Cool Team");
-    teamRequestModel.setMinAge(5);
-    teamRequestModel.setMaxAge(12);
-    teamRequestModel.setLeaderIds(List.of(leaderId));
-    return teamRequestModel;
-  }
-
   private void createNonExistentRoles() {
     Collection<Role> existingRoleNames = roleRepository.findAll().stream().map(RoleEntity::getName).collect(Collectors.toSet());
     Collection<Role> allRoles = Arrays.asList(Role.values());
     allRoles.removeIf(existingRoleNames::contains);
-    roleRepository.saveAll(allRoles.stream().map(this::getRoleEntity).collect(Collectors.toList()));
-  }
-
-  private RoleEntity getRoleEntity(Role role) {
-    final RoleEntity roleEntity = new RoleEntity();
-    roleEntity.setName(role);
-    return roleEntity;
+    roleRepository.saveAll(allRoles.stream().map(EmbeddedDataLoader::getRoleEntity).collect(Collectors.toList()));
   }
 }

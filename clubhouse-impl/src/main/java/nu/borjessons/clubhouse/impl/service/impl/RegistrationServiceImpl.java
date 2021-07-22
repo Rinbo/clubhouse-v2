@@ -104,6 +104,17 @@ public class RegistrationServiceImpl implements RegistrationService {
     return UserDTO.create(userRepository.save(user));
   }
 
+  @Override
+  public UserDTO registerUser(CreateUserModel userDetails, String userId) {
+    Club club = clubRepository.findByClubId(userDetails.getClubId()).orElseThrow();
+
+    User user = clubhouseMappers.userCreationModelToUser(userDetails, userId);
+    Set<Role> roles = new HashSet<>(Collections.singletonList(Role.USER));
+
+    addClubUser(club, getRoleEntities(roles), user);
+    return UserDTO.create(userRepository.save(user));
+  }
+
   private Set<User> mapChildModelToUser(List<CreateChildRequestModel> childrenDetails) {
     return childrenDetails.stream()
         .map(clubhouseMappers::childCreationModelToUser)

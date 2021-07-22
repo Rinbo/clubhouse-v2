@@ -49,7 +49,11 @@ public class ClubhouseMappers {
   }
 
   public User userCreationModelToUser(CreateUserModel userDetails) {
-    User user = new User(UUID.randomUUID().toString());
+    return userCreationModelToUser(userDetails, UUID.randomUUID().toString());
+  }
+
+  public User userCreationModelToUser(CreateUserModel userDetails, String userId) {
+    User user = new User(userId);
     user.setEmail(userDetails.getEmail().toLowerCase().trim());
     user.setFirstName(userDetails.getFirstName());
     user.setLastName(userDetails.getLastName());

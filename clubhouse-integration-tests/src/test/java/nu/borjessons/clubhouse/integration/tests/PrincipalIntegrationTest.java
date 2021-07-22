@@ -23,7 +23,7 @@ class PrincipalIntegrationTest {
       final String adminToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       final List<ClubUserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, adminToken);
       Assertions.assertNotNull(users);
-      Assertions.assertEquals(5, users.size());
+      Assertions.assertEquals(6, users.size());
 
       final String userToken = UserUtil.loginUser("pops@ex.com", EmbeddedDataLoader.DEFAULT_PASSWORD);
 
@@ -68,17 +68,17 @@ class PrincipalIntegrationTest {
   void deleteSelf() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      Assertions.assertEquals(5, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
+      Assertions.assertEquals(6, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
 
       final String papaToken = UserUtil.loginUser("pops@ex.com", EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserUtil.deleteSelf(papaToken);
 
-      Assertions.assertEquals(4, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
+      Assertions.assertEquals(5, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
 
       final String mamaToken = UserUtil.loginUser("mommy@ex.com", EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserUtil.deleteSelf(mamaToken);
 
-      Assertions.assertEquals(1, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
+      Assertions.assertEquals(2, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
     }
   }
 

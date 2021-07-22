@@ -84,10 +84,10 @@ class ClubUserIntegrationTest {
       final ClubUserDTO mommy = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.MOMMY_EMAIL);
 
       UserUtil.removeClubUser(EmbeddedDataLoader.CLUB1_ID, ownerToken, papa.getUserId());
-      Assertions.assertEquals(4, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
+      Assertions.assertEquals(5, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
 
       UserUtil.removeClubUser(EmbeddedDataLoader.CLUB1_ID, ownerToken, mommy.getUserId());
-      Assertions.assertEquals(3, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
+      Assertions.assertEquals(4, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
     }
   }
 

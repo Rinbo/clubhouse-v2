@@ -67,7 +67,7 @@ class ClubIntegrationTest {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       final List<ClubUserDTO> clubUserDTOs = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken);
-      Assertions.assertEquals(5, clubUserDTOs.size());
+      Assertions.assertEquals(6, clubUserDTOs.size());
     }
   }
 

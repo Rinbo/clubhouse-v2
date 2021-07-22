@@ -20,4 +20,6 @@ public interface RegistrationService {
   List<UserDTO> registerFamily(@Valid FamilyRequestModel familyDetails);
 
   UserDTO registerUser(@Valid CreateUserModel userDetails);
+
+  UserDTO registerUser(@Valid CreateUserModel userDetails, String userId);
 }

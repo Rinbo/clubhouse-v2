@@ -31,7 +31,7 @@ class RegistrationIntegrationTest {
       UserDTO userDTO = RegistrationUtil.registerUser(createUserModel);
       Assertions.assertNotNull(userDTO);
       Assertions.assertEquals(firstName, userDTO.getFirstName());
-      validatePersistence(6);
+      validatePersistence(7);
     }
   }
 
@@ -88,7 +88,7 @@ class RegistrationIntegrationTest {
       Assertions.assertNotNull(userDTOs);
       Assertions.assertEquals(2, userDTOs.size());
 
-      List<ClubUserDTO> clubUsers = validatePersistence(8);
+      List<ClubUserDTO> clubUsers = validatePersistence(9);
       long familyCount = clubUsers.stream().map(ClubUserDTO::getLastName).filter(lastName -> lastName.equals(surname)).count();
       Assertions.assertEquals(3, familyCount);
     }
