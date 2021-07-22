@@ -33,7 +33,7 @@ public class TeamServiceImpl implements TeamService {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     Team team = clubUser.getClub().getTeamByTeamId(teamId).orElseThrow();
     team.addMember(clubUser);
-    return new TeamDTO(teamRepository.save(team));
+    return TeamDTO.create(teamRepository.save(team));
   }
 
   @Override
@@ -45,7 +45,7 @@ public class TeamServiceImpl implements TeamService {
     List<ClubUser> teamMembers = clubUserRepository.findByClubIdAndUserIds(clubId, userIds);
     teamMembers.forEach(team::addMember);
 
-    return new TeamDTO(teamRepository.save(team));
+    return TeamDTO.create(teamRepository.save(team));
   }
 
   @Override
@@ -62,7 +62,7 @@ public class TeamServiceImpl implements TeamService {
 
     club.addTeam(team);
     final Team savedTeam = teamRepository.save(team);
-    return new TeamDTO(savedTeam);
+    return TeamDTO.create(savedTeam);
   }
 
   @Override
@@ -71,7 +71,7 @@ public class TeamServiceImpl implements TeamService {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     Team team = clubUser.getClub().getTeamByTeamId(teamId).orElseThrow();
     team.removeMember(clubUser);
-    return new TeamDTO(teamRepository.save(team));
+    return TeamDTO.create(teamRepository.save(team));
   }
 
   @Override
@@ -80,7 +80,7 @@ public class TeamServiceImpl implements TeamService {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     Team team = clubUser.getClub().getTeamByTeamId(teamId).orElseThrow();
     team.removeLeader(clubUser);
-    return new TeamDTO(teamRepository.save(team));
+    return TeamDTO.create(teamRepository.save(team));
   }
 
   @Override
@@ -96,7 +96,7 @@ public class TeamServiceImpl implements TeamService {
     team.setLeaders(leaders);
 
     club.addTeam(team);
-    return new TeamDTO(teamRepository.save(team));
+    return TeamDTO.create(teamRepository.save(team));
   }
 
   @Override
@@ -105,7 +105,7 @@ public class TeamServiceImpl implements TeamService {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     return clubUser.getTeams()
         .stream()
-        .map(TeamDTO::new)
+        .map(TeamDTO::create)
         .collect(Collectors.toSet());
   }
 
