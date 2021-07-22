@@ -57,6 +57,12 @@ public class Team extends BaseEntity {
 
   public void addMember(ClubUser clubUser) {
     members.add(clubUser);
+    clubUser.getTeams().add(this);
+  }
+
+  public void addLeader(ClubUser clubUser) {
+    leaders.add(clubUser);
+    clubUser.getManagedTeams().add(this);
   }
 
   @Override

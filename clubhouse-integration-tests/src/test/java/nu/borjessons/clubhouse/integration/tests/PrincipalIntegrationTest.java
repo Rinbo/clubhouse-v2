@@ -8,8 +8,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
@@ -20,7 +18,7 @@ import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 class PrincipalIntegrationTest {
 
   @Test
-  void authTest() throws JsonProcessingException {
+  void authTest() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String adminToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       final List<ClubUserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, adminToken);
@@ -38,7 +36,7 @@ class PrincipalIntegrationTest {
   }
 
   @Test
-  void updateSelf() throws JsonProcessingException {
+  void updateSelf() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
@@ -67,7 +65,7 @@ class PrincipalIntegrationTest {
    * but once she deletes herself both the children are deleted as well.
    */
   @Test
-  void deleteSelf() throws JsonProcessingException {
+  void deleteSelf() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(5, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
@@ -85,7 +83,7 @@ class PrincipalIntegrationTest {
   }
 
   @Test
-  void getSelf() throws JsonProcessingException {
+  void getSelf() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       final UserDTO self = UserUtil.getSelf(ownerToken);

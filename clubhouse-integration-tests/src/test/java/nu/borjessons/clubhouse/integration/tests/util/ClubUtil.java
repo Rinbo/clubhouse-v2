@@ -10,8 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 
 public class ClubUtil {
@@ -37,6 +40,14 @@ public class ClubUtil {
     final ResponseEntity<ClubDTO> response = RestUtil.getResponse(uri, token, ClubDTO.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
+  }
+
+  public static List<ClubUserDTO> getClubLeaders(String clubId, String token) throws JsonProcessingException {
+    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/leaders").buildAndExpand(clubId).toUriString();
+    final ResponseEntity<String> response = RestUtil.getResponse(uri, token, String.class);
+    ClubUserDTO[] clubUserDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);
+    Assertions.assertNotNull(clubUserDTOs);
+    return Arrays.stream(clubUserDTOs).collect(Collectors.toList());
   }
 
   private ClubUtil() {

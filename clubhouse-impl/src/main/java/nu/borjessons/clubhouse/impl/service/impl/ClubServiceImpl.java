@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Club;
@@ -20,6 +21,7 @@ public class ClubServiceImpl implements ClubService {
   private final ClubRepository clubRepository;
 
   @Override
+  @Transactional
   public Collection<ClubUserDTO> getLeaders(String clubId) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     return club.getTeams()

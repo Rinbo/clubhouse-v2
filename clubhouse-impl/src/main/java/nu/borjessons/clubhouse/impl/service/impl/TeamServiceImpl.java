@@ -42,7 +42,9 @@ public class TeamServiceImpl implements TeamService {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     Team team = club.getTeamByTeamId(teamId).orElseThrow();
 
-    team.setMembers(clubUserRepository.findByClubIdAndUserIds(clubId, userIds));
+    List<ClubUser> teamMembers = clubUserRepository.findByClubIdAndUserIds(clubId, userIds);
+    teamMembers.forEach(team::addMember);
+
     return new TeamDTO(teamRepository.save(team));
   }
 
@@ -56,10 +58,11 @@ public class TeamServiceImpl implements TeamService {
     team.setName(teamModel.getName());
     team.setMinAge(teamModel.getMinAge());
     team.setMaxAge(teamModel.getMaxAge());
-    team.setLeaders(leaders);
+    leaders.forEach(team::addLeader);
 
     club.addTeam(team);
-    return new TeamDTO(teamRepository.save(team));
+    final Team savedTeam = teamRepository.save(team);
+    return new TeamDTO(savedTeam);
   }
 
   @Override
