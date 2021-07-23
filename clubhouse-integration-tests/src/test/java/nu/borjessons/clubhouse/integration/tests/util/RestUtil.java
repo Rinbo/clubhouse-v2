@@ -54,10 +54,10 @@ public class RestUtil {
     return arrayResponse;
   }
 
-  public static <T> ResponseEntity<T> getResponse(String uri, String token, Class<T> clazz) {
+  public static <T> ResponseEntity<T> getRequest(String uri, String token, Class<T> responseType) {
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = getVoidHttpEntity(token);
-    return restTemplate.exchange(uri, HttpMethod.GET, entity, clazz);
+    return restTemplate.exchange(uri, HttpMethod.GET, entity, responseType);
   }
 
   public static <T> HttpEntity<T> getHttpEntity(String token, T requestObject) {

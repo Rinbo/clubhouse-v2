@@ -37,7 +37,7 @@ import nu.borjessons.clubhouse.impl.service.TeamService;
 @RequiredArgsConstructor
 public class EmbeddedDataLoader {
   public static final String BORJESSON = "Börjesson";
-  public static final String CLUB1_ID = "club1";
+  public static final String CLUB_ID = "club1";
   public static final String DEFAULT_PASSWORD = "password";
   public static final String OWNER_EMAIL = "owner@ex.com";
   public static final String POPS_EMAIL = "pops@ex.com";
@@ -65,9 +65,9 @@ public class EmbeddedDataLoader {
 
   private static FamilyRequestModel createFamilyRequestModel() {
     FamilyRequestModel familyModel = new FamilyRequestModel();
-    familyModel.setClubId(CLUB1_ID);
+    familyModel.setClubId(CLUB_ID);
     CreateUserModel father = new CreateUserModel();
-    father.setClubId(CLUB1_ID);
+    father.setClubId(CLUB_ID);
     father.setEmail(POPS_EMAIL);
     father.setFirstName("Pappa");
     father.setLastName(BORJESSON);
@@ -75,7 +75,7 @@ public class EmbeddedDataLoader {
     father.setPassword(DEFAULT_PASSWORD);
 
     CreateUserModel mother = new CreateUserModel();
-    mother.setClubId(CLUB1_ID);
+    mother.setClubId(CLUB_ID);
     mother.setEmail(MOMMY_EMAIL);
     mother.setFirstName("Mamma");
     mother.setLastName(BORJESSON);
@@ -103,7 +103,7 @@ public class EmbeddedDataLoader {
 
   private static CreateUserModel createNormalUser() {
     CreateUserModel user = new CreateUserModel();
-    user.setClubId(CLUB1_ID);
+    user.setClubId(CLUB_ID);
     user.setEmail(USER_EMAIL);
     user.setFirstName("Normal");
     user.setLastName("User");
@@ -143,8 +143,8 @@ public class EmbeddedDataLoader {
     clubModel.setType(Type.SPORT);
     clubModel.setOwner(owner);
 
-    UserDTO ownerDTO = registrationService.registerClub(clubModel, CLUB1_ID);
-    log.info("Created club: {} and user {}", CLUB1_ID, ownerDTO.getEmail());
+    UserDTO ownerDTO = registrationService.registerClub(clubModel, CLUB_ID);
+    log.info("Created club: {} and user {}", CLUB_ID, ownerDTO.getEmail());
 
     CreateUserModel normalUser = createNormalUser();
     UserDTO normalUserDTO = registrationService.registerUser(normalUser, USER_ID);
@@ -158,10 +158,10 @@ public class EmbeddedDataLoader {
     updateRole(parent, Set.of(Role.PARENT, Role.USER, Role.LEADER));
     TeamRequestModel teamModel = createTeamModel(parent.getUserId());
 
-    TeamDTO team = teamService.createTeam(CLUB1_ID, teamModel);
+    TeamDTO team = teamService.createTeam(CLUB_ID, teamModel);
     ArrayList<String> teamMembers = new ArrayList<>(parent.getChildrenIds());
     teamMembers.add(normalUserDTO.getUserId());
-    TeamDTO updateTeamDTO = teamService.updateTeamMembers(CLUB1_ID, team.getTeamId(), teamMembers);
+    TeamDTO updateTeamDTO = teamService.updateTeamMembers(CLUB_ID, team.getTeamId(), teamMembers);
     log.info("created team: {}", updateTeamDTO);
   }
 
@@ -171,7 +171,7 @@ public class EmbeddedDataLoader {
     userDetails.setLastName(parent.getLastName());
     userDetails.setDateOfBirth(parent.getDateOfBirth());
     userDetails.setRoles(roles);
-    clubUserService.updateUser(parent.getUserId(), CLUB1_ID, userDetails);
+    clubUserService.updateUser(parent.getUserId(), CLUB_ID, userDetails);
   }
 
   private void createNonExistentRoles() {

@@ -37,14 +37,14 @@ public class ClubUtil {
 
   public static ClubDTO getClub(String clubId, String token) {
     final String uri = RestUtil.getUriBuilder("/clubs/{clubId}").buildAndExpand(clubId).toUriString();
-    final ResponseEntity<ClubDTO> response = RestUtil.getResponse(uri, token, ClubDTO.class);
+    final ResponseEntity<ClubDTO> response = RestUtil.getRequest(uri, token, ClubDTO.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
   }
 
   public static List<ClubUserDTO> getClubLeaders(String clubId, String token) throws JsonProcessingException {
     final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/leaders").buildAndExpand(clubId).toUriString();
-    final ResponseEntity<String> response = RestUtil.getResponse(uri, token, String.class);
+    final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
     ClubUserDTO[] clubUserDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);
     Assertions.assertNotNull(clubUserDTOs);
     return Arrays.stream(clubUserDTOs).collect(Collectors.toList());

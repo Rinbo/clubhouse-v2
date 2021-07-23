@@ -74,7 +74,7 @@ public class UserUtil {
 
   public static List<ClubUserDTO> getClubUsers(String clubId, String token) throws JsonProcessingException {
     final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users").buildAndExpand(clubId).toUriString();
-    final ResponseEntity<String> response = RestUtil.getResponse(uri, token, String.class);
+    final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
     final ClubUserDTO[] clubUserDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);
     return Arrays.stream(clubUserDTOs).collect(Collectors.toList());
   }
@@ -141,7 +141,7 @@ public class UserUtil {
         .queryParam("maxAge", max)
         .buildAndExpand(clubId).toUriString();
 
-    final ResponseEntity<String> response = RestUtil.getResponse(uri, token, String.class);
+    final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
     final ClubUserDTO[] clubUserDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);

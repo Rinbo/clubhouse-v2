@@ -31,11 +31,11 @@ class ClubUserIntegrationTest {
   void addExistingChildToUser() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken);
+      final List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
       final ClubUserDTO papaClubUser = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
       final ClubUserDTO mamaClubUser = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.MOMMY_EMAIL);
-      final UserDTO papaUser = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB1_ID, "Kevin", papaClubUser.getUserId(), ownerToken);
-      final ClubUserDTO updatedMamaClubUser = UserUtil.addExistingChildToClubUser(EmbeddedDataLoader.CLUB1_ID, ownerToken, mamaClubUser.getUserId(), List.of(
+      final UserDTO papaUser = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB_ID, "Kevin", papaClubUser.getUserId(), ownerToken);
+      final ClubUserDTO updatedMamaClubUser = UserUtil.addExistingChildToClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, mamaClubUser.getUserId(), List.of(
           getDiffEntry(papaClubUser.getChildrenIds(), papaUser.getChildrenIds())));
 
       Assertions.assertEquals(papaUser.getChildrenIds(), updatedMamaClubUser.getChildrenIds());
@@ -46,16 +46,16 @@ class ClubUserIntegrationTest {
   void getClubUser() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken);
+      final List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
       final ClubUserDTO papa = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
       final String papaUserId = papa.getUserId();
 
-      Assertions.assertEquals(papa, UserUtil.getUser(EmbeddedDataLoader.CLUB1_ID, ownerToken, papaUserId));
+      Assertions.assertEquals(papa, UserUtil.getUser(EmbeddedDataLoader.CLUB_ID, ownerToken, papaUserId));
 
       final String papaToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
       try {
-        UserUtil.getUser(EmbeddedDataLoader.CLUB1_ID, papaToken, papaUserId);
+        UserUtil.getUser(EmbeddedDataLoader.CLUB_ID, papaToken, papaUserId);
       } catch (HttpClientErrorException e) {
         Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
       }
@@ -66,10 +66,10 @@ class ClubUserIntegrationTest {
   void getClubUsersByAgeRange() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final List<ClubUserDTO> children = UserUtil.getClubUsersByAge(EmbeddedDataLoader.CLUB1_ID, ownerToken, 5, 12);
+      final List<ClubUserDTO> children = UserUtil.getClubUsersByAge(EmbeddedDataLoader.CLUB_ID, ownerToken, 5, 12);
       Assertions.assertEquals(2, children.size());
 
-      final List<ClubUserDTO> grownUps = UserUtil.getClubUsersByAge(EmbeddedDataLoader.CLUB1_ID, ownerToken, 20, 100);
+      final List<ClubUserDTO> grownUps = UserUtil.getClubUsersByAge(EmbeddedDataLoader.CLUB_ID, ownerToken, 20, 100);
       Assertions.assertEquals(3, grownUps.size());
     }
   }
@@ -79,15 +79,15 @@ class ClubUserIntegrationTest {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
-      final List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken);
+      final List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
       final ClubUserDTO papa = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
       final ClubUserDTO mommy = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.MOMMY_EMAIL);
 
-      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB1_ID, ownerToken, papa.getUserId());
-      Assertions.assertEquals(5, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
+      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, papa.getUserId());
+      Assertions.assertEquals(5, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken).size());
 
-      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB1_ID, ownerToken, mommy.getUserId());
-      Assertions.assertEquals(4, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken).size());
+      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, mommy.getUserId());
+      Assertions.assertEquals(4, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken).size());
     }
   }
 
@@ -95,12 +95,12 @@ class ClubUserIntegrationTest {
   void updateClubUser() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, ownerToken);
+      final List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
       final ClubUserDTO papaBase = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
       AdminUpdateUserModel updateUserModel = UserUtil.createAdminUpdateModel("Erik", "Johnson", "2000-01-01",
           Set.of(Role.PARENT, Role.LEADER, Role.USER));
 
-      validateEquals(updateUserModel, UserUtil.updateClubUser(updateUserModel, EmbeddedDataLoader.CLUB1_ID, ownerToken, papaBase.getUserId()));
+      validateEquals(updateUserModel, UserUtil.updateClubUser(updateUserModel, EmbeddedDataLoader.CLUB_ID, ownerToken, papaBase.getUserId()));
     }
   }
 

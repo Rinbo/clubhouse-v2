@@ -27,7 +27,7 @@ class RegistrationIntegrationTest {
   void registerUser() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String firstName = "Dustin";
-      CreateUserModel createUserModel = UserUtil.createUserModel(EmbeddedDataLoader.CLUB1_ID, firstName);
+      CreateUserModel createUserModel = UserUtil.createUserModel(EmbeddedDataLoader.CLUB_ID, firstName);
       UserDTO userDTO = RegistrationUtil.registerUser(createUserModel);
       Assertions.assertNotNull(userDTO);
       Assertions.assertEquals(firstName, userDTO.getFirstName());
@@ -44,7 +44,7 @@ class RegistrationIntegrationTest {
       Assertions.assertNotNull(daddy);
       Assertions.assertEquals(2, daddy.getChildrenIds().size());
 
-      UserDTO daddyWithOneMoreKid = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB1_ID, CHILD_NAME, daddy.getUserId(),
+      UserDTO daddyWithOneMoreKid = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB_ID, CHILD_NAME, daddy.getUserId(),
           token);
 
       Assertions.assertNotNull(daddyWithOneMoreKid);
@@ -56,10 +56,10 @@ class RegistrationIntegrationTest {
   void adminRegistersNewChildTest() throws JsonProcessingException {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      List<ClubUserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, token);
+      List<ClubUserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, token);
       String daddyId = UserUtil.getUserIdByEmail(users, EmbeddedDataLoader.POPS_EMAIL).getUserId();
 
-      UserDTO daddyWithOneMoreKid = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB1_ID, CHILD_NAME, daddyId, token);
+      UserDTO daddyWithOneMoreKid = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB_ID, CHILD_NAME, daddyId, token);
 
       Assertions.assertNotNull(daddyWithOneMoreKid);
       Assertions.assertEquals(3, daddyWithOneMoreKid.getChildrenIds().size());
@@ -83,7 +83,7 @@ class RegistrationIntegrationTest {
   void registerFamily() throws JsonProcessingException {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String surname = "Garfield";
-      FamilyRequestModel familyRequestModel = UserUtil.createFamilyModel(EmbeddedDataLoader.CLUB1_ID, surname);
+      FamilyRequestModel familyRequestModel = UserUtil.createFamilyModel(EmbeddedDataLoader.CLUB_ID, surname);
       List<UserDTO> userDTOs = RegistrationUtil.registerFamily(familyRequestModel);
       Assertions.assertNotNull(userDTOs);
       Assertions.assertEquals(2, userDTOs.size());
@@ -96,7 +96,7 @@ class RegistrationIntegrationTest {
 
   private List<ClubUserDTO> validatePersistence(int expectedCount) throws JsonProcessingException {
     String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-    List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB1_ID, token);
+    List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, token);
     Assertions.assertEquals(expectedCount, clubUsers.size());
     return clubUsers;
   }

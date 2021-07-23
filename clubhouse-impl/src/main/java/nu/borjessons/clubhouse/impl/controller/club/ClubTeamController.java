@@ -51,6 +51,7 @@ public class ClubTeamController {
     return teamService.createTeam(clubId, teamModel);
   }
 
+  // TODO Need one for getting leader teams and children teams.
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/clubs/{clubId}/my-teams")
   public Set<TeamDTO> getMyTeams(@AuthenticationPrincipal User principal, @PathVariable String clubId) {
@@ -58,7 +59,7 @@ public class ClubTeamController {
   }
 
   @PreAuthorize("hasRole('USER')")
-  @GetMapping("/clubs/{clubId]/teams/{teamId}")
+  @GetMapping("/clubs/{clubId}/teams/{teamId}")
   public TeamDTO getTeam(@PathVariable String clubId, @PathVariable String teamId) {
     Club club = clubService.getClubByClubId(clubId);
     Team team = club.getTeamByTeamId(teamId).orElseThrow();
