@@ -84,15 +84,14 @@ public class ClubTeamController {
 
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/leave")
-  public TeamDTO leaveTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId) {
-    return teamService.removeMemberFromTeam(clubId, teamId, principal.getUserId());
+  public void leaveTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId) {
+    teamService.removeMemberFromTeam(clubId, teamId, principal.getUserId());
   }
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/remove-leader")
-  public TeamDTO removeLeader(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
-      @RequestParam String clubUserId) {
-    return teamService.removeLeaderFromTeam(clubId, teamId, clubUserId);
+  public TeamDTO removeLeader(@PathVariable String clubId, @PathVariable String teamId, @RequestParam String leaderId) {
+    return teamService.removeLeaderFromTeam(clubId, teamId, leaderId);
   }
 
   @PreAuthorize("hasRole('ADMIN')")

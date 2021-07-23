@@ -151,15 +151,15 @@ public class EmbeddedDataLoader {
     log.info("Created normal user: {}", normalUserDTO);
 
     FamilyRequestModel familyModel = createFamilyRequestModel();
-    List<UserDTO> familyMembers = registrationService.registerFamily(familyModel);
+    List<UserDTO> parents = registrationService.registerFamily(familyModel);
     log.info("Created family {}", familyModel);
 
-    UserDTO parent = familyMembers.get(0);
-    updateRole(parent, Set.of(Role.PARENT, Role.USER, Role.LEADER));
-    TeamRequestModel teamModel = createTeamModel(parent.getUserId());
+    parents.forEach(parent -> updateRole(parent, Set.of(Role.PARENT, Role.USER, Role.LEADER)));
+    UserDTO dad = parents.stream().filter(parent -> parent.getEmail().equals(POPS_EMAIL)).findFirst().orElseThrow();
+    TeamRequestModel teamModel = createTeamModel(dad.getUserId());
 
     TeamDTO team = teamService.createTeam(CLUB_ID, teamModel);
-    ArrayList<String> teamMembers = new ArrayList<>(parent.getChildrenIds());
+    ArrayList<String> teamMembers = new ArrayList<>(dad.getChildrenIds());
     teamMembers.add(normalUserDTO.getUserId());
     TeamDTO updateTeamDTO = teamService.updateTeamMembers(CLUB_ID, team.getTeamId(), teamMembers);
     log.info("created team: {}", updateTeamDTO);

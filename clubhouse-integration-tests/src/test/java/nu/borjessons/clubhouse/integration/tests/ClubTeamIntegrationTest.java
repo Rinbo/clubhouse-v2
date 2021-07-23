@@ -8,6 +8,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.TeamDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
@@ -78,5 +81,66 @@ class ClubTeamIntegrationTest {
       TeamDTO teamDTO = TeamUtil.getTeamById(EmbeddedDataLoader.CLUB_ID, teamId, token);
       Assertions.assertEquals(teamId, teamDTO.getTeamId());
     }
+  }
+
+  @Test
+  void joinAndLeaveTeam() throws Exception {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      TeamRequestModel teamRequestModel = TeamUtil.createRequestModel(List.of(), TEAM_NAME);
+      final TeamDTO newTeamDTO = TeamUtil.createTeam(EmbeddedDataLoader.CLUB_ID, teamRequestModel, ownerToken);
+
+      final String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      final String teamId = newTeamDTO.getTeamId();
+      TeamDTO teamDTO = TeamUtil.joinTeam(EmbeddedDataLoader.CLUB_ID, teamId, token);
+      Assertions.assertEquals(teamId, teamDTO.getTeamId());
+      Assertions.assertEquals(2, TeamUtil.getMyTeams(EmbeddedDataLoader.CLUB_ID, token).size());
+
+      TeamUtil.leaveTeam(EmbeddedDataLoader.CLUB_ID, teamId, token);
+      Assertions.assertEquals(1, TeamUtil.getMyTeams(EmbeddedDataLoader.CLUB_ID, token).size());
+    }
+  }
+
+  @Test
+  void removeLeaderFromTeamTest() throws Exception {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      final ClubUserDTO leaderDTO = UserUtil.getUserIdByEmail(UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken), EmbeddedDataLoader.POPS_EMAIL);
+      final List<TeamDTO> teamDTOs = TeamUtil.getClubTeams(EmbeddedDataLoader.CLUB_ID, ownerToken);
+      final String teamId = teamDTOs.get(0).getTeamId();
+
+      Assertions.assertEquals(1, TeamUtil.getTeamById(EmbeddedDataLoader.CLUB_ID, teamId, ownerToken).getLeaders().size());
+
+      TeamDTO teamDTO = TeamUtil.removeLeaderFromTeam(EmbeddedDataLoader.CLUB_ID, leaderDTO.getUserId(), teamId, ownerToken);
+      Assertions.assertEquals(0, teamDTO.getLeaders().size());
+      Assertions.assertEquals(0, TeamUtil.getTeamById(EmbeddedDataLoader.CLUB_ID, teamId, ownerToken).getLeaders().size());
+    }
+  }
+
+  @Test
+  void updateTeamTest() throws Exception {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String teamName = "Some other name";
+      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      final ClubUserDTO mamaClubUser = UserUtil.getUserIdByEmail(UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken), EmbeddedDataLoader.MOMMY_EMAIL);
+      final List<TeamDTO> teamDTOs = TeamUtil.getClubTeams(EmbeddedDataLoader.CLUB_ID, ownerToken);
+      final String teamId = teamDTOs.get(0).getTeamId();
+
+      validateLeaderHasEmail(EmbeddedDataLoader.POPS_EMAIL, ownerToken, teamId);
+
+      TeamRequestModel teamRequestModel = TeamUtil.createRequestModel(List.of(mamaClubUser.getUserId()), teamName);
+      TeamDTO teamDTO = TeamUtil.updateTeam(EmbeddedDataLoader.CLUB_ID, teamRequestModel, teamId, ownerToken);
+      Assertions.assertEquals(1, teamDTO.getLeaders().size());
+      Assertions.assertEquals(teamName, teamDTO.getName());
+      validateLeaderHasEmail(EmbeddedDataLoader.MOMMY_EMAIL, ownerToken, teamId);
+    }
+  }
+
+  private void validateLeaderHasEmail(String expectedEmail, String token, String teamId) throws JsonProcessingException {
+    Assertions.assertEquals(expectedEmail, TeamUtil.getTeamById(EmbeddedDataLoader.CLUB_ID, teamId, token)
+        .getLeaders()
+        .iterator()
+        .next()
+        .getEmail());
   }
 }

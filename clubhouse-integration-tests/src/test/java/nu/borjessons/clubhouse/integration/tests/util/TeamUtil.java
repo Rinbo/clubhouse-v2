@@ -57,6 +57,44 @@ public class TeamUtil {
     return RestUtil.deserializeJsonBody(response.getBody(), TeamDTO.class);
   }
 
+  public static TeamDTO joinTeam(String clubId, String teamId, String token) throws JsonProcessingException {
+    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/join")
+        .buildAndExpand(clubId, teamId)
+        .toUriString();
+
+    final ResponseEntity<String> response = RestUtil.putRequest(uri, token, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return RestUtil.deserializeJsonBody(response.getBody(), TeamDTO.class);
+  }
+
+  public static void leaveTeam(String clubId, String teamId, String token) throws JsonProcessingException {
+    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/leave")
+        .buildAndExpand(clubId, teamId)
+        .toUriString();
+
+    final ResponseEntity<String> response = RestUtil.putRequest(uri, token, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  public static TeamDTO removeLeaderFromTeam(String clubId, String leaderId, String teamId, String token) throws JsonProcessingException {
+    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/remove-leader")
+        .queryParam("leaderId", leaderId)
+        .buildAndExpand(clubId, teamId)
+        .toUriString();
+    final ResponseEntity<String> response = RestUtil.putRequest(uri, token, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return RestUtil.deserializeJsonBody(response.getBody(), TeamDTO.class);
+  }
+
+  public static TeamDTO updateTeam(String clubId, TeamRequestModel teamRequestModel, String teamId, String token) throws JsonProcessingException {
+    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}")
+        .buildAndExpand(clubId, teamId)
+        .toUriString();
+    final ResponseEntity<String> response = RestUtil.putRequest(uri, token, teamRequestModel, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return RestUtil.deserializeJsonBody(response.getBody(), TeamDTO.class);
+  }
+
   private TeamUtil() {
     throw new IllegalStateException("Utility class");
   }

@@ -60,9 +60,19 @@ public class Team extends BaseEntity {
     clubUser.getTeams().add(this);
   }
 
+  public void removeMember(ClubUser clubUser) {
+    members.remove(clubUser);
+    clubUser.getTeams().remove(this);
+  }
+
   public void addLeader(ClubUser clubUser) {
     leaders.add(clubUser);
     clubUser.getManagedTeams().add(this);
+  }
+
+  public void removeLeader(ClubUser clubUser) {
+    leaders.remove(clubUser);
+    clubUser.getManagedTeams().remove(this);
   }
 
   @Override
@@ -81,13 +91,5 @@ public class Team extends BaseEntity {
       return false;
     Team other = (Team) obj;
     return teamId.equals(other.teamId);
-  }
-
-  public void removeLeader(ClubUser leader) {
-    leaders.remove(leader);
-  }
-
-  public void removeMember(ClubUser member) {
-    members.remove(member);
   }
 }

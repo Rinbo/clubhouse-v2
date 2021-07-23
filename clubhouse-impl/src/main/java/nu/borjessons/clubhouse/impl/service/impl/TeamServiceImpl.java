@@ -67,11 +67,11 @@ public class TeamServiceImpl implements TeamService {
 
   @Override
   @Transactional
-  public TeamDTO removeMemberFromTeam(String clubId, String teamId, String userId) {
+  public void removeMemberFromTeam(String clubId, String teamId, String userId) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     Team team = clubUser.getClub().getTeamByTeamId(teamId).orElseThrow();
     team.removeMember(clubUser);
-    return TeamDTO.create(teamRepository.save(team));
+    teamRepository.save(team);
   }
 
   @Override
@@ -93,7 +93,8 @@ public class TeamServiceImpl implements TeamService {
     team.setName(teamModel.getName());
     team.setMinAge(teamModel.getMinAge());
     team.setMaxAge(teamModel.getMaxAge());
-    team.setLeaders(leaders);
+    List.copyOf(team.getLeaders()).forEach(team::removeLeader);
+    leaders.forEach(team::addLeader);
 
     club.addTeam(team);
     return TeamDTO.create(teamRepository.save(team));
@@ -109,25 +110,21 @@ public class TeamServiceImpl implements TeamService {
         .collect(Collectors.toSet());
   }
 
-  private boolean validateIsLeader(ClubUser clubUser) {
-    return clubUser.getRoles()
+  private ClubUser validateIsLeader(ClubUser clubUser) {
+    boolean isLeader = clubUser.getRoles()
         .stream()
         .map(RoleEntity::getName)
         .collect(Collectors.toList())
         .contains(Role.LEADER);
+
+    if (!isLeader) throw new IllegalArgumentException(String.format("User with id %s does not have role leader", clubUser.getUser().getUserId()));
+    return clubUser;
   }
 
   private List<ClubUser> getClubLeaders(List<String> leaderIds, Club club) {
     return club.getClubUsers(leaderIds)
         .stream()
-        .filter(this::validateIsLeader)
+        .map(this::validateIsLeader)
         .collect(Collectors.toList());
   }
-
-/*  private void removeUsers(Set<User> users, Team team) {
-    for (User user : users) {
-      team.removeMember(user);
-      team.removeLeader(user);
-    }
-  }*/
 }

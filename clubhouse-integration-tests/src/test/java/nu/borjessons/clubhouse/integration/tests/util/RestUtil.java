@@ -36,6 +36,18 @@ public class RestUtil {
     return restTemplate.exchange(uri, HttpMethod.POST, entity, returnType);
   }
 
+  public static <T, U> ResponseEntity<U> putRequest(String uri, String token, T requestObject, Class<U> returnType) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<T> entity = getHttpEntity(token, requestObject);
+    return restTemplate.exchange(uri, HttpMethod.PUT, entity, returnType);
+  }
+
+  public static <T, U> ResponseEntity<U> putRequest(String uri, String token, Class<U> returnType) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = getVoidHttpEntity(token);
+    return restTemplate.exchange(uri, HttpMethod.PUT, entity, returnType);
+  }
+
   public static HttpHeaders getHttpHeaders(String token) {
     HttpHeaders headers = new HttpHeaders();
     headers.add("Authorization", token);

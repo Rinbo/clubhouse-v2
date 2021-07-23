@@ -13,7 +13,7 @@ public interface TeamService {
 
   TeamDTO createTeam(String clubId, TeamRequestModel teamModel);
 
-  TeamDTO removeMemberFromTeam(String clubId, String teamId, String userId);
+  void removeMemberFromTeam(String clubId, String teamId, String userId);
 
   TeamDTO removeLeaderFromTeam(String clubId, String teamId, String userId);
 
