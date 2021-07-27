@@ -1,8 +1,5 @@
 package nu.borjessons.clubhouse.impl.controller.club;
 
-import java.util.Collection;
-import java.util.stream.Collectors;
-
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
-import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 
 @RequestMapping("/clubs")
@@ -24,22 +20,5 @@ public class ClubController {
   @GetMapping(path = "/{clubId}")
   public ClubDTO getClub(@PathVariable String clubId) {
     return new ClubDTO(clubService.getClubByClubId(clubId));
-  }
-
-  @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping("/{clubId}/leaders")
-  public Collection<ClubUserDTO> getLeaders(@PathVariable String clubId) {
-    return clubService.getLeaders(clubId);
-  }
-
-  @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping(path = "/{clubId}/users")
-  public Collection<ClubUserDTO> getUsers(@PathVariable String clubId) {
-    return clubService
-        .getClubByClubId(clubId)
-        .getClubUsers()
-        .stream()
-        .map(ClubUserDTO::new)
-        .collect(Collectors.toList());
   }
 }

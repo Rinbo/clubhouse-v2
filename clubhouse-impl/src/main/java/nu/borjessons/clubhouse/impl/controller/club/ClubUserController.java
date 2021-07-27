@@ -75,4 +75,16 @@ public class ClubUserController {
   public ClubUserDTO addExistingChildrenToUser(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {
     return clubUserService.addExistingChildrenToUser(userId, clubId, childrenIds);
   }
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/clubs/{clubId}/leaders")
+  public Collection<ClubUserDTO> getLeaders(@PathVariable String clubId) {
+    return clubUserService.getLeaders(clubId);
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping(path = "/clubs/{clubId}/users")
+  public Collection<ClubUserDTO> getUsers(@PathVariable String clubId) {
+    return clubUserService.getClubUsers(clubId);
+  }
 }

@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,6 +39,10 @@ public class ClubUserServiceImpl implements ClubUserService {
     Set<Address> oldAddresses = user.getAddresses();
     oldAddresses.forEach(user::removeAddress);
     addresses.forEach(user::addAddress);
+  }
+
+  private static boolean isLeader(ClubUser clubUser) {
+    return clubUser.getRoles().stream().anyMatch(roleEntity -> roleEntity.getName() == Role.LEADER);
   }
 
   private final ClubRepository clubRepository;
@@ -101,6 +106,23 @@ public class ClubUserServiceImpl implements ClubUserService {
     user.addClubUser(clubUser);
     userRepository.save(user);
     return new ClubUserDTO(clubUser);
+  }
+
+  @Override
+  public Collection<ClubUserDTO> getLeaders(String clubId) {
+    List<ClubUser> clubUsers = clubUserRepository.findByClubId(clubId);
+    return clubUsers.stream()
+        .filter(ClubUserServiceImpl::isLeader)
+        .map(ClubUserDTO::new)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public Collection<ClubUserDTO> getClubUsers(String clubId) {
+    return clubUserRepository.findByClubId(clubId)
+        .stream()
+        .map(ClubUserDTO::new)
+        .collect(Collectors.toList());
   }
 
   private void updateRoles(ClubUser clubUser, Set<Role> roles) {

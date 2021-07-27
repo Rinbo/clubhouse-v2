@@ -32,6 +32,48 @@ class ClubUserIntegrationTest {
   }
 
   @Test
+  void adminGetsLeadersTest() throws Exception {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      final List<ClubUserDTO> clubUserDTOs = ClubUtil.getClubLeaders(EmbeddedDataLoader.CLUB_ID, ownerToken);
+      Assertions.assertEquals(3, clubUserDTOs.size());
+    }
+  }
+
+  @Test
+  void throwForbiddenExceptionWhenUserGetsLeadersTest() throws Exception {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String userToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      try {
+        ClubUtil.getClubLeaders(EmbeddedDataLoader.CLUB_ID, userToken);
+      } catch (HttpClientErrorException e) {
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+      }
+    }
+  }
+
+  @Test
+  void adminGetsAllClubUsersTest() throws Exception {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      final List<ClubUserDTO> clubUserDTOs = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
+      Assertions.assertEquals(6, clubUserDTOs.size());
+    }
+  }
+
+  @Test
+  void throwForbiddenExceptionWhenUserGetsAllClubUsersTest() throws Exception {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String userToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      try {
+        UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, userToken);
+      } catch (HttpClientErrorException e) {
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+      }
+    }
+  }
+
+  @Test
   void addExistingChildToUser() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);

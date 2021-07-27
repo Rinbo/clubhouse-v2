@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
@@ -15,4 +16,8 @@ public interface ClubUserService {
   ClubUserDTO getClubUser(String clubId, String userId);
 
   ClubUserDTO addUserToClub(String clubId, String userId);
+
+  Collection<ClubUserDTO> getLeaders(String clubId);
+
+  Collection<ClubUserDTO> getClubUsers(String clubId);
 }
