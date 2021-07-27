@@ -31,11 +31,13 @@ public class RoleEntity implements Serializable {
   @Enumerated(EnumType.STRING)
   private Role name;
 
-  @Override public int hashCode() {
+  @Override
+  public int hashCode() {
     return Objects.hash(name);
   }
 
-  @Override public boolean equals(Object other) {
+  @Override
+  public boolean equals(Object other) {
     if (this == other) return true;
     if (other == null || getClass() != other.getClass()) return false;
     RoleEntity otherRoleEntity = (RoleEntity) other;

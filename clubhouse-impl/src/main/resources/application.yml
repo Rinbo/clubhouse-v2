@@ -1,13 +1,3 @@
-spring:
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: 'jdbc:h2:mem:db;DB_CLOSE_DELAY=-1'
-    username: sa
-    password: sa
-  h2:
-    console:
-      enabled: true
-
 token:
   secret: ${token.secret}
   expiration: 604800
@@ -19,11 +9,40 @@ logging:
       borjessons:
         clubhouse: debug
     org:
-      starmonkey:
-        brown: DEBUG
       springframework:
         web: info
         security: warn
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: 'jdbc:postgresql://localhost:5400/clubhousedb'
+    username: postgres
+    password: postgres
+  jpa:
+    database: POSTGRESQL
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: 'jdbc:h2:mem:db;DB_CLOSE_DELAY=-1'
+    username: sa
+    password: sa
+  h2:
+    console:
+      enabled: true
+
 
 
 

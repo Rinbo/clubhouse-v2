@@ -9,15 +9,3 @@ spring:
 token:
   secret: safsgsdfgsdfgsfg6541s6dfgs654gsfGFRSFsfdgSFGF
   expiration: 604800
-
-logging:
-  level:
-    org.springframework.web:
-      client:
-        RestTemplate: DEBUG
-
-#logging:
-#  level:
-#    root: info
-#    org.springframework.web: debug
-#    org.springframework.security: debug

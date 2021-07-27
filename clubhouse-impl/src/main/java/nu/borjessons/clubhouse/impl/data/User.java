@@ -31,7 +31,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "user", indexes = {@Index(name = "ix_email", columnList = "email"), @Index(name = "ix_user_id", columnList = "userId")})
+@Table(name = "users", indexes = {@Index(name = "ix_email", columnList = "email"), @Index(name = "ix_users_id", columnList = "userId")})
 public class User extends BaseEntity implements UserDetails {
   private static final long serialVersionUID = -1098642930133262484L;
 

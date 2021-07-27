@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -44,6 +46,7 @@ public class Club extends BaseEntity {
   private String path;
 
   @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
   private Type type;
 
   @OneToMany(

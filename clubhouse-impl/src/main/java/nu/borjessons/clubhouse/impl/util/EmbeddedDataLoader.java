@@ -32,7 +32,7 @@ import nu.borjessons.clubhouse.impl.service.RegistrationService;
 import nu.borjessons.clubhouse.impl.service.TeamService;
 
 @Component
-@Profile({"local", "test"})
+@Profile({"local", "test", "dev"})
 @Slf4j
 @RequiredArgsConstructor
 public class EmbeddedDataLoader {

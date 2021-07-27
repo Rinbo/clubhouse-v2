@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
@@ -33,10 +34,12 @@ class ClubUserIntegrationTest {
 
   @Test
   void adminGetsLeadersTest() throws Exception {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
-      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final List<ClubUserDTO> clubUserDTOs = ClubUtil.getClubLeaders(EmbeddedDataLoader.CLUB_ID, ownerToken);
-      Assertions.assertEquals(3, clubUserDTOs.size());
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres()) {
+      try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+        final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+        final List<ClubUserDTO> clubUserDTOs = ClubUtil.getClubLeaders(EmbeddedDataLoader.CLUB_ID, ownerToken);
+        Assertions.assertEquals(3, clubUserDTOs.size());
+      }
     }
   }
 
