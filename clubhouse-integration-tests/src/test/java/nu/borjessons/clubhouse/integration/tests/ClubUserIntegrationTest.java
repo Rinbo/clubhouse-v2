@@ -34,12 +34,11 @@ class ClubUserIntegrationTest {
 
   @Test
   void adminGetsLeadersTest() throws Exception {
-    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres()) {
-      try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-        final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-        final List<ClubUserDTO> clubUserDTOs = ClubUtil.getClubLeaders(EmbeddedDataLoader.CLUB_ID, ownerToken);
-        Assertions.assertEquals(3, clubUserDTOs.size());
-      }
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      final List<ClubUserDTO> clubUserDTOs = ClubUtil.getClubLeaders(EmbeddedDataLoader.CLUB_ID, ownerToken);
+      Assertions.assertEquals(3, clubUserDTOs.size());
     }
   }
 
@@ -57,7 +56,8 @@ class ClubUserIntegrationTest {
 
   @Test
   void adminGetsAllClubUsersTest() throws Exception {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       final List<ClubUserDTO> clubUserDTOs = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
       Assertions.assertEquals(6, clubUserDTOs.size());
