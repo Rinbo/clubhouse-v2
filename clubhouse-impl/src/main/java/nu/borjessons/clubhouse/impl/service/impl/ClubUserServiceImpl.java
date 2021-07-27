@@ -10,12 +10,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Address;
+import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
+import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.repository.RoleRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
@@ -26,6 +28,19 @@ import nu.borjessons.clubhouse.impl.util.ClubhouseUtils;
 @Service
 @RequiredArgsConstructor
 public class ClubUserServiceImpl implements ClubUserService {
+  private static void updateUserDetails(AdminUpdateUserModel userDetails, User user) {
+    user.setFirstName(userDetails.getFirstName());
+    user.setLastName(userDetails.getLastName());
+    user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
+  }
+
+  private static void updateAddresses(User user, Set<Address> addresses) {
+    Set<Address> oldAddresses = user.getAddresses();
+    oldAddresses.forEach(user::removeAddress);
+    addresses.forEach(user::addAddress);
+  }
+
+  private final ClubRepository clubRepository;
   private final ClubUserRepository clubUserRepository;
   private final ClubhouseMappers clubhouseMappers;
   private final UserRepository userRepository;
@@ -72,20 +87,24 @@ public class ClubUserServiceImpl implements ClubUserService {
     return new ClubUserDTO(clubUser);
   }
 
+  // TODO Implement functionality to notify admins that this user wants to join - Require action to give full permissions
+  // TODO boolean to port children as well?
+  @Override
+  @Transactional
+  public ClubUserDTO addUserToClub(String clubId, String userId) {
+    Club club = clubRepository.findByClubId(clubId).orElseThrow();
+    User user = userRepository.findByUserId(userId).orElseThrow();
+    Set<RoleEntity> roleEntities = roleRepository.findByRoleNames(Set.of(Role.USER.name()));
+    ClubUser clubUser = new ClubUser();
+    roleEntities.forEach(clubUser::addRoleEntity);
+    club.addClubUser(clubUser);
+    user.addClubUser(clubUser);
+    userRepository.save(user);
+    return new ClubUserDTO(clubUser);
+  }
+
   private void updateRoles(ClubUser clubUser, Set<Role> roles) {
     final Set<RoleEntity> roleEntities = roleRepository.findByRoleNames(roles.stream().map(Role::toString).collect(Collectors.toSet()));
     clubUser.setRoles(roleEntities);
-  }
-
-  private void updateUserDetails(AdminUpdateUserModel userDetails, User user) {
-    user.setFirstName(userDetails.getFirstName());
-    user.setLastName(userDetails.getLastName());
-    user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
-  }
-
-  private void updateAddresses(User user, Set<Address> addresses) {
-    Set<Address> oldAddresses = user.getAddresses();
-    oldAddresses.forEach(user::removeAddress);
-    addresses.forEach(user::addAddress);
   }
 }

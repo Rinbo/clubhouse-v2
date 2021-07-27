@@ -13,12 +13,16 @@ import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.repository.ClubRepository;
+import nu.borjessons.clubhouse.impl.repository.RoleRepository;
+import nu.borjessons.clubhouse.impl.repository.UserRepository;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 
 @Service
 @RequiredArgsConstructor
 public class ClubServiceImpl implements ClubService {
   private final ClubRepository clubRepository;
+  private final UserRepository userRepository;
+  private final RoleRepository roleRepository;
 
   @Override
   @Transactional

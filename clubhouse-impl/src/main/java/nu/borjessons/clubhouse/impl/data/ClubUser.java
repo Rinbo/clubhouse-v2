@@ -2,6 +2,7 @@ package nu.borjessons.clubhouse.impl.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -44,7 +45,7 @@ public class ClubUser extends BaseEntity implements Serializable {
   private List<Team> teams = new ArrayList<>();
 
   @ManyToMany(fetch = FetchType.EAGER)
-  private Set<RoleEntity> roles;
+  private Set<RoleEntity> roles = new HashSet<>();
 
   public void addRoleEntity(RoleEntity roleEntity) {
     roles.add(roleEntity);

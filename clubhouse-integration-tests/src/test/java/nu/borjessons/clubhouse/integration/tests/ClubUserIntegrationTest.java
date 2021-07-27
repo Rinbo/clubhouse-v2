@@ -10,11 +10,15 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
+import nu.borjessons.clubhouse.integration.tests.util.ClubUtil;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import nu.borjessons.clubhouse.integration.tests.util.RegistrationUtil;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
@@ -75,7 +79,21 @@ class ClubUserIntegrationTest {
   }
 
   @Test
-  void removeClubUser() throws Exception {
+  void userJoinsClub() throws Exception {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      Assertions.assertEquals(1, UserUtil.getMyClubs(token).size());
+
+      RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
+      ClubDTO clubDTO = UserUtil.getClubByPathName("judo-sports");
+
+      UserUtil.addClubUser(clubDTO.getClubId(), EmbeddedDataLoader.USER_ID, token);
+      Assertions.assertEquals(2, UserUtil.getMyClubs(token).size());
+    }
+  }
+
+  @Test
+  void adminRemovesClubUser() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
@@ -88,6 +106,26 @@ class ClubUserIntegrationTest {
 
       UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, mommy.getUserId());
       Assertions.assertEquals(4, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken).size());
+    }
+  }
+
+  @Test
+  void userRemovesHimself() throws JsonProcessingException {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      Assertions.assertEquals(1, UserUtil.getMyClubs(token).size());
+      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, token, EmbeddedDataLoader.USER_ID);
+      Assertions.assertEquals(0, UserUtil.getMyClubs(token).size());
+
+      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
+
+      // User tries to remove another user which is forbidden
+      try {
+        UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, token, UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL).getUserId());
+      } catch (HttpClientErrorException e) {
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+      }
     }
   }
 

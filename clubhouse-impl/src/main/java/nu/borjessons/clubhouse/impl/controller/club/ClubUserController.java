@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,7 +46,13 @@ public class ClubUserController {
         .collect(Collectors.toList());
   }
 
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.userId")
+  @PostMapping("/clubs/{clubId}/users/{userId}")
+  public ClubUserDTO addUserToClub(@PathVariable String clubId, @PathVariable String userId) {
+    return clubUserService.addUserToClub(clubId, userId);
+  }
+
+  @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.userId")
   @DeleteMapping("/clubs/{clubId}/users/{userId}")
   public void removeUserFromClub(@PathVariable String clubId, @PathVariable String userId) {
     clubUserService.removeUserFromClub(userId, clubId);

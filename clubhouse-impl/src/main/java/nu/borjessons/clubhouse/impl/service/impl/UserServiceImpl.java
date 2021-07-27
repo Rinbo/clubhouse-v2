@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Address;
+import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.repository.AddressRepository;
@@ -85,6 +87,16 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public List<ClubDTO> getMyClubs(String userId) {
+    User user = getUser(userId);
+    return user.getClubUsers()
+        .stream()
+        .map(ClubUser::getClub)
+        .map(ClubDTO::new)
+        .collect(Collectors.toList());
+  }
+
+  @Override
   public UserDetails loadUserByUsername(String username) {
     return userRepository.findByEmail(username).orElseThrow();
   }
@@ -100,5 +112,9 @@ public class UserServiceImpl implements UserService {
 
   private User getUser(long id) {
     return userRepository.findById(id).orElseThrow();
+  }
+
+  private User getUser(String userId) {
+    return userRepository.findByUserId(userId).orElseThrow();
   }
 }

@@ -11,6 +11,7 @@ import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import nu.borjessons.clubhouse.integration.tests.util.RestUtil;
+import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
 class OpenRoutesIntegrationTest {
   @Test
@@ -27,12 +28,10 @@ class OpenRoutesIntegrationTest {
   @Test
   void getClubByPathName() {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
-      ResponseEntity<ClubDTO> response = new RestTemplate().getForEntity(RestUtil.BASE_URL + "/public/clubs/fritiof-sports", ClubDTO.class);
-      ClubDTO body = response.getBody();
-      Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-      Assertions.assertNotNull(body);
-      Assertions.assertEquals("Fritiof Sports", body.getName());
-      Assertions.assertEquals(Club.Type.SPORT, body.getType());
+      ClubDTO clubDTO = UserUtil.getClubByPathName("fritiof-sports");
+      Assertions.assertNotNull(clubDTO);
+      Assertions.assertEquals("Fritiof Sports", clubDTO.getName());
+      Assertions.assertEquals(Club.Type.SPORT, clubDTO.getType());
     }
   }
 }

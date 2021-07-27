@@ -1,5 +1,7 @@
 package nu.borjessons.clubhouse.impl.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.service.UserService;
@@ -35,5 +38,10 @@ public class PrincipalController {
   @PutMapping()
   public UserDTO updateSelf(@AuthenticationPrincipal User principal, @Valid @RequestBody UpdateUserModel userDetails) {
     return userService.updateUser(principal.getId(), userDetails);
+  }
+
+  @GetMapping("/clubs")
+  public List<ClubDTO> getMyClubs(@AuthenticationPrincipal User principal) {
+    return userService.getMyClubs(principal.getUserId());
   }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 
@@ -23,4 +24,6 @@ public interface UserService extends UserDetailsService {
   UserDTO updateUser(long id, UpdateUserModel userDetails);
 
   void updateUserLoginTime(String email);
+
+  List<ClubDTO> getMyClubs(String userId);
 }

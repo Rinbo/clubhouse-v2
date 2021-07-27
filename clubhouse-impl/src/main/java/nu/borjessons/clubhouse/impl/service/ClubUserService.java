@@ -13,4 +13,6 @@ public interface ClubUserService {
   ClubUserDTO addExistingChildrenToUser(String userId, String clubId, List<String> childrenIds);
 
   ClubUserDTO getClubUser(String clubId, String userId);
+
+  ClubUserDTO addUserToClub(String clubId, String userId);
 }
