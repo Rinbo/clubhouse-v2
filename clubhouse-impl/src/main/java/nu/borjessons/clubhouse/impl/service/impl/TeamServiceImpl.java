@@ -43,6 +43,7 @@ public class TeamServiceImpl implements TeamService {
     Team team = club.getTeamByTeamId(teamId).orElseThrow();
 
     List<ClubUser> teamMembers = clubUserRepository.findByClubIdAndUserIds(clubId, userIds);
+    List.copyOf(team.getMembers()).forEach(team::removeMember);
     teamMembers.forEach(team::addMember);
 
     return TeamDTO.create(teamRepository.save(team));

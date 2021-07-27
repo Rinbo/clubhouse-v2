@@ -95,6 +95,15 @@ public class TeamUtil {
     return RestUtil.deserializeJsonBody(response.getBody(), TeamDTO.class);
   }
 
+  public static TeamDTO updateTeamMembers(String clubId, String teamId, List<String> memberList, String token) throws JsonProcessingException {
+    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/members")
+        .buildAndExpand(clubId, teamId)
+        .toUriString();
+    final ResponseEntity<String> response = RestUtil.putRequest(uri, token, memberList, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return RestUtil.deserializeJsonBody(response.getBody(), TeamDTO.class);
+  }
+
   private TeamUtil() {
     throw new IllegalStateException("Utility class");
   }
