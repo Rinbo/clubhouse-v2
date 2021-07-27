@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 public class RestUtil {
-  private static final String BASE_URL = "http://localhost:8081";
+  public static final String BASE_URL = "http://localhost:8081";
 
   public static UriComponentsBuilder getUriBuilder(String path) {
     return UriComponentsBuilder.fromHttpUrl(BASE_URL).path(path);

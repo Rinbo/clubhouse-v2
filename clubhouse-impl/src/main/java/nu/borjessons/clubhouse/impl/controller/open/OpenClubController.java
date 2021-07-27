@@ -22,7 +22,7 @@ public class OpenClubController {
     return clubService.getAllClubs();
   }
 
-  @GetMapping(path = "/public/clubs/{pathname}")
+  @GetMapping(path = "/clubs/{pathname}")
   public ClubDTO getPublicClub(@PathVariable String pathname) {
     return clubService.getPublicClub(pathname);
   }
