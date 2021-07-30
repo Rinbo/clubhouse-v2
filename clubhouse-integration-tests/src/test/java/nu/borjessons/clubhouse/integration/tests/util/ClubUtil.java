@@ -2,9 +2,12 @@ package nu.borjessons.clubhouse.integration.tests.util;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -48,6 +51,22 @@ public class ClubUtil {
     ClubUserDTO[] clubUserDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);
     Assertions.assertNotNull(clubUserDTOs);
     return Arrays.stream(clubUserDTOs).collect(Collectors.toList());
+  }
+
+  public static List<ClubDTO> getMyClubs(String token) {
+    UriComponentsBuilder builder = RestUtil.getUriBuilder("/principal/clubs");
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
+    ResponseEntity<ClubDTO[]> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, ClubDTO[].class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return Arrays.stream(Objects.requireNonNull(response.getBody())).collect(Collectors.toList());
+  }
+
+  public static ClubDTO getClubByPathName(String pathName) {
+    UriComponentsBuilder builder = RestUtil.getUriBuilder("/public/clubs/").path(pathName);
+    ResponseEntity<ClubDTO> response = new RestTemplate().getForEntity(builder.toUriString(), ClubDTO.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
   }
 
   private ClubUtil() {

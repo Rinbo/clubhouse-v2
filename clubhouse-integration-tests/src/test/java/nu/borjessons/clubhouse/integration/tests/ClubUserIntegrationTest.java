@@ -33,6 +33,22 @@ class ClubUserIntegrationTest {
   }
 
   @Test
+  void getClubUserPrincipal() throws Exception {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      final String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      final ClubUserDTO clubUserDTO = UserUtil.getClubUserPrincipal(EmbeddedDataLoader.CLUB_ID, token);
+      Assertions.assertNotNull(clubUserDTO);
+      Assertions.assertEquals("pops@ex.com", clubUserDTO.getEmail());
+      Assertions.assertEquals(EmbeddedDataLoader.CLUB_ID, clubUserDTO.getClubId());
+      Assertions.assertEquals("Fritiof Sports", clubUserDTO.getClubName());
+      Assertions.assertEquals("Pappa", clubUserDTO.getFirstName());
+      Assertions.assertEquals("Börjesson", clubUserDTO.getLastName());
+      Assertions.assertEquals(2, clubUserDTO.getChildrenIds().size());
+    }
+  }
+
+  @Test
   void adminGetsLeadersTest() throws Exception {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
@@ -127,13 +143,13 @@ class ClubUserIntegrationTest {
   void userJoinsClub() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      Assertions.assertEquals(1, UserUtil.getMyClubs(token).size());
+      Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
 
       RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
-      ClubDTO clubDTO = UserUtil.getClubByPathName("judo-sports");
+      ClubDTO clubDTO = ClubUtil.getClubByPathName("judo-sports");
 
       UserUtil.addClubUser(clubDTO.getClubId(), EmbeddedDataLoader.USER_ID, token);
-      Assertions.assertEquals(2, UserUtil.getMyClubs(token).size());
+      Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
     }
   }
 
@@ -158,9 +174,9 @@ class ClubUserIntegrationTest {
   void userRemovesHimself() throws JsonProcessingException {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      Assertions.assertEquals(1, UserUtil.getMyClubs(token).size());
+      Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
       UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, token, EmbeddedDataLoader.USER_ID);
-      Assertions.assertEquals(0, UserUtil.getMyClubs(token).size());
+      Assertions.assertEquals(0, ClubUtil.getMyClubs(token).size());
 
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);

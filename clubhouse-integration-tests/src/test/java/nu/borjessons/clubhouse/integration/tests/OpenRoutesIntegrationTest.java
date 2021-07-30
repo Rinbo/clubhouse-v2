@@ -9,9 +9,9 @@ import org.springframework.web.client.RestTemplate;
 
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
+import nu.borjessons.clubhouse.integration.tests.util.ClubUtil;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import nu.borjessons.clubhouse.integration.tests.util.RestUtil;
-import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
 class OpenRoutesIntegrationTest {
   @Test
@@ -28,7 +28,7 @@ class OpenRoutesIntegrationTest {
   @Test
   void getClubByPathName() {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
-      ClubDTO clubDTO = UserUtil.getClubByPathName("fritiof-sports");
+      ClubDTO clubDTO = ClubUtil.getClubByPathName("fritiof-sports");
       Assertions.assertNotNull(clubDTO);
       Assertions.assertEquals("Fritiof Sports", clubDTO.getName());
       Assertions.assertEquals(Club.Type.SPORT, clubDTO.getType());

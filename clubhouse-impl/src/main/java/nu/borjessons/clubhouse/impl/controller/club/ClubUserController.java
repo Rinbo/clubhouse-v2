@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.service.ClubService;
@@ -27,6 +29,12 @@ import nu.borjessons.clubhouse.impl.service.ClubUserService;
 public class ClubUserController {
   private final ClubService clubService;
   private final ClubUserService clubUserService;
+
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping("/clubs/{clubId}/principal")
+  public ClubUserDTO getClubUserPrincipal(@AuthenticationPrincipal User principal, @PathVariable String clubId) {
+    return clubUserService.getClubUser(clubId, principal.getUserId());
+  }
 
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/clubs/{clubId}/users/{userId}")

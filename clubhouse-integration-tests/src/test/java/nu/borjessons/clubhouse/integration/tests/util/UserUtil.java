@@ -2,7 +2,6 @@ package nu.borjessons.clubhouse.integration.tests.util;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,7 +16,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
@@ -188,22 +186,6 @@ public class UserUtil {
     return updateUserModel;
   }
 
-  public static List<ClubDTO> getMyClubs(String token) {
-    UriComponentsBuilder builder = RestUtil.getUriBuilder("/principal/clubs");
-    RestTemplate restTemplate = new RestTemplate();
-    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
-    ResponseEntity<ClubDTO[]> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, ClubDTO[].class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    return Arrays.stream(Objects.requireNonNull(response.getBody())).collect(Collectors.toList());
-  }
-
-  public static ClubDTO getClubByPathName(String pathName) {
-    UriComponentsBuilder builder = RestUtil.getUriBuilder("/public/clubs/").path(pathName);
-    ResponseEntity<ClubDTO> response = new RestTemplate().getForEntity(builder.toUriString(), ClubDTO.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    return response.getBody();
-  }
-
   public static ClubUserDTO addClubUser(String clubId, String userId, String token) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
@@ -212,6 +194,16 @@ public class UserUtil {
     ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.POST, entity, ClubUserDTO.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
+  }
+
+  public static ClubUserDTO getClubUserPrincipal(String clubId, String token) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/principal").buildAndExpand(clubId).toUriString();
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
+    ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.GET, entity, ClubUserDTO.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
+
   }
 
   private UserUtil() {
