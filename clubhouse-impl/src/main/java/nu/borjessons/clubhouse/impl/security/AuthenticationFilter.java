@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl.security;
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -43,7 +44,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
   public void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) {
     User user = (User) auth.getPrincipal();
     userService.updateUserLoginTime(user.getUsername());
-    String token = SecurityConstants.TOKEN_PREFIX + jwtUtil.doGenerateToken(user.getUsername());
-    res.addHeader(SecurityConstants.AUTHORIZATION, token);
+    String token = jwtUtil.doGenerateToken(user.getUsername());
+    Cookie cookie = new Cookie("jwt-token", token);
+    cookie.setMaxAge(604800);
+    cookie.setHttpOnly(true);
+    cookie.setSecure(false);
+    res.addCookie(cookie);
   }
 }

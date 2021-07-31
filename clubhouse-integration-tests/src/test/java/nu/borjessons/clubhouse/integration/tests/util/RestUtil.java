@@ -50,7 +50,7 @@ public class RestUtil {
 
   public static HttpHeaders getHttpHeaders(String token) {
     HttpHeaders headers = new HttpHeaders();
-    headers.add("Authorization", token);
+    headers.add("Cookie", token);
     headers.add("Accept", "application/json");
     return headers;
   }

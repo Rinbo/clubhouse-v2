@@ -18,6 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -45,7 +46,6 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     http.cors().and().csrf().disable();
-
     http.authorizeRequests()
         .antMatchers(HttpMethod.POST, USER_REGISTRATION_URL, CLUB_REGISTRATION_URL, FAMILY_REGISTRATION_URL)
         .permitAll()
@@ -55,6 +55,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         .permitAll()
         .anyRequest()
         .authenticated()
+
         .and()
         .addFilter(new AuthenticationFilter(authenticationManager(), jwtUtil, userService))
         .addFilter(new AuthorizationFilter(authenticationManager(), clubUserRepository, userService, jwtUtil))
@@ -62,6 +63,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
     http.headers().frameOptions().disable();
+    http.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
   }
 
   @Bean

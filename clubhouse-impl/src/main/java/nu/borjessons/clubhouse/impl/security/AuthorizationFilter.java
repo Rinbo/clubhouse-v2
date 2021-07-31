@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.impl.security;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -40,6 +42,11 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
     return Optional.empty();
   }
 
+  private static Optional<Cookie> extractJwtCookie(Cookie[] cookies) {
+    if (cookies == null) return Optional.empty();
+    return Arrays.stream(cookies).filter(cookie -> cookie.getName().equals("jwt-token")).findFirst();
+  }
+
   private final ClubUserRepository clubUserRepository;
   private final JWTUtil jwtUtil;
   private final UserService userService;
@@ -53,15 +60,13 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
 
   @Override
   protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
-    String tokenHeader = req.getHeader(SecurityConstants.AUTHORIZATION);
-
-    if (tokenHeader != null) {
-      final String token = tokenHeader.replace(SecurityConstants.TOKEN_PREFIX, "");
+    extractJwtCookie(req.getCookies()).ifPresent(cookie -> {
       final Optional<String> optional = getOptionalClubId(req);
+      final String token = cookie.getValue();
 
       UsernamePasswordAuthenticationToken authentication = optional.isPresent() ? getAuthentication(token, optional.get()) : getAuthentication(token);
       SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
+    });
 
     chain.doFilter(req, res);
   }

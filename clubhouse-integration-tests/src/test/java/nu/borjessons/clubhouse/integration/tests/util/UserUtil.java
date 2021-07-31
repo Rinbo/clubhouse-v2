@@ -64,12 +64,11 @@ public class UserUtil {
     HttpEntity<UserLoginRequestModel> httpEntity = new HttpEntity<>(new UserLoginRequestModel(email, password));
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, String.class);
     HttpHeaders headers = response.getHeaders();
-    List<String> authHeader = headers.get("Authorization");
+    List<String> cookieHeader = headers.get("Set-Cookie");
 
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    Assertions.assertNotNull(authHeader);
-    Assertions.assertTrue(authHeader.get(0).contains("Bearer"));
-    return authHeader.get(0);
+    Assertions.assertNotNull(cookieHeader);
+    return cookieHeader.get(0);
   }
 
   public static List<ClubUserDTO> getClubUsers(String clubId, String token) throws JsonProcessingException {
