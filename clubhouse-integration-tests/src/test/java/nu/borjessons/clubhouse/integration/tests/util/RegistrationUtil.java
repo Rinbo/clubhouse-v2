@@ -19,7 +19,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
-import nu.borjessons.clubhouse.impl.security.SecurityConstants;
+import nu.borjessons.clubhouse.impl.security.SecurityUtil;
 
 public class RegistrationUtil {
   public static UserDTO registerChild(String clubId, String childName, String parentId, String token) throws JsonProcessingException {
@@ -35,7 +35,7 @@ public class RegistrationUtil {
   }
 
   public static UserDTO registerClub(CreateClubModel createClubModel) throws JsonProcessingException {
-    UriComponentsBuilder builder = RestUtil.getUriBuilder(SecurityConstants.CLUB_REGISTRATION_URL);
+    UriComponentsBuilder builder = RestUtil.getUriBuilder(SecurityUtil.CLUB_REGISTRATION_URL);
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<CreateClubModel> httpEntity = new HttpEntity<>(createClubModel);
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, String.class);
@@ -44,7 +44,7 @@ public class RegistrationUtil {
   }
 
   public static List<UserDTO> registerFamily(FamilyRequestModel familyRequestModel) throws JsonProcessingException {
-    UriComponentsBuilder builder = RestUtil.getUriBuilder(SecurityConstants.FAMILY_REGISTRATION_URL);
+    UriComponentsBuilder builder = RestUtil.getUriBuilder(SecurityUtil.FAMILY_REGISTRATION_URL);
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<FamilyRequestModel> httpEntity = new HttpEntity<>(familyRequestModel);
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, String.class);
@@ -53,7 +53,7 @@ public class RegistrationUtil {
   }
 
   public static UserDTO registerUser(CreateUserModel createUserModel) throws JsonProcessingException {
-    UriComponentsBuilder builder = RestUtil.getUriBuilder(SecurityConstants.USER_REGISTRATION_URL);
+    UriComponentsBuilder builder = RestUtil.getUriBuilder(SecurityUtil.USER_REGISTRATION_URL);
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<CreateUserModel> httpEntity = new HttpEntity<>(createUserModel);
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, String.class);

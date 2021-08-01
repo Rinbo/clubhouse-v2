@@ -17,7 +17,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
-import nu.borjessons.clubhouse.impl.security.SecurityConstants;
+import nu.borjessons.clubhouse.impl.security.SecurityUtil;
 import nu.borjessons.clubhouse.impl.service.RegistrationService;
 
 @RequiredArgsConstructor
@@ -25,17 +25,17 @@ import nu.borjessons.clubhouse.impl.service.RegistrationService;
 public class RegistrationController {
   private final RegistrationService registrationService;
 
-  @PostMapping(SecurityConstants.CLUB_REGISTRATION_URL)
+  @PostMapping(SecurityUtil.CLUB_REGISTRATION_URL)
   public UserDTO registerClub(@Valid @RequestBody CreateClubModel clubDetails) {
     return registrationService.registerClub(clubDetails);
   }
 
-  @PostMapping(SecurityConstants.FAMILY_REGISTRATION_URL)
+  @PostMapping(SecurityUtil.FAMILY_REGISTRATION_URL)
   public List<UserDTO> registerFamily(@Valid @RequestBody FamilyRequestModel familyDetails) {
     return registrationService.registerFamily(familyDetails);
   }
 
-  @PostMapping(SecurityConstants.USER_REGISTRATION_URL)
+  @PostMapping(SecurityUtil.USER_REGISTRATION_URL)
   public UserDTO registerUser(@Valid @RequestBody CreateUserModel userDetails) {
     return registrationService.registerUser(userDetails);
   }

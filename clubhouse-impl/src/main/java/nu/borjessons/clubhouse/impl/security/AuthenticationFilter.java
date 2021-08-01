@@ -23,7 +23,6 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 
 @RequiredArgsConstructor
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
   private final AuthenticationManager authenticationManager;
   private final JWTUtil jwtUtil;
   private final UserService userService;
@@ -45,7 +44,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     User user = (User) auth.getPrincipal();
     userService.updateUserLoginTime(user.getUsername());
     String token = jwtUtil.doGenerateToken(user.getUsername());
-    Cookie cookie = new Cookie(SecurityConstants.JWT_TOKEN_KEY, token);
+    Cookie cookie = new Cookie(SecurityUtil.JWT_TOKEN_KEY, token);
     cookie.setMaxAge(604800);
     cookie.setHttpOnly(true);
     cookie.setSecure(req.isSecure());

@@ -1,70 +1,39 @@
 package nu.borjessons.clubhouse.impl.security;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.Claims;
-import nu.borjessons.clubhouse.impl.data.ClubUser;
-import nu.borjessons.clubhouse.impl.data.RoleEntity;
-import nu.borjessons.clubhouse.impl.data.User;
-import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
-public class AuthorizationFilter extends BasicAuthenticationFilter {
-  private static final AntPathRequestMatcher antPathRequestMatcher = new AntPathRequestMatcher("/clubs/{clubId}/**");
-
-  private static Optional<String> getOptionalClubId(HttpServletRequest httpServletRequest) {
-    final RequestMatcher.MatchResult matcher = antPathRequestMatcher.matcher(httpServletRequest);
-    if (matcher.isMatch()) {
-      final Map<String, String> variables = matcher.getVariables();
-      return Optional.of(variables.get("clubId"));
-    }
-    return Optional.empty();
-  }
-
-  private static Optional<Cookie> extractJwtCookie(Cookie[] cookies) {
-    if (cookies == null) return Optional.empty();
-    return Arrays.stream(cookies).filter(cookie -> cookie.getName().equals("jwt-token")).findFirst();
-  }
-
-  private final ClubUserRepository clubUserRepository;
+public class AuthorizationFilter extends OncePerRequestFilter {
   private final JWTUtil jwtUtil;
   private final UserService userService;
 
-  public AuthorizationFilter(AuthenticationManager authManager, ClubUserRepository clubUserRepository, UserService userService, JWTUtil jwtUtil) {
-    super(authManager);
-    this.clubUserRepository = clubUserRepository;
+  public AuthorizationFilter(JWTUtil jwtUtil, UserService userService) {
     this.jwtUtil = jwtUtil;
     this.userService = userService;
   }
 
   @Override
-  protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
-    extractJwtCookie(req.getCookies()).ifPresent(cookie -> {
-      final Optional<String> optional = getOptionalClubId(req);
-      final String token = cookie.getValue();
+  protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+    return SecurityUtil.CLUBS_URLS.matches(request);
+  }
 
-      UsernamePasswordAuthenticationToken authentication = optional.isPresent() ? getAuthentication(token, optional.get()) : getAuthentication(token);
+  @Override
+  protected void doFilterInternal(HttpServletRequest req, @NonNull HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
+    SecurityUtil.extractJwtCookie(req.getCookies()).ifPresent(cookie -> {
+      UsernamePasswordAuthenticationToken authentication = getAuthentication(cookie.getValue());
       SecurityContextHolder.getContext().setAuthentication(authentication);
     });
 
@@ -75,28 +44,8 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
     Claims claims = jwtUtil.getAllClaimsFromToken(token);
     String email = claims.getSubject();
 
-    if (email == null) return null;
+    if (email == null) throw new BadCredentialsException("Token authentication failed. Could not parse claim's subject");
 
     return new UsernamePasswordAuthenticationToken(userService.getUserByEmail(email), null, null);
-  }
-
-  private UsernamePasswordAuthenticationToken getAuthentication(String token, String clubId) {
-    Claims claims = jwtUtil.getAllClaimsFromToken(token);
-    String email = claims.getSubject();
-
-    if (email == null) return null;
-
-    final User user = userService.getUserByEmail(email);
-    final Collection<GrantedAuthority> authorities = getClubUserAuthorities(user.getId(), clubId);
-    return new UsernamePasswordAuthenticationToken(user, null, authorities);
-  }
-
-  private Collection<GrantedAuthority> getClubUserAuthorities(long userId, String clubId) {
-    final Collection<RoleEntity> roleEntities = clubUserRepository.findByClubIdAndUserId(clubId, userId).map(ClubUser::getRoles).orElse(Set.of());
-    return roleEntities.stream().map(this::getGrantedAuthority).collect(Collectors.toSet());
-  }
-
-  private GrantedAuthority getGrantedAuthority(RoleEntity roleEntity) {
-    return new SimpleGrantedAuthority("ROLE_" + roleEntity.getName());
   }
 }
