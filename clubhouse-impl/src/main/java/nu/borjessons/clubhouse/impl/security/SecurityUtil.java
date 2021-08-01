@@ -15,6 +15,7 @@ public class SecurityUtil {
   public static final String USER_REGISTRATION_URL = "/register/user";
   public static final String CLUB_REGISTRATION_URL = "/register/club";
   public static final String FAMILY_REGISTRATION_URL = "/register/family";
+  public static final String REGISTRATION_URLS = "/register/**";
   public static final String H2_CONSOLE = "/h2-console/**";
   public static final String PUBLIC_CLUB_URLS = "/public/**";
   public static final String JWT_TOKEN_KEY = "jwt-token";

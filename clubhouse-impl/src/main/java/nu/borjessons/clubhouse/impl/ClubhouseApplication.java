@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.impl;
 
 import java.security.Key;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import io.jsonwebtoken.security.Keys;
 import nu.borjessons.clubhouse.impl.security.JWTUtil;
+import nu.borjessons.clubhouse.impl.security.TokenBlacklist;
 
 @SpringBootApplication
 public class ClubhouseApplication {
@@ -29,5 +31,11 @@ public class ClubhouseApplication {
     long expirationMillis = Long.parseLong(expirationTime) * 1000;
 
     return new JWTUtil(expirationMillis, key);
+  }
+
+  @Bean
+  TokenBlacklist createTokenBlackList() {
+    ConcurrentHashMap<String, Boolean> map = new ConcurrentHashMap<>();
+    return new TokenBlacklist(map);
   }
 }

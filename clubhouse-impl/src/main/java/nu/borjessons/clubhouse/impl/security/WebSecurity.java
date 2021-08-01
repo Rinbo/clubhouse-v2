@@ -1,10 +1,8 @@
 package nu.borjessons.clubhouse.impl.security;
 
-import static nu.borjessons.clubhouse.impl.security.SecurityUtil.CLUB_REGISTRATION_URL;
-import static nu.borjessons.clubhouse.impl.security.SecurityUtil.FAMILY_REGISTRATION_URL;
 import static nu.borjessons.clubhouse.impl.security.SecurityUtil.H2_CONSOLE;
 import static nu.borjessons.clubhouse.impl.security.SecurityUtil.PUBLIC_CLUB_URLS;
-import static nu.borjessons.clubhouse.impl.security.SecurityUtil.USER_REGISTRATION_URL;
+import static nu.borjessons.clubhouse.impl.security.SecurityUtil.REGISTRATION_URLS;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -32,6 +30,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
   private final CustomCorsConfiguration customCorsConfiguration;
   private final JWTUtil jwtUtil;
   private final PasswordEncoder passwordEncoder;
+  private final TokenBlacklist tokenBlacklist;
   private final UserService userService;
 
   @Override
@@ -45,14 +44,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     http.cors(c -> c.configurationSource(customCorsConfiguration));
 
     http.authorizeRequests()
-        .antMatchers(HttpMethod.POST, USER_REGISTRATION_URL, CLUB_REGISTRATION_URL, FAMILY_REGISTRATION_URL).permitAll()
+        .antMatchers(HttpMethod.POST, REGISTRATION_URLS).permitAll()
         .antMatchers(HttpMethod.GET, PUBLIC_CLUB_URLS).permitAll()
         .antMatchers(H2_CONSOLE).permitAll()
         .anyRequest().authenticated()
         .and()
-        .addFilterAt(new AuthenticationFilter(authenticationManager(), jwtUtil, userService), BasicAuthenticationFilter.class)
-        .addFilterAfter(new TopLevelAuthorizationFilter(jwtUtil, userService), BasicAuthenticationFilter.class)
-        .addFilterAfter(new ClubsAuthorizationFilter(clubUserRepository, jwtUtil, userService), BasicAuthenticationFilter.class)
+        .addFilterAt(new AuthenticationFilter(authenticationManager(), jwtUtil, tokenBlacklist, userService), BasicAuthenticationFilter.class)
+        .addFilterAfter(new TopLevelAuthorizationFilter(jwtUtil, tokenBlacklist, userService), BasicAuthenticationFilter.class)
+        .addFilterAfter(new ClubsAuthorizationFilter(clubUserRepository, jwtUtil, tokenBlacklist, userService), BasicAuthenticationFilter.class)
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 

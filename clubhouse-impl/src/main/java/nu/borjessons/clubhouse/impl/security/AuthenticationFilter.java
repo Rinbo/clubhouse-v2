@@ -25,14 +25,18 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
   private final AuthenticationManager authenticationManager;
   private final JWTUtil jwtUtil;
+  private final TokenBlacklist tokenBlacklist;
   private final UserService userService;
 
   @Override
   public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) {
     try {
       UserLoginRequestModel credentials = new ObjectMapper().readValue(req.getInputStream(), UserLoginRequestModel.class);
-      return authenticationManager.authenticate(
-          new UsernamePasswordAuthenticationToken(credentials.getUsername().toLowerCase().trim(), credentials.getPassword()));
+      String username = credentials.getUsername().toLowerCase().trim();
+      String password = credentials.getPassword();
+      Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+      tokenBlacklist.remove(username);
+      return authentication;
     } catch (IOException e) {
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
           "Attempt to authenticate failed. Unable to read input stream from request object");

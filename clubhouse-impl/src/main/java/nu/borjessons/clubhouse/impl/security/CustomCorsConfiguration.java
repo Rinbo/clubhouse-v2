@@ -13,7 +13,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class CustomCorsConfiguration implements CorsConfigurationSource {
   @Override
   public CorsConfiguration getCorsConfiguration(@NonNull HttpServletRequest request) {
-    CorsConfiguration configuration = new CorsConfiguration();
+    CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
     configuration.setAllowedOriginPatterns(List.of("http://localhost:3000"));
     configuration.setAllowedMethods(List.of("*"));
     configuration.setAllowCredentials(true);
