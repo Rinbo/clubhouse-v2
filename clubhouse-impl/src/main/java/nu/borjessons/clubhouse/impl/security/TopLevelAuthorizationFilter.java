@@ -16,11 +16,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import io.jsonwebtoken.Claims;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
-public class AuthorizationFilter extends OncePerRequestFilter {
+public class TopLevelAuthorizationFilter extends OncePerRequestFilter {
   private final JWTUtil jwtUtil;
   private final UserService userService;
 
-  public AuthorizationFilter(JWTUtil jwtUtil, UserService userService) {
+  public TopLevelAuthorizationFilter(JWTUtil jwtUtil, UserService userService) {
     this.jwtUtil = jwtUtil;
     this.userService = userService;
   }
