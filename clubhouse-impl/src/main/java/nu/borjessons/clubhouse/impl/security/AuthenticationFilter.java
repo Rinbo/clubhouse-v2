@@ -45,10 +45,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     User user = (User) auth.getPrincipal();
     userService.updateUserLoginTime(user.getUsername());
     String token = jwtUtil.doGenerateToken(user.getUsername());
-    Cookie cookie = new Cookie("jwt-token", token);
+    Cookie cookie = new Cookie(SecurityConstants.JWT_TOKEN_KEY, token);
     cookie.setMaxAge(604800);
     cookie.setHttpOnly(true);
-    cookie.setSecure(false);
+    cookie.setSecure(req.isSecure());
     res.addCookie(cookie);
   }
 }

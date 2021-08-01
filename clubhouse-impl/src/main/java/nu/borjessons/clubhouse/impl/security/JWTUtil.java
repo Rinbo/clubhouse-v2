@@ -3,29 +3,17 @@ package nu.borjessons.clubhouse.impl.security;
 import java.security.Key;
 import java.util.Date;
 
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 
-@Component
-class JWTUtil {
+public class JWTUtil {
 
-  @Value("${token.secret}")
-  private String secret;
+  private final String expirationTime;
+  private final Key key;
 
-  @Value("${token.expiration}")
-  private String expirationTime;
-
-  private Key key;
-
-  @PostConstruct
-  void init() {
-    key = Keys.hmacShaKeyFor(secret.getBytes());
+  public JWTUtil(String expirationTime, Key key) {
+    this.expirationTime = expirationTime;
+    this.key = key;
   }
 
   Claims getAllClaimsFromToken(String token) {
@@ -50,8 +38,8 @@ class JWTUtil {
         .compact();
   }
 
-  boolean validateToken(String token) {
-    return !isTokenExpired(token);
+  boolean isExpired(String token) {
+    return isTokenExpired(token);
   }
 
   private Boolean isTokenExpired(String token) {

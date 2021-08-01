@@ -12,4 +12,6 @@ public class SecurityConstants {
   public static final String TOKEN_PREFIX = "Bearer ";
   public static final String AUTHORIZATION = "Authorization";
   public static final String PUBLIC_CLUB_URLS = "/public/**";
+
+  public static final String JWT_TOKEN_KEY = "jwt-token";
 }

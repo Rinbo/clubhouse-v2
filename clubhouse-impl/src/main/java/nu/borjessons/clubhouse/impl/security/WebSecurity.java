@@ -8,6 +8,8 @@ import static nu.borjessons.clubhouse.impl.security.SecurityConstants.USER_REGIS
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,7 +20,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -62,8 +63,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-    http.headers().frameOptions().disable();
-    http.logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
+    http.headers()
+        .frameOptions()
+        .disable();
+
+    http.logout()
+        .deleteCookies(SecurityConstants.JWT_TOKEN_KEY)
+        .logoutUrl("/logout")
+        .logoutSuccessHandler((request, response, authentication) -> response.setStatus(HttpServletResponse.SC_OK));
   }
 
   @Bean
@@ -71,7 +78,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
     configuration.addAllowedOriginPattern("*");
     configuration.setAllowedMethods(List.of("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
-    configuration.setAllowedHeaders(List.of("Cache-Control", "Content-Type", "Authorization", "ClubId"));
+    configuration.setAllowedHeaders(List.of("Cache-Control", "Content-Type", "Authorization"));
     configuration.setExposedHeaders(List.of("Authorization"));
     configuration.setAllowCredentials(true);
 
