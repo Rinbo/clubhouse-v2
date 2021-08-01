@@ -19,14 +19,15 @@ public class ClubhouseApplication {
   }
 
   @Bean
-  public PasswordEncoder bCryptPasswordEncoder() {
+  PasswordEncoder bCryptPasswordEncoder() {
     return new BCryptPasswordEncoder();
   }
 
   @Bean
   JWTUtil createJwtUtil(@Value("${token.secret}") String secret, @Value("${token.expiration}") String expirationTime) {
     final Key key = Keys.hmacShaKeyFor(secret.getBytes());
+    long expirationMillis = Long.parseLong(expirationTime) * 1000;
 
-    return new JWTUtil(expirationTime, key);
+    return new JWTUtil(expirationMillis, key);
   }
 }

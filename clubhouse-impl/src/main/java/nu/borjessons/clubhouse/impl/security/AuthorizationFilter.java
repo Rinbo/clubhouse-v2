@@ -72,8 +72,6 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
   }
 
   private UsernamePasswordAuthenticationToken getAuthentication(String token) {
-    if (jwtUtil.isExpired(token)) return null;
-
     Claims claims = jwtUtil.getAllClaimsFromToken(token);
     String email = claims.getSubject();
 
@@ -83,8 +81,6 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
   }
 
   private UsernamePasswordAuthenticationToken getAuthentication(String token, String clubId) {
-    if (!jwtUtil.isExpired(token)) return null;
-
     Claims claims = jwtUtil.getAllClaimsFromToken(token);
     String email = claims.getSubject();
 

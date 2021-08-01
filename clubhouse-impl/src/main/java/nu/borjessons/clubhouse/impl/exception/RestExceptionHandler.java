@@ -25,7 +25,6 @@ import nu.borjessons.clubhouse.impl.dto.ErrorMessage;
 @ControllerAdvice
 @Slf4j
 public class RestExceptionHandler {
-
   @ExceptionHandler(ResponseStatusException.class)
   public ResponseEntity<ErrorMessage> handleResponseStatusException(ResponseStatusException ex, HttpServletRequest req) {
     log.debug(stringifyStacktrace(ex));

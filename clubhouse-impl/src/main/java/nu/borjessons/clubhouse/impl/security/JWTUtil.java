@@ -7,12 +7,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 
 public class JWTUtil {
-
-  private final String expirationTime;
+  private final long expirationMillis;
   private final Key key;
 
-  public JWTUtil(String expirationTime, Key key) {
-    this.expirationTime = expirationTime;
+  public JWTUtil(long expirationMillis, Key key) {
+    this.expirationMillis = expirationMillis;
     this.key = key;
   }
 
@@ -20,15 +19,9 @@ public class JWTUtil {
     return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
   }
 
-  Date getExpirationDateFromToken(String token) {
-    return getAllClaimsFromToken(token).getExpiration();
-  }
-
   String doGenerateToken(String username) {
-    long expirationTimeLong = Long.parseLong(expirationTime);
-
     final Date createdDate = new Date();
-    final Date expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
+    final Date expirationDate = new Date(createdDate.getTime() + expirationMillis);
 
     return Jwts.builder()
         .setSubject(username)
@@ -36,14 +29,5 @@ public class JWTUtil {
         .setExpiration(expirationDate)
         .signWith(key)
         .compact();
-  }
-
-  boolean isExpired(String token) {
-    return isTokenExpired(token);
-  }
-
-  private Boolean isTokenExpired(String token) {
-    final Date expiration = getExpirationDateFromToken(token);
-    return expiration.before(new Date());
   }
 }
