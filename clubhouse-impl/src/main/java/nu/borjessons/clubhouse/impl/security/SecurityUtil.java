@@ -18,8 +18,8 @@ public class SecurityUtil {
   public static final String REGISTRATION_URLS = "/register/**";
   public static final String H2_CONSOLE = "/h2-console/**";
   public static final String PUBLIC_CLUB_URLS = "/public/**";
+  public static final String VALIDATE_TOKEN_URL = "/validate-token/**";
   public static final String JWT_TOKEN_KEY = "jwt-token";
-
   static final AntPathRequestMatcher CLUBS_URLS = new AntPathRequestMatcher("/clubs/{clubId}/**");
 
   public static Optional<Cookie> extractJwtCookie(Cookie[] cookies) {

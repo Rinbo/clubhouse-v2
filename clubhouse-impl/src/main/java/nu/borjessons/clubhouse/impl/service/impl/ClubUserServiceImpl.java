@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl.service.impl;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -123,6 +124,11 @@ public class ClubUserServiceImpl implements ClubUserService {
         .stream()
         .map(ClubUserDTO::new)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public Optional<ClubUserDTO> getClubUserByUsername(String clubId, String username) {
+    return clubUserRepository.findByClubIdAndUsername(clubId, username).map(ClubUserDTO::new).or(Optional::empty);
   }
 
   private void updateRoles(ClubUser clubUser, Set<Role> roles) {

@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl.security;
 import static nu.borjessons.clubhouse.impl.security.SecurityUtil.H2_CONSOLE;
 import static nu.borjessons.clubhouse.impl.security.SecurityUtil.PUBLIC_CLUB_URLS;
 import static nu.borjessons.clubhouse.impl.security.SecurityUtil.REGISTRATION_URLS;
+import static nu.borjessons.clubhouse.impl.security.SecurityUtil.VALIDATE_TOKEN_URL;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -45,7 +46,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     http.authorizeRequests()
         .antMatchers(HttpMethod.POST, REGISTRATION_URLS).permitAll()
-        .antMatchers(HttpMethod.GET, PUBLIC_CLUB_URLS).permitAll()
+        .antMatchers(HttpMethod.GET, PUBLIC_CLUB_URLS, VALIDATE_TOKEN_URL).permitAll()
         .antMatchers(H2_CONSOLE).permitAll()
         .anyRequest().authenticated()
         .and()

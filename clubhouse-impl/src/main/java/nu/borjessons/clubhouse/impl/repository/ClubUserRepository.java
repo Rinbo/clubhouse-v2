@@ -22,4 +22,7 @@ public interface ClubUserRepository extends JpaRepository<ClubUser, Long> {
 
   @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE club_id IN (SELECT id from club where club_id = ?1)")
   List<ClubUser> findByClubId(String clubId);
+
+  @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id IN (SELECT id from users where email=?2) AND club_id IN (SELECT id from club where club_id = ?1)")
+  Optional<ClubUser> findByClubIdAndUsername(String clubId, String username);
 }

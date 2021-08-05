@@ -15,7 +15,7 @@ public class JWTUtil {
     this.key = key;
   }
 
-  Claims getAllClaimsFromToken(String token) {
+  public Claims getAllClaimsFromToken(String token) {
     return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
   }
 

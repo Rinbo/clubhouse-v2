@@ -205,6 +205,25 @@ public class UserUtil {
 
   }
 
+  public static ResponseEntity<String> validateToken(String token) {
+    String uri = RestUtil.getUriBuilder("/validate-token").toUriString();
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
+    return restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+  }
+
+  public static void revokeToken(String clubId, String token, String username) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/revoke-token")
+        .queryParam("username", username)
+        .buildAndExpand(clubId)
+        .toUriString();
+
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
+    ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
   private UserUtil() {
     throw new IllegalStateException("Utility class");
   }

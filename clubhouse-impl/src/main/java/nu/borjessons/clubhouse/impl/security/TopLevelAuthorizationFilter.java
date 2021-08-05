@@ -8,16 +8,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.lang.NonNull;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
 @RequiredArgsConstructor
+@Slf4j
 public class TopLevelAuthorizationFilter extends OncePerRequestFilter {
   private final JWTUtil jwtUtil;
   private final TokenStore tokenStore;
@@ -42,7 +43,10 @@ public class TopLevelAuthorizationFilter extends OncePerRequestFilter {
     Claims claims = jwtUtil.getAllClaimsFromToken(token);
     String email = claims.getSubject();
 
-    if (email == null || !tokenStore.isSame(email, token)) throw new AccessDeniedException("Token authentication failed");
+    if (email == null || !tokenStore.isSame(email, token)) {
+      log.debug("Token authentication failed");
+      return null;
+    }
 
     return new UsernamePasswordAuthenticationToken(userService.getUserByEmail(email), null, null);
   }
