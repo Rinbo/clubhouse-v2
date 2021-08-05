@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import io.jsonwebtoken.security.Keys;
 import nu.borjessons.clubhouse.impl.security.JWTUtil;
-import nu.borjessons.clubhouse.impl.security.TokenBlacklist;
+import nu.borjessons.clubhouse.impl.security.TokenStore;
 
 @SpringBootApplication
 public class ClubhouseApplication {
@@ -34,8 +34,7 @@ public class ClubhouseApplication {
   }
 
   @Bean
-  TokenBlacklist createTokenBlackList() {
-    ConcurrentHashMap<String, Boolean> map = new ConcurrentHashMap<>();
-    return new TokenBlacklist(map);
+  TokenStore createTokenStore() {
+    return new TokenStore(new ConcurrentHashMap<>());
   }
 }

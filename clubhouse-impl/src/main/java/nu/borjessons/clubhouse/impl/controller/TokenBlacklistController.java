@@ -6,16 +6,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.security.TokenBlacklist;
+import nu.borjessons.clubhouse.impl.security.TokenStore;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/blacklist")
+@RequestMapping("/revoke-token")
 public class TokenBlacklistController {
-  private final TokenBlacklist tokenBlacklist;
+  private final TokenStore tokenStore;
 
   @GetMapping
-  public void blacklist(@RequestParam String username) {
-    tokenBlacklist.blacklist(username);
+  public void revokeToken(@RequestParam String username) {
+    tokenStore.remove(username);
   }
 }

@@ -25,7 +25,7 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
   private final AuthenticationManager authenticationManager;
   private final JWTUtil jwtUtil;
-  private final TokenBlacklist tokenBlacklist;
+  private final TokenStore tokenStore;
   private final UserService userService;
 
   @Override
@@ -34,9 +34,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
       UserLoginRequestModel credentials = new ObjectMapper().readValue(req.getInputStream(), UserLoginRequestModel.class);
       String username = credentials.getUsername().toLowerCase().trim();
       String password = credentials.getPassword();
-      Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-      tokenBlacklist.remove(username);
-      return authentication;
+      return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
     } catch (IOException e) {
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
           "Attempt to authenticate failed. Unable to read input stream from request object");
@@ -46,12 +44,15 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
   @Override
   public void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) {
     User user = (User) auth.getPrincipal();
-    userService.updateUserLoginTime(user.getUsername());
-    String token = jwtUtil.doGenerateToken(user.getUsername());
+    String username = user.getUsername();
+    userService.updateUserLoginTime(username);
+    String token = jwtUtil.doGenerateToken(username);
     Cookie cookie = new Cookie(SecurityUtil.JWT_TOKEN_KEY, token);
     cookie.setMaxAge(604800);
+    cookie.setPath("/");
     cookie.setHttpOnly(true);
     cookie.setSecure(req.isSecure());
     res.addCookie(cookie);
+    tokenStore.put(username, token);
   }
 }

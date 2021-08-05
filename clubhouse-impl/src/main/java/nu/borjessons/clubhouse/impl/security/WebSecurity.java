@@ -30,7 +30,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
   private final CustomCorsConfiguration customCorsConfiguration;
   private final JWTUtil jwtUtil;
   private final PasswordEncoder passwordEncoder;
-  private final TokenBlacklist tokenBlacklist;
+  private final TokenStore tokenStore;
   private final UserService userService;
 
   @Override
@@ -49,9 +49,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         .antMatchers(H2_CONSOLE).permitAll()
         .anyRequest().authenticated()
         .and()
-        .addFilterAt(new AuthenticationFilter(authenticationManager(), jwtUtil, tokenBlacklist, userService), BasicAuthenticationFilter.class)
-        .addFilterAfter(new TopLevelAuthorizationFilter(jwtUtil, tokenBlacklist, userService), BasicAuthenticationFilter.class)
-        .addFilterAfter(new ClubsAuthorizationFilter(clubUserRepository, jwtUtil, tokenBlacklist, userService), BasicAuthenticationFilter.class)
+        .addFilterAt(new AuthenticationFilter(authenticationManager(), jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)
+        .addFilterAfter(new TopLevelAuthorizationFilter(jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)
+        .addFilterAfter(new ClubsAuthorizationFilter(clubUserRepository, jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
