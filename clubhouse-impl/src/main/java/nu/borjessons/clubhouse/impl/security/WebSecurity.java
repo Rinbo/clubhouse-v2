@@ -55,7 +55,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         .and()
         .addFilterAt(new AuthenticationFilter(authenticationManager(), jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)
         .addFilterAfter(new TopLevelAuthorizationFilter(jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)
-        .addFilterAfter(new ClubsAuthorizationFilter(authenticationManager(), clubUserRepository, jwtUtil, tokenStore, userService),
+        .addFilterAfter(new ClubsAuthorizationFilter(authenticationManager()),
             BasicAuthenticationFilter.class)
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
