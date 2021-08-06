@@ -24,8 +24,8 @@ public class TopLevelAuthenticationProvider implements AuthenticationProvider {
     Claims claims = jwtUtil.getAllClaimsFromToken(token);
     String username = claims.getSubject();
 
-    if (!tokenStore.isSame(username, token)) return null;
-    
+    if (!tokenStore.isSame(username, token)) return new TopLevelAuthentication(token);
+
     return new TopLevelAuthentication(token, userService.getUserByEmail(username), List.of());
   }
 

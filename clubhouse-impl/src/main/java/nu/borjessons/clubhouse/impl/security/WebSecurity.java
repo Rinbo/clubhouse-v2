@@ -33,12 +33,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
   private final JWTUtil jwtUtil;
   private final PasswordEncoder passwordEncoder;
   private final TokenStore tokenStore;
+  private final TopLevelAuthenticationProvider topLevelAuthenticationProvider;
   private final UserService userService;
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
     auth
         .authenticationProvider(clubTokenAuthenticationProvider)
+        .authenticationProvider(topLevelAuthenticationProvider)
         .userDetailsService(userService).passwordEncoder(passwordEncoder);
   }
 
@@ -54,7 +56,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         .anyRequest().authenticated()
         .and()
         .addFilterAt(new AuthenticationFilter(authenticationManager(), jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)
-        .addFilterAfter(new TopLevelAuthorizationFilter(jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)
+        .addFilterAfter(new TopLevelAuthorizationFilter(authenticationManager(), jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)
         .addFilterAfter(new ClubsAuthorizationFilter(authenticationManager()),
             BasicAuthenticationFilter.class)
         .sessionManagement()

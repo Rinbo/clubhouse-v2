@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -20,6 +22,7 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 @RequiredArgsConstructor
 @Slf4j
 public class TopLevelAuthorizationFilter extends OncePerRequestFilter {
+  private final AuthenticationManager authenticationManager;
   private final JWTUtil jwtUtil;
   private final TokenStore tokenStore;
   private final UserService userService;
@@ -32,7 +35,9 @@ public class TopLevelAuthorizationFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest req, @NonNull HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
     SecurityUtil.extractJwtCookie(req.getCookies()).ifPresent(cookie -> {
-      UsernamePasswordAuthenticationToken authentication = getAuthentication(cookie.getValue());
+      //UsernamePasswordAuthenticationToken authentication = getAuthentication(cookie.getValue());
+      TopLevelAuthentication topLevelAuthentication = new TopLevelAuthentication(cookie.getValue());
+      Authentication authentication = authenticationManager.authenticate(topLevelAuthentication);
       SecurityContextHolder.getContext().setAuthentication(authentication);
     });
 

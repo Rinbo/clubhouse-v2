@@ -9,7 +9,7 @@ import org.springframework.util.Assert;
 import nu.borjessons.clubhouse.impl.data.User;
 
 public class TopLevelAuthentication implements Authentication {
-  private static final long serialVersionUID = -5600312802206174372L;
+  private static final long serialVersionUID = 6128259538648957141L;
 
   private final Object credentials;
   private Object principal;
