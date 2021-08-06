@@ -13,7 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +36,7 @@ public class ClubsAuthorizationFilter extends OncePerRequestFilter {
     return variables.get("clubId");
   }
 
+  private final AuthenticationManager authenticationManager;
   private final ClubUserRepository clubUserRepository;
   private final JWTUtil jwtUtil;
   private final TokenStore tokenStore;
@@ -48,7 +51,10 @@ public class ClubsAuthorizationFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest req, @NonNull HttpServletResponse res, FilterChain chain)
       throws ServletException, IOException {
     SecurityUtil.extractJwtCookie(req.getCookies()).ifPresent(cookie -> {
-      UsernamePasswordAuthenticationToken authentication = getAuthentication(cookie.getValue(), getClubId(req));
+      //UsernamePasswordAuthenticationToken authentication = getAuthentication(cookie.getValue(), getClubId(req));
+      //SecurityContextHolder.getContext().setAuthentication(authentication);
+      ClubTokenAuthentication clubTokenAuthentication = new ClubTokenAuthentication(cookie.getValue(), getClubId(req));
+      Authentication authentication = authenticationManager.authenticate(clubTokenAuthentication);
       SecurityContextHolder.getContext().setAuthentication(authentication);
     });
 

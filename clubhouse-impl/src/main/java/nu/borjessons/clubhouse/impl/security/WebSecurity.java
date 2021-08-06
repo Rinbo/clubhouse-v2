@@ -29,6 +29,7 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 public class WebSecurity extends WebSecurityConfigurerAdapter {
   private final ClubUserRepository clubUserRepository;
   private final CustomCorsConfiguration customCorsConfiguration;
+  private final ClubTokenAuthenticationProvider clubTokenAuthenticationProvider;
   private final JWTUtil jwtUtil;
   private final PasswordEncoder passwordEncoder;
   private final TokenStore tokenStore;
@@ -36,7 +37,9 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(userService).passwordEncoder(passwordEncoder);
+    auth
+        .authenticationProvider(clubTokenAuthenticationProvider)
+        .userDetailsService(userService).passwordEncoder(passwordEncoder);
   }
 
   @Override
@@ -52,7 +55,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         .and()
         .addFilterAt(new AuthenticationFilter(authenticationManager(), jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)
         .addFilterAfter(new TopLevelAuthorizationFilter(jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)
-        .addFilterAfter(new ClubsAuthorizationFilter(clubUserRepository, jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)
+        .addFilterAfter(new ClubsAuthorizationFilter(authenticationManager(), clubUserRepository, jwtUtil, tokenStore, userService),
+            BasicAuthenticationFilter.class)
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
