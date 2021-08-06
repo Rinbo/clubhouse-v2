@@ -17,9 +17,9 @@ import org.springframework.web.server.ResponseStatusException;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nu.borjessons.clubhouse.impl.security.JWTUtil;
-import nu.borjessons.clubhouse.impl.security.SecurityUtil;
 import nu.borjessons.clubhouse.impl.security.TokenStore;
+import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
+import nu.borjessons.clubhouse.impl.security.util.SecurityUtil;
 import nu.borjessons.clubhouse.impl.service.ClubUserService;
 
 @RequiredArgsConstructor

@@ -11,8 +11,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import io.jsonwebtoken.security.Keys;
-import nu.borjessons.clubhouse.impl.security.JWTUtil;
 import nu.borjessons.clubhouse.impl.security.TokenStore;
+import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
 
 @SpringBootApplication
 public class ClubhouseApplication {

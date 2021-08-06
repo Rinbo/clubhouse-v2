@@ -17,7 +17,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
-import nu.borjessons.clubhouse.impl.security.SecurityUtil;
+import nu.borjessons.clubhouse.impl.security.util.SecurityUtil;
 import nu.borjessons.clubhouse.impl.service.RegistrationService;
 
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.security;
+package nu.borjessons.clubhouse.impl.security.authentication;
 
 import java.util.Collection;
 
@@ -8,29 +8,28 @@ import org.springframework.util.Assert;
 
 import nu.borjessons.clubhouse.impl.data.User;
 
-public class ClubTokenAuthentication implements Authentication {
-  private static final long serialVersionUID = -5600312802206174372L;
+public class TopLevelAuthentication implements Authentication {
+  private static final long serialVersionUID = 6128259538648957141L;
 
   private final Object credentials;
-  private final Object details;
   private Object principal;
   private Collection<? extends GrantedAuthority> authorities;
   private boolean authenticated;
 
-  public ClubTokenAuthentication(Object credentials, Object details) {
+  public TopLevelAuthentication(Object credentials) {
     this.credentials = credentials;
-    this.details = details;
   }
 
-  public ClubTokenAuthentication(Object credentials, Object details, Object principal,
-      Collection<? extends GrantedAuthority> authorities) {
+  public TopLevelAuthentication(Object credentials, Object principal, Collection<? extends GrantedAuthority> authorities) {
     this.credentials = credentials;
-    this.details = details;
     this.principal = principal;
     this.authorities = authorities;
     authenticated = true;
   }
 
+  /**
+   * Top level authentication contains no authorities
+   */
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return authorities;
@@ -43,7 +42,7 @@ public class ClubTokenAuthentication implements Authentication {
 
   @Override
   public Object getDetails() {
-    return details;
+    return null;
   }
 
   @Override

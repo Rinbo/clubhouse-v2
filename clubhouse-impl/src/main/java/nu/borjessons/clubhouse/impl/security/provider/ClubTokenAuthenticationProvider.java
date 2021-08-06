@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.security;
+package nu.borjessons.clubhouse.impl.security.provider;
 
 import java.util.Collection;
 import java.util.Set;
@@ -18,6 +18,9 @@ import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
+import nu.borjessons.clubhouse.impl.security.TokenStore;
+import nu.borjessons.clubhouse.impl.security.authentication.ClubTokenAuthentication;
+import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
 @RequiredArgsConstructor

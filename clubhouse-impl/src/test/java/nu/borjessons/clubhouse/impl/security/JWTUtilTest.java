@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.Keys;
+import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
 
 class JWTUtilTest {
   private static final Key KEY = Keys.hmacShaKeyFor("alsöjdfghaölvjpnöafödkvjandfövajnskdövlkanvöalgfhijnaöfljkvnaöflkjvn".getBytes());

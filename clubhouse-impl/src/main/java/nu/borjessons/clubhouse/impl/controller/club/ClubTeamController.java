@@ -24,7 +24,7 @@ import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.TeamDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
-import nu.borjessons.clubhouse.impl.security.ResourceAuthorization;
+import nu.borjessons.clubhouse.impl.security.util.ResourceAuthorization;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 import nu.borjessons.clubhouse.impl.service.TeamService;
 

@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.security;
+package nu.borjessons.clubhouse.impl.security.provider;
 
 import java.util.List;
 
@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.security.TokenStore;
+import nu.borjessons.clubhouse.impl.security.authentication.TopLevelAuthentication;
+import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
 @RequiredArgsConstructor

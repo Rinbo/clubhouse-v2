@@ -3,6 +3,9 @@ package nu.borjessons.clubhouse.impl.security;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Temporary implementation - To be replaced with redis or AWS DynamoDB
+ */
 public class TokenStore {
   private final ConcurrentMap<String, String> map;
 

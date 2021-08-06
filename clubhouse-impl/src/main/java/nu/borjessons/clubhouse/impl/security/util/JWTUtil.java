@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.security;
+package nu.borjessons.clubhouse.impl.security.util;
 
 import java.security.Key;
 import java.util.Date;
@@ -19,7 +19,7 @@ public class JWTUtil {
     return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
   }
 
-  String doGenerateToken(String username) {
+  public String doGenerateToken(String username) {
     final Date createdDate = new Date();
     final Date expirationDate = new Date(createdDate.getTime() + expirationMillis);
 

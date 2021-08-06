@@ -19,7 +19,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
-import nu.borjessons.clubhouse.impl.security.SecurityUtil;
+import nu.borjessons.clubhouse.impl.security.util.SecurityUtil;
 
 public class RegistrationUtil {
   public static UserDTO registerChild(String clubId, String childName, String parentId, String token) throws JsonProcessingException {

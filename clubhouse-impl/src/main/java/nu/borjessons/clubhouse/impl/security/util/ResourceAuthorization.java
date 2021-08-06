@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.security;
+package nu.borjessons.clubhouse.impl.security.util;
 
 import java.util.function.Supplier;
 

@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.security;
+package nu.borjessons.clubhouse.impl.security.filter;
 
 import java.io.IOException;
 
@@ -19,6 +19,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.rest.UserLoginRequestModel;
+import nu.borjessons.clubhouse.impl.security.TokenStore;
+import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
+import nu.borjessons.clubhouse.impl.security.util.SecurityUtil;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
 @RequiredArgsConstructor
