@@ -25,7 +25,7 @@ public class TopLevelAuthorizationFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
-    return SecurityUtil.CLUBS_URLS.matches(request);
+    return SecurityUtil.shouldBeIgnoredByTopLevelFilter(request);
   }
 
   @Override

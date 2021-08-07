@@ -10,7 +10,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,7 +34,7 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
-public class WebSecurity extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
   private final ClubTokenAuthenticationProvider clubTokenAuthenticationProvider;
   private final JWTUtil jwtUtil;
   private final PasswordEncoder passwordEncoder;
@@ -57,9 +56,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     http.cors(c -> c.configurationSource(r -> getCorsConfiguration()));
 
     http.authorizeRequests()
-        .antMatchers(HttpMethod.POST, REGISTRATION_URLS).permitAll()
-        .antMatchers(HttpMethod.GET, PUBLIC_CLUB_URLS, VALIDATE_TOKEN_URL).permitAll()
-        .antMatchers(H2_CONSOLE).permitAll()
+        .antMatchers(PUBLIC_CLUB_URLS, REGISTRATION_URLS, VALIDATE_TOKEN_URL, H2_CONSOLE).permitAll()
         .anyRequest().authenticated()
         .and()
         .addFilterAt(new AuthenticationFilter(authenticationManager(), jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)

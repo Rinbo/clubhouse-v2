@@ -21,7 +21,7 @@ import nu.borjessons.clubhouse.impl.security.util.SecurityUtil;
 @RequiredArgsConstructor
 public class ClubsAuthorizationFilter extends OncePerRequestFilter {
   private static String getClubId(HttpServletRequest httpServletRequest) {
-    final Map<String, String> variables = SecurityUtil.CLUBS_URLS.matcher(httpServletRequest).getVariables();
+    final Map<String, String> variables = SecurityUtil.CLUBS_URLS_MATCHER.matcher(httpServletRequest).getVariables();
     return variables.get("clubId");
   }
 
@@ -29,7 +29,7 @@ public class ClubsAuthorizationFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
-    return !SecurityUtil.CLUBS_URLS.matches(request);
+    return !SecurityUtil.CLUBS_URLS_MATCHER.matches(request);
   }
 
   @Override

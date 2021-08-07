@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl.security.provider;
 import java.util.List;
 
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,7 @@ public class TopLevelAuthenticationProvider implements AuthenticationProvider {
     Claims claims = jwtUtil.getAllClaimsFromToken(token);
     String username = claims.getSubject();
 
-    if (!tokenStore.isSame(username, token)) return new TopLevelAuthentication(token);
+    if (!tokenStore.isSame(username, token)) throw new BadCredentialsException("Token is invalid");
 
     return new TopLevelAuthentication(token, userService.getUserByEmail(username), List.of());
   }

@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,7 +41,7 @@ public class ClubTokenAuthenticationProvider implements AuthenticationProvider {
     Claims claims = jwtUtil.getAllClaimsFromToken(token);
     String username = claims.getSubject();
 
-    if (!tokenStore.isSame(username, token)) throw new AccessDeniedException("Token is invalid");
+    if (!tokenStore.isSame(username, token)) throw new BadCredentialsException("Token is invalid");
     User user = userService.getUserByEmail(username);
     String clubId = (String) authentication.getDetails();
     Collection<GrantedAuthority> clubUserAuthorities = getClubUserAuthorities(user.getId(), clubId);

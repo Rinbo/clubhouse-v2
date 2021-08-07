@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -81,12 +82,20 @@ public class RestExceptionHandler {
       javax.validation.ConstraintViolationException.class,
       org.hibernate.exception.ConstraintViolationException.class
   })
-  public ResponseEntity<ErrorMessage> handleSpecificExceptions(Exception ex, HttpServletRequest req) {
+  public ResponseEntity<ErrorMessage> handleConstraintViolationException(Exception ex, HttpServletRequest req) {
     log.debug(stringifyStacktrace(ex));
 
     ErrorMessage errorMessage = new ErrorMessage("A resource already exists in the database with provided parameters",
         req.getRequestURI(), HttpStatus.CONFLICT.value());
     return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.CONFLICT);
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<ErrorMessage> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest req) {
+    log.debug(stringifyStacktrace(ex));
+
+    ErrorMessage errorMessage = new ErrorMessage(ex.getMessage(), req.getRequestURI(), 403);
+    return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.FORBIDDEN);
   }
 
   private String stringifyStacktrace(Throwable err) {
