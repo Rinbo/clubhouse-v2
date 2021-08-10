@@ -14,39 +14,49 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.security.TokenStore;
 import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
 import nu.borjessons.clubhouse.impl.security.util.SecurityUtil;
 import nu.borjessons.clubhouse.impl.service.ClubUserService;
+import nu.borjessons.clubhouse.impl.service.UserService;
 
 @RequiredArgsConstructor
 @RestController
 @Slf4j
 public class TokenStoreController {
-  private static ResponseEntity<String> createRedirectResponse(String message) {
-    return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).body(message);
+  private static ResponseEntity<String> createRedirectResponse() {
+    return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).build();
   }
 
+  private final ObjectMapper objectMapper;
   private final ClubUserService clubUserService;
   private final JWTUtil jwtUtil;
   private final TokenStore tokenStore;
+  private final UserService userService;
 
   @GetMapping("/validate-token")
-  public ResponseEntity<String> validateToken(HttpServletRequest request) {
+  public ResponseEntity<String> validateToken(HttpServletRequest request) throws JsonProcessingException {
     Optional<Cookie> optionalCookie = SecurityUtil.extractJwtCookie(request.getCookies());
+
     if (optionalCookie.isPresent()) {
       Cookie cookie = optionalCookie.get();
       Optional<Claims> claims = extractClaims(cookie);
+
       if (claims.isPresent()) {
         return validateToken(cookie, claims.get());
       } else {
-        return createRedirectResponse("Token validation failed");
+        return createRedirectResponse();
       }
+
     } else {
-      return createRedirectResponse("No token available");
+      return createRedirectResponse();
     }
   }
 
@@ -57,12 +67,14 @@ public class TokenStoreController {
     tokenStore.remove(username);
   }
 
-  private ResponseEntity<String> validateToken(Cookie cookie, Claims claims) {
+  private ResponseEntity<String> validateToken(Cookie cookie, Claims claims) throws JsonProcessingException {
     String username = claims.getSubject();
+
     if (tokenStore.isSame(username, cookie.getValue())) {
-      return ResponseEntity.ok("Token validation succeeded");
+      UserDTO userDTO = userService.getUserByUserName(username);
+      return ResponseEntity.ok(objectMapper.writeValueAsString(userDTO));
     } else {
-      return createRedirectResponse("Token did not match the one in store");
+      return createRedirectResponse();
     }
   }
 

@@ -44,6 +44,11 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public UserDTO getUserByUserName(String username) {
+    return UserDTO.create(getUserByEmail(username));
+  }
+
+  @Override
   public UserDTO getById(long id) {
     return UserDTO.create(getUser(id));
   }
