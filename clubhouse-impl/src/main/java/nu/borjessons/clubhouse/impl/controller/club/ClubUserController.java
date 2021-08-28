@@ -90,7 +90,7 @@ public class ClubUserController {
     return clubUserService.getLeaders(clubId);
   }
 
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('USER')")
   @GetMapping(path = "/clubs/{clubId}/users")
   public Collection<ClubUserDTO> getUsers(@PathVariable String clubId) {
     return clubUserService.getClubUsers(clubId);

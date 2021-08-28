@@ -29,6 +29,7 @@ public class ClubUserDTO implements Serializable {
   private String clubId;
   private String clubName;
   private Set<String> childrenIds = new HashSet<>();
+  private Set<String> parentIds = new HashSet<>();
   private Set<Role> roles;
   private String userId;
 
@@ -40,6 +41,7 @@ public class ClubUserDTO implements Serializable {
     clubId = clubUser.getClub().getClubId();
     clubName = clubUser.getClub().getName();
     childrenIds = clubUser.getUser().getChildren().stream().map(User::getUserId).collect(Collectors.toSet());
+    parentIds = clubUser.getUser().getParents().stream().map(User::getUserId).collect(Collectors.toSet());
     roles = clubUser.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toSet());
     userId = clubUser.getUser().getUserId();
   }
