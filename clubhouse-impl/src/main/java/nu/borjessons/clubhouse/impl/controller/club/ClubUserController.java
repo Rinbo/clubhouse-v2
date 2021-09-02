@@ -36,7 +36,7 @@ public class ClubUserController {
     return clubUserService.getClubUser(clubId, principal.getUserId());
   }
 
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('USER')")
   @GetMapping("/clubs/{clubId}/users/{userId}")
   public ClubUserDTO getUser(@PathVariable String clubId, @PathVariable String userId) {
     return clubUserService.getClubUser(clubId, userId);
