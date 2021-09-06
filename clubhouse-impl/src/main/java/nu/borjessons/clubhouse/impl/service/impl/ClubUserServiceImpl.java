@@ -132,7 +132,9 @@ public class ClubUserServiceImpl implements ClubUserService {
   }
 
   private void updateRoles(ClubUser clubUser, Set<Role> roles) {
-    final Set<RoleEntity> roleEntities = roleRepository.findByRoleNames(roles.stream().map(Role::toString).collect(Collectors.toSet()));
+    final Set<RoleEntity> roleEntities = roleRepository.findByRoleNames(roles.stream()
+        .filter(role -> role != Role.SYSTEM_ADMIN)
+        .map(Role::toString).collect(Collectors.toSet()));
     clubUser.setRoles(roleEntities);
   }
 }

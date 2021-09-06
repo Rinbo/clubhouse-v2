@@ -203,6 +203,19 @@ class ClubUserIntegrationTest {
     }
   }
 
+  @Test
+  void adminFailsAttemptToHackSystemAdmin() throws Exception {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      AdminUpdateUserModel updateUserModel = UserUtil.createAdminUpdateModel("Erik", "Johnson", "2000-01-01",
+          Set.of(Role.PARENT, Role.LEADER, Role.USER, Role.SYSTEM_ADMIN));
+
+      ClubUserDTO clubUserDTO = UserUtil.updateClubUser(updateUserModel, EmbeddedDataLoader.CLUB_ID, ownerToken, EmbeddedDataLoader.USER_ID);
+      Assertions.assertFalse(clubUserDTO.getRoles().contains(Role.SYSTEM_ADMIN));
+    }
+  }
+
   /**
    * Pre-supposes original set is smaller and that updated set is a super set of original
    */
