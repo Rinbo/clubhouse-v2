@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -21,6 +22,7 @@ import nu.borjessons.clubhouse.impl.dto.Role;
 @Entity
 @Table(name = "role")
 public class RoleEntity implements Serializable {
+  @Serial
   private static final long serialVersionUID = 8384245478087805632L;
 
   @Id

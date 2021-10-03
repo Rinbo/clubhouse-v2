@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.data;
 
+import java.io.Serial;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,13 +18,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Address extends BaseEntity {
+  @Serial
   private static final long serialVersionUID = 8296297244892527350L;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
+  @Setter(AccessLevel.PRIVATE)
   @Column(nullable = false, unique = true)
-  private final String addressId = UUID.randomUUID().toString();
+  private String addressId = UUID.randomUUID().toString();
 
   @Column(length = 30, nullable = false)
   private String city;

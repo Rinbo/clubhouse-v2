@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.data;
 
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import javax.persistence.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,14 +35,16 @@ import lombok.Setter;
 @Entity
 @Table(name = "users", indexes = {@Index(name = "ix_email", columnList = "email"), @Index(name = "ix_users_id", columnList = "userId")})
 public class User extends BaseEntity implements UserDetails {
+  @Serial
   private static final long serialVersionUID = -1098642930133262484L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
+  @Setter(AccessLevel.PRIVATE)
   @Column(nullable = false, unique = true)
-  private final String userId;
+  private String userId;
 
   @OneToMany(
       mappedBy = "user",

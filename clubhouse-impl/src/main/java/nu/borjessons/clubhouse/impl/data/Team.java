@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.data;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,6 +15,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,14 +24,16 @@ import lombok.Setter;
 @Entity
 @Table(name = "team")
 public class Team extends BaseEntity {
+  @Serial
   private static final long serialVersionUID = -6778870690760953845L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
+  @Setter(AccessLevel.PRIVATE)
   @Column(nullable = false, unique = true)
-  private final String teamId;
+  private String teamId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   private Club club;

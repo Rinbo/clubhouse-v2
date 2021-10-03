@@ -2,6 +2,19 @@ token:
   secret: ${token.secret}
   expiration: 604800
 
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: 'jdbc:postgresql://localhost:5400/clubhousedb'
+    username: postgres
+    password: postgres
+  jpa:
+    database: POSTGRESQL
+
 logging:
   level:
     root: info
@@ -17,22 +30,6 @@ logging:
 spring:
   config:
     activate:
-      on-profile: local
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: 'jdbc:postgresql://localhost:5400/clubhousedb'
-    username: postgres
-    password: postgres
-  jpa:
-    database: POSTGRESQL
-    generate-ddl: true
-    hibernate:
-      ddl-auto: create
-
----
-spring:
-  config:
-    activate:
       on-profile: dev
   datasource:
     driver-class-name: org.h2.Driver
@@ -42,6 +39,16 @@ spring:
   h2:
     console:
       enabled: true
+logging:
+  level:
+    root: info
+    nu:
+      borjessons:
+        clubhouse: debug
+    org:
+      springframework:
+        web: info
+        security: warn
 
 
 

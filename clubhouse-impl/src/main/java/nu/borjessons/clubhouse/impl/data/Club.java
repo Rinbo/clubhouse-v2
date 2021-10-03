@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.data;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -22,6 +23,7 @@ import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,14 +32,16 @@ import lombok.Setter;
 @Entity
 @Table(name = "club", indexes = @Index(name = "ix_club_id", columnList = "clubId"))
 public class Club extends BaseEntity {
+  @Serial
   private static final long serialVersionUID = -5573907533182487531L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
-  @Column(nullable = false, unique = true)
-  private final String clubId;
+  @Setter(AccessLevel.PRIVATE)
+  @Column(nullable = false, length = 120, unique = true)
+  private String clubId;
 
   @Column(nullable = false, length = 120, unique = true)
   private String name;
@@ -85,7 +89,7 @@ public class Club extends BaseEntity {
   public List<ClubUser> getClubUsers(List<String> userIds) {
     return clubUsers.stream()
         .filter(clubUser -> userIds.contains(clubUser.getUser().getUserId()))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   public Optional<ClubUser> getClubUser(String userId) {
