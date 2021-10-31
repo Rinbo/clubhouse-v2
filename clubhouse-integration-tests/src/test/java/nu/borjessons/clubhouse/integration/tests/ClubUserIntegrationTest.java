@@ -148,7 +148,9 @@ class ClubUserIntegrationTest {
       RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
       ClubDTO clubDTO = ClubUtil.getClubByPathName("judo-sports");
 
-      UserUtil.addClubUser(clubDTO.getClubId(), EmbeddedDataLoader.USER_ID, token);
+      UserDTO user = UserUtil.getSelf(token);
+
+      UserUtil.addClubUser(clubDTO.getClubId(), EmbeddedDataLoader.USER_ID, token, user.getChildrenIds());
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
     }
   }

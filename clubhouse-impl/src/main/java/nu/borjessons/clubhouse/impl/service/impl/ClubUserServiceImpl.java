@@ -2,6 +2,7 @@ package nu.borjessons.clubhouse.impl.service.impl;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -74,6 +75,9 @@ public class ClubUserServiceImpl implements ClubUserService {
     return new ClubUserDTO(userRepository.save(user).getClubUser(clubId).orElseThrow());
   }
 
+  //TODO is this necessary? If the user has children and they are in the club, will he not automatically see them?
+  // Yes, I think this is superfluous -> Give ClubUser ability to activate parent role if he has children in club
+  // NOTE: Or rather, this is on user level which should not be accessible for ClubUser admins
   @Override
   @Transactional
   public ClubUserDTO addExistingChildrenToUser(String userId, String clubId, List<String> childrenIds) {
@@ -94,13 +98,13 @@ public class ClubUserServiceImpl implements ClubUserService {
   }
 
   // TODO Implement functionality to notify admins that this user wants to join - Require action to give full permissions
-  // TODO boolean to port children as well?
   @Override
   @Transactional
-  public ClubUserDTO addUserToClub(String clubId, String userId) {
+  public ClubUserDTO addUserToClub(String clubId, String userId, List<String> childrenIds) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     User user = userRepository.findByUserId(userId).orElseThrow();
-    Set<RoleEntity> roleEntities = roleRepository.findByRoleNames(Set.of(Role.USER.name()));
+    Set<Role> roles = addChildren(club, user, childrenIds);
+    Set<RoleEntity> roleEntities = roleRepository.findByRoleNames(roles.stream().map(Role::name).collect(Collectors.toSet()));
     ClubUser clubUser = new ClubUser();
     roleEntities.forEach(clubUser::addRoleEntity);
     club.addClubUser(clubUser);
@@ -115,7 +119,7 @@ public class ClubUserServiceImpl implements ClubUserService {
     return clubUsers.stream()
         .filter(ClubUserServiceImpl::isLeader)
         .map(ClubUserDTO::new)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override
@@ -123,12 +127,29 @@ public class ClubUserServiceImpl implements ClubUserService {
     return clubUserRepository.findByClubId(clubId)
         .stream()
         .map(ClubUserDTO::new)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override
   public Optional<ClubUserDTO> getClubUserByUsername(String clubId, String username) {
     return clubUserRepository.findByClubIdAndUsername(clubId, username).map(ClubUserDTO::new).or(Optional::empty);
+  }
+
+  // TODO: Not adding child role for now. Consider removing it all together. Just adds complexity
+  private Set<Role> addChildren(Club club, User parent, List<String> childrenIds) {
+    Set<Role> roles = EnumSet.of(Role.USER);
+
+    parent.getChildren()
+        .stream()
+        .filter(child -> childrenIds.contains(child.getUserId()))
+        .forEach(child -> {
+          roles.add(Role.PARENT);
+          ClubUser clubUser = new ClubUser();
+          club.addClubUser(clubUser);
+          child.addClubUser(clubUser);
+        });
+
+    return roles;
   }
 
   private void updateRoles(ClubUser clubUser, Set<Role> roles) {

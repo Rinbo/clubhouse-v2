@@ -2,7 +2,6 @@ package nu.borjessons.clubhouse.impl.controller.club;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -51,13 +50,13 @@ public class ClubUserController {
         .stream()
         .filter(clubUser -> clubUser.getUser().getAge() >= minAge && clubUser.getUser().getAge() <= maxAge)
         .map(ClubUserDTO::new)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.userId")
   @PostMapping("/clubs/{clubId}/users/{userId}")
-  public ClubUserDTO addUserToClub(@PathVariable String clubId, @PathVariable String userId) {
-    return clubUserService.addUserToClub(clubId, userId);
+  public ClubUserDTO addUserToClub(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {
+    return clubUserService.addUserToClub(clubId, userId, childrenIds);
   }
 
   @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.userId")
@@ -78,6 +77,8 @@ public class ClubUserController {
    * Update 2021-06-20: Consider having a remove and add method since DELETE PUT is not as applicable to a resource that
    * can belong to several entities
    */
+  // Todo -> Remove. Children are created by user on User level. Then admins can activate them once they are created.
+  // NOTE: Or rather, this is on user level which should not be accessible for ClubUser admins
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/clubs/{clubId}/users/{userId}/add-children")
   public ClubUserDTO addExistingChildrenToUser(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {

@@ -16,7 +16,7 @@ public interface ClubUserService {
 
   ClubUserDTO getClubUser(String clubId, String userId);
 
-  ClubUserDTO addUserToClub(String clubId, String userId);
+  ClubUserDTO addUserToClub(String clubId, String userId, List<String> childrenIds);
 
   Collection<ClubUserDTO> getLeaders(String clubId);
 
