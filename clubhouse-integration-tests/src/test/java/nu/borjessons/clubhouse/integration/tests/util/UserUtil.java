@@ -185,13 +185,14 @@ public class UserUtil {
     return updateUserModel;
   }
 
-  public static void addClubUser(String clubId, String userId, String token, Set<String> childrenIds) {
+  public static ClubUserDTO addClubUser(String clubId, String userId, String token, Set<String> childrenIds) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
 
     ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.POST, httpEntity, ClubUserDTO.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
   }
 
   public static ClubUserDTO getClubUserPrincipal(String clubId, String token) {

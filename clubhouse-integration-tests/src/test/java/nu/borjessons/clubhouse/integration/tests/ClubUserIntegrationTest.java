@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.integration.tests;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -140,18 +141,59 @@ class ClubUserIntegrationTest {
   }
 
   @Test
-  void userJoinsClub() throws Exception {
+  void parentJoinsClubAndBringsNoChildren() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
-      final String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      final String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
 
       RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
       ClubDTO clubDTO = ClubUtil.getClubByPathName("judo-sports");
 
-      UserDTO user = UserUtil.getSelf(token);
+      UserDTO pops = UserUtil.getSelf(token);
 
-      UserUtil.addClubUser(clubDTO.getClubId(), EmbeddedDataLoader.USER_ID, token, user.getChildrenIds());
+      ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.getClubId(), pops.getUserId(), token, Set.of());
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
+      Assertions.assertEquals(2, UserUtil.getClubUsers(clubDTO.getClubId(), token).size());
+      Assertions.assertFalse(clubUserDTO.getRoles().contains(Role.PARENT));
+    }
+  }
+
+  @Test
+  void parentJoinsClubAndRetainsAllChildren() throws Exception {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
+
+      RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
+      ClubDTO clubDTO = ClubUtil.getClubByPathName("judo-sports");
+
+      UserDTO pops = UserUtil.getSelf(token);
+
+      ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.getClubId(), pops.getUserId(), token, pops.getChildrenIds());
+
+      Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
+      Assertions.assertEquals(4, UserUtil.getClubUsers(clubDTO.getClubId(), token).size());
+      Assertions.assertTrue(clubUserDTO.getRoles().contains(Role.PARENT));
+    }
+  }
+
+  @Test
+  void parentJoinsClubAndAddsOnlyOneChild() throws Exception {
+    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+      final String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
+
+      RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
+      ClubDTO clubDTO = ClubUtil.getClubByPathName("judo-sports");
+
+      UserDTO pops = UserUtil.getSelf(token);
+
+      ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.getClubId(), pops.getUserId(), token,
+          pops.getChildrenIds().stream().limit(1).collect(Collectors.toSet()));
+
+      Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
+      Assertions.assertEquals(3, UserUtil.getClubUsers(clubDTO.getClubId(), token).size());
+      Assertions.assertTrue(clubUserDTO.getRoles().contains(Role.PARENT));
     }
   }
 
