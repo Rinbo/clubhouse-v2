@@ -14,6 +14,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
+import nu.borjessons.clubhouse.impl.dto.BaseUserDTO;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.Role;
@@ -102,7 +103,12 @@ class ClubUserIntegrationTest {
       final ClubUserDTO mamaClubUser = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.MOMMY_EMAIL);
       final UserDTO papaUser = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB_ID, "Kevin", papaClubUser.getUserId(), ownerToken);
       final ClubUserDTO updatedMamaClubUser = UserUtil.addExistingChildToClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, mamaClubUser.getUserId(), List.of(
-          getDiffEntry(papaClubUser.getChildrenIds(), papaUser.getChildrenIds())));
+          getDiffEntry(papaClubUser.getChildrenIds().stream()
+              .map(BaseUserDTO::userId)
+              .collect(Collectors.toSet()), papaUser.getChildrenIds()
+              .stream()
+              .map(BaseUserDTO::userId)
+              .collect(Collectors.toSet()))));
 
       Assertions.assertEquals(papaUser.getChildrenIds(), updatedMamaClubUser.getChildrenIds());
     }
@@ -169,7 +175,11 @@ class ClubUserIntegrationTest {
 
       UserDTO pops = UserUtil.getSelf(token);
 
-      ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.getClubId(), pops.getUserId(), token, pops.getChildrenIds());
+      ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.getClubId(), pops.getUserId(), token,
+          pops.getChildrenIds()
+              .stream()
+              .map(BaseUserDTO::userId)
+              .collect(Collectors.toSet()));
 
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
       Assertions.assertEquals(4, UserUtil.getClubUsers(clubDTO.getClubId(), token).size());
@@ -189,7 +199,7 @@ class ClubUserIntegrationTest {
       UserDTO pops = UserUtil.getSelf(token);
 
       ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.getClubId(), pops.getUserId(), token,
-          pops.getChildrenIds().stream().limit(1).collect(Collectors.toSet()));
+          pops.getChildrenIds().stream().map(BaseUserDTO::userId).limit(1).collect(Collectors.toSet()));
 
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
       Assertions.assertEquals(3, UserUtil.getClubUsers(clubDTO.getClubId(), token).size());

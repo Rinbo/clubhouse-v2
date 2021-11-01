@@ -1,21 +1,11 @@
 package nu.borjessons.clubhouse.impl.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.time.LocalDate;
+
 import nu.borjessons.clubhouse.impl.data.User;
 
-@Getter
-@NoArgsConstructor
-public class BaseUserDTO {
-  private String userId;
-  private String firstName;
-  private String lastName;
-  private String dateOfBirth;
-
+public record BaseUserDTO(String userId, String firstName, String lastName, LocalDate dateOfBirth) {
   public BaseUserDTO(User user) {
-    userId = user.getUserId();
-    firstName = user.getFirstName();
-    lastName = user.getLastName();
-    dateOfBirth = user.getDateOfBirth().toString();
+    this(user.getUserId(), user.getFirstName(), user.getLastName(), user.getDateOfBirth());
   }
 }

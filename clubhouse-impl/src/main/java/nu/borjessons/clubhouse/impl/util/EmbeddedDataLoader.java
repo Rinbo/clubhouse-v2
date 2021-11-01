@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.Club.Type;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
+import nu.borjessons.clubhouse.impl.dto.BaseUserDTO;
 import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.TeamDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
@@ -159,7 +160,7 @@ public class EmbeddedDataLoader {
     TeamRequestModel teamModel = createTeamModel(dad.getUserId());
 
     TeamDTO team = teamService.createTeam(CLUB_ID, teamModel);
-    ArrayList<String> teamMembers = new ArrayList<>(dad.getChildrenIds());
+    ArrayList<String> teamMembers = new ArrayList<>(dad.getChildrenIds().stream().map(BaseUserDTO::userId).toList());
     teamMembers.add(normalUserDTO.getUserId());
     TeamDTO updateTeamDTO = teamService.updateTeamMembers(CLUB_ID, team.getTeamId(), teamMembers);
     log.info("created team: {}", updateTeamDTO);
