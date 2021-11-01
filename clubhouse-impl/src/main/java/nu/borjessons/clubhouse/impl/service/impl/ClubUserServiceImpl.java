@@ -135,27 +135,37 @@ public class ClubUserServiceImpl implements ClubUserService {
     return clubUserRepository.findByClubIdAndUsername(clubId, username).map(ClubUserDTO::new).or(Optional::empty);
   }
 
-  // TODO: Not adding child role for now. Consider removing it all together. Just adds complexity
+  private void updateRoles(ClubUser clubUser, Set<Role> roles) {
+    final Set<RoleEntity> roleEntities = roleRepository.findByRoleNames(roles.stream()
+        .filter(role -> role != Role.SYSTEM_ADMIN)
+        .map(Role::toString).collect(Collectors.toSet()));
+    clubUser.setRoles(roleEntities);
+  }
+
+  /**
+   * Adds ClubUser for children unless they have already been added by another parent. If that is the case, just adds role PARENT
+   */
   private Set<Role> addChildren(Club club, User parent, List<String> childrenIds) {
     Set<Role> roles = EnumSet.of(Role.USER);
+
+    List<String> existingClubChildren = clubUserRepository.findByClubIdAndUserIds(club.getClubId(), childrenIds)
+        .stream()
+        .map(childClubUser -> childClubUser.getUser().getUserId())
+        .toList();
 
     parent.getChildren()
         .stream()
         .filter(child -> childrenIds.contains(child.getUserId()))
         .forEach(child -> {
           roles.add(Role.PARENT);
+          if (existingClubChildren.contains(child.getUserId())) return;
+
+          // TODO: Not adding child role for now. Consider removing it all together. Just adds complexity
           ClubUser clubUser = new ClubUser();
           club.addClubUser(clubUser);
           child.addClubUser(clubUser);
         });
 
     return roles;
-  }
-
-  private void updateRoles(ClubUser clubUser, Set<Role> roles) {
-    final Set<RoleEntity> roleEntities = roleRepository.findByRoleNames(roles.stream()
-        .filter(role -> role != Role.SYSTEM_ADMIN)
-        .map(Role::toString).collect(Collectors.toSet()));
-    clubUser.setRoles(roleEntities);
   }
 }
