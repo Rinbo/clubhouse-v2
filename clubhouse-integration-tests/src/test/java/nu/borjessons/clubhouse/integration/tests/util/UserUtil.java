@@ -224,6 +224,16 @@ public class UserUtil {
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
+  public static ClubUserDTO activateChildren(String clubId, String userId, String token, Set<String> childrenIds) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/activate-children").buildAndExpand(clubId, userId).toUriString();
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
+
+    ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.PUT, httpEntity, ClubUserDTO.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
+  }
+
   private UserUtil() {
     throw new IllegalStateException("Utility class");
   }

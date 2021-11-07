@@ -44,6 +44,7 @@ public class ClubUserDTO implements Serializable {
     clubName = clubUser.getClub().getName();
     // TODO this doesn't quite match up. Here we are giving the childrenIds even if we don't know if this user is actually a parent in this club
     // We could validate on role but that would mean doing work in the constructor
+    // Or find the ClubUser children for this club if they exist?
     childrenIds = clubUser.getUser().getChildren().stream().map(BaseUserDTO::new).collect(Collectors.toSet());
     parentIds = clubUser.getUser().getParents().stream().map(User::getUserId).collect(Collectors.toSet());
     roles = clubUser.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toSet());

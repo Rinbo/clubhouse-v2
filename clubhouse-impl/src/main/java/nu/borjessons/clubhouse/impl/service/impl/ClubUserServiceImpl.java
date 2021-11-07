@@ -135,6 +135,19 @@ public class ClubUserServiceImpl implements ClubUserService {
     return clubUserRepository.findByClubIdAndUsername(clubId, username).map(ClubUserDTO::new).or(Optional::empty);
   }
 
+  @Override
+  @Transactional
+  public ClubUserDTO activateChildren(String clubId, String userId, List<String> childrenIds) {
+    Club club = clubRepository.findByClubId(clubId).orElseThrow();
+    User user = userRepository.findByUserId(userId).orElseThrow();
+    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
+    Set<Role> roles = addChildren(club, user, childrenIds);
+    Set<RoleEntity> roleNames = roleRepository.findByRoleNames(roles.stream().map(Role::name).collect(Collectors.toSet()));
+    roleNames.forEach(clubUser::addRoleEntity);
+    userRepository.save(user);
+    return new ClubUserDTO(clubUser);
+  }
+
   private void updateRoles(ClubUser clubUser, Set<Role> roles) {
     final Set<RoleEntity> roleEntities = roleRepository.findByRoleNames(roles.stream()
         .filter(role -> role != Role.SYSTEM_ADMIN)

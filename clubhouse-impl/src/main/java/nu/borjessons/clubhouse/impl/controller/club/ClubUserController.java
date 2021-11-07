@@ -85,6 +85,12 @@ public class ClubUserController {
     return clubUserService.addExistingChildrenToUser(userId, clubId, childrenIds);
   }
 
+  @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
+  @PutMapping("/clubs/{clubId}/users/{userId}/activate-children")
+  public ClubUserDTO activateChildren(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {
+    return clubUserService.activateChildren(clubId, userId, childrenIds);
+  }
+
   @PreAuthorize("hasRole('ADMIN')")
   @GetMapping("/clubs/{clubId}/leaders")
   public Collection<ClubUserDTO> getLeaders(@PathVariable String clubId) {
