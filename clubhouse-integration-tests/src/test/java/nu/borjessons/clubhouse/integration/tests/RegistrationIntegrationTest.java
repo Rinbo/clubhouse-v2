@@ -25,7 +25,7 @@ class RegistrationIntegrationTest {
 
   @Test
   void registerUser() throws Exception {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
       final String firstName = "Dustin";
       CreateUserModel createUserModel = UserUtil.createUserModel(EmbeddedDataLoader.CLUB_ID, firstName);
       UserDTO userDTO = RegistrationUtil.registerUser(createUserModel);
@@ -37,7 +37,7 @@ class RegistrationIntegrationTest {
 
   @Test
   void dadRegistersNewChildTest() throws JsonProcessingException {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserDTO daddy = UserUtil.getSelf(token);
 
@@ -54,7 +54,7 @@ class RegistrationIntegrationTest {
 
   @Test
   void adminRegistersNewChildTest() throws JsonProcessingException {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       List<ClubUserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, token);
       String daddyId = UserUtil.getUserIdByEmail(users, EmbeddedDataLoader.POPS_EMAIL).getUserId();
@@ -68,20 +68,20 @@ class RegistrationIntegrationTest {
 
   @Test
   void registerClubTest() throws JsonProcessingException {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
       final String name = "Owner2";
       CreateClubModel createClubModel = ClubUtil.createClubModel(name);
       final UserDTO userDTO = RegistrationUtil.registerClub(createClubModel);
       Assertions.assertEquals(name, userDTO.getFirstName());
 
       final List<ClubDTO> clubs = ClubUtil.getClubs();
-      Assertions.assertTrue(clubs.stream().anyMatch(club -> club.getName().equals(name + " Sports")));
+      Assertions.assertTrue(clubs.stream().anyMatch(club -> club.name().equals(name + " Sports")));
     }
   }
 
   @Test
   void registerFamily() throws JsonProcessingException {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
       final String surname = "Garfield";
       FamilyRequestModel familyRequestModel = UserUtil.createFamilyModel(EmbeddedDataLoader.CLUB_ID, surname);
       List<UserDTO> userDTOs = RegistrationUtil.registerFamily(familyRequestModel);

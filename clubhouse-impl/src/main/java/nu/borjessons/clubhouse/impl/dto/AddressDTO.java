@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.dto;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import lombok.Getter;
@@ -11,6 +12,7 @@ import nu.borjessons.clubhouse.impl.data.Address;
 @Setter
 @NoArgsConstructor
 public class AddressDTO implements Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private String addressId;

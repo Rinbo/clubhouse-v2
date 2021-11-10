@@ -53,6 +53,14 @@ public class ClubUserController {
         .toList();
   }
 
+  // TODO Add two methods:
+  // 1. GetClubChildren, sends back your children in this club
+  // 2. AddRemoveClubChildren -> Depending on the state of the list. If a child exists, and is missing in list -> delete
+  //                          -> If a Child does not exist and is in list -> Create ClubUser for that child
+  // Or -> add/remove in this club. Children will have to be clicked on individually for each club.
+  // The button for which the operation is available will be highlighted
+  // It's a hard computer science problem :( :)
+
   @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.userId")
   @PostMapping("/clubs/{clubId}/users/{userId}")
   public ClubUserDTO addUserToClub(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {

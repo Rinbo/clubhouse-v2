@@ -158,9 +158,9 @@ class ClubUserIntegrationTest {
 
       UserDTO pops = UserUtil.getSelf(token);
 
-      ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.getClubId(), pops.getUserId(), token, Set.of());
+      ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.clubId(), pops.getUserId(), token, Set.of());
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
-      Assertions.assertEquals(2, UserUtil.getClubUsers(clubDTO.getClubId(), token).size());
+      Assertions.assertEquals(2, UserUtil.getClubUsers(clubDTO.clubId(), token).size());
       Assertions.assertFalse(clubUserDTO.getRoles().contains(Role.PARENT));
     }
   }
@@ -176,14 +176,14 @@ class ClubUserIntegrationTest {
 
       UserDTO pops = UserUtil.getSelf(token);
 
-      ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.getClubId(), pops.getUserId(), token,
+      ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.clubId(), pops.getUserId(), token,
           pops.getChildrenIds()
               .stream()
               .map(BaseUserDTO::userId)
               .collect(Collectors.toSet()));
 
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
-      Assertions.assertEquals(4, UserUtil.getClubUsers(clubDTO.getClubId(), token).size());
+      Assertions.assertEquals(4, UserUtil.getClubUsers(clubDTO.clubId(), token).size());
       Assertions.assertTrue(clubUserDTO.getRoles().contains(Role.PARENT));
     }
   }
@@ -199,11 +199,11 @@ class ClubUserIntegrationTest {
 
       UserDTO pops = UserUtil.getSelf(token);
 
-      ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.getClubId(), pops.getUserId(), token,
+      ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.clubId(), pops.getUserId(), token,
           pops.getChildrenIds().stream().map(BaseUserDTO::userId).limit(1).collect(Collectors.toSet()));
 
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
-      Assertions.assertEquals(3, UserUtil.getClubUsers(clubDTO.getClubId(), token).size());
+      Assertions.assertEquals(3, UserUtil.getClubUsers(clubDTO.clubId(), token).size());
       Assertions.assertTrue(clubUserDTO.getRoles().contains(Role.PARENT));
     }
   }
@@ -283,7 +283,7 @@ class ClubUserIntegrationTest {
 
       UserDTO pops = UserUtil.getSelf(token);
 
-      String clubId = clubDTO.getClubId();
+      String clubId = clubDTO.clubId();
       String userId = pops.getUserId();
       ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubId, userId, token, Set.of());
 

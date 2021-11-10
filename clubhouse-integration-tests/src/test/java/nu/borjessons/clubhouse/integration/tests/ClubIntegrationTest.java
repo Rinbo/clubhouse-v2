@@ -12,10 +12,10 @@ import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
 class ClubIntegrationTest {
   private static void validateAgainstTestClub(ClubDTO ownerClubDTO) {
-    Assertions.assertEquals(EmbeddedDataLoader.CLUB_ID, ownerClubDTO.getClubId());
-    Assertions.assertEquals("Fritiof Sports", ownerClubDTO.getName());
-    Assertions.assertEquals("fritiof-sports", ownerClubDTO.getPath());
-    Assertions.assertEquals("SPORT", ownerClubDTO.getType().toString());
+    Assertions.assertEquals(EmbeddedDataLoader.CLUB_ID, ownerClubDTO.clubId());
+    Assertions.assertEquals("Fritiof Sports", ownerClubDTO.name());
+    Assertions.assertEquals("fritiof-sports", ownerClubDTO.path());
+    Assertions.assertEquals("SPORT", ownerClubDTO.type().toString());
   }
 
   @Test

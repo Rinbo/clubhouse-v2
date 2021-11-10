@@ -30,8 +30,8 @@ class OpenRoutesIntegrationTest {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       ClubDTO clubDTO = ClubUtil.getClubByPathName("fritiof-sports");
       Assertions.assertNotNull(clubDTO);
-      Assertions.assertEquals("Fritiof Sports", clubDTO.getName());
-      Assertions.assertEquals(Club.Type.SPORT, clubDTO.getType());
+      Assertions.assertEquals("Fritiof Sports", clubDTO.name());
+      Assertions.assertEquals(Club.Type.SPORT, clubDTO.type());
     }
   }
 }
