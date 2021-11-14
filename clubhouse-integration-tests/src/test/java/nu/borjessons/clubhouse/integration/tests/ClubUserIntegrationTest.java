@@ -15,7 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
-import nu.borjessons.clubhouse.impl.dto.BaseUserDTO;
+import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.Role;
@@ -47,7 +47,7 @@ class ClubUserIntegrationTest {
       Assertions.assertEquals("Fritiof Sports", clubUserDTO.getClubName());
       Assertions.assertEquals("Pappa", clubUserDTO.getFirstName());
       Assertions.assertEquals("Börjesson", clubUserDTO.getLastName());
-      Assertions.assertEquals(2, clubUserDTO.getChildrenIds().size());
+      Assertions.assertEquals(2, clubUserDTO.getChildren().size());
     }
   }
 
@@ -104,14 +104,14 @@ class ClubUserIntegrationTest {
       final ClubUserDTO mamaClubUser = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.MOMMY_EMAIL);
       final UserDTO papaUser = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB_ID, "Kevin", papaClubUser.getUserId(), ownerToken);
       final ClubUserDTO updatedMamaClubUser = UserUtil.addExistingChildToClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, mamaClubUser.getUserId(), List.of(
-          getDiffEntry(papaClubUser.getChildrenIds().stream()
-              .map(BaseUserDTO::userId)
+          getDiffEntry(papaClubUser.getChildren().stream()
+              .map(BaseUserRecord::userId)
               .collect(Collectors.toSet()), papaUser.getChildrenIds()
               .stream()
-              .map(BaseUserDTO::userId)
+              .map(BaseUserRecord::userId)
               .collect(Collectors.toSet()))));
 
-      Assertions.assertEquals(papaUser.getChildrenIds(), updatedMamaClubUser.getChildrenIds());
+      Assertions.assertEquals(papaUser.getChildrenIds(), updatedMamaClubUser.getChildren());
     }
   }
 
@@ -179,7 +179,7 @@ class ClubUserIntegrationTest {
       ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.clubId(), pops.getUserId(), token,
           pops.getChildrenIds()
               .stream()
-              .map(BaseUserDTO::userId)
+              .map(BaseUserRecord::userId)
               .collect(Collectors.toSet()));
 
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
@@ -200,7 +200,7 @@ class ClubUserIntegrationTest {
       UserDTO pops = UserUtil.getSelf(token);
 
       ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.clubId(), pops.getUserId(), token,
-          pops.getChildrenIds().stream().map(BaseUserDTO::userId).limit(1).collect(Collectors.toSet()));
+          pops.getChildrenIds().stream().map(BaseUserRecord::userId).limit(1).collect(Collectors.toSet()));
 
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
       Assertions.assertEquals(3, UserUtil.getClubUsers(clubDTO.clubId(), token).size());
@@ -294,7 +294,7 @@ class ClubUserIntegrationTest {
       ClubUserDTO updatedClubUserDTO = UserUtil.activateChildren(clubId, userId, token,
           pops.getChildrenIds()
               .stream()
-              .map(BaseUserDTO::userId)
+              .map(BaseUserRecord::userId)
               .collect(Collectors.toSet()));
 
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
