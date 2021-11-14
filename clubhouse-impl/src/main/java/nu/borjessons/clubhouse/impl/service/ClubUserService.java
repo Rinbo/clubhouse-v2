@@ -25,4 +25,6 @@ public interface ClubUserService {
   Optional<ClubUserDTO> getClubUserByUsername(String clubId, String username);
 
   ClubUserDTO activateChildren(String clubId, String userId, List<String> childrenIds);
+
+  List<ClubUserDTO> getAllUsersClubUsers(String userId);
 }

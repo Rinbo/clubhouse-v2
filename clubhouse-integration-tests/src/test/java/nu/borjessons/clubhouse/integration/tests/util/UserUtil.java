@@ -234,8 +234,17 @@ public class UserUtil {
     return response.getBody();
   }
 
+  public static List<ClubUserDTO> getPrincipalClubUsers(String token) throws JsonProcessingException {
+    String uri = RestUtil.getUriBuilder("/principal/clubs/all-club-users").buildAndExpand().toUriString();
+
+    ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    ClubUserDTO[] clubUserDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);
+    return Arrays.stream(clubUserDTOs).collect(Collectors.toList());
+  }
+
   private UserUtil() {
     throw new IllegalStateException("Utility class");
   }
-
 }

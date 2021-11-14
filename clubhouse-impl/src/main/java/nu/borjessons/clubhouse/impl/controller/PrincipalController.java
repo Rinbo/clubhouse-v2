@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
+import nu.borjessons.clubhouse.impl.service.ClubUserService;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
 @RequestMapping("/principal")
@@ -24,6 +26,7 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 @RestController
 public class PrincipalController {
   private final UserService userService;
+  private final ClubUserService clubUserService;
 
   @DeleteMapping()
   public void deleteSelf(@AuthenticationPrincipal User principal) {
@@ -43,5 +46,10 @@ public class PrincipalController {
   @GetMapping("/clubs")
   public List<ClubDTO> getMyClubs(@AuthenticationPrincipal User principal) {
     return userService.getMyClubs(principal.getUserId());
+  }
+
+  @GetMapping("/clubs/all-club-users")
+  public List<ClubUserDTO> getAllMyClubUsers(@AuthenticationPrincipal User principal) {
+    return clubUserService.getAllUsersClubUsers(principal.getUserId());
   }
 }

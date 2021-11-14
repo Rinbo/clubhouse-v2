@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -146,6 +147,14 @@ public class ClubUserServiceImpl implements ClubUserService {
     roleNames.forEach(clubUser::addRoleEntity);
     userRepository.save(user);
     return new ClubUserDTO(clubUser);
+  }
+
+  @Override
+  public List<ClubUserDTO> getAllUsersClubUsers(String userId) {
+    Objects.requireNonNull(userId, "userId must not be null");
+
+    List<ClubUser> clubUsers = clubUserRepository.findAllByUserId(userId);
+    return clubUsers.stream().map(ClubUserDTO::new).toList();
   }
 
   private void updateRoles(ClubUser clubUser, Set<Role> roles) {

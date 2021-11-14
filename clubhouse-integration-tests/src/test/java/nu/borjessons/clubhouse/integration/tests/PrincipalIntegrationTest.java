@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.integration.tests;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -7,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
+
+import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
@@ -89,6 +92,17 @@ class PrincipalIntegrationTest {
       final UserDTO self = UserUtil.getSelf(ownerToken);
       Assertions.assertNotNull(self);
       Assertions.assertEquals(EmbeddedDataLoader.OWNER_EMAIL, self.getEmail());
+    }
+  }
+
+  @Test
+  void getAllMyClubUsers() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      List<ClubUserDTO> clubUserDTOs = UserUtil.getPrincipalClubUsers(token);
+      Assertions.assertEquals(1, clubUserDTOs.size());
+      clubUserDTOs.forEach(clubUserDTO -> Assertions.assertEquals(EmbeddedDataLoader.POPS_EMAIL, clubUserDTO.getEmail()));
     }
   }
 }
