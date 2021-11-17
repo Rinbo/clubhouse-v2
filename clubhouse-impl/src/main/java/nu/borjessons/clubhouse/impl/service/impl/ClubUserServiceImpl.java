@@ -56,7 +56,7 @@ public class ClubUserServiceImpl implements ClubUserService {
 
   /**
    * When a parent leaves the children stay in that club
-   * Parent or admin is prompted if children should be removed also.
+   * TODO Parent or admin is prompted if children should be removed also.
    */
   @Override
   @Transactional
@@ -157,6 +157,16 @@ public class ClubUserServiceImpl implements ClubUserService {
     return clubUsers.stream().map(ClubUserDTO::new).toList();
   }
 
+  @Override
+  @Transactional
+  public ClubUserDTO removeClubChildren(String clubId, String userId, List<String> childrenIds) {
+    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
+    List<ClubUser> childrenUsers = clubUserRepository.findByClubIdAndUserIds(clubId, childrenIds);
+    if (clubUser.getUser().getChildren().stream().allMatch(child -> childrenIds.contains(child.getUserId()))) clubUser.removeParentRole();
+    clubUserRepository.deleteAll(childrenUsers);
+    return new ClubUserDTO(clubUserRepository.save(clubUser));
+  }
+
   private void updateRoles(ClubUser clubUser, Set<Role> roles) {
     final Set<RoleEntity> roleEntities = roleRepository.findByRoleNames(roles.stream()
         .filter(role -> role != Role.SYSTEM_ADMIN)
@@ -170,7 +180,7 @@ public class ClubUserServiceImpl implements ClubUserService {
   private Set<Role> addChildren(Club club, User parent, List<String> childrenIds) {
     Set<Role> roles = EnumSet.of(Role.USER);
 
-    List<String> existingClubChildren = clubUserRepository.findByClubIdAndUserIds(club.getClubId(), childrenIds)
+    List<String> existingClubChildrenIds = clubUserRepository.findByClubIdAndUserIds(club.getClubId(), childrenIds)
         .stream()
         .map(childClubUser -> childClubUser.getUser().getUserId())
         .toList();
@@ -180,7 +190,7 @@ public class ClubUserServiceImpl implements ClubUserService {
         .filter(child -> childrenIds.contains(child.getUserId()))
         .forEach(child -> {
           roles.add(Role.PARENT);
-          if (existingClubChildren.contains(child.getUserId())) return;
+          if (existingClubChildrenIds.contains(child.getUserId())) return;
 
           // TODO: Not adding child role for now. Consider removing it all together. Just adds complexity
           ClubUser clubUser = new ClubUser();

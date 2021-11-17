@@ -41,9 +41,15 @@ public class RegistrationController {
   }
 
   @PreAuthorize("hasRole('ADMIN') or #parentId == authentication.principal.userId")
-  @PostMapping("/clubs/{clubId}/register-children")
-  public UserDTO registerChildren(@PathVariable String clubId, @RequestParam String parentId,
+  @PostMapping("/clubs/{clubId}/register-club-children")
+  public UserDTO registerClubChildren(@PathVariable String clubId, @RequestParam String parentId,
       @Valid @RequestBody List<CreateChildRequestModel> childModels) {
-    return registrationService.registerChildren(parentId, clubId, childModels);
+    return registrationService.registerClubChildren(parentId, clubId, childModels);
+  }
+
+  @PreAuthorize("#parentId == authentication.principal.userId")
+  @PostMapping("/users/{parentId}/register-child")
+  public UserDTO registerChild(@PathVariable String parentId, @Valid @RequestBody CreateChildRequestModel childModel) {
+    return registrationService.registerChild(parentId, childModel);
   }
 }

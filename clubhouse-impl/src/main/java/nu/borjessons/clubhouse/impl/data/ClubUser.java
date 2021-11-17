@@ -19,6 +19,7 @@ import javax.persistence.UniqueConstraint;
 
 import lombok.Getter;
 import lombok.Setter;
+import nu.borjessons.clubhouse.impl.dto.Role;
 
 @Getter
 @Setter
@@ -49,5 +50,9 @@ public class ClubUser extends BaseEntity implements Serializable {
 
   public void addRoleEntity(RoleEntity roleEntity) {
     roles.add(roleEntity);
+  }
+
+  public void removeParentRole() {
+    roles.removeIf(roleEntity -> roleEntity.getName() == Role.PARENT);
   }
 }

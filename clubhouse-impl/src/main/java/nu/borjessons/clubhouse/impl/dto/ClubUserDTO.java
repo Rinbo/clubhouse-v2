@@ -52,7 +52,7 @@ public class ClubUserDTO implements Serializable {
   private String userId;
 
   public ClubUserDTO(ClubUser clubUser) {
-    Objects.requireNonNull(clubUser, "ClubUser must no be null");
+    Objects.requireNonNull(clubUser, "ClubUser must not be null");
 
     firstName = clubUser.getUser().getFirstName();
     lastName = clubUser.getUser().getLastName();

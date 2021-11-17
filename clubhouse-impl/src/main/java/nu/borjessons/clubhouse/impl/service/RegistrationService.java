@@ -11,7 +11,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 
 public interface RegistrationService {
-  UserDTO registerChildren(String userId, String clubId, @Valid List<CreateChildRequestModel> childModels);
+  UserDTO registerClubChildren(String userId, String clubId, @Valid List<CreateChildRequestModel> childModels);
 
   UserDTO registerClub(@Valid CreateClubModel clubDetails);
 
@@ -22,4 +22,6 @@ public interface RegistrationService {
   UserDTO registerUser(@Valid CreateUserModel userDetails);
 
   UserDTO registerUser(@Valid CreateUserModel userDetails, String userId);
+
+  UserDTO registerChild(String parentId, CreateChildRequestModel childModel);
 }

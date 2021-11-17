@@ -88,15 +88,21 @@ public class ClubUserController {
   // Todo -> Remove. Children are created by user on User level. Then admins can activate them once they are created.
   // NOTE: Or rather, this is on user level which should not be accessible for ClubUser admins
   @PreAuthorize("hasRole('ADMIN')")
-  @PutMapping("/clubs/{clubId}/users/{userId}/add-children")
+  @PutMapping("/clubs/{clubId}/users/{userId}/add-club-children")
   public ClubUserDTO addExistingChildrenToUser(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {
     return clubUserService.addExistingChildrenToUser(userId, clubId, childrenIds);
   }
 
   @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
   @PutMapping("/clubs/{clubId}/users/{userId}/activate-children")
-  public ClubUserDTO activateChildren(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {
+  public ClubUserDTO activateClubChildren(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {
     return clubUserService.activateChildren(clubId, userId, childrenIds);
+  }
+
+  @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
+  @PutMapping("/clubs/{clubId}/users/{userId}/remove-club-children")
+  public ClubUserDTO removeClubChildren(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {
+    return clubUserService.removeClubChildren(clubId, userId, childrenIds);
   }
 
   @PreAuthorize("hasRole('ADMIN')")

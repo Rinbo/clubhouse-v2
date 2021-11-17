@@ -27,4 +27,6 @@ public interface ClubUserService {
   ClubUserDTO activateChildren(String clubId, String userId, List<String> childrenIds);
 
   List<ClubUserDTO> getAllUsersClubUsers(String userId);
+
+  ClubUserDTO removeClubChildren(String clubId, String userId, List<String> childrenIds);
 }

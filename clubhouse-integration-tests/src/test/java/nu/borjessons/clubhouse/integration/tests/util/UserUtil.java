@@ -225,7 +225,17 @@ public class UserUtil {
   }
 
   public static ClubUserDTO activateChildren(String clubId, String userId, String token, Set<String> childrenIds) {
-    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/activate-children").buildAndExpand(clubId, userId).toUriString();
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/activate-club-children").buildAndExpand(clubId, userId).toUriString();
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
+
+    ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.PUT, httpEntity, ClubUserDTO.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
+  }
+
+  public static ClubUserDTO removeClubChildren(String clubId, String userId, String token, Set<String> childrenIds) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/remove-club-children").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
 

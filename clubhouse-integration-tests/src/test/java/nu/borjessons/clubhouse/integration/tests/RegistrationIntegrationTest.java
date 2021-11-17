@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.integration.tests;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
 import nu.borjessons.clubhouse.impl.dto.ClubDTO;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
@@ -36,7 +38,7 @@ class RegistrationIntegrationTest {
   }
 
   @Test
-  void dadRegistersNewChildTest() throws JsonProcessingException {
+  void dadRegistersNewClubChildTest() throws JsonProcessingException {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserDTO daddy = UserUtil.getSelf(token);
@@ -44,7 +46,7 @@ class RegistrationIntegrationTest {
       Assertions.assertNotNull(daddy);
       Assertions.assertEquals(2, daddy.getChildrenIds().size());
 
-      UserDTO daddyWithOneMoreKid = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB_ID, CHILD_NAME, daddy.getUserId(),
+      UserDTO daddyWithOneMoreKid = RegistrationUtil.registerClubChild(EmbeddedDataLoader.CLUB_ID, CHILD_NAME, daddy.getUserId(),
           token);
 
       Assertions.assertNotNull(daddyWithOneMoreKid);
@@ -53,13 +55,13 @@ class RegistrationIntegrationTest {
   }
 
   @Test
-  void adminRegistersNewChildTest() throws JsonProcessingException {
+  void adminRegistersNewClubChildTest() throws JsonProcessingException {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       List<ClubUserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, token);
       String daddyId = UserUtil.getUserIdByEmail(users, EmbeddedDataLoader.POPS_EMAIL).getUserId();
 
-      UserDTO daddyWithOneMoreKid = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB_ID, CHILD_NAME, daddyId, token);
+      UserDTO daddyWithOneMoreKid = RegistrationUtil.registerClubChild(EmbeddedDataLoader.CLUB_ID, CHILD_NAME, daddyId, token);
 
       Assertions.assertNotNull(daddyWithOneMoreKid);
       Assertions.assertEquals(3, daddyWithOneMoreKid.getChildrenIds().size());
@@ -91,6 +93,19 @@ class RegistrationIntegrationTest {
       List<ClubUserDTO> clubUsers = validatePersistence(9);
       long familyCount = clubUsers.stream().map(ClubUserDTO::getLastName).filter(lastName -> lastName.equals(surname)).count();
       Assertions.assertEquals(3, familyCount);
+    }
+  }
+
+  @Test
+  void parentRegisterChild() throws IOException {
+
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String childName = "Alva";
+      String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      UserDTO dad = RegistrationUtil.registerChild(childName, UserUtil.getSelf(token).getUserId(), token);
+      Assertions.assertEquals(3, dad.getChildrenIds().size());
+      Assertions.assertTrue(dad.getChildrenIds().stream().anyMatch(child -> child.firstName().equals(childName)));
     }
   }
 

@@ -53,10 +53,10 @@ public class User extends BaseEntity implements UserDetails {
       fetch = FetchType.LAZY)
   private Set<Address> addresses = new HashSet<>();
 
-  @ManyToMany(mappedBy = "parents", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+  @ManyToMany(mappedBy = "parents", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
   private Set<User> children = new HashSet<>();
 
-  @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
   private Set<User> parents = new HashSet<>();
 
   @OneToMany(

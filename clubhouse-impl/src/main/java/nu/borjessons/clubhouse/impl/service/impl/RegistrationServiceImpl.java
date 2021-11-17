@@ -39,7 +39,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   private final UserRepository userRepository;
 
   @Override
-  public UserDTO registerChildren(String userId, String clubId, List<CreateChildRequestModel> childDetails) {
+  public UserDTO registerClubChildren(String userId, String clubId, List<CreateChildRequestModel> childDetails) {
     User parent = userRepository.findByUserId(userId).orElseThrow();
     ClubUser clubUser = parent.getClubUser(clubId).orElseThrow();
     Set<User> children = mapChildModelToUser(childDetails);
@@ -81,11 +81,11 @@ public class RegistrationServiceImpl implements RegistrationService {
         .map(this::constructUserEntity)
         .map(parent -> addChildrenToParent(parent, children))
         .map(parent -> addClubUser(club, parentRoleEntities, parent))
-        .collect(Collectors.toList());
+        .toList();
 
     children.forEach(child -> addClubUser(club, getRoleEntities(Set.of(Role.CHILD)), child));
 
-    return userRepository.saveAll(parents).stream().map(UserDTO::create).collect(Collectors.toList());
+    return userRepository.saveAll(parents).stream().map(UserDTO::create).toList();
   }
 
   @Override
@@ -113,6 +113,16 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     addClubUser(club, getRoleEntities(roles), user);
     return UserDTO.create(userRepository.save(user));
+  }
+
+  @Transactional
+  @Override
+  public UserDTO registerChild(String parentId, CreateChildRequestModel childModel) {
+    User parent = userRepository.findByUserId(parentId).orElseThrow();
+    User child = clubhouseMappers.childCreationModelToUser(childModel);
+    parent.addChild(child);
+    User savedParent = userRepository.save(parent);
+    return UserDTO.create(savedParent);
   }
 
   private Set<User> mapChildModelToUser(List<CreateChildRequestModel> childrenDetails) {

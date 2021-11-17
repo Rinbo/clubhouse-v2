@@ -102,7 +102,7 @@ class ClubUserIntegrationTest {
       final List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
       final ClubUserDTO papaClubUser = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
       final ClubUserDTO mamaClubUser = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.MOMMY_EMAIL);
-      final UserDTO papaUser = RegistrationUtil.registerChild(EmbeddedDataLoader.CLUB_ID, "Kevin", papaClubUser.getUserId(), ownerToken);
+      final UserDTO papaUser = RegistrationUtil.registerClubChild(EmbeddedDataLoader.CLUB_ID, "Kevin", papaClubUser.getUserId(), ownerToken);
       final ClubUserDTO updatedMamaClubUser = UserUtil.addExistingChildToClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, mamaClubUser.getUserId(), List.of(
           getDiffEntry(papaClubUser.getChildren().stream()
               .map(BaseUserRecord::userId)
@@ -205,6 +205,44 @@ class ClubUserIntegrationTest {
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
       Assertions.assertEquals(3, UserUtil.getClubUsers(clubDTO.clubId(), token).size());
       Assertions.assertTrue(clubUserDTO.getRoles().contains(Role.PARENT));
+    }
+  }
+
+  @Test
+  void parentRemovesHisChildrenFromClub() throws Exception {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      UserDTO pops = UserUtil.getSelf(token);
+      Assertions.assertEquals(6, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, token).size());
+
+      ClubUserDTO clubUserDTO = UserUtil.removeClubChildren(EmbeddedDataLoader.CLUB_ID, pops.getUserId(), token,
+          pops.getChildrenIds().stream().map(BaseUserRecord::userId).collect(Collectors.toSet()));
+
+      Assertions.assertEquals(4, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, token).size());
+      Assertions.assertFalse(clubUserDTO.getRoles().contains(Role.PARENT));
+    }
+  }
+
+  @Test
+  void parentRemovesOneChildFromClub() throws Exception {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String dadToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      UserDTO pops = UserUtil.getSelf(dadToken);
+      Assertions.assertEquals(6, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, dadToken).size());
+
+      ClubUserDTO clubUserDTO = UserUtil.removeClubChildren(EmbeddedDataLoader.CLUB_ID, pops.getUserId(), dadToken,
+          pops.getChildrenIds().stream().map(BaseUserRecord::userId).limit(1).collect(Collectors.toSet()));
+
+      Assertions.assertEquals(5, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, dadToken).size());
+      Assertions.assertTrue(clubUserDTO.getRoles().contains(Role.PARENT));
+
+      String momToken = UserUtil.loginUser(EmbeddedDataLoader.MOMMY_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      UserDTO mom = UserUtil.getSelf(momToken);
+
+      ClubUserDTO momClubUser = UserUtil.getUser(EmbeddedDataLoader.CLUB_ID, momToken, mom.getUserId());
+      Assertions.assertEquals(1, momClubUser.getChildren().size());
     }
   }
 

@@ -22,10 +22,10 @@ import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 import nu.borjessons.clubhouse.impl.security.util.SecurityUtil;
 
 public class RegistrationUtil {
-  public static UserDTO registerChild(String clubId, String childName, String parentId, String token) throws JsonProcessingException {
+  public static UserDTO registerClubChild(String clubId, String childName, String parentId, String token) throws JsonProcessingException {
     final String uri = RestUtil
         .getUriBuilder("/clubs/{clubId}")
-        .path("/register-children")
+        .path("/register-club-children")
         .queryParam("parentId", parentId)
         .buildAndExpand(clubId).toUriString();
 
@@ -58,6 +58,13 @@ public class RegistrationUtil {
     HttpEntity<CreateUserModel> httpEntity = new HttpEntity<>(createUserModel);
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return RestUtil.deserializeJsonBody(response.getBody(), UserDTO.class);
+  }
+
+  public static UserDTO registerChild(String childName, String parentId, String token) throws JsonProcessingException {
+    final String uri = RestUtil.getUriBuilder("/users/{parentId}/register-child").buildAndExpand(parentId).toUriString();
+    CreateChildRequestModel createChildRequestModel = createChildModel(childName);
+    ResponseEntity<String> response = RestUtil.postRequest(uri, token, createChildRequestModel, String.class);
     return RestUtil.deserializeJsonBody(response.getBody(), UserDTO.class);
   }
 
