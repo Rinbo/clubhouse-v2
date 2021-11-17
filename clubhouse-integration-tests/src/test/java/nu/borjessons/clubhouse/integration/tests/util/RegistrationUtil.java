@@ -62,9 +62,19 @@ public class RegistrationUtil {
   }
 
   public static UserDTO registerChild(String childName, String parentId, String token) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/users/{parentId}/register-child").buildAndExpand(parentId).toUriString();
+    String uri = RestUtil.getUriBuilder("/users/{parentId}/register-child").buildAndExpand(parentId).toUriString();
     CreateChildRequestModel createChildRequestModel = createChildModel(childName);
     ResponseEntity<String> response = RestUtil.postRequest(uri, token, createChildRequestModel, String.class);
+    return RestUtil.deserializeJsonBody(response.getBody(), UserDTO.class);
+  }
+
+  public static UserDTO unregisterChild(String childId, String parentId, String token) throws JsonProcessingException {
+    String uri = RestUtil.getUriBuilder("/users/{parentId}/unregister-child")
+        .queryParam("childId", childId)
+        .buildAndExpand(parentId)
+        .toUriString();
+
+    ResponseEntity<String> response = RestUtil.deleteRequest(uri, token, String.class);
     return RestUtil.deserializeJsonBody(response.getBody(), UserDTO.class);
   }
 

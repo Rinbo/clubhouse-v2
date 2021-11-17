@@ -30,6 +30,12 @@ public class RestUtil {
     return mapper.readValue(body, clazz);
   }
 
+  public static <U> ResponseEntity<U> deleteRequest(String uri, String token, Class<U> returnType) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = getVoidHttpEntity(token);
+    return restTemplate.exchange(uri, HttpMethod.DELETE, entity, returnType);
+  }
+
   public static <T, U> ResponseEntity<U> postRequest(String uri, String token, T requestObject, Class<U> returnType) {
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<T> entity = getHttpEntity(token, requestObject);
