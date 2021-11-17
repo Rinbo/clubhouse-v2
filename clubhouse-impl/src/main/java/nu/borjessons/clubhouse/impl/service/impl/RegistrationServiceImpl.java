@@ -125,6 +125,16 @@ public class RegistrationServiceImpl implements RegistrationService {
     return UserDTO.create(savedParent);
   }
 
+  @Transactional
+  @Override
+  public UserDTO unregisterChild(String childId, String parentId) {
+    User parent = userRepository.findByUserId(parentId).orElseThrow();
+    User child = parent.getChildren().stream().filter(c -> c.getUserId().equals(childId)).findFirst().orElseThrow();
+    parent.removeChild(child);
+    userRepository.delete(child);
+    return UserDTO.create(parent);
+  }
+
   private Set<User> mapChildModelToUser(List<CreateChildRequestModel> childrenDetails) {
     return childrenDetails.stream()
         .map(clubhouseMappers::childCreationModelToUser)

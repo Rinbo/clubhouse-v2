@@ -24,4 +24,6 @@ public interface RegistrationService {
   UserDTO registerUser(@Valid CreateUserModel userDetails, String userId);
 
   UserDTO registerChild(String parentId, CreateChildRequestModel childModel);
+
+  UserDTO unregisterChild(String childId, String parentId);
 }

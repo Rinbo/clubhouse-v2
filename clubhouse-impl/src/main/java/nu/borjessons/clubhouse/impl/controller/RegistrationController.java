@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,5 +52,11 @@ public class RegistrationController {
   @PostMapping("/users/{parentId}/register-child")
   public UserDTO registerChild(@PathVariable String parentId, @Valid @RequestBody CreateChildRequestModel childModel) {
     return registrationService.registerChild(parentId, childModel);
+  }
+
+  @PreAuthorize("#parentId == authentication.principal.userId")
+  @DeleteMapping("/users/{parentId}/unregister-child")
+  public UserDTO unregisterChild(@PathVariable String parentId, @Valid @RequestParam String childId) {
+    return registrationService.unregisterChild(childId, parentId);
   }
 }
