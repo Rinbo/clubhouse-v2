@@ -28,4 +28,6 @@ public interface UserService extends UserDetailsService {
   void updateUserLoginTime(String email);
 
   List<ClubDTO> getMyClubs(String userId);
+
+  UserDTO updateChild(String childId, String parentId, UpdateUserModel userDetails);
 }

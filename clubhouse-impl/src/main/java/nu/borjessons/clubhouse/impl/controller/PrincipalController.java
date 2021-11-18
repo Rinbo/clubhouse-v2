@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +42,11 @@ public class PrincipalController {
   @PutMapping()
   public UserDTO updateSelf(@AuthenticationPrincipal User principal, @Valid @RequestBody UpdateUserModel userDetails) {
     return userService.updateUser(principal.getId(), userDetails);
+  }
+
+  @PutMapping("/child/{childId}")
+  public UserDTO updateChild(@AuthenticationPrincipal User principal, @PathVariable String childId, @Valid @RequestBody UpdateUserModel userDetails) {
+    return userService.updateChild(childId, principal.getUserId(), userDetails);
   }
 
   @GetMapping("/clubs")

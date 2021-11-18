@@ -98,7 +98,18 @@ public class UserServiceImpl implements UserService {
         .stream()
         .map(ClubUser::getClub)
         .map(ClubDTO::new)
-        .collect(Collectors.toList());
+        .toList();
+  }
+
+  @Transactional
+  @Override
+  public UserDTO updateChild(String childId, String parentId, UpdateUserModel userDetails) {
+    User parent = userRepository.findByUserId(parentId).orElseThrow();
+    User child = parent.getChildren().stream().filter(c -> c.getUserId().equals(childId)).findFirst().orElseThrow();
+    child.setFirstName(userDetails.getFirstName());
+    child.setLastName(userDetails.getLastName());
+    child.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
+    return UserDTO.create(userRepository.save(child));
   }
 
   @Override
