@@ -16,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
 import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.UserDTO;
@@ -252,6 +253,13 @@ public class UserUtil {
 
     ClubUserDTO[] clubUserDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);
     return Arrays.stream(clubUserDTOs).collect(Collectors.toList());
+  }
+
+  public static BaseUserRecord getUserByEmail(String email, String token) {
+    String uri = RestUtil.getUriBuilder("/users").queryParam("email", email).buildAndExpand().toUriString();
+    ResponseEntity<BaseUserRecord> response = RestUtil.getRequest(uri, token, BaseUserRecord.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
   }
 
   private UserUtil() {

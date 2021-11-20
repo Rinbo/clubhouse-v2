@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -57,5 +58,10 @@ public class PrincipalController {
   @GetMapping("/clubs/all-club-users")
   public List<ClubUserDTO> getAllMyClubUsers(@AuthenticationPrincipal User principal) {
     return clubUserService.getAllUsersClubUsers(principal.getUserId());
+  }
+
+  @PutMapping("/add-parent")
+  public void addParentToChildren(@AuthenticationPrincipal User principal, @RequestParam String userId, String childId) {
+    // call userService for this
   }
 }

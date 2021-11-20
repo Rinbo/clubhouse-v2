@@ -54,7 +54,7 @@ public class ClubTokenAuthenticationProvider implements AuthenticationProvider {
   }
 
   private Collection<GrantedAuthority> getClubUserAuthorities(long userId, String clubId) {
-    final Collection<RoleEntity> roleEntities = clubUserRepository.findByClubIdAndUserId(clubId, userId).map(ClubUser::getRoles).orElse(Set.of());
+    final Collection<RoleEntity> roleEntities = clubUserRepository.findByClubIdAndUserId(clubId, userId).map(ClubUser::getRoles).orElseGet(Set::of);
     return roleEntities.stream().map(ClubTokenAuthenticationProvider::getGrantedAuthority).collect(Collectors.toSet());
   }
 }

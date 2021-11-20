@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -40,7 +39,7 @@ public class UserServiceImpl implements UserService {
     return userRepository.saveAll(users)
         .stream()
         .map(UserDTO::create)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override
