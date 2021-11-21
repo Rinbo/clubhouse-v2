@@ -61,7 +61,7 @@ public class PrincipalController {
   }
 
   @PutMapping("/add-parent")
-  public void addParentToChildren(@AuthenticationPrincipal User principal, @RequestParam String userId, String childId) {
-    // call userService for this
+  public void addParentToChildren(@AuthenticationPrincipal User principal, @RequestParam String parentId, @RequestParam String childId) {
+    userService.addParentToChild(principal.getUserId(), childId, parentId);
   }
 }

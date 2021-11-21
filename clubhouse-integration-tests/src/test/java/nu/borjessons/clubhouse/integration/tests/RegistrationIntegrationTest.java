@@ -98,14 +98,22 @@ class RegistrationIntegrationTest {
   }
 
   @Test
-  void parentRegistersChild() throws IOException {
+  void parentRegistersChildAndAddsAnotherParent() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String dadToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       String childName = "Alva";
-      UserDTO dad = RegistrationUtil.registerChild(childName, UserUtil.getSelf(token).getUserId(), token);
+      UserDTO dad = RegistrationUtil.registerChild(childName, UserUtil.getSelf(dadToken).getUserId(), dadToken);
+      BaseUserRecord alva = dad.getChildrenIds().stream().filter(child -> child.firstName().equals(childName)).findFirst().orElseThrow();
       Assertions.assertEquals(3, dad.getChildrenIds().size());
-      Assertions.assertTrue(dad.getChildrenIds().stream().anyMatch(child -> child.firstName().equals(childName)));
+      Assertions.assertEquals(childName, alva.firstName());
+
+      String momToken = UserUtil.loginUser(EmbeddedDataLoader.MOMMY_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      UserDTO mom = UserUtil.getSelf(momToken);
+      Assertions.assertEquals(2, mom.getChildrenIds().size());
+
+      UserUtil.addParentToChild(dadToken, alva.userId(), mom.getUserId());
+      Assertions.assertEquals(3, UserUtil.getSelf(momToken).getChildrenIds().size());
     }
   }
 

@@ -262,6 +262,16 @@ public class UserUtil {
     return response.getBody();
   }
 
+  public static void addParentToChild(String originalParentToken, String childId, String newParentId) {
+    String uri = RestUtil.getUriBuilder("/principal/add-parent")
+        .queryParam("childId", childId)
+        .queryParam("parentId", newParentId)
+        .buildAndExpand().toUriString();
+
+    ResponseEntity<Void> response = RestUtil.putRequest(uri, originalParentToken, Void.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
   private UserUtil() {
     throw new IllegalStateException("Utility class");
   }

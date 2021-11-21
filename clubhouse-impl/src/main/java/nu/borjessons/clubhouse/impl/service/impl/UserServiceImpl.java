@@ -112,6 +112,15 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public void addParentToChild(String originalParentId, String childId, String newParentId) {
+    User originalParent = userRepository.findByUserId(originalParentId).orElseThrow();
+    User child = originalParent.getChildren().stream().filter(c -> c.getUserId().equals(childId)).findFirst().orElseThrow();
+    User newParent = userRepository.findByUserId(newParentId).orElseThrow();
+    newParent.addChild(child);
+    userRepository.save(newParent);
+  }
+
+  @Override
   public UserDetails loadUserByUsername(String username) {
     return userRepository.findByEmail(username).orElseThrow();
   }

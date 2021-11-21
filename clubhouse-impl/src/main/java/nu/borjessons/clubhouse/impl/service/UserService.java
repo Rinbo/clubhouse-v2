@@ -30,4 +30,6 @@ public interface UserService extends UserDetailsService {
   List<ClubDTO> getMyClubs(String userId);
 
   UserDTO updateChild(String childId, String parentId, UpdateUserModel userDetails);
+
+  void addParentToChild(String originalParentId, String childId, String newParentId);
 }
