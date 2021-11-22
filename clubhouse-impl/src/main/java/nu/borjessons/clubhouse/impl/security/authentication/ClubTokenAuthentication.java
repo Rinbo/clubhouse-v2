@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.security.authentication;
 
+import java.io.Serial;
 import java.util.Collection;
 
 import org.springframework.security.core.Authentication;
@@ -9,6 +10,7 @@ import org.springframework.util.Assert;
 import nu.borjessons.clubhouse.impl.data.User;
 
 public class ClubTokenAuthentication implements Authentication {
+  @Serial
   private static final long serialVersionUID = -5600312802206174372L;
 
   private final Object credentials;

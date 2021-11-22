@@ -6,6 +6,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +20,7 @@ import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Getter
 @Setter
 @ToString
@@ -63,6 +69,16 @@ public class ClubUserDTO implements Serializable {
     children = getClubChildren(clubUser);
     parentIds = clubUser.getUser().getParents().stream().map(User::getUserId).collect(Collectors.toSet());
     userId = clubUser.getUser().getUserId();
-    email = clubUser.getUser().getEmail();
+    email = showEmail() ? clubUser.getUser().getEmail() : null;
+  }
+
+  private boolean showEmail() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null) return false;
+
+    User principal = (User) authentication.getPrincipal();
+    if (userId.equals(principal.getUserId())) return true;
+
+    return authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
   }
 }

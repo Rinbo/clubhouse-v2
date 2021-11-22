@@ -128,6 +128,19 @@ class ClubUserIntegrationTest {
   }
 
   @Test
+  void onlyShowMyEmailTest() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      final String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      final List<ClubUserDTO> clubUserDTOs = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, token);
+      ClubUserDTO pappa = clubUserDTOs.stream().filter(c -> c.getFirstName().equals("Pappa")).findFirst().orElseThrow();
+      Assertions.assertEquals(EmbeddedDataLoader.POPS_EMAIL, pappa.getEmail());
+      clubUserDTOs.removeIf(c -> c.getFirstName().equals("Pappa"));
+      clubUserDTOs.forEach(clubUser -> Assertions.assertNull(clubUser.getEmail()));
+    }
+  }
+
+  @Test
   void parentJoinsClubAndBringsNoChildren() throws Exception {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
       final String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
