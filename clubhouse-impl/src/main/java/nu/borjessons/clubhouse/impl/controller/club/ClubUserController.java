@@ -53,14 +53,6 @@ public class ClubUserController {
         .toList();
   }
 
-  // TODO Add two methods:
-  // 1. GetClubChildren, sends back your children in this club
-  // 2. AddRemoveClubChildren -> Depending on the state of the list. If a child exists, and is missing in list -> delete
-  //                          -> If a Child does not exist and is in list -> Create ClubUser for that child
-  // Or -> add/remove in this club. Children will have to be clicked on individually for each club.
-  // The button for which the operation is available will be highlighted
-  // It's a hard computer science problem :( :)
-
   @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.userId")
   @PostMapping("/clubs/{clubId}/users/{userId}")
   public ClubUserDTO addUserToClub(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {
@@ -79,26 +71,14 @@ public class ClubUserController {
     return clubUserService.updateUser(userId, clubId, userDetails);
   }
 
-  /**
-   * Principal needs similar functionality to add another parent to his/her children. Needs helper
-   * end point to search for a user in the club by email
-   * Update 2021-06-20: Consider having a remove and add method since DELETE PUT is not as applicable to a resource that
-   * can belong to several entities
-   */
-  // Todo -> Remove. Children are created by user on User level. Then admins can activate them once they are created.
-  // NOTE: Or rather, this is on user level which should not be accessible for ClubUser admins
-  @PreAuthorize("hasRole('ADMIN')")
-  @PutMapping("/clubs/{clubId}/users/{userId}/add-club-children")
-  public ClubUserDTO addExistingChildrenToUser(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {
-    return clubUserService.addExistingChildrenToUser(userId, clubId, childrenIds);
-  }
-
+  //TODO Give admin access to this method as well
   @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
-  @PutMapping("/clubs/{clubId}/users/{userId}/activate-children")
+  @PutMapping("/clubs/{clubId}/users/{userId}/activate-club-children")
   public ClubUserDTO activateClubChildren(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {
-    return clubUserService.activateChildren(clubId, userId, childrenIds);
+    return clubUserService.activateClubChildren(clubId, userId, childrenIds);
   }
 
+  //TODO Give admin access to this method as well
   @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
   @PutMapping("/clubs/{clubId}/users/{userId}/remove-club-children")
   public ClubUserDTO removeClubChildren(@PathVariable String clubId, @PathVariable String userId, @RequestBody List<String> childrenIds) {

@@ -76,21 +76,6 @@ public class ClubUserServiceImpl implements ClubUserService {
     return new ClubUserDTO(userRepository.save(user).getClubUser(clubId).orElseThrow());
   }
 
-  //TODO is this necessary? If the user has children and they are in the club, will he not automatically see them?
-  // Yes, I think this is superfluous -> Give ClubUser ability to activate parent role if he has children in club
-  // NOTE: Or rather, this is on user level which should not be accessible for ClubUser admins
-  @Override
-  @Transactional
-  public ClubUserDTO addExistingChildrenToUser(String userId, String clubId, List<String> childrenIds) {
-    User parent = userRepository.findByUserId(userId).orElseThrow();
-    List<ClubUser> childrenClubUsers = clubUserRepository.findByClubIdAndUserIds(clubId, childrenIds);
-    childrenClubUsers.stream()
-        .map(ClubUser::getUser)
-        .filter(User::isManagedAccount)
-        .forEach(child -> child.addParent(parent));
-    return new ClubUserDTO(userRepository.save(parent).getClubUser(clubId).orElseThrow());
-  }
-
   @Override
   @Transactional
   public ClubUserDTO getClubUser(String clubId, String userId) {
@@ -138,7 +123,7 @@ public class ClubUserServiceImpl implements ClubUserService {
 
   @Override
   @Transactional
-  public ClubUserDTO activateChildren(String clubId, String userId, List<String> childrenIds) {
+  public ClubUserDTO activateClubChildren(String clubId, String userId, List<String> childrenIds) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     User user = userRepository.findByUserId(userId).orElseThrow();
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();

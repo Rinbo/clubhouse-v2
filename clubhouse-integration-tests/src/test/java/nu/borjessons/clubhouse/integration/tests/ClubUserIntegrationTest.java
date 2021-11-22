@@ -96,26 +96,6 @@ class ClubUserIntegrationTest {
   }
 
   @Test
-  void addExistingChildToUser() throws Exception {
-    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
-      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final List<ClubUserDTO> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
-      final ClubUserDTO papaClubUser = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
-      final ClubUserDTO mamaClubUser = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.MOMMY_EMAIL);
-      final UserDTO papaUser = RegistrationUtil.registerClubChild(EmbeddedDataLoader.CLUB_ID, "Kevin", papaClubUser.getUserId(), ownerToken);
-      final ClubUserDTO updatedMamaClubUser = UserUtil.addExistingChildToClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, mamaClubUser.getUserId(), List.of(
-          getDiffEntry(papaClubUser.getChildren().stream()
-              .map(BaseUserRecord::userId)
-              .collect(Collectors.toSet()), papaUser.getChildrenIds()
-              .stream()
-              .map(BaseUserRecord::userId)
-              .collect(Collectors.toSet()))));
-
-      Assertions.assertEquals(papaUser.getChildrenIds(), updatedMamaClubUser.getChildren());
-    }
-  }
-
-  @Test
   void getClubUser() throws Exception {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
@@ -177,7 +157,7 @@ class ClubUserIntegrationTest {
       UserDTO pops = UserUtil.getSelf(token);
 
       ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.clubId(), pops.getUserId(), token,
-          pops.getChildrenIds()
+          pops.getChildren()
               .stream()
               .map(BaseUserRecord::userId)
               .collect(Collectors.toSet()));
@@ -200,7 +180,7 @@ class ClubUserIntegrationTest {
       UserDTO pops = UserUtil.getSelf(token);
 
       ClubUserDTO clubUserDTO = UserUtil.addClubUser(clubDTO.clubId(), pops.getUserId(), token,
-          pops.getChildrenIds().stream().map(BaseUserRecord::userId).limit(1).collect(Collectors.toSet()));
+          pops.getChildren().stream().map(BaseUserRecord::userId).limit(1).collect(Collectors.toSet()));
 
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
       Assertions.assertEquals(3, UserUtil.getClubUsers(clubDTO.clubId(), token).size());
@@ -217,7 +197,7 @@ class ClubUserIntegrationTest {
       Assertions.assertEquals(6, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, token).size());
 
       ClubUserDTO clubUserDTO = UserUtil.removeClubChildren(EmbeddedDataLoader.CLUB_ID, pops.getUserId(), token,
-          pops.getChildrenIds().stream().map(BaseUserRecord::userId).collect(Collectors.toSet()));
+          pops.getChildren().stream().map(BaseUserRecord::userId).collect(Collectors.toSet()));
 
       Assertions.assertEquals(4, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, token).size());
       Assertions.assertFalse(clubUserDTO.getRoles().contains(Role.PARENT));
@@ -233,7 +213,7 @@ class ClubUserIntegrationTest {
       Assertions.assertEquals(6, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, dadToken).size());
 
       ClubUserDTO clubUserDTO = UserUtil.removeClubChildren(EmbeddedDataLoader.CLUB_ID, pops.getUserId(), dadToken,
-          pops.getChildrenIds().stream().map(BaseUserRecord::userId).limit(1).collect(Collectors.toSet()));
+          pops.getChildren().stream().map(BaseUserRecord::userId).limit(1).collect(Collectors.toSet()));
 
       Assertions.assertEquals(5, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, dadToken).size());
       Assertions.assertTrue(clubUserDTO.getRoles().contains(Role.PARENT));
@@ -330,7 +310,7 @@ class ClubUserIntegrationTest {
       Assertions.assertFalse(clubUserDTO.getRoles().contains(Role.PARENT));
 
       ClubUserDTO updatedClubUserDTO = UserUtil.activateChildren(clubId, userId, token,
-          pops.getChildrenIds()
+          pops.getChildren()
               .stream()
               .map(BaseUserRecord::userId)
               .collect(Collectors.toSet()));

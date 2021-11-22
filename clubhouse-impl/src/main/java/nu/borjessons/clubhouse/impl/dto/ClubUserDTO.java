@@ -42,27 +42,27 @@ public class ClubUserDTO implements Serializable {
 
   private String firstName;
   private String lastName;
-  private String email;
+  private Set<Role> roles;
   private String dateOfBirth;
   private String clubId;
   private String clubName;
   private Set<BaseUserRecord> children;
   private Set<String> parentIds;
-  private Set<Role> roles;
   private String userId;
+  private String email;
 
   public ClubUserDTO(ClubUser clubUser) {
     Objects.requireNonNull(clubUser, "ClubUser must not be null");
 
     firstName = clubUser.getUser().getFirstName();
     lastName = clubUser.getUser().getLastName();
-    email = clubUser.getUser().getEmail();
+    roles = clubUser.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toSet());
     dateOfBirth = clubUser.getUser().getDateOfBirth().toString();
     clubId = clubUser.getClub().getClubId();
     clubName = clubUser.getClub().getName();
     children = getClubChildren(clubUser);
     parentIds = clubUser.getUser().getParents().stream().map(User::getUserId).collect(Collectors.toSet());
-    roles = clubUser.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toSet());
     userId = clubUser.getUser().getUserId();
+    email = clubUser.getUser().getEmail();
   }
 }

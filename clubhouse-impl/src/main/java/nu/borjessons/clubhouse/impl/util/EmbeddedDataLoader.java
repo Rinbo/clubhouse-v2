@@ -160,7 +160,7 @@ public class EmbeddedDataLoader {
     TeamRequestModel teamModel = createTeamModel(dad.getUserId());
 
     TeamDTO team = teamService.createTeam(CLUB_ID, teamModel);
-    ArrayList<String> teamMembers = new ArrayList<>(dad.getChildrenIds().stream().map(BaseUserRecord::userId).toList());
+    ArrayList<String> teamMembers = new ArrayList<>(dad.getChildren().stream().map(BaseUserRecord::userId).toList());
     teamMembers.add(normalUserDTO.getUserId());
     TeamDTO updateTeamDTO = teamService.updateTeamMembers(CLUB_ID, team.getTeamId(), teamMembers);
     log.info("created team: {}", updateTeamDTO);

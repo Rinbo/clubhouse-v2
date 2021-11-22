@@ -19,7 +19,7 @@ public final class UserDTO {
         .firstName(user.getFirstName())
         .lastName(user.getLastName())
         .dateOfBirth(user.getDateOfBirth().toString())
-        .childrenIds(user.getChildren().stream().map(BaseUserRecord::new).collect(Collectors.toSet()))
+        .children(user.getChildren().stream().map(BaseUserRecord::new).collect(Collectors.toSet()))
         .parentIds(user.getParents().stream().map(User::getUserId).collect(Collectors.toSet()))
         .addresses(user.getAddresses().stream().map(AddressDTO::new).collect(Collectors.toSet()))
         .managedUser(user.isManagedAccount())
@@ -27,7 +27,7 @@ public final class UserDTO {
   }
 
   private final Set<AddressDTO> addresses;
-  private final Set<BaseUserRecord> childrenIds;
+  private final Set<BaseUserRecord> children;
   private final String dateOfBirth;
   private final String email;
   private final String firstName;

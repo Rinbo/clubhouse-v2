@@ -12,8 +12,6 @@ public interface ClubUserService {
 
   ClubUserDTO updateUser(String userId, String clubId, AdminUpdateUserModel userDetails);
 
-  ClubUserDTO addExistingChildrenToUser(String userId, String clubId, List<String> childrenIds);
-
   ClubUserDTO getClubUser(String clubId, String userId);
 
   ClubUserDTO addUserToClub(String clubId, String userId, List<String> childrenIds);
@@ -24,7 +22,7 @@ public interface ClubUserService {
 
   Optional<ClubUserDTO> getClubUserByUsername(String clubId, String username);
 
-  ClubUserDTO activateChildren(String clubId, String userId, List<String> childrenIds);
+  ClubUserDTO activateClubChildren(String clubId, String userId, List<String> childrenIds);
 
   List<ClubUserDTO> getAllUsersClubUsers(String userId);
 

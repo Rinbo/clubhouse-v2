@@ -45,13 +45,13 @@ class RegistrationIntegrationTest {
       UserDTO daddy = UserUtil.getSelf(token);
 
       Assertions.assertNotNull(daddy);
-      Assertions.assertEquals(2, daddy.getChildrenIds().size());
+      Assertions.assertEquals(2, daddy.getChildren().size());
 
       UserDTO daddyWithOneMoreKid = RegistrationUtil.registerClubChild(EmbeddedDataLoader.CLUB_ID, CHILD_NAME, daddy.getUserId(),
           token);
 
       Assertions.assertNotNull(daddyWithOneMoreKid);
-      Assertions.assertEquals(3, daddyWithOneMoreKid.getChildrenIds().size());
+      Assertions.assertEquals(3, daddyWithOneMoreKid.getChildren().size());
     }
   }
 
@@ -65,7 +65,7 @@ class RegistrationIntegrationTest {
       UserDTO daddyWithOneMoreKid = RegistrationUtil.registerClubChild(EmbeddedDataLoader.CLUB_ID, CHILD_NAME, daddyId, token);
 
       Assertions.assertNotNull(daddyWithOneMoreKid);
-      Assertions.assertEquals(3, daddyWithOneMoreKid.getChildrenIds().size());
+      Assertions.assertEquals(3, daddyWithOneMoreKid.getChildren().size());
     }
   }
 
@@ -104,16 +104,16 @@ class RegistrationIntegrationTest {
       String dadToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       String childName = "Alva";
       UserDTO dad = RegistrationUtil.registerChild(childName, UserUtil.getSelf(dadToken).getUserId(), dadToken);
-      BaseUserRecord alva = dad.getChildrenIds().stream().filter(child -> child.firstName().equals(childName)).findFirst().orElseThrow();
-      Assertions.assertEquals(3, dad.getChildrenIds().size());
+      BaseUserRecord alva = dad.getChildren().stream().filter(child -> child.firstName().equals(childName)).findFirst().orElseThrow();
+      Assertions.assertEquals(3, dad.getChildren().size());
       Assertions.assertEquals(childName, alva.firstName());
 
       String momToken = UserUtil.loginUser(EmbeddedDataLoader.MOMMY_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserDTO mom = UserUtil.getSelf(momToken);
-      Assertions.assertEquals(2, mom.getChildrenIds().size());
+      Assertions.assertEquals(2, mom.getChildren().size());
 
       UserUtil.addParentToChild(dadToken, alva.userId(), mom.getUserId());
-      Assertions.assertEquals(3, UserUtil.getSelf(momToken).getChildrenIds().size());
+      Assertions.assertEquals(3, UserUtil.getSelf(momToken).getChildren().size());
     }
   }
 
@@ -123,14 +123,14 @@ class RegistrationIntegrationTest {
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserDTO dad = UserUtil.getSelf(token);
-      Assertions.assertEquals(2, dad.getChildrenIds().size());
+      Assertions.assertEquals(2, dad.getChildren().size());
 
       String childName = "Sixten";
-      BaseUserRecord sixten = dad.getChildrenIds().stream().filter(child -> child.firstName().equals(childName)).findFirst().orElseThrow();
+      BaseUserRecord sixten = dad.getChildren().stream().filter(child -> child.firstName().equals(childName)).findFirst().orElseThrow();
       RegistrationUtil.unregisterChild(sixten.userId(), dad.getUserId(), token);
       UserDTO updatedDad = UserUtil.getSelf(token);
-      Assertions.assertEquals(1, updatedDad.getChildrenIds().size());
-      Assertions.assertFalse(updatedDad.getChildrenIds().stream().anyMatch(child -> child.firstName().equals(childName)));
+      Assertions.assertEquals(1, updatedDad.getChildren().size());
+      Assertions.assertFalse(updatedDad.getChildren().stream().anyMatch(child -> child.firstName().equals(childName)));
     }
   }
 
