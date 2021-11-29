@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.dto;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -13,6 +14,7 @@ import nu.borjessons.clubhouse.impl.data.Team;
 @Getter
 @ToString
 public final class TeamDTO implements Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   public static TeamDTO create(Team team) {

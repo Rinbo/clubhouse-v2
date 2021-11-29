@@ -35,7 +35,7 @@ public class ClubTeamController {
   private final ClubService clubService;
   private final ResourceAuthorization resourceAuthorization;
 
-  // Do I want to allow a parent to add a child to a team?
+  // TODO Do I want to allow a parent to add a child to a team?
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/add-child")
   public TeamDTO addChildrenToTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
