@@ -18,8 +18,8 @@ import nu.borjessons.clubhouse.impl.data.Club.Type;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.Role;
-import nu.borjessons.clubhouse.impl.dto.TeamDTO;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.TeamDto;
+import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.AddressModel;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
@@ -144,29 +144,29 @@ public class EmbeddedDataLoader {
     clubModel.setType(Type.SPORT);
     clubModel.setOwner(owner);
 
-    UserDTO ownerDTO = registrationService.registerClub(clubModel, CLUB_ID);
+    UserDto ownerDTO = registrationService.registerClub(clubModel, CLUB_ID);
     log.info("Created club: {} and user {}", CLUB_ID, ownerDTO.getEmail());
 
     CreateUserModel normalUser = createNormalUser();
-    UserDTO normalUserDTO = registrationService.registerUser(normalUser, USER_ID);
-    log.info("Created normal user: {}", normalUserDTO);
+    UserDto normalUserDto = registrationService.registerUser(normalUser, USER_ID);
+    log.info("Created normal user: {}", normalUserDto);
 
     FamilyRequestModel familyModel = createFamilyRequestModel();
-    List<UserDTO> parents = registrationService.registerFamily(familyModel);
+    List<UserDto> parents = registrationService.registerFamily(familyModel);
     log.info("Created family {}", familyModel);
 
     parents.forEach(parent -> updateRole(parent, Set.of(Role.PARENT, Role.USER, Role.LEADER)));
-    UserDTO dad = parents.stream().filter(parent -> parent.getEmail().equals(POPS_EMAIL)).findFirst().orElseThrow();
+    UserDto dad = parents.stream().filter(parent -> parent.getEmail().equals(POPS_EMAIL)).findFirst().orElseThrow();
     TeamRequestModel teamModel = createTeamModel(dad.getUserId());
 
-    TeamDTO team = teamService.createTeam(CLUB_ID, teamModel);
+    TeamDto team = teamService.createTeam(CLUB_ID, teamModel);
     ArrayList<String> teamMembers = new ArrayList<>(dad.getChildren().stream().map(BaseUserRecord::userId).toList());
-    teamMembers.add(normalUserDTO.getUserId());
-    TeamDTO updateTeamDTO = teamService.updateTeamMembers(CLUB_ID, team.getTeamId(), teamMembers);
-    log.info("created team: {}", updateTeamDTO);
+    teamMembers.add(normalUserDto.getUserId());
+    TeamDto updateTeamDto = teamService.updateTeamMembers(CLUB_ID, team.getTeamId(), teamMembers);
+    log.info("created team: {}", updateTeamDto);
   }
 
-  private void updateRole(UserDTO parent, Set<Role> roles) {
+  private void updateRole(UserDto parent, Set<Role> roles) {
     AdminUpdateUserModel userDetails = new AdminUpdateUserModel();
     userDetails.setFirstName(parent.getFirstName());
     userDetails.setLastName(parent.getLastName());

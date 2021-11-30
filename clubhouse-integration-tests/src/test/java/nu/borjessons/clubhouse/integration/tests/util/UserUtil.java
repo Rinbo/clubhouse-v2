@@ -17,9 +17,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
-import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.Role;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
@@ -29,12 +29,12 @@ import nu.borjessons.clubhouse.impl.dto.rest.UserLoginRequestModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 
 public class UserUtil {
-  public static ClubUserDTO addExistingChildToClubUser(String clubId, String token, String userId, List<String> childrenIds) {
+  public static ClubUserDto addExistingChildToClubUser(String clubId, String token, String userId, List<String> childrenIds) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/add-children").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<List<String>> entity = RestUtil.getHttpEntity(token, childrenIds);
 
-    ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.PUT, entity, ClubUserDTO.class);
+    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.PUT, entity, ClubUserDto.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
   }
@@ -72,30 +72,30 @@ public class UserUtil {
     return cookieHeader.get(0);
   }
 
-  public static List<ClubUserDTO> getClubUsers(String clubId, String token) throws JsonProcessingException {
+  public static List<ClubUserDto> getClubUsers(String clubId, String token) throws JsonProcessingException {
     final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users").buildAndExpand(clubId).toUriString();
     final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
-    final ClubUserDTO[] clubUserDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);
-    return Arrays.stream(clubUserDTOs).collect(Collectors.toList());
+    final ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);
+    return Arrays.stream(clubUserDtos).collect(Collectors.toList());
   }
 
-  public static UserDTO getSelf(String token) throws JsonProcessingException {
+  public static UserDto getSelf(String token) throws JsonProcessingException {
     UriComponentsBuilder builder = RestUtil.getUriBuilder("/principal");
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
 
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
-    UserDTO userDTO = RestUtil.deserializeJsonBody(response.getBody(), UserDTO.class);
+    UserDto userDTO = RestUtil.deserializeJsonBody(response.getBody(), UserDto.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return userDTO;
   }
 
-  public static ClubUserDTO getUser(String clubId, String token, String userId) {
+  public static ClubUserDto getUser(String clubId, String token, String userId) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
 
-    ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.GET, entity, ClubUserDTO.class);
+    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.GET, entity, ClubUserDto.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
   }
@@ -127,7 +127,7 @@ public class UserUtil {
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
-  public static ClubUserDTO getUserIdByEmail(List<ClubUserDTO> users, String email) {
+  public static ClubUserDto getUserIdByEmail(List<ClubUserDto> users, String email) {
     return users
         .stream()
         .filter(user -> user.getEmail().equals(email))
@@ -135,7 +135,7 @@ public class UserUtil {
         .orElseThrow();
   }
 
-  public static List<ClubUserDTO> getClubUsersByAge(String clubId, String token, int min, int max) throws JsonProcessingException {
+  public static List<ClubUserDto> getClubUsersByAge(String clubId, String token, int min, int max) throws JsonProcessingException {
     final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/age-range")
         .queryParam("minAge", min)
         .queryParam("maxAge", max)
@@ -144,8 +144,8 @@ public class UserUtil {
     final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
-    final ClubUserDTO[] clubUserDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);
-    return Arrays.stream(clubUserDTOs).collect(Collectors.toList());
+    final ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);
+    return Arrays.stream(clubUserDtos).collect(Collectors.toList());
   }
 
   public static void removeClubUser(String clubId, String token, String userId) {
@@ -153,28 +153,28 @@ public class UserUtil {
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
 
-    ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.DELETE, entity, ClubUserDTO.class);
+    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.DELETE, entity, ClubUserDto.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
-  public static ClubUserDTO updateClubUser(AdminUpdateUserModel updateUserModel, String clubId, String token, String userId) throws JsonProcessingException {
+  public static ClubUserDto updateClubUser(AdminUpdateUserModel updateUserModel, String clubId, String token, String userId) throws JsonProcessingException {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders headers = RestUtil.getHttpHeaders(token);
     HttpEntity<UpdateUserModel> entity = new HttpEntity<>(updateUserModel, headers);
     ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.PUT, entity, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    return RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO.class);
+    return RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto.class);
   }
 
-  public static UserDTO updateSelf(String token, UpdateUserModel updateUserModel) throws JsonProcessingException {
+  public static UserDto updateSelf(String token, UpdateUserModel updateUserModel) throws JsonProcessingException {
     UriComponentsBuilder builder = RestUtil.getUriBuilder("/principal");
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders headers = RestUtil.getHttpHeaders(token);
     HttpEntity<UpdateUserModel> entity = new HttpEntity<>(updateUserModel, headers);
     ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.PUT, entity, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    return RestUtil.deserializeJsonBody(response.getBody(), UserDTO.class);
+    return RestUtil.deserializeJsonBody(response.getBody(), UserDto.class);
   }
 
   public static AdminUpdateUserModel createAdminUpdateModel(String firstName, String lastName, String dateOfBirth, Set<Role> roles) {
@@ -186,21 +186,21 @@ public class UserUtil {
     return updateUserModel;
   }
 
-  public static ClubUserDTO addClubUser(String clubId, String userId, String token, Set<String> childrenIds) {
+  public static ClubUserDto addClubUser(String clubId, String userId, String token, Set<String> childrenIds) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
 
-    ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.POST, httpEntity, ClubUserDTO.class);
+    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.POST, httpEntity, ClubUserDto.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
   }
 
-  public static ClubUserDTO getClubUserPrincipal(String clubId, String token) {
+  public static ClubUserDto getClubUserPrincipal(String clubId, String token) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/principal").buildAndExpand(clubId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
-    ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.GET, entity, ClubUserDTO.class);
+    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.GET, entity, ClubUserDto.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
 
@@ -225,34 +225,34 @@ public class UserUtil {
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
-  public static ClubUserDTO activateChildren(String clubId, String userId, String token, Set<String> childrenIds) {
+  public static ClubUserDto activateChildren(String clubId, String userId, String token, Set<String> childrenIds) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/activate-club-children").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
 
-    ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.PUT, httpEntity, ClubUserDTO.class);
+    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.PUT, httpEntity, ClubUserDto.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
   }
 
-  public static ClubUserDTO removeClubChildren(String clubId, String userId, String token, Set<String> childrenIds) {
+  public static ClubUserDto removeClubChildren(String clubId, String userId, String token, Set<String> childrenIds) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/remove-club-children").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
 
-    ResponseEntity<ClubUserDTO> response = restTemplate.exchange(uri, HttpMethod.PUT, httpEntity, ClubUserDTO.class);
+    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.PUT, httpEntity, ClubUserDto.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
   }
 
-  public static List<ClubUserDTO> getPrincipalClubUsers(String token) throws JsonProcessingException {
+  public static List<ClubUserDto> getPrincipalClubUsers(String token) throws JsonProcessingException {
     String uri = RestUtil.getUriBuilder("/principal/clubs/all-club-users").buildAndExpand().toUriString();
 
     ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
-    ClubUserDTO[] clubUserDTOs = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDTO[].class);
-    return Arrays.stream(clubUserDTOs).collect(Collectors.toList());
+    ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);
+    return Arrays.stream(clubUserDtos).collect(Collectors.toList());
   }
 
   public static BaseUserRecord getUserByEmail(String email, String token) {

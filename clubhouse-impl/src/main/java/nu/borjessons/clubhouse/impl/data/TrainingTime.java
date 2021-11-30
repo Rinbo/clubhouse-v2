@@ -23,12 +23,12 @@ public class TrainingTime {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
-  @Column(nullable = false)
-  private Duration duration;
-
   @Column(name = "day_of_week", nullable = false)
   @Enumerated(EnumType.STRING)
   private DayOfWeek dayOfWeek;
+
+  @Column(nullable = false)
+  private Duration duration;
 
   @ManyToOne
   private Schedule schedule;

@@ -30,7 +30,7 @@ public class ClubhouseApplication {
   }
 
   @Bean
-  PasswordEncoder bCryptPasswordEncoder() {
+  PasswordEncoder createPasswordEncoder() {
     return new BCryptPasswordEncoder();
   }
 

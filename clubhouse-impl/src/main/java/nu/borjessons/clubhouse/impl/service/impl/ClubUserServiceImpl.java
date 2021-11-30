@@ -18,7 +18,7 @@ import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
-import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.repository.ClubRepository;
@@ -67,26 +67,26 @@ public class ClubUserServiceImpl implements ClubUserService {
 
   @Override
   @Transactional
-  public ClubUserDTO updateUser(String userId, String clubId, AdminUpdateUserModel userDetails) {
+  public ClubUserDto updateUser(String userId, String clubId, AdminUpdateUserModel userDetails) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     User user = clubUser.getUser();
     updateUserDetails(userDetails, user);
     updateAddresses(user, clubhouseMappers.addressModelToAddress(userDetails.getAddresses()));
     updateRoles(clubUser, userDetails.getRoles());
-    return new ClubUserDTO(userRepository.save(user).getClubUser(clubId).orElseThrow());
+    return new ClubUserDto(userRepository.save(user).getClubUser(clubId).orElseThrow());
   }
 
   @Override
   @Transactional
-  public ClubUserDTO getClubUser(String clubId, String userId) {
+  public ClubUserDto getClubUser(String clubId, String userId) {
     final ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
-    return new ClubUserDTO(clubUser);
+    return new ClubUserDto(clubUser);
   }
 
   // TODO Implement functionality to notify admins that this user wants to join - Require action to give full permissions
   @Override
   @Transactional
-  public ClubUserDTO addUserToClub(String clubId, String userId, List<String> childrenIds) {
+  public ClubUserDto addUserToClub(String clubId, String userId, List<String> childrenIds) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     User user = userRepository.findByUserId(userId).orElseThrow();
     Set<Role> roles = addChildren(club, user, childrenIds);
@@ -96,34 +96,34 @@ public class ClubUserServiceImpl implements ClubUserService {
     club.addClubUser(clubUser);
     user.addClubUser(clubUser);
     userRepository.save(user);
-    return new ClubUserDTO(clubUser);
+    return new ClubUserDto(clubUser);
   }
 
   @Override
-  public Collection<ClubUserDTO> getLeaders(String clubId) {
+  public Collection<ClubUserDto> getLeaders(String clubId) {
     List<ClubUser> clubUsers = clubUserRepository.findByClubId(clubId);
     return clubUsers.stream()
         .filter(ClubUserServiceImpl::isLeader)
-        .map(ClubUserDTO::new)
+        .map(ClubUserDto::new)
         .toList();
   }
 
   @Override
-  public Collection<ClubUserDTO> getClubUsers(String clubId) {
+  public Collection<ClubUserDto> getClubUsers(String clubId) {
     return clubUserRepository.findByClubId(clubId)
         .stream()
-        .map(ClubUserDTO::new)
+        .map(ClubUserDto::new)
         .toList();
   }
 
   @Override
-  public Optional<ClubUserDTO> getClubUserByUsername(String clubId, String username) {
-    return clubUserRepository.findByClubIdAndUsername(clubId, username).map(ClubUserDTO::new).or(Optional::empty);
+  public Optional<ClubUserDto> getClubUserByUsername(String clubId, String username) {
+    return clubUserRepository.findByClubIdAndUsername(clubId, username).map(ClubUserDto::new).or(Optional::empty);
   }
 
   @Override
   @Transactional
-  public ClubUserDTO activateClubChildren(String clubId, String userId, List<String> childrenIds) {
+  public ClubUserDto activateClubChildren(String clubId, String userId, List<String> childrenIds) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     User user = userRepository.findByUserId(userId).orElseThrow();
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
@@ -131,25 +131,25 @@ public class ClubUserServiceImpl implements ClubUserService {
     Set<RoleEntity> roleNames = roleRepository.findByRoleNames(roles.stream().map(Role::name).collect(Collectors.toSet()));
     roleNames.forEach(clubUser::addRoleEntity);
     userRepository.save(user);
-    return new ClubUserDTO(clubUser);
+    return new ClubUserDto(clubUser);
   }
 
   @Override
-  public List<ClubUserDTO> getAllUsersClubUsers(String userId) {
+  public List<ClubUserDto> getAllUsersClubUsers(String userId) {
     Objects.requireNonNull(userId, "userId must not be null");
 
     List<ClubUser> clubUsers = clubUserRepository.findAllByUserId(userId);
-    return clubUsers.stream().map(ClubUserDTO::new).toList();
+    return clubUsers.stream().map(ClubUserDto::new).toList();
   }
 
   @Override
   @Transactional
-  public ClubUserDTO removeClubChildren(String clubId, String userId, List<String> childrenIds) {
+  public ClubUserDto removeClubChildren(String clubId, String userId, List<String> childrenIds) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     List<ClubUser> childrenUsers = clubUserRepository.findByClubIdAndUserIds(clubId, childrenIds);
     if (clubUser.getUser().getChildren().stream().allMatch(child -> childrenIds.contains(child.getUserId()))) clubUser.removeParentRole();
     clubUserRepository.deleteAll(childrenUsers);
-    return new ClubUserDTO(clubUserRepository.save(clubUser));
+    return new ClubUserDto(clubUserRepository.save(clubUser));
   }
 
   private void updateRoles(ClubUser clubUser, Set<Role> roles) {

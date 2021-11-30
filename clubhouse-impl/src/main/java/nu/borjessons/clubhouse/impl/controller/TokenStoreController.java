@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.security.TokenStore;
 import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
 import nu.borjessons.clubhouse.impl.security.util.SecurityUtil;
@@ -71,7 +71,7 @@ public class TokenStoreController {
     String username = claims.getSubject();
 
     if (tokenStore.isSame(username, cookie.getValue())) {
-      UserDTO userDTO = userService.getUserByUserName(username);
+      UserDto userDTO = userService.getUserByUserName(username);
       return ResponseEntity.ok(objectMapper.writeValueAsString(userDTO));
     } else {
       return createRedirectResponse();

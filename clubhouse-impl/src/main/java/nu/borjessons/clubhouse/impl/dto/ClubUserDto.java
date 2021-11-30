@@ -26,7 +26,7 @@ import nu.borjessons.clubhouse.impl.data.User;
 @ToString
 @NoArgsConstructor
 @EqualsAndHashCode
-public class ClubUserDTO implements Serializable {
+public class ClubUserDto implements Serializable {
   @Serial
   private static final long serialVersionUID = 7264890058314991499L;
 
@@ -57,7 +57,7 @@ public class ClubUserDTO implements Serializable {
   private String userId;
   private String email;
 
-  public ClubUserDTO(ClubUser clubUser) {
+  public ClubUserDto(ClubUser clubUser) {
     Objects.requireNonNull(clubUser, "ClubUser must not be null");
 
     firstName = clubUser.getUser().getFirstName();

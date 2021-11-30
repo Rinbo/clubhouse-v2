@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.User;
-import nu.borjessons.clubhouse.impl.dto.ClubDTO;
-import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubDto;
+import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
+import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.service.ClubUserService;
 import nu.borjessons.clubhouse.impl.service.UserService;
@@ -36,27 +36,27 @@ public class PrincipalController {
   }
 
   @GetMapping()
-  public UserDTO getSelf(@AuthenticationPrincipal User principal) {
+  public UserDto getSelf(@AuthenticationPrincipal User principal) {
     return userService.getById(principal.getId());
   }
 
   @PutMapping()
-  public UserDTO updateSelf(@AuthenticationPrincipal User principal, @Valid @RequestBody UpdateUserModel userDetails) {
+  public UserDto updateSelf(@AuthenticationPrincipal User principal, @Valid @RequestBody UpdateUserModel userDetails) {
     return userService.updateUser(principal.getId(), userDetails);
   }
 
   @PutMapping("/child/{childId}")
-  public UserDTO updateChild(@AuthenticationPrincipal User principal, @PathVariable String childId, @Valid @RequestBody UpdateUserModel userDetails) {
+  public UserDto updateChild(@AuthenticationPrincipal User principal, @PathVariable String childId, @Valid @RequestBody UpdateUserModel userDetails) {
     return userService.updateChild(childId, principal.getUserId(), userDetails);
   }
 
   @GetMapping("/clubs")
-  public List<ClubDTO> getMyClubs(@AuthenticationPrincipal User principal) {
+  public List<ClubDto> getMyClubs(@AuthenticationPrincipal User principal) {
     return userService.getMyClubs(principal.getUserId());
   }
 
   @GetMapping("/clubs/all-club-users")
-  public List<ClubUserDTO> getAllMyClubUsers(@AuthenticationPrincipal User principal) {
+  public List<ClubUserDto> getAllMyClubUsers(@AuthenticationPrincipal User principal) {
     return clubUserService.getAllUsersClubUsers(principal.getUserId());
   }
 

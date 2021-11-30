@@ -5,31 +5,31 @@ import java.util.List;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import nu.borjessons.clubhouse.impl.data.User;
-import nu.borjessons.clubhouse.impl.dto.ClubDTO;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubDto;
+import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 
 public interface UserService extends UserDetailsService {
 
-  UserDTO createUser(User user);
+  UserDto createUser(User user);
 
-  List<UserDTO> createUsers(List<User> users);
+  List<UserDto> createUsers(List<User> users);
 
-  UserDTO getUserByUserName(String username);
+  UserDto getUserByUserName(String username);
 
-  UserDTO getById(long id);
+  UserDto getById(long id);
 
   void deleteUser(long id);
 
   User getUserByEmail(String username);
 
-  UserDTO updateUser(long id, UpdateUserModel userDetails);
+  UserDto updateUser(long id, UpdateUserModel userDetails);
 
   void updateUserLoginTime(String email);
 
-  List<ClubDTO> getMyClubs(String userId);
+  List<ClubDto> getMyClubs(String userId);
 
-  UserDTO updateChild(String childId, String parentId, UpdateUserModel userDetails);
+  UserDto updateChild(String childId, String parentId, UpdateUserModel userDetails);
 
   void addParentToChild(String originalParentId, String childId, String newParentId);
 }

@@ -3,12 +3,12 @@ package nu.borjessons.clubhouse.impl.service;
 import java.util.Set;
 
 import nu.borjessons.clubhouse.impl.data.Club;
-import nu.borjessons.clubhouse.impl.dto.ClubDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubDto;
 
 public interface ClubService {
   Club getClubByClubId(String clubId);
 
-  Set<ClubDTO> getAllClubs();
+  Set<ClubDto> getAllClubs();
 
-  ClubDTO getPublicClub(String pathname);
+  ClubDto getPublicClub(String pathname);
 }

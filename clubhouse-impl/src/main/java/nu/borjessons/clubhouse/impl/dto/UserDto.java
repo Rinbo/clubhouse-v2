@@ -11,9 +11,9 @@ import nu.borjessons.clubhouse.impl.data.User;
 @Builder
 @Getter
 @ToString
-public final class UserDTO {
-  public static UserDTO create(User user) {
-    return UserDTO.builder()
+public final class UserDto {
+  public static UserDto create(User user) {
+    return UserDto.builder()
         .userId(user.getUserId())
         .email(user.getEmail())
         .firstName(user.getFirstName())
@@ -21,12 +21,12 @@ public final class UserDTO {
         .dateOfBirth(user.getDateOfBirth().toString())
         .children(user.getChildren().stream().map(BaseUserRecord::new).collect(Collectors.toSet()))
         .parentIds(user.getParents().stream().map(User::getUserId).collect(Collectors.toSet()))
-        .addresses(user.getAddresses().stream().map(AddressDTO::new).collect(Collectors.toSet()))
+        .addresses(user.getAddresses().stream().map(AddressDto::new).collect(Collectors.toSet()))
         .managedUser(user.isManagedAccount())
         .build();
   }
 
-  private final Set<AddressDTO> addresses;
+  private final Set<AddressDto> addresses;
   private final Set<BaseUserRecord> children;
   private final String dateOfBirth;
   private final String email;

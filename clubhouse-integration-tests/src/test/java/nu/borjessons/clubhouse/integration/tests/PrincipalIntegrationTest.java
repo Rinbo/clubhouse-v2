@@ -11,8 +11,8 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
-import nu.borjessons.clubhouse.impl.dto.ClubUserDTO;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
+import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
@@ -24,7 +24,7 @@ class PrincipalIntegrationTest {
   void authTest() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String adminToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final List<ClubUserDTO> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, adminToken);
+      final List<ClubUserDto> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, adminToken);
       Assertions.assertNotNull(users);
       Assertions.assertEquals(6, users.size());
 
@@ -43,7 +43,7 @@ class PrincipalIntegrationTest {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
-      final UserDTO self = UserUtil.getSelf(token);
+      final UserDto self = UserUtil.getSelf(token);
 
       Assertions.assertEquals("Robin", self.getFirstName());
       Assertions.assertEquals("Börjesson", self.getLastName());
@@ -54,7 +54,7 @@ class PrincipalIntegrationTest {
       updateUserModel.setLastName("WEATHER");
       updateUserModel.setDateOfBirth("1900-01-01");
 
-      UserDTO userDTO = UserUtil.updateSelf(token, updateUserModel);
+      UserDto userDTO = UserUtil.updateSelf(token, updateUserModel);
 
       Assertions.assertEquals("FLOYD", userDTO.getFirstName());
       Assertions.assertEquals("WEATHER", userDTO.getLastName());
@@ -89,7 +89,7 @@ class PrincipalIntegrationTest {
   void getSelf() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final UserDTO self = UserUtil.getSelf(ownerToken);
+      final UserDto self = UserUtil.getSelf(ownerToken);
       Assertions.assertNotNull(self);
       Assertions.assertEquals(EmbeddedDataLoader.OWNER_EMAIL, self.getEmail());
     }
@@ -100,9 +100,9 @@ class PrincipalIntegrationTest {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      List<ClubUserDTO> clubUserDTOs = UserUtil.getPrincipalClubUsers(token);
-      Assertions.assertEquals(1, clubUserDTOs.size());
-      clubUserDTOs.forEach(clubUserDTO -> Assertions.assertEquals(EmbeddedDataLoader.POPS_EMAIL, clubUserDTO.getEmail()));
+      List<ClubUserDto> clubUserDtos = UserUtil.getPrincipalClubUsers(token);
+      Assertions.assertEquals(1, clubUserDtos.size());
+      clubUserDtos.forEach(clubUserDTO -> Assertions.assertEquals(EmbeddedDataLoader.POPS_EMAIL, clubUserDTO.getEmail()));
     }
   }
 }

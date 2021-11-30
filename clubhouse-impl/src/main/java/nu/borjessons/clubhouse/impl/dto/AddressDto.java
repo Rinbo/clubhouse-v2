@@ -11,7 +11,7 @@ import nu.borjessons.clubhouse.impl.data.Address;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AddressDTO implements Serializable {
+public class AddressDto implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -21,7 +21,7 @@ public class AddressDTO implements Serializable {
   private String postalCode;
   private String street;
 
-  public AddressDTO(Address address) {
+  public AddressDto(Address address) {
     addressId = address.getAddressId();
     street = address.getStreet();
     postalCode = address.getPostalCode();
@@ -44,7 +44,7 @@ public class AddressDTO implements Serializable {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    AddressDTO other = (AddressDTO) obj;
+    AddressDto other = (AddressDto) obj;
     if (city == null) {
       if (other.city != null) return false;
     } else if (!city.equals(other.city)) return false;

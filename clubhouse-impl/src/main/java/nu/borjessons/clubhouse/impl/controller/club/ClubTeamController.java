@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.User;
-import nu.borjessons.clubhouse.impl.dto.TeamDTO;
+import nu.borjessons.clubhouse.impl.dto.TeamDto;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
 import nu.borjessons.clubhouse.impl.security.util.ResourceAuthorization;
 import nu.borjessons.clubhouse.impl.service.ClubService;
@@ -38,7 +38,7 @@ public class ClubTeamController {
   // TODO Do I want to allow a parent to add a child to a team?
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/add-child")
-  public TeamDTO addChildrenToTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
+  public TeamDto addChildrenToTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
       @RequestParam String childId) {
     resourceAuthorization.isChildOfUser(childId, principal);
     return teamService.addMemberToTeam(clubId, teamId, childId);
@@ -47,38 +47,38 @@ public class ClubTeamController {
   @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping(path = "/clubs/{clubId}/teams")
-  public TeamDTO createTeam(@PathVariable String clubId, @RequestBody @Valid TeamRequestModel teamModel) {
+  public TeamDto createTeam(@PathVariable String clubId, @RequestBody @Valid TeamRequestModel teamModel) {
     return teamService.createTeam(clubId, teamModel);
   }
 
   // TODO Need one for getting leader teams and children teams.
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/clubs/{clubId}/my-teams")
-  public Set<TeamDTO> getMyTeams(@AuthenticationPrincipal User principal, @PathVariable String clubId) {
+  public Set<TeamDto> getMyTeams(@AuthenticationPrincipal User principal, @PathVariable String clubId) {
     return teamService.getTeamsByUserId(clubId, principal.getUserId());
   }
 
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/clubs/{clubId}/teams/{teamId}")
-  public TeamDTO getTeam(@PathVariable String clubId, @PathVariable String teamId) {
+  public TeamDto getTeam(@PathVariable String clubId, @PathVariable String teamId) {
     Club club = clubService.getClubByClubId(clubId);
     Team team = club.getTeamByTeamId(teamId).orElseThrow();
-    return TeamDTO.create(team);
+    return TeamDto.create(team);
   }
 
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/clubs/{clubId}/teams")
-  public Set<TeamDTO> getTeams(@PathVariable String clubId) {
+  public Set<TeamDto> getTeams(@PathVariable String clubId) {
     return clubService.getClubByClubId(clubId)
         .getTeams()
         .stream()
-        .map(TeamDTO::create)
+        .map(TeamDto::create)
         .collect(Collectors.toSet());
   }
 
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/join")
-  public TeamDTO joinTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId) {
+  public TeamDto joinTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId) {
     return teamService.addMemberToTeam(clubId, teamId, principal.getUserId());
   }
 
@@ -90,19 +90,19 @@ public class ClubTeamController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/remove-leader")
-  public TeamDTO removeLeader(@PathVariable String clubId, @PathVariable String teamId, @RequestParam String leaderId) {
+  public TeamDto removeLeader(@PathVariable String clubId, @PathVariable String teamId, @RequestParam String leaderId) {
     return teamService.removeLeaderFromTeam(clubId, teamId, leaderId);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}")
-  public TeamDTO updateTeam(@PathVariable String clubId, @PathVariable String teamId, @RequestBody @Valid TeamRequestModel teamModel) {
+  public TeamDto updateTeam(@PathVariable String clubId, @PathVariable String teamId, @RequestBody @Valid TeamRequestModel teamModel) {
     return teamService.updateTeam(clubId, teamId, teamModel);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/members")
-  public TeamDTO updateTeamMembers(@PathVariable String clubId, @PathVariable String teamId, @RequestBody List<String> userIds) {
+  public TeamDto updateTeamMembers(@PathVariable String clubId, @PathVariable String teamId, @RequestBody List<String> userIds) {
     return teamService.updateTeamMembers(clubId, teamId, userIds);
   }
 }

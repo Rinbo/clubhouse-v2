@@ -13,7 +13,7 @@ import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.dto.Role;
-import nu.borjessons.clubhouse.impl.dto.TeamDTO;
+import nu.borjessons.clubhouse.impl.dto.TeamDto;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
 import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
@@ -29,16 +29,16 @@ public class TeamServiceImpl implements TeamService {
 
   @Override
   @Transactional
-  public TeamDTO addMemberToTeam(String clubId, String teamId, String userId) {
+  public TeamDto addMemberToTeam(String clubId, String teamId, String userId) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     Team team = clubUser.getClub().getTeamByTeamId(teamId).orElseThrow();
     team.addMember(clubUser);
-    return TeamDTO.create(teamRepository.save(team));
+    return TeamDto.create(teamRepository.save(team));
   }
 
   @Override
   @Transactional
-  public TeamDTO updateTeamMembers(String clubId, String teamId, List<String> userIds) {
+  public TeamDto updateTeamMembers(String clubId, String teamId, List<String> userIds) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     Team team = club.getTeamByTeamId(teamId).orElseThrow();
 
@@ -46,12 +46,12 @@ public class TeamServiceImpl implements TeamService {
     List.copyOf(team.getMembers()).forEach(team::removeMember);
     teamMembers.forEach(team::addMember);
 
-    return TeamDTO.create(teamRepository.save(team));
+    return TeamDto.create(teamRepository.save(team));
   }
 
   @Override
   @Transactional
-  public TeamDTO createTeam(String clubId, TeamRequestModel teamModel) {
+  public TeamDto createTeam(String clubId, TeamRequestModel teamModel) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     List<ClubUser> leaders = getClubLeaders(teamModel.getLeaderIds(), club);
 
@@ -63,7 +63,7 @@ public class TeamServiceImpl implements TeamService {
 
     club.addTeam(team);
     final Team savedTeam = teamRepository.save(team);
-    return TeamDTO.create(savedTeam);
+    return TeamDto.create(savedTeam);
   }
 
   @Override
@@ -77,16 +77,16 @@ public class TeamServiceImpl implements TeamService {
 
   @Override
   @Transactional
-  public TeamDTO removeLeaderFromTeam(String clubId, String teamId, String userId) {
+  public TeamDto removeLeaderFromTeam(String clubId, String teamId, String userId) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     Team team = clubUser.getClub().getTeamByTeamId(teamId).orElseThrow();
     team.removeLeader(clubUser);
-    return TeamDTO.create(teamRepository.save(team));
+    return TeamDto.create(teamRepository.save(team));
   }
 
   @Override
   @Transactional
-  public TeamDTO updateTeam(String clubId, String teamId, TeamRequestModel teamModel) {
+  public TeamDto updateTeam(String clubId, String teamId, TeamRequestModel teamModel) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     Team team = club.getTeamByTeamId(teamId).orElseThrow();
     List<ClubUser> leaders = getClubLeaders(teamModel.getLeaderIds(), club);
@@ -98,16 +98,16 @@ public class TeamServiceImpl implements TeamService {
     leaders.forEach(team::addLeader);
 
     club.addTeam(team);
-    return TeamDTO.create(teamRepository.save(team));
+    return TeamDto.create(teamRepository.save(team));
   }
 
   @Override
   @Transactional
-  public Set<TeamDTO> getTeamsByUserId(String clubId, String userId) {
+  public Set<TeamDto> getTeamsByUserId(String clubId, String userId) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
     return clubUser.getTeams()
         .stream()
-        .map(TeamDTO::create)
+        .map(TeamDto::create)
         .collect(Collectors.toSet());
   }
 

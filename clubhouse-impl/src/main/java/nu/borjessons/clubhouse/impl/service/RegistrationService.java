@@ -4,26 +4,26 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 
 public interface RegistrationService {
-  UserDTO registerClubChildren(String userId, String clubId, @Valid List<CreateChildRequestModel> childModels);
+  UserDto registerClubChildren(String userId, String clubId, @Valid List<CreateChildRequestModel> childModels);
 
-  UserDTO registerClub(@Valid CreateClubModel clubDetails);
+  UserDto registerClub(@Valid CreateClubModel clubDetails);
 
-  UserDTO registerClub(@Valid CreateClubModel clubDetails, String clubId);
+  UserDto registerClub(@Valid CreateClubModel clubDetails, String clubId);
 
-  List<UserDTO> registerFamily(@Valid FamilyRequestModel familyDetails);
+  List<UserDto> registerFamily(@Valid FamilyRequestModel familyDetails);
 
-  UserDTO registerUser(@Valid CreateUserModel userDetails);
+  UserDto registerUser(@Valid CreateUserModel userDetails);
 
-  UserDTO registerUser(@Valid CreateUserModel userDetails, String userId);
+  UserDto registerUser(@Valid CreateUserModel userDetails, String userId);
 
-  UserDTO registerChild(String parentId, CreateChildRequestModel childModel);
+  UserDto registerChild(String parentId, CreateChildRequestModel childModel);
 
-  UserDTO unregisterChild(String childId, String parentId);
+  UserDto unregisterChild(String childId, String parentId);
 }

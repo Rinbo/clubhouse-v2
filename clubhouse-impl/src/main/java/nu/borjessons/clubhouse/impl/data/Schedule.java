@@ -36,4 +36,9 @@ public class Schedule {
   @Column(name = "training_times")
   @OneToMany(mappedBy = "schedule", orphanRemoval = true, cascade = CascadeType.ALL)
   private List<TrainingTime> trainingTimes = new ArrayList<>();
+
+  public void addTrainingTime(TrainingTime trainingTime) {
+    trainingTime.setSchedule(this);
+    trainingTimes.add(trainingTime);
+  }
 }

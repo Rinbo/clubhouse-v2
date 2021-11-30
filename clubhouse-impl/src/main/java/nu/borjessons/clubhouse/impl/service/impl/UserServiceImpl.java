@@ -13,8 +13,8 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.User;
-import nu.borjessons.clubhouse.impl.dto.ClubDTO;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubDto;
+import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.repository.AddressRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
@@ -30,26 +30,26 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
 
   @Override
-  public UserDTO createUser(User user) {
-    return UserDTO.create(userRepository.save(user));
+  public UserDto createUser(User user) {
+    return UserDto.create(userRepository.save(user));
   }
 
   @Override
-  public List<UserDTO> createUsers(List<User> users) {
+  public List<UserDto> createUsers(List<User> users) {
     return userRepository.saveAll(users)
         .stream()
-        .map(UserDTO::create)
+        .map(UserDto::create)
         .toList();
   }
 
   @Override
-  public UserDTO getUserByUserName(String username) {
-    return UserDTO.create(getUserByEmail(username));
+  public UserDto getUserByUserName(String username) {
+    return UserDto.create(getUserByEmail(username));
   }
 
   @Override
-  public UserDTO getById(long id) {
-    return UserDTO.create(getUser(id));
+  public UserDto getById(long id) {
+    return UserDto.create(getUser(id));
   }
 
   @Override
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   @Transactional
-  public UserDTO updateUser(long id, UpdateUserModel userDetails) {
+  public UserDto updateUser(long id, UpdateUserModel userDetails) {
     User user = getUser(id);
     user.setFirstName(userDetails.getFirstName());
     user.setLastName(userDetails.getLastName());
@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
     addressRepository.deleteAll(oldAddresses);
     addresses.forEach(user::addAddress);
 
-    return UserDTO.create(userRepository.save(user));
+    return UserDto.create(userRepository.save(user));
   }
 
   @Override
@@ -91,24 +91,24 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public List<ClubDTO> getMyClubs(String userId) {
+  public List<ClubDto> getMyClubs(String userId) {
     User user = getUser(userId);
     return user.getClubUsers()
         .stream()
         .map(ClubUser::getClub)
-        .map(ClubDTO::new)
+        .map(ClubDto::new)
         .toList();
   }
 
   @Transactional
   @Override
-  public UserDTO updateChild(String childId, String parentId, UpdateUserModel userDetails) {
+  public UserDto updateChild(String childId, String parentId, UpdateUserModel userDetails) {
     User parent = userRepository.findByUserId(parentId).orElseThrow();
     User child = parent.getChildren().stream().filter(c -> c.getUserId().equals(childId)).findFirst().orElseThrow();
     child.setFirstName(userDetails.getFirstName());
     child.setLastName(userDetails.getLastName());
     child.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
-    return UserDTO.create(userRepository.save(child));
+    return UserDto.create(userRepository.save(child));
   }
 
   @Override

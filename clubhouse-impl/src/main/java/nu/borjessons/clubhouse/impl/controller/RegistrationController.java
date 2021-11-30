@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.dto.UserDTO;
+import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
@@ -27,36 +27,36 @@ public class RegistrationController {
   private final RegistrationService registrationService;
 
   @PostMapping(SecurityUtil.CLUB_REGISTRATION_URL)
-  public UserDTO registerClub(@Valid @RequestBody CreateClubModel clubDetails) {
+  public UserDto registerClub(@Valid @RequestBody CreateClubModel clubDetails) {
     return registrationService.registerClub(clubDetails);
   }
 
   @PostMapping(SecurityUtil.FAMILY_REGISTRATION_URL)
-  public List<UserDTO> registerFamily(@Valid @RequestBody FamilyRequestModel familyDetails) {
+  public List<UserDto> registerFamily(@Valid @RequestBody FamilyRequestModel familyDetails) {
     return registrationService.registerFamily(familyDetails);
   }
 
   @PostMapping(SecurityUtil.USER_REGISTRATION_URL)
-  public UserDTO registerUser(@Valid @RequestBody CreateUserModel userDetails) {
+  public UserDto registerUser(@Valid @RequestBody CreateUserModel userDetails) {
     return registrationService.registerUser(userDetails);
   }
 
   @PreAuthorize("hasRole('ADMIN') or #parentId == authentication.principal.userId")
   @PostMapping("/clubs/{clubId}/register-club-children")
-  public UserDTO registerClubChildren(@PathVariable String clubId, @RequestParam String parentId,
+  public UserDto registerClubChildren(@PathVariable String clubId, @RequestParam String parentId,
       @Valid @RequestBody List<CreateChildRequestModel> childModels) {
     return registrationService.registerClubChildren(parentId, clubId, childModels);
   }
 
   @PreAuthorize("#parentId == authentication.principal.userId")
   @PostMapping("/users/{parentId}/register-child")
-  public UserDTO registerChild(@PathVariable String parentId, @Valid @RequestBody CreateChildRequestModel childModel) {
+  public UserDto registerChild(@PathVariable String parentId, @Valid @RequestBody CreateChildRequestModel childModel) {
     return registrationService.registerChild(parentId, childModel);
   }
 
   @PreAuthorize("#parentId == authentication.principal.userId")
   @DeleteMapping("/users/{parentId}/unregister-child")
-  public UserDTO unregisterChild(@PathVariable String parentId, @Valid @RequestParam String childId) {
+  public UserDto unregisterChild(@PathVariable String parentId, @Valid @RequestParam String childId) {
     return registrationService.unregisterChild(childId, parentId);
   }
 }

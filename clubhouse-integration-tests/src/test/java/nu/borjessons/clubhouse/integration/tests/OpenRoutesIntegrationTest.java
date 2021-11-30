@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import nu.borjessons.clubhouse.impl.data.Club;
-import nu.borjessons.clubhouse.impl.dto.ClubDTO;
+import nu.borjessons.clubhouse.impl.dto.ClubDto;
 import nu.borjessons.clubhouse.integration.tests.util.ClubUtil;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import nu.borjessons.clubhouse.integration.tests.util.RestUtil;
@@ -17,8 +17,8 @@ class OpenRoutesIntegrationTest {
   @Test
   void getClubs() {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
-      ResponseEntity<ClubDTO[]> response = new RestTemplate().getForEntity(RestUtil.BASE_URL + "/public/clubs", ClubDTO[].class);
-      ClubDTO[] body = response.getBody();
+      ResponseEntity<ClubDto[]> response = new RestTemplate().getForEntity(RestUtil.BASE_URL + "/public/clubs", ClubDto[].class);
+      ClubDto[] body = response.getBody();
       Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
       Assertions.assertNotNull(body);
       Assertions.assertEquals(1, body.length);
@@ -28,7 +28,7 @@ class OpenRoutesIntegrationTest {
   @Test
   void getClubByPathName() {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
-      ClubDTO clubDTO = ClubUtil.getClubByPathName("fritiof-sports");
+      ClubDto clubDTO = ClubUtil.getClubByPathName("fritiof-sports");
       Assertions.assertNotNull(clubDTO);
       Assertions.assertEquals("Fritiof Sports", clubDTO.name());
       Assertions.assertEquals(Club.Type.SPORT, clubDTO.type());
