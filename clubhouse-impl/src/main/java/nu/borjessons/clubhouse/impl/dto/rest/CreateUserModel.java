@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.dto.rest;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class CreateUserModel implements Serializable {
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private List<AddressModel> addresses = new ArrayList<>();
