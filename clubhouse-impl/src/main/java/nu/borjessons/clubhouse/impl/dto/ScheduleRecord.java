@@ -3,7 +3,6 @@ package nu.borjessons.clubhouse.impl.dto;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import nu.borjessons.clubhouse.impl.data.Schedule;
 
@@ -26,7 +25,7 @@ public record ScheduleRecord(LocalDate periodStart,
         schedule.getTrainingTimes()
             .stream()
             .map(TrainingTimeRecord::new)
-            .collect(Collectors.toList()),
+            .toList(),
         schedule.getTeam().getTeamId(), schedule.getTeam().getName());
   }
 }

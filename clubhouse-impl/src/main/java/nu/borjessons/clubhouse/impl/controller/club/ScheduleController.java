@@ -29,7 +29,7 @@ public class ScheduleController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/teams/{teamId}/schedule")
-  public ScheduleRecord createSchadule(@PathVariable String teamId, @Valid @RequestBody ScheduleRequest scheduleRequest) {
+  public ScheduleRecord createSchedule(@PathVariable String teamId, @Valid @RequestBody ScheduleRequest scheduleRequest) {
     return scheduleService.createSchedule(teamId, scheduleRequest);
   }
 }

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import nu.borjessons.clubhouse.impl.data.Schedule;
 import nu.borjessons.clubhouse.impl.data.Team;
 
 @Builder
@@ -18,6 +19,7 @@ public final class TeamDto implements Serializable {
   private static final long serialVersionUID = 1L;
 
   public static TeamDto create(Team team) {
+    Schedule schedule = team.getSchedule();
     return TeamDto.builder()
         .teamId(team.getTeamId())
         .name(team.getName())
@@ -25,6 +27,7 @@ public final class TeamDto implements Serializable {
         .maxAge(team.getMaxAge())
         .members(team.getMembers().stream().map(ClubUserDto::new).collect(Collectors.toSet()))
         .leaders(team.getLeaders().stream().map(ClubUserDto::new).collect(Collectors.toSet()))
+        .schedule(schedule != null ? new ScheduleRecord(schedule) : null)
         .build();
   }
 
@@ -34,4 +37,5 @@ public final class TeamDto implements Serializable {
   private final int maxAge;
   private final Set<ClubUserDto> members;
   private final Set<ClubUserDto> leaders;
+  private final ScheduleRecord schedule;
 }

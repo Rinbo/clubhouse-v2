@@ -21,6 +21,13 @@ public class ScheduleUtil {
     return response.getBody();
   }
 
+  public static ScheduleRecord getSchedule(String token, String teamId) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/schedule").buildAndExpand(EmbeddedDataLoader.CLUB_ID, teamId).toUriString();
+    ResponseEntity<ScheduleRecord> response = RestUtil.getRequest(uri, token, ScheduleRecord.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
+  }
+
   private static ScheduleRequest createScheduleRequest() {
     ScheduleRequest scheduleRequest = new ScheduleRequest();
     scheduleRequest.setPeriodEnd(LocalDate.of(2021, 12, 31));

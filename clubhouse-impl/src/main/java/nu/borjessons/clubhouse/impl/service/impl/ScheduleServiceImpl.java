@@ -24,8 +24,8 @@ public class ScheduleServiceImpl implements ScheduleService {
   @Transactional
   @Override
   public ScheduleRecord getSchedule(String teamId) {
-    Schedule schedule = scheduleRepository.findByTeamId(teamId).orElseThrow();
-    return new ScheduleRecord(schedule);
+    Team team = teamRepository.findByTeamId(teamId).orElseThrow();
+    return new ScheduleRecord(team.getSchedule());
   }
 
   @Override
