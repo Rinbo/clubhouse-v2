@@ -23,8 +23,8 @@ public class ScheduleUtil {
 
   private static ScheduleRequest createScheduleRequest() {
     ScheduleRequest scheduleRequest = new ScheduleRequest();
-    scheduleRequest.setPeriodEnd(LocalDate.of(2021, 1, 1));
-    scheduleRequest.setPeriodStart(LocalDate.of(2021, 12, 31));
+    scheduleRequest.setPeriodEnd(LocalDate.of(2021, 12, 31));
+    scheduleRequest.setPeriodStart(LocalDate.of(2021, 1, 1));
     scheduleRequest.setTrainingTimes(createTrainingTimeRequests());
     return scheduleRequest;
   }
