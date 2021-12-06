@@ -96,9 +96,8 @@ public class Team extends BaseEntity {
   public boolean equals(Object obj) {
     if (this == obj)
       return true;
-    if (!(obj instanceof Team))
+    if (!(obj instanceof Team other))
       return false;
-    Team other = (Team) obj;
     return teamId.equals(other.teamId);
   }
 }

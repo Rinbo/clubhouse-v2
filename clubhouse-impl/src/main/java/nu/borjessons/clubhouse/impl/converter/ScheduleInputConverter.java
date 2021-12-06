@@ -35,7 +35,7 @@ public final class ScheduleInputConverter implements BiFunction<ScheduleRequest,
     List<TrainingTime> trainingTimes = getTrainingTimes(scheduleRequest.getTrainingTimes());
 
     Schedule schedule = new Schedule();
-    schedule.setTeam(team);
+    schedule.addTeam(team);
     schedule.setPeriodStart(scheduleRequest.getPeriodStart());
     schedule.setPeriodEnd(scheduleRequest.getPeriodEnd());
     trainingTimes.forEach(schedule::addTrainingTime);

@@ -28,11 +28,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     return new ScheduleRecord(team.getSchedule());
   }
 
-  @Override
-  public ScheduleRecord updateSchedule(String teamId, ScheduleRecord scheduleRecord) {
-    return null;
-  }
-
   @Transactional
   @Override
   public ScheduleRecord createSchedule(String teamId, ScheduleRequest scheduleRequest) {
