@@ -13,14 +13,17 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Entity(name = "training_time")
+@Entity
+@Table(name = "training_time", indexes = @Index(name = "ix_training_time_id", columnList = "training_time_id"))
 public class TrainingTime implements Serializable {
   @Serial
   private static final long serialVersionUID = 2530679077350612832L;
@@ -30,7 +33,7 @@ public class TrainingTime implements Serializable {
   private long id;
 
   @Column(name = "training_time_id", nullable = false, unique = true)
-  private String teamId;
+  private String trainingTimeId;
 
   @Column(name = "day_of_week", nullable = false)
   @Enumerated(EnumType.STRING)
@@ -49,6 +52,6 @@ public class TrainingTime implements Serializable {
   private String location;
 
   public TrainingTime() {
-    this.teamId = UUID.randomUUID().toString();
+    this.trainingTimeId = UUID.randomUUID().toString();
   }
 }

@@ -1,0 +1,1 @@
+CREATE INDEX ix_training_time_id ON training_time(training_time_id);
