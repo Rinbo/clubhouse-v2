@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl;
 import java.security.Key;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 
 import io.jsonwebtoken.security.Keys;
 import nu.borjessons.clubhouse.impl.security.TokenStore;
@@ -55,9 +57,11 @@ public class ClubhouseApplication {
     JavaTimeModule javaTimeModule = new JavaTimeModule();
     LocalDateTimeDeserializer localDateTimeDeserializer = new LocalDateTimeDeserializer(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     LocalDateDeserializer localDateDeserializer = new LocalDateDeserializer(DateTimeFormatter.ISO_OFFSET_DATE);
+    LocalTimeDeserializer localTimeDeserializer = new LocalTimeDeserializer(DateTimeFormatter.ISO_TIME);
 
     javaTimeModule.addDeserializer(LocalDateTime.class, localDateTimeDeserializer);
     javaTimeModule.addDeserializer(LocalDate.class, localDateDeserializer);
+    javaTimeModule.addDeserializer(LocalTime.class, localTimeDeserializer);
     objectMapper.registerModule(javaTimeModule);
 
     return objectMapper;

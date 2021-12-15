@@ -2,7 +2,6 @@ package nu.borjessons.clubhouse.impl.controller;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +14,6 @@ import nu.borjessons.clubhouse.impl.dto.Role;
 public class UtilityController {
   @GetMapping("/roles")
   public Collection<Role> getAllRolesNames() {
-    return Arrays.stream(Role.values()).filter(role -> role != Role.SYSTEM_ADMIN).collect(Collectors.toList());
+    return Arrays.stream(Role.values()).filter(role -> role != Role.SYSTEM_ADMIN).toList();
   }
 }

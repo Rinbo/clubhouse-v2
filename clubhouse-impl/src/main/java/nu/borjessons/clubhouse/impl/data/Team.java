@@ -14,7 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import lombok.AccessLevel;
@@ -53,8 +53,8 @@ public class Team extends BaseEntity {
   @Column(nullable = false)
   private String name;
 
-  @OneToOne(mappedBy = "team", orphanRemoval = true, cascade = CascadeType.ALL)
-  private Schedule schedule;
+  @OneToMany(mappedBy = "team", orphanRemoval = true, cascade = CascadeType.ALL)
+  private List<TrainingTime> trainingTimes;
 
   public Team(String teamId) {
     this.teamId = teamId;

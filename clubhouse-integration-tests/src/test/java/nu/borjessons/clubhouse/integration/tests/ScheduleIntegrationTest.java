@@ -7,7 +7,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
-import nu.borjessons.clubhouse.impl.dto.ScheduleRecord;
 import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;

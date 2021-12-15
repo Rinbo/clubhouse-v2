@@ -11,25 +11,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.dto.ScheduleRecord;
-import nu.borjessons.clubhouse.impl.dto.rest.ScheduleRequest;
-import nu.borjessons.clubhouse.impl.service.ScheduleService;
+import nu.borjessons.clubhouse.impl.dto.TrainingTimeRecord;
+import nu.borjessons.clubhouse.impl.service.TrainingTimeService;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/clubs/{clubId}")
-public class ScheduleController {
-  private final ScheduleService scheduleService;
+public class TrainingTimeController {
+  private final TrainingTimeService trainingTimeService;
 
   @PreAuthorize("hasRole('USER')")
-  @GetMapping("/teams/{teamId}/schedule")
-  public ScheduleRecord getSchedule(@PathVariable String teamId) {
-    return scheduleService.getSchedule(teamId);
+  @GetMapping("/teams/{teamId}/training-time")
+  public TrainingTimeRecord getSchedule(@PathVariable String teamId) {
+    return null;
   }
 
   @PreAuthorize("hasRole('ADMIN')")
-  @PostMapping("/teams/{teamId}/schedule")
-  public ScheduleRecord createSchedule(@PathVariable String teamId, @Valid @RequestBody ScheduleRequest scheduleRequest) {
-    return scheduleService.createSchedule(teamId, scheduleRequest);
+  @PostMapping("/teams/{teamId}/training-time")
+  public TrainingTimeRecord createSchedule(@PathVariable String teamId, @Valid @RequestBody ScheduleRequest scheduleRequest) {
+    return null;
   }
 }

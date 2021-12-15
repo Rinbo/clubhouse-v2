@@ -1,6 +1,6 @@
 package nu.borjessons.clubhouse.impl.dto.rest;
 
-import java.time.Duration;
+import java.time.LocalTime;
 
 import javax.validation.constraints.NotNull;
 
@@ -18,8 +18,11 @@ public class TrainingTimeRequest {
   private int dayOfWeek;
 
   @NotNull
-  private Duration duration;
+  private String location;
 
   @NotNull
-  private String location;
+  private LocalTime startTime;
+
+  @NotNull
+  private LocalTime endTime;
 }

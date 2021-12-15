@@ -1,17 +1,15 @@
 package nu.borjessons.clubhouse.integration.tests.util;
 
 import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import nu.borjessons.clubhouse.impl.dto.ScheduleRecord;
 import nu.borjessons.clubhouse.impl.dto.TrainingTimeRecord;
-import nu.borjessons.clubhouse.impl.dto.rest.ScheduleRequest;
 import nu.borjessons.clubhouse.impl.dto.rest.TrainingTimeRequest;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 
@@ -49,7 +47,8 @@ public class ScheduleUtil {
     Assertions.assertTrue(trainingTimes.stream().anyMatch(trainingTime -> trainingTime.dayOfWeek() == DayOfWeek.WEDNESDAY));
     Assertions.assertTrue(trainingTimes.stream().anyMatch(trainingTime -> trainingTime.location().equals("Small Hall")));
     Assertions.assertTrue(trainingTimes.stream().anyMatch(trainingTime -> trainingTime.location().equals("Big Hall")));
-    Assertions.assertTrue(trainingTimes.stream().allMatch(trainingTime -> trainingTime.duration().equals(Duration.ofHours(2))));
+    Assertions.assertTrue(trainingTimes.stream().allMatch(trainingTime -> trainingTime.startTime().equals(LocalTime.of(14, 0))));
+    Assertions.assertTrue(trainingTimes.stream().allMatch(trainingTime -> trainingTime.endTime().equals(LocalTime.of(15, 0))));
   }
 
   public static void checkAnotherScheduleRecord(ScheduleRecord scheduleRecord, String expectedTeamId) {
@@ -63,7 +62,8 @@ public class ScheduleUtil {
     Assertions.assertEquals(1, scheduleRecord.trainingTimes().size());
     Assertions.assertEquals(DayOfWeek.FRIDAY, trainingTime.dayOfWeek());
     Assertions.assertEquals("Outdoors", trainingTime.location());
-    Assertions.assertEquals(Duration.ofHours(1), trainingTime.duration());
+    Assertions.assertEquals(LocalTime.of(12, 0), trainingTime.startTime());
+    Assertions.assertEquals(LocalTime.of(13, 0), trainingTime.endTime());
   }
 
   private static ScheduleRequest createAnotherSchedule() {
@@ -76,9 +76,10 @@ public class ScheduleUtil {
 
   private static List<TrainingTimeRequest> createAnotherTrainingTimeRequests() {
     TrainingTimeRequest trainingTimeRequest = new TrainingTimeRequest();
-    trainingTimeRequest.setDuration(Duration.ofHours(1));
-    trainingTimeRequest.setLocation("Outdoors");
     trainingTimeRequest.setDayOfWeek(5);
+    trainingTimeRequest.setLocation("Outdoors");
+    trainingTimeRequest.setStartTime(LocalTime.of(12, 0));
+    trainingTimeRequest.setEndTime(LocalTime.of(13, 0));
     return List.of(trainingTimeRequest);
   }
 
@@ -92,12 +93,14 @@ public class ScheduleUtil {
 
   private static List<TrainingTimeRequest> createTrainingTimeRequests() {
     TrainingTimeRequest trainingTimeRequest1 = new TrainingTimeRequest();
-    trainingTimeRequest1.setDuration(Duration.ofHours(2));
+    trainingTimeRequest1.setStartTime(LocalTime.of(14, 0));
+    trainingTimeRequest1.setEndTime(LocalTime.of(15, 0));
     trainingTimeRequest1.setLocation("Big Hall");
     trainingTimeRequest1.setDayOfWeek(1);
 
     TrainingTimeRequest trainingTimeRequest2 = new TrainingTimeRequest();
-    trainingTimeRequest2.setDuration(Duration.ofHours(2));
+    trainingTimeRequest2.setStartTime(LocalTime.of(14, 0));
+    trainingTimeRequest2.setEndTime(LocalTime.of(15, 0));
     trainingTimeRequest2.setLocation("Small Hall");
     trainingTimeRequest2.setDayOfWeek(3);
 
