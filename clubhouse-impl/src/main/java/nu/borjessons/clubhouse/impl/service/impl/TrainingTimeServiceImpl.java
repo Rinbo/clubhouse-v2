@@ -42,12 +42,13 @@ public class TrainingTimeServiceImpl implements TrainingTimeService {
 
   @Override
   public TrainingTimeRecord updateTrainingTime(String trainingTimeId, TrainingTime trainingTime) {
-    TrainingTime existing = trainingTimeRepository.findByTrainingTimeId().orElseThrow();
+    TrainingTime existing = trainingTimeRepository.getByTrainingTimeId(trainingTimeId).orElseThrow();
     updateExistingTrainingTime(existing, trainingTime);
     return new TrainingTimeRecord(trainingTimeRepository.save(existing));
   }
 
   @Override
+  @Transactional
   public void deleteTrainingTime(String trainingTimeId) {
     trainingTimeRepository.deleteByTrainingTimeId(trainingTimeId);
   }

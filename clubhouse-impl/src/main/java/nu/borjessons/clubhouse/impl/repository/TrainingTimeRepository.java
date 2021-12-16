@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import nu.borjessons.clubhouse.impl.data.TrainingTime;
 
 public interface TrainingTimeRepository extends JpaRepository<TrainingTime, Long> {
-  Optional<TrainingTime> findByTrainingTimeId();
+  Optional<TrainingTime> getByTrainingTimeId(String trainingTimeId);
 
   void deleteByTrainingTimeId(String trainingTimeId);
 }

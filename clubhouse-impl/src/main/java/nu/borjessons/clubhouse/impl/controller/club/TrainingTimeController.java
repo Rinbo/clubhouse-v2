@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,9 +49,8 @@ public class TrainingTimeController {
   }
 
   @PreAuthorize("hasRole('ADMIN')")
-  @PutMapping("/teams/{teamId}/training-time/{trainingTimeId}")
-  public ResponseEntity<String> deleteTrainingTime(@PathVariable String teamId, @PathVariable String trainingTimeId,
-      @Valid @RequestBody TrainingTimeRequest trainingTimeRequest) {
+  @DeleteMapping("/teams/{teamId}/training-time/{trainingTimeId}")
+  public ResponseEntity<String> deleteTrainingTime(@PathVariable String teamId, @PathVariable String trainingTimeId) {
     trainingTimeService.deleteTrainingTime(trainingTimeId);
     return ResponseEntity.ok(String.format("trainingTime with id %s was successfully deleted", trainingTimeId));
   }

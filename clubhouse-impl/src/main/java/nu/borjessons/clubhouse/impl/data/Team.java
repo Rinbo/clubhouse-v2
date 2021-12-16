@@ -62,6 +62,7 @@ public class Team extends BaseEntity {
 
   public Team() {
     this.teamId = UUID.randomUUID().toString();
+    trainingTimes = new ArrayList<>();
   }
 
   public void addMember(ClubUser clubUser) {

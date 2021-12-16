@@ -3,6 +3,9 @@ package nu.borjessons.clubhouse.integration.tests.util;
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +17,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 public class RestUtil {
@@ -25,7 +30,12 @@ public class RestUtil {
 
   public static <T> T deserializeJsonBody(String body, Class<T> clazz) throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
-    mapper.registerModule(new ParameterNamesModule());
+
+    JavaTimeModule javaTimeModule = new JavaTimeModule();
+    LocalTimeDeserializer localTimeDeserializer = new LocalTimeDeserializer(DateTimeFormatter.ISO_TIME);
+    javaTimeModule.addDeserializer(LocalTime.class, localTimeDeserializer);
+
+    mapper.registerModules(new ParameterNamesModule(), javaTimeModule);
     mapper.setVisibility(FIELD, ANY);
     return mapper.readValue(body, clazz);
   }
