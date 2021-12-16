@@ -84,6 +84,11 @@ public class Team extends BaseEntity {
     clubUser.getManagedTeams().remove(this);
   }
 
+  public void addTrainingTime(TrainingTime trainingTime) {
+    trainingTimes.add(trainingTime);
+    trainingTime.setTeam(this);
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
