@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl.service.impl;
 import java.util.Collection;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Team;
@@ -32,6 +33,7 @@ public class TrainingTimeServiceImpl implements TrainingTimeService {
   }
 
   @Override
+  @Transactional
   public TrainingTimeRecord createTrainingTime(String teamId, TrainingTime trainingTime) {
     Team team = teamRepository.findByTeamId(teamId).orElseThrow();
     team.addTrainingTime(trainingTime);
@@ -39,9 +41,14 @@ public class TrainingTimeServiceImpl implements TrainingTimeService {
   }
 
   @Override
-  public TrainingTimeRecord updateTrainingTime(String teamId, TrainingTime trainingTime) {
+  public TrainingTimeRecord updateTrainingTime(String trainingTimeId, TrainingTime trainingTime) {
     TrainingTime existing = trainingTimeRepository.findByTrainingTimeId().orElseThrow();
     updateExistingTrainingTime(existing, trainingTime);
     return new TrainingTimeRecord(trainingTimeRepository.save(existing));
+  }
+
+  @Override
+  public void deleteTrainingTime(String trainingTimeId) {
+    trainingTimeRepository.deleteByTrainingTimeId(trainingTimeId);
   }
 }

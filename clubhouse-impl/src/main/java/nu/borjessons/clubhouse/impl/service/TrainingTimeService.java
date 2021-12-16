@@ -10,5 +10,7 @@ public interface TrainingTimeService {
 
   TrainingTimeRecord createTrainingTime(String teamId, TrainingTime trainingTime);
 
-  TrainingTimeRecord updateTrainingTime(String teamId, TrainingTime trainingTime);
+  TrainingTimeRecord updateTrainingTime(String trainingTimeId, TrainingTime trainingTime);
+
+  void deleteTrainingTime(String trainingTimeId);
 }

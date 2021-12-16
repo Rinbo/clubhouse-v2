@@ -8,4 +8,6 @@ import nu.borjessons.clubhouse.impl.data.TrainingTime;
 
 public interface TrainingTimeRepository extends JpaRepository<TrainingTime, Long> {
   Optional<TrainingTime> findByTrainingTimeId();
+
+  void deleteByTrainingTimeId(String trainingTimeId);
 }
