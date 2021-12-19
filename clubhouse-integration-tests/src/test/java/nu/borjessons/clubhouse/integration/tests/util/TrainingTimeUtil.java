@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.integration.tests.util;
 
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
@@ -29,12 +30,11 @@ public class TrainingTimeUtil {
     return Arrays.stream(RestUtil.deserializeJsonBody(response.getBody(), TrainingTimeRecord[].class)).toList();
   }
 
-  public static TrainingTimeRecord updateTrainingTime(String token, String teamId, String trainingTimeId, TrainingTimeRequest trainingTimeRequest) {
+  public static void updateTrainingTime(String token, String teamId, String trainingTimeId, TrainingTimeRequest trainingTimeRequest) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/training-time/{trainingTimeId}")
         .buildAndExpand(EmbeddedDataLoader.CLUB_ID, teamId, trainingTimeId).toUriString();
     ResponseEntity<TrainingTimeRecord> response = RestUtil.putRequest(uri, token, trainingTimeRequest, TrainingTimeRecord.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    return response.getBody();
   }
 
   public static void checkCheckTrainingTimeRecord(TrainingTimeRecord trainingTimeRecord, int expectedDayOfWeek, String expectedLocation) {
@@ -50,7 +50,7 @@ public class TrainingTimeUtil {
     trainingTimeRequest.setStartTime(LocalTime.of(14, 0));
     trainingTimeRequest.setEndTime(LocalTime.of(15, 0));
     trainingTimeRequest.setLocation(location);
-    trainingTimeRequest.setDayOfWeek(dayOfWeek);
+    trainingTimeRequest.setDayOfWeek(DayOfWeek.of(dayOfWeek));
 
     return trainingTimeRequest;
   }

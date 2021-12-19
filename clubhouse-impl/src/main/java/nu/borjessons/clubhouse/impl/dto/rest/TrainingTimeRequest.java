@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.dto.rest;
 
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 import javax.validation.constraints.NotNull;
@@ -15,7 +16,7 @@ import lombok.ToString;
 @ToString
 public class TrainingTimeRequest {
   @NotNull
-  private int dayOfWeek;
+  private DayOfWeek dayOfWeek;
 
   @NotNull
   private String location;

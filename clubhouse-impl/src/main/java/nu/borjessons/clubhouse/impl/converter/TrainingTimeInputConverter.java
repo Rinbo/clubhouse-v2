@@ -1,6 +1,5 @@
 package nu.borjessons.clubhouse.impl.converter;
 
-import java.time.DayOfWeek;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -16,7 +15,7 @@ public final class TrainingTimeInputConverter implements Function<TrainingTimeRe
     Objects.requireNonNull(trainingTimeRequest, "trainingTimeRequest must not be null");
 
     TrainingTime trainingTime = new TrainingTime();
-    trainingTime.setDayOfWeek(DayOfWeek.of(trainingTimeRequest.getDayOfWeek()));
+    trainingTime.setDayOfWeek(trainingTimeRequest.getDayOfWeek());
     trainingTime.setLocation(trainingTimeRequest.getLocation());
     trainingTime.setStartTime(trainingTimeRequest.getStartTime());
     trainingTime.setEndTime(trainingTimeRequest.getEndTime());
