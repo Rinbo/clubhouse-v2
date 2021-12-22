@@ -1,10 +1,14 @@
 package nu.borjessons.clubhouse.impl;
 
+import static java.time.temporal.ChronoField.HOUR_OF_DAY;
+import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
+
 import java.security.Key;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +24,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 
 import io.jsonwebtoken.security.Keys;
 import nu.borjessons.clubhouse.impl.security.TokenStore;
@@ -29,6 +34,14 @@ import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
 public class ClubhouseApplication {
   public static void main(String[] args) {
     SpringApplication.run(ClubhouseApplication.class, args);
+  }
+
+  private static DateTimeFormatter createTimeFormatter() {
+    return new DateTimeFormatterBuilder()
+        .appendValue(HOUR_OF_DAY, 2)
+        .appendLiteral(':')
+        .appendValue(MINUTE_OF_HOUR, 2)
+        .toFormatter();
   }
 
   @Bean
@@ -58,10 +71,12 @@ public class ClubhouseApplication {
     LocalDateTimeDeserializer localDateTimeDeserializer = new LocalDateTimeDeserializer(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     LocalDateDeserializer localDateDeserializer = new LocalDateDeserializer(DateTimeFormatter.ISO_OFFSET_DATE);
     LocalTimeDeserializer localTimeDeserializer = new LocalTimeDeserializer(DateTimeFormatter.ISO_TIME);
+    LocalTimeSerializer localTimeSerializer = new LocalTimeSerializer(createTimeFormatter());
 
     javaTimeModule.addDeserializer(LocalDateTime.class, localDateTimeDeserializer);
     javaTimeModule.addDeserializer(LocalDate.class, localDateDeserializer);
     javaTimeModule.addDeserializer(LocalTime.class, localTimeDeserializer);
+    javaTimeModule.addSerializer(LocalTime.class, localTimeSerializer);
     objectMapper.registerModule(javaTimeModule);
 
     return objectMapper;
