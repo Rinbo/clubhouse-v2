@@ -26,7 +26,12 @@ public final class TeamDto implements Serializable {
         .maxAge(team.getMaxAge())
         .members(team.getMembers().stream().map(ClubUserDto::new).collect(Collectors.toSet()))
         .leaders(team.getLeaders().stream().map(ClubUserDto::new).collect(Collectors.toSet()))
-        .trainingTimes(team.getTrainingTimes().stream().map(TrainingTimeRecord::new).toList())
+        .trainingTimes(
+            team.getTrainingTimes()
+                .stream()
+                .map(TrainingTimeRecord::new)
+                .sorted(TrainingTimeRecord::localTimeComparator)
+                .toList())
         .build();
   }
 

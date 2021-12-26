@@ -29,7 +29,7 @@ public class TrainingTimeServiceImpl implements TrainingTimeService {
   @Override
   public Collection<TrainingTimeRecord> getTrainingTimes(String teamId) {
     Team team = teamRepository.findByTeamId(teamId).orElseThrow();
-    return team.getTrainingTimes().stream().map(TrainingTimeRecord::new).toList();
+    return team.getTrainingTimes().stream().map(TrainingTimeRecord::new).sorted(TrainingTimeRecord::localTimeComparator).toList();
   }
 
   @Override

@@ -7,6 +7,12 @@ import java.util.Objects;
 import nu.borjessons.clubhouse.impl.data.TrainingTime;
 
 public record TrainingTimeRecord(String trainingTimeId, DayOfWeek dayOfWeek, String location, LocalTime startTime, LocalTime endTime) {
+  public static int localTimeComparator(TrainingTimeRecord first, TrainingTimeRecord second) {
+    int weekdayCompare = Integer.compare(first.dayOfWeek.getValue(), second.dayOfWeek.getValue());
+    if (weekdayCompare != 0) return weekdayCompare;
+    return first.startTime().compareTo(second.startTime());
+  }
+
   public TrainingTimeRecord {
     Objects.requireNonNull(trainingTimeId, "String trainingTimeId must not be null");
     Objects.requireNonNull(dayOfWeek, "dayOfWeek must not be null");
