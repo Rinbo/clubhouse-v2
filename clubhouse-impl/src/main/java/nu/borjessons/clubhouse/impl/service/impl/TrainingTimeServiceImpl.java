@@ -42,7 +42,7 @@ public class TrainingTimeServiceImpl implements TrainingTimeService {
 
   @Override
   public TrainingTimeRecord updateTrainingTime(String trainingTimeId, TrainingTime trainingTime) {
-    TrainingTime existing = trainingTimeRepository.getByTrainingTimeId(trainingTimeId).orElseThrow();
+    TrainingTime existing = trainingTimeRepository.findByTrainingTimeId(trainingTimeId).orElseThrow();
     updateExistingTrainingTime(existing, trainingTime);
     return new TrainingTimeRecord(trainingTimeRepository.save(existing));
   }
