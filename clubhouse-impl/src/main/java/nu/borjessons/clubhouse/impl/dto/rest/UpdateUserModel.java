@@ -14,8 +14,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UpdateUserModel {
-  private static final long serialVersionUID = 1L;
-
   private List<AddressModel> addresses = new ArrayList<>();
 
   @NotNull(message = "Date of birth cannot be null")

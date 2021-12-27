@@ -1,6 +1,5 @@
 package nu.borjessons.clubhouse.impl.data;
 
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -32,9 +31,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "club", indexes = @Index(name = "ix_club_id", columnList = "clubId"))
 public class Club extends BaseEntity {
-  @Serial
-  private static final long serialVersionUID = -5573907533182487531L;
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;

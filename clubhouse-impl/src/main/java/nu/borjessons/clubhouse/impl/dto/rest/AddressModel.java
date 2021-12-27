@@ -1,7 +1,5 @@
 package nu.borjessons.clubhouse.impl.dto.rest;
 
-import java.io.Serializable;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -10,9 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AddressModel implements Serializable {
-  private static final long serialVersionUID = 1L;
-
+public class AddressModel {
   @NotNull(message = "City cannot be null")
   @Size(min = 2, message = "City must not be less than two characters")
   private String city;

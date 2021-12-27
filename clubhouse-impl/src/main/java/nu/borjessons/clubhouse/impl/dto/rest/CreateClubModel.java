@@ -1,7 +1,5 @@
 package nu.borjessons.clubhouse.impl.dto.rest;
 
-import java.io.Serializable;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -14,9 +12,7 @@ import nu.borjessons.clubhouse.impl.data.Club.Type;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateClubModel implements Serializable {
-  private static final long serialVersionUID = 1L;
-
+public class CreateClubModel {
   @NotNull(message = "Club name cannot be null")
   @Size(min = 2, message = "Name must be longer than three characters")
   private String name;

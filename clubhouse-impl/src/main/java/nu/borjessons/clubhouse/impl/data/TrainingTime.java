@@ -1,7 +1,5 @@
 package nu.borjessons.clubhouse.impl.data;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -24,10 +22,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "training_time", indexes = @Index(name = "ix_training_time_id", columnList = "training_time_id"))
-public class TrainingTime implements Serializable {
-  @Serial
-  private static final long serialVersionUID = 2530679077350612832L;
-
+public class TrainingTime {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;

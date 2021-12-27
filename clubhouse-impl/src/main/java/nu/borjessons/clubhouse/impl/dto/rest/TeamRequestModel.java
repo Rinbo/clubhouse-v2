@@ -1,6 +1,5 @@
 package nu.borjessons.clubhouse.impl.dto.rest;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,9 +13,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TeamRequestModel implements Serializable {
-  private static final long serialVersionUID = 1L;
-
+public class TeamRequestModel {
   @NotNull(message = "LeaderId list cannot be null")
   private List<String> leaderIds = new ArrayList<>();
 

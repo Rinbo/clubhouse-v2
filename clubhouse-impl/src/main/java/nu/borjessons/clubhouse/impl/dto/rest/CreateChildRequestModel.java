@@ -1,7 +1,5 @@
 package nu.borjessons.clubhouse.impl.dto.rest;
 
-import java.io.Serializable;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -14,8 +12,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class CreateChildRequestModel implements Serializable {
-  private static final long serialVersionUID = 1L;
+public class CreateChildRequestModel {
   @NotNull(message = "Date of birth cannot be null")
   @DateTimeFormat(pattern = "yyyy-MM-dd")
   private String dateOfBirth;

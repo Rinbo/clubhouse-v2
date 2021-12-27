@@ -1,6 +1,5 @@
 package nu.borjessons.clubhouse.impl.data;
 
-import java.io.Serial;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -18,9 +17,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Address extends BaseEntity {
-  @Serial
-  private static final long serialVersionUID = 8296297244892527350L;
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;

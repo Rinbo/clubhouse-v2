@@ -1,7 +1,5 @@
 package nu.borjessons.clubhouse.impl.data;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,10 +23,7 @@ import nu.borjessons.clubhouse.impl.dto.Role;
 @Setter
 @Entity
 @Table(name = "club_user", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "club_id"}))
-public class ClubUser extends BaseEntity implements Serializable {
-  @Serial
-  private static final long serialVersionUID = 1429757107786078376L;
-
+public class ClubUser extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;

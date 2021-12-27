@@ -1,6 +1,5 @@
 package nu.borjessons.clubhouse.impl.dto.rest;
 
-import java.io.Serializable;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -14,9 +13,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-public class FamilyRequestModel implements Serializable {
-  private static final long serialVersionUID = 1L;
-
+public class FamilyRequestModel {
   @NotNull(message = "Children field cannot be null")
   private List<CreateChildRequestModel> children;
 

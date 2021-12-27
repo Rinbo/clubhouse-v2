@@ -1,6 +1,5 @@
 package nu.borjessons.clubhouse.impl.data;
 
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -26,9 +25,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "team")
 public class Team extends BaseEntity {
-  @Serial
-  private static final long serialVersionUID = -6778870690760953845L;
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;

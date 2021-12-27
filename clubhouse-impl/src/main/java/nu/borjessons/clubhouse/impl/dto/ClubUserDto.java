@@ -1,7 +1,5 @@
 package nu.borjessons.clubhouse.impl.dto;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,10 +24,7 @@ import nu.borjessons.clubhouse.impl.data.User;
 @ToString
 @NoArgsConstructor
 @EqualsAndHashCode
-public class ClubUserDto implements Serializable {
-  @Serial
-  private static final long serialVersionUID = 7264890058314991499L;
-
+public class ClubUserDto {
   private static Set<BaseUserRecord> getClubChildren(ClubUser clubUser) {
     return clubUser
         .getClub()
