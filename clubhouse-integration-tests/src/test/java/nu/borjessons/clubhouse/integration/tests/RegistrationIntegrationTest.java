@@ -11,6 +11,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.AddressDto;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubDto;
@@ -62,7 +63,7 @@ class RegistrationIntegrationTest {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       List<ClubUserDto> users = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, token);
-      String daddyId = UserUtil.getUserIdByEmail(users, EmbeddedDataLoader.POPS_EMAIL).getUserId();
+      UserId daddyId = new UserId(UserUtil.getUserIdByEmail(users, EmbeddedDataLoader.POPS_EMAIL).getUserId());
 
       UserDto daddyWithOneMoreKid = RegistrationUtil.registerClubChild(EmbeddedDataLoader.CLUB_ID, CHILD_NAME, daddyId, token);
 
@@ -114,7 +115,7 @@ class RegistrationIntegrationTest {
       UserDto mom = UserUtil.getSelf(momToken);
       Assertions.assertEquals(2, mom.getChildren().size());
 
-      UserUtil.addParentToChild(dadToken, alva.userId(), mom.getUserId());
+      UserUtil.addParentToChild(dadToken, new UserId(alva.userId()), mom.getUserId());
       Assertions.assertEquals(3, UserUtil.getSelf(momToken).getChildren().size());
     }
   }
@@ -129,7 +130,7 @@ class RegistrationIntegrationTest {
 
       String childName = "Sixten";
       BaseUserRecord sixten = dad.getChildren().stream().filter(child -> child.firstName().equals(childName)).findFirst().orElseThrow();
-      RegistrationUtil.unregisterChild(sixten.userId(), dad.getUserId(), token);
+      RegistrationUtil.unregisterChild(new UserId(sixten.userId()), dad.getUserId(), token);
       UserDto updatedDad = UserUtil.getSelf(token);
       Assertions.assertEquals(1, updatedDad.getChildren().size());
       Assertions.assertFalse(updatedDad.getChildren().stream().anyMatch(child -> child.firstName().equals(childName)));

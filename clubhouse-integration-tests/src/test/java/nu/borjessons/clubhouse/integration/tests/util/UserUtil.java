@@ -16,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.Role;
@@ -102,7 +103,7 @@ public class UserUtil {
     return userDTO;
   }
 
-  public static ClubUserDto getUser(String clubId, String token, String userId) {
+  public static ClubUserDto getUser(String clubId, String token, UserId userId) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
@@ -160,7 +161,7 @@ public class UserUtil {
     return Arrays.stream(clubUserDtos).collect(Collectors.toList());
   }
 
-  public static void removeClubUser(String clubId, String token, String userId) {
+  public static void removeClubUser(String clubId, String token, UserId userId) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
@@ -169,7 +170,7 @@ public class UserUtil {
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
-  public static ClubUserDto updateClubUser(AdminUpdateUserModel updateUserModel, String clubId, String token, String userId) throws JsonProcessingException {
+  public static ClubUserDto updateClubUser(AdminUpdateUserModel updateUserModel, String clubId, String token, UserId userId) throws JsonProcessingException {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpHeaders headers = RestUtil.getHttpHeaders(token);
@@ -198,11 +199,10 @@ public class UserUtil {
     return updateUserModel;
   }
 
-  public static ClubUserDto addClubUser(String clubId, String userId, String token, Set<String> childrenIds) {
+  public static ClubUserDto addClubUser(String clubId, UserId userId, String token, Set<String> childrenIds) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
-
     ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.POST, httpEntity, ClubUserDto.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
@@ -215,7 +215,6 @@ public class UserUtil {
     ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.GET, entity, ClubUserDto.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
-
   }
 
   public static ResponseEntity<String> validateToken(String token) {
@@ -237,7 +236,7 @@ public class UserUtil {
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
-  public static ClubUserDto activateChildren(String clubId, String userId, String token, Set<String> childrenIds) {
+  public static ClubUserDto activateChildren(String clubId, UserId userId, String token, Set<String> childrenIds) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/activate-club-children").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
@@ -247,7 +246,7 @@ public class UserUtil {
     return response.getBody();
   }
 
-  public static ClubUserDto removeClubChildren(String clubId, String userId, String token, Set<String> childrenIds) {
+  public static ClubUserDto removeClubChildren(String clubId, UserId userId, String token, Set<String> childrenIds) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/remove-club-children").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
@@ -274,7 +273,7 @@ public class UserUtil {
     return response.getBody();
   }
 
-  public static void addParentToChild(String originalParentToken, String childId, String newParentId) {
+  public static void addParentToChild(String originalParentToken, UserId childId, UserId newParentId) {
     String uri = RestUtil.getUriBuilder("/principal/add-parent")
         .queryParam("childId", childId)
         .queryParam("parentId", newParentId)

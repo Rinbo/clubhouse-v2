@@ -14,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
@@ -22,7 +23,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 import nu.borjessons.clubhouse.impl.security.util.SecurityUtil;
 
 public class RegistrationUtil {
-  public static UserDto registerClubChild(String clubId, String childName, String parentId, String token) throws JsonProcessingException {
+  public static UserDto registerClubChild(String clubId, String childName, UserId parentId, String token) throws JsonProcessingException {
     final String uri = RestUtil
         .getUriBuilder("/clubs/{clubId}")
         .path("/register-club-children")
@@ -61,14 +62,14 @@ public class RegistrationUtil {
     return RestUtil.deserializeJsonBody(response.getBody(), UserDto.class);
   }
 
-  public static UserDto registerChild(String childName, String parentId, String token) throws JsonProcessingException {
+  public static UserDto registerChild(String childName, UserId parentId, String token) throws JsonProcessingException {
     String uri = RestUtil.getUriBuilder("/users/{parentId}/register-child").buildAndExpand(parentId).toUriString();
     CreateChildRequestModel createChildRequestModel = createChildModel(childName);
     ResponseEntity<String> response = RestUtil.postRequest(uri, token, createChildRequestModel, String.class);
     return RestUtil.deserializeJsonBody(response.getBody(), UserDto.class);
   }
 
-  public static void unregisterChild(String childId, String parentId, String token) throws JsonProcessingException {
+  public static void unregisterChild(UserId childId, UserId parentId, String token) {
     String uri = RestUtil.getUriBuilder("/users/{parentId}/unregister-child")
         .queryParam("childId", childId)
         .buildAndExpand(parentId)

@@ -25,6 +25,7 @@ import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 
 @Getter
 @Setter
@@ -82,13 +83,13 @@ public class Club extends BaseEntity {
         .collect(Collectors.toSet());
   }
 
-  public List<ClubUser> getClubUsers(List<String> userIds) {
+  public List<ClubUser> getClubUsers(List<UserId> userIds) {
     return clubUsers.stream()
         .filter(clubUser -> userIds.contains(clubUser.getUser().getUserId()))
         .toList();
   }
 
-  public Optional<ClubUser> getClubUser(String userId) {
+  public Optional<ClubUser> getClubUser(UserId userId) {
     return clubUsers.stream()
         .filter(clubUser -> clubUser.getUser().getUserId()
             .equals(userId)).findFirst();

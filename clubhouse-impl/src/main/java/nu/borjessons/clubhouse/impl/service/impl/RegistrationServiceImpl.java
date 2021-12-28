@@ -15,6 +15,7 @@ import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
@@ -39,7 +40,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   private final UserRepository userRepository;
 
   @Override
-  public UserDto registerClubChildren(String userId, String clubId, List<CreateChildRequestModel> childDetails) {
+  public UserDto registerClubChildren(UserId userId, String clubId, List<CreateChildRequestModel> childDetails) {
     User parent = userRepository.findByUserId(userId).orElseThrow();
     ClubUser clubUser = parent.getClubUser(clubId).orElseThrow();
     Set<User> children = mapChildModelToUser(childDetails);
@@ -104,20 +105,9 @@ public class RegistrationServiceImpl implements RegistrationService {
     return UserDto.create(userRepository.save(user));
   }
 
-  @Override
-  public UserDto registerUser(CreateUserModel userDetails, String userId) {
-    Club club = clubRepository.findByClubId(userDetails.getClubId()).orElseThrow();
-
-    User user = clubhouseMappers.userCreationModelToUser(userDetails, userId);
-    Set<Role> roles = new HashSet<>(Collections.singletonList(Role.USER));
-
-    addClubUser(club, getRoleEntities(roles), user);
-    return UserDto.create(userRepository.save(user));
-  }
-
   @Transactional
   @Override
-  public UserDto registerChild(String parentId, CreateChildRequestModel childModel) {
+  public UserDto registerChild(UserId parentId, CreateChildRequestModel childModel) {
     User parent = userRepository.findByUserId(parentId).orElseThrow();
     User child = clubhouseMappers.childCreationModelToUser(childModel);
     parent.addChild(child);
@@ -127,12 +117,23 @@ public class RegistrationServiceImpl implements RegistrationService {
 
   @Transactional
   @Override
-  public UserDto unregisterChild(String childId, String parentId) {
+  public UserDto unregisterChild(UserId childId, UserId parentId) {
     User parent = userRepository.findByUserId(parentId).orElseThrow();
     User child = parent.getChildren().stream().filter(c -> c.getUserId().equals(childId)).findFirst().orElseThrow();
     parent.removeChild(child);
     userRepository.delete(child);
     return UserDto.create(parent);
+  }
+
+  @Override
+  public UserDto registerUser(CreateUserModel userDetails, UserId userId) {
+    Club club = clubRepository.findByClubId(userDetails.getClubId()).orElseThrow();
+
+    User user = clubhouseMappers.userCreationModelToUser(userDetails, userId);
+    Set<Role> roles = new HashSet<>(Collections.singletonList(Role.USER));
+
+    addClubUser(club, getRoleEntities(roles), user);
+    return UserDto.create(userRepository.save(user));
   }
 
   private Set<User> mapChildModelToUser(List<CreateChildRequestModel> childrenDetails) {

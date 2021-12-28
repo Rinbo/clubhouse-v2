@@ -11,8 +11,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
 import nu.borjessons.clubhouse.impl.dto.TrainingTimeRecord;
-import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
+import nu.borjessons.clubhouse.integration.tests.util.DbUtil;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import nu.borjessons.clubhouse.integration.tests.util.TeamUtil;
 import nu.borjessons.clubhouse.integration.tests.util.TrainingTimeUtil;
@@ -23,16 +23,11 @@ class TrainingTimeIntegrationTest {
   public static final String BIG_HALL = "Big Hall";
   public static final String SMALL_HALL = "Small Hall";
 
-  private static String getTeamIdFromDatabase(ConfigurableApplicationContext configurableApplicationContext) {
-    TeamRepository teamRepository = configurableApplicationContext.getBean(TeamRepository.class);
-    return TeamUtil.getAllTeams(teamRepository).iterator().next().getTeamId();
-  }
-
   @Test
   void createTrainingTimeTest() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext configurableApplicationContext = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      String teamId = getTeamIdFromDatabase(configurableApplicationContext);
+      String teamId = DbUtil.getTeamIdFromDatabase(configurableApplicationContext);
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
       TrainingTimeRecord trainingTimeRecord1 = TrainingTimeUtil.createTrainingTime(token, teamId, TrainingTimeUtil.createTrainingTimeRequest(5, BIG_HALL));
@@ -47,7 +42,7 @@ class TrainingTimeIntegrationTest {
   void getScheduleTest() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext configurableApplicationContext = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      String teamId = getTeamIdFromDatabase(configurableApplicationContext);
+      String teamId = DbUtil.getTeamIdFromDatabase(configurableApplicationContext);
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       TrainingTimeUtil.createTrainingTime(token, teamId, TrainingTimeUtil.createTrainingTimeRequest(5, BIG_HALL));
       TrainingTimeUtil.createTrainingTime(token, teamId, TrainingTimeUtil.createTrainingTimeRequest(6, SMALL_HALL));
@@ -67,7 +62,7 @@ class TrainingTimeIntegrationTest {
   void updateScheduleTest() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext configurableApplicationContext = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      String teamId = getTeamIdFromDatabase(configurableApplicationContext);
+      String teamId = DbUtil.getTeamIdFromDatabase(configurableApplicationContext);
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       TrainingTimeRecord trainingTime = TrainingTimeUtil.createTrainingTime(token, teamId, TrainingTimeUtil.createTrainingTimeRequest(5, BIG_HALL));
       String trainingTimeId = trainingTime.trainingTimeId();
@@ -80,7 +75,7 @@ class TrainingTimeIntegrationTest {
   void deleteSchedule() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext configurableApplicationContext = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      String teamId = getTeamIdFromDatabase(configurableApplicationContext);
+      String teamId = DbUtil.getTeamIdFromDatabase(configurableApplicationContext);
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       TrainingTimeRecord trainingTime = TrainingTimeUtil.createTrainingTime(token, teamId, TrainingTimeUtil.createTrainingTimeRequest(5, BIG_HALL));
       String trainingTimeId = trainingTime.trainingTimeId();

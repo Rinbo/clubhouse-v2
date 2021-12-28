@@ -11,6 +11,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.TeamDto;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
@@ -112,7 +113,7 @@ class ClubTeamIntegrationTest {
 
       Assertions.assertEquals(1, TeamUtil.getTeamById(EmbeddedDataLoader.CLUB_ID, teamId, ownerToken).getLeaders().size());
 
-      TeamDto teamDTO = TeamUtil.removeLeaderFromTeam(EmbeddedDataLoader.CLUB_ID, leaderDTO.getUserId(), teamId, ownerToken);
+      TeamDto teamDTO = TeamUtil.removeLeaderFromTeam(EmbeddedDataLoader.CLUB_ID, new UserId(leaderDTO.getUserId()), teamId, ownerToken);
       Assertions.assertEquals(0, teamDTO.getLeaders().size());
       Assertions.assertEquals(0, TeamUtil.getTeamById(EmbeddedDataLoader.CLUB_ID, teamId, ownerToken).getLeaders().size());
     }
@@ -147,7 +148,7 @@ class ClubTeamIntegrationTest {
       Assertions.assertEquals(3, teamDTO.getMembers().size());
       Assertions.assertEquals(1, teamDTO.getLeaders().size());
 
-      TeamDto updatedTeamDto = TeamUtil.updateTeamMembers(EmbeddedDataLoader.CLUB_ID, teamId, List.of(EmbeddedDataLoader.USER_ID), ownerToken);
+      TeamDto updatedTeamDto = TeamUtil.updateTeamMembers(EmbeddedDataLoader.CLUB_ID, teamId, List.of(EmbeddedDataLoader.USER_ID.toString()), ownerToken);
       Set<ClubUserDto> members = updatedTeamDto.getMembers();
       Assertions.assertEquals(1, members.size());
       Assertions.assertEquals(1, updatedTeamDto.getLeaders().size());

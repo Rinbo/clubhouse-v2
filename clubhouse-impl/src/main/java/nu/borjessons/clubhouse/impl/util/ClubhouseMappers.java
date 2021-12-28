@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.rest.AddressModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
@@ -29,8 +30,8 @@ public class ClubhouseMappers {
   }
 
   public User childCreationModelToUser(CreateChildRequestModel childModel) {
-    User child = new User(UUID.randomUUID().toString());
-    String childIdentifier = child.getUserId();
+    User child = new User(new UserId(UUID.randomUUID().toString()));
+    UserId childIdentifier = child.getUserId();
     child.setFirstName(childModel.getFirstName());
     child.setLastName(childModel.getLastName());
     child.setEmail(childIdentifier + EMAIL_EXTENSION);
@@ -49,10 +50,10 @@ public class ClubhouseMappers {
   }
 
   public User userCreationModelToUser(CreateUserModel userDetails) {
-    return userCreationModelToUser(userDetails, UUID.randomUUID().toString());
+    return userCreationModelToUser(userDetails, new UserId(UUID.randomUUID().toString()));
   }
 
-  public User userCreationModelToUser(CreateUserModel userDetails, String userId) {
+  public User userCreationModelToUser(CreateUserModel userDetails, UserId userId) {
     User user = new User(userId);
     user.setEmail(userDetails.getEmail().toLowerCase().trim());
     user.setFirstName(userDetails.getFirstName());

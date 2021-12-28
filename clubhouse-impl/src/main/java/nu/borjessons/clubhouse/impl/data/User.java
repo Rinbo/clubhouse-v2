@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.data;
 
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,19 +29,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "users", indexes = {@Index(name = "ix_email", columnList = "email"), @Index(name = "ix_users_id", columnList = "userId")})
 public class User extends BaseEntity implements UserDetails {
+  @Serial
+  private static final long serialVersionUID = 3842546232021972948L;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
   @Setter(AccessLevel.PRIVATE)
-  @Column(nullable = false, unique = true)
-  private String userId;
+  @Column(nullable = false, unique = true, columnDefinition = "varchar(255)")
+  private UserId userId;
 
   @OneToMany(
       mappedBy = "user",
@@ -82,10 +87,10 @@ public class User extends BaseEntity implements UserDetails {
   private boolean managedAccount;
 
   public User() {
-    userId = UUID.randomUUID().toString();
+    userId = new UserId(UUID.randomUUID().toString());
   }
 
-  public User(String userId) {
+  public User(UserId userId) {
     this.userId = userId;
   }
 

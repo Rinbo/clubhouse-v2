@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 
 @Builder
 @Getter
@@ -20,7 +21,7 @@ public final class UserDto {
         .lastName(user.getLastName())
         .dateOfBirth(user.getDateOfBirth().toString())
         .children(user.getChildren().stream().map(BaseUserRecord::new).collect(Collectors.toSet()))
-        .parentIds(user.getParents().stream().map(User::getUserId).collect(Collectors.toSet()))
+        .parentIds(user.getParents().stream().map(User::getUserId).map(UserId::toString).collect(Collectors.toSet()))
         .addresses(user.getAddresses().stream().map(AddressDto::new).collect(Collectors.toSet()))
         .managedUser(user.isManagedAccount())
         .build();
@@ -33,6 +34,6 @@ public final class UserDto {
   private final String firstName;
   private final String lastName;
   private final Set<String> parentIds;
-  private final String userId;
+  private final UserId userId;
   private final boolean managedUser;
 }

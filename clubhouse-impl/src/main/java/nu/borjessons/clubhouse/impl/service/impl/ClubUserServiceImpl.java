@@ -18,6 +18,7 @@ import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
@@ -60,15 +61,15 @@ public class ClubUserServiceImpl implements ClubUserService {
    */
   @Override
   @Transactional
-  public void removeUserFromClub(String userId, String clubId) {
-    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
+  public void removeUserFromClub(UserId userId, String clubId) {
+    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId.toString()).orElseThrow();
     clubUserRepository.delete(clubUser);
   }
 
   @Override
   @Transactional
-  public ClubUserDto updateUser(String userId, String clubId, AdminUpdateUserModel userDetails) {
-    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
+  public ClubUserDto updateUser(UserId userId, String clubId, AdminUpdateUserModel userDetails) {
+    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId.toString()).orElseThrow();
     User user = clubUser.getUser();
     updateUserDetails(userDetails, user);
     updateAddresses(user, clubhouseMappers.addressModelToAddress(userDetails.getAddresses()));
@@ -78,15 +79,15 @@ public class ClubUserServiceImpl implements ClubUserService {
 
   @Override
   @Transactional
-  public ClubUserDto getClubUser(String clubId, String userId) {
-    final ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
+  public ClubUserDto getClubUser(String clubId, UserId userId) {
+    final ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId.toString()).orElseThrow();
     return new ClubUserDto(clubUser);
   }
 
   // TODO Implement functionality to notify admins that this user wants to join - Require action to give full permissions
   @Override
   @Transactional
-  public ClubUserDto addUserToClub(String clubId, String userId, List<String> childrenIds) {
+  public ClubUserDto addUserToClub(String clubId, UserId userId, List<UserId> childrenIds) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     User user = userRepository.findByUserId(userId).orElseThrow();
     Set<Role> roles = addChildren(club, user, childrenIds);
@@ -123,10 +124,10 @@ public class ClubUserServiceImpl implements ClubUserService {
 
   @Override
   @Transactional
-  public ClubUserDto activateClubChildren(String clubId, String userId, List<String> childrenIds) {
+  public ClubUserDto activateClubChildren(String clubId, UserId userId, List<UserId> childrenIds) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     User user = userRepository.findByUserId(userId).orElseThrow();
-    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
+    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId.toString()).orElseThrow();
     Set<Role> roles = addChildren(club, user, childrenIds);
     Set<RoleEntity> roleNames = roleRepository.findByRoleNames(roles.stream().map(Role::name).collect(Collectors.toSet()));
     roleNames.forEach(clubUser::addRoleEntity);
@@ -135,18 +136,18 @@ public class ClubUserServiceImpl implements ClubUserService {
   }
 
   @Override
-  public List<ClubUserDto> getAllUsersClubUsers(String userId) {
+  public List<ClubUserDto> getAllUsersClubUsers(UserId userId) {
     Objects.requireNonNull(userId, "userId must not be null");
 
-    List<ClubUser> clubUsers = clubUserRepository.findAllByUserId(userId);
+    List<ClubUser> clubUsers = clubUserRepository.findAllByUserId(userId.toString());
     return clubUsers.stream().map(ClubUserDto::new).toList();
   }
 
   @Override
   @Transactional
-  public ClubUserDto removeClubChildren(String clubId, String userId, List<String> childrenIds) {
-    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId).orElseThrow();
-    List<ClubUser> childrenUsers = clubUserRepository.findByClubIdAndUserIds(clubId, childrenIds);
+  public ClubUserDto removeClubChildren(String clubId, UserId userId, List<UserId> childrenIds) {
+    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId.toString()).orElseThrow();
+    List<ClubUser> childrenUsers = clubUserRepository.findByClubIdAndUserIds(clubId, childrenIds.stream().map(UserId::toString).toList());
     if (clubUser.getUser().getChildren().stream().allMatch(child -> childrenIds.contains(child.getUserId()))) clubUser.removeParentRole();
     clubUserRepository.deleteAll(childrenUsers);
     return new ClubUserDto(clubUserRepository.save(clubUser));
@@ -162,10 +163,10 @@ public class ClubUserServiceImpl implements ClubUserService {
   /**
    * Adds ClubUser for children unless they have already been added by another parent. If that is the case, just adds role PARENT
    */
-  private Set<Role> addChildren(Club club, User parent, List<String> childrenIds) {
+  private Set<Role> addChildren(Club club, User parent, List<UserId> childrenIds) {
     Set<Role> roles = EnumSet.of(Role.USER);
 
-    List<String> existingClubChildrenIds = clubUserRepository.findByClubIdAndUserIds(club.getClubId(), childrenIds)
+    List<UserId> existingClubChildrenIds = clubUserRepository.findByClubIdAndUserIds(club.getClubId(), childrenIds.stream().map(UserId::toString).toList())
         .stream()
         .map(childClubUser -> childClubUser.getUser().getUserId())
         .toList();

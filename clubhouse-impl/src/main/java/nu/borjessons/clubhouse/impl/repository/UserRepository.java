@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -14,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
   Optional<User> findByEmail(String email);
 
   @Query(value = "SELECT * FROM users WHERE user_id = ?1 and managed_account", nativeQuery = true)
-  Optional<User> findManagedUserById(String userId);
+  Optional<User> findManagedUserById(UserId userId);
 
-  Optional<User> findByUserId(String userId);
+  Optional<User> findByUserId(UserId userId);
 }

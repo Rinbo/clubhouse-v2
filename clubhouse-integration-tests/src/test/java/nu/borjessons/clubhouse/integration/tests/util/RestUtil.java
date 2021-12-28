@@ -5,6 +5,7 @@ import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpEntity;
@@ -16,10 +17,16 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+
+import nu.borjessons.clubhouse.impl.data.key.UserId;
+import nu.borjessons.clubhouse.impl.dto.deserializer.UserIdDeserializer;
+import nu.borjessons.clubhouse.impl.dto.serializer.UserIdSerializer;
 
 public class RestUtil {
   public static final String BASE_URL = "http://localhost:8081";
@@ -35,7 +42,7 @@ public class RestUtil {
     LocalTimeDeserializer localTimeDeserializer = new LocalTimeDeserializer(DateTimeFormatter.ISO_TIME);
     javaTimeModule.addDeserializer(LocalTime.class, localTimeDeserializer);
 
-    mapper.registerModules(new ParameterNamesModule(), javaTimeModule);
+    mapper.registerModules(new ParameterNamesModule(), javaTimeModule, createIdModule());
     mapper.setVisibility(FIELD, ANY);
     return mapper.readValue(body, clazz);
   }
@@ -96,6 +103,25 @@ public class RestUtil {
   public static HttpEntity<Void> getVoidHttpEntity(String token) {
     HttpHeaders headers = getHttpHeaders(token);
     return new HttpEntity<>(headers);
+  }
+
+  private static Module createIdModule() {
+    SimpleModule simpleModule = new SimpleModule();
+
+    simpleModule.addSerializer(UserId.class, UserIdSerializer.INSTANCE);
+    simpleModule.addDeserializer(UserId.class, UserIdDeserializer.INSTANCE);
+    return simpleModule;
+  }
+
+  private static List<UserId> decodeBody(String jsonBody) throws JsonProcessingException {
+    ObjectMapper objectMapper = new ObjectMapper().registerModule(new SimpleModule().addDeserializer(UserId.class, UserIdDeserializer.INSTANCE));
+    return objectMapper.readValue(jsonBody, objectMapper.getTypeFactory().constructCollectionType(List.class, UserId.class));
+  }
+
+  private static ObjectMapper getObjectMapper() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.registerModule(createIdModule());
+    return objectMapper;
   }
 
   private RestUtil() {

@@ -15,6 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubDto;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
@@ -101,7 +102,7 @@ class ClubUserIntegrationTest {
       final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       final List<ClubUserDto> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
       final ClubUserDto papa = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
-      final String papaUserId = papa.getUserId();
+      final UserId papaUserId = new UserId(papa.getUserId());
 
       Assertions.assertEquals(papa, UserUtil.getUser(EmbeddedDataLoader.CLUB_ID, ownerToken, papaUserId));
 
@@ -192,12 +193,12 @@ class ClubUserIntegrationTest {
 
       UserDto pops = UserUtil.getSelf(token);
 
-      ClubUserDto clubUserDTO = UserUtil.addClubUser(clubDTO.clubId(), pops.getUserId(), token,
+      ClubUserDto clubUserDto = UserUtil.addClubUser(clubDTO.clubId(), pops.getUserId(), token,
           pops.getChildren().stream().map(BaseUserRecord::userId).limit(1).collect(Collectors.toSet()));
 
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
       Assertions.assertEquals(3, UserUtil.getClubUsers(clubDTO.clubId(), token).size());
-      Assertions.assertTrue(clubUserDTO.getRoles().contains(Role.PARENT));
+      Assertions.assertTrue(clubUserDto.getRoles().contains(Role.PARENT));
     }
   }
 
@@ -248,10 +249,10 @@ class ClubUserIntegrationTest {
       final ClubUserDto papa = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
       final ClubUserDto mommy = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.MOMMY_EMAIL);
 
-      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, papa.getUserId());
+      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, new UserId(papa.getUserId()));
       Assertions.assertEquals(5, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken).size());
 
-      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, mommy.getUserId());
+      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, new UserId(mommy.getUserId()));
       Assertions.assertEquals(4, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken).size());
     }
   }
@@ -269,7 +270,7 @@ class ClubUserIntegrationTest {
 
       // User tries to remove another user which is forbidden
       try {
-        UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, token, UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL).getUserId());
+        UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, token, new UserId(UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL).getUserId()));
       } catch (HttpClientErrorException e) {
         Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
       }
@@ -285,7 +286,7 @@ class ClubUserIntegrationTest {
       AdminUpdateUserModel updateUserModel = UserUtil.createAdminUpdateModel("Erik", "Johnson", "2000-01-01",
           Set.of(Role.PARENT, Role.LEADER, Role.USER));
 
-      validateEquals(updateUserModel, UserUtil.updateClubUser(updateUserModel, EmbeddedDataLoader.CLUB_ID, ownerToken, papaBase.getUserId()));
+      validateEquals(updateUserModel, UserUtil.updateClubUser(updateUserModel, EmbeddedDataLoader.CLUB_ID, ownerToken, new UserId(papaBase.getUserId())));
     }
   }
 
@@ -315,7 +316,7 @@ class ClubUserIntegrationTest {
       UserDto pops = UserUtil.getSelf(token);
 
       String clubId = clubDTO.clubId();
-      String userId = pops.getUserId();
+      UserId userId = pops.getUserId();
       ClubUserDto clubUserDTO = UserUtil.addClubUser(clubId, userId, token, Set.of());
 
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());

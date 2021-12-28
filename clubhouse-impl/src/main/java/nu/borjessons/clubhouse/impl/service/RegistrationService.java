@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
@@ -11,7 +12,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 
 public interface RegistrationService {
-  UserDto registerClubChildren(String userId, String clubId, @Valid List<CreateChildRequestModel> childModels);
+  UserDto registerClubChildren(UserId userId, String clubId, @Valid List<CreateChildRequestModel> childModels);
 
   UserDto registerClub(@Valid CreateClubModel clubDetails);
 
@@ -21,9 +22,9 @@ public interface RegistrationService {
 
   UserDto registerUser(@Valid CreateUserModel userDetails);
 
-  UserDto registerUser(@Valid CreateUserModel userDetails, String userId);
+  UserDto registerUser(@Valid CreateUserModel userDetails, UserId userId);
 
-  UserDto registerChild(String parentId, CreateChildRequestModel childModel);
+  UserDto registerChild(UserId parentId, CreateChildRequestModel childModel);
 
-  UserDto unregisterChild(String childId, String parentId);
+  UserDto unregisterChild(UserId childId, UserId parentId);
 }

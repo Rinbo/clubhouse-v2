@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.ClubDto;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
@@ -91,7 +92,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public List<ClubDto> getMyClubs(String userId) {
+  public List<ClubDto> getMyClubs(UserId userId) {
     User user = getUser(userId);
     return user.getClubUsers()
         .stream()
@@ -102,7 +103,7 @@ public class UserServiceImpl implements UserService {
 
   @Transactional
   @Override
-  public UserDto updateChild(String childId, String parentId, UpdateUserModel userDetails) {
+  public UserDto updateChild(UserId childId, UserId parentId, UpdateUserModel userDetails) {
     User parent = userRepository.findByUserId(parentId).orElseThrow();
     User child = parent.getChildren().stream().filter(c -> c.getUserId().equals(childId)).findFirst().orElseThrow();
     child.setFirstName(userDetails.getFirstName());
@@ -112,7 +113,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void addParentToChild(String originalParentId, String childId, String newParentId) {
+  public void addParentToChild(UserId originalParentId, UserId childId, UserId newParentId) {
     User originalParent = userRepository.findByUserId(originalParentId).orElseThrow();
     User child = originalParent.getChildren().stream().filter(c -> c.getUserId().equals(childId)).findFirst().orElseThrow();
     User newParent = userRepository.findByUserId(newParentId).orElseThrow();
@@ -138,7 +139,7 @@ public class UserServiceImpl implements UserService {
     return userRepository.findById(id).orElseThrow();
   }
 
-  private User getUser(String userId) {
+  private User getUser(UserId userId) {
     return userRepository.findByUserId(userId).orElseThrow();
   }
 }

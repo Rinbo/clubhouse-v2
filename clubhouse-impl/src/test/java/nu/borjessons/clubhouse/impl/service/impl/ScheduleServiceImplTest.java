@@ -16,6 +16,7 @@ import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.TrainingTime;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.ClubScheduleRecord;
 import nu.borjessons.clubhouse.impl.dto.TeamScheduleRecord;
 import nu.borjessons.clubhouse.impl.dto.TrainingTimeRecord;
@@ -23,7 +24,7 @@ import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
 
 class ScheduleServiceImplTest {
-  private static final String USER_ID = "user-1";
+  private static final UserId USER_ID = new UserId("user-1");
   private static final String COOL_TEAM = "Cool Team";
   private static final String GIGANTIC_HALL = "Gigantic Hall";
   private static final LocalTime START_TIME = LocalTime.of(16, 30);

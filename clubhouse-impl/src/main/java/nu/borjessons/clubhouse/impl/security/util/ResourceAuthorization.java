@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 
 @Component
 public class ResourceAuthorization {
@@ -14,7 +15,7 @@ public class ResourceAuthorization {
     return () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, message);
   }
 
-  public void isChildOfUser(String childId, User user) {
+  public void isChildOfUser(UserId childId, User user) {
     user.getChildren()
         .stream()
         .filter(child -> child.getUserId().equals(childId))

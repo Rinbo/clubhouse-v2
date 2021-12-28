@@ -18,6 +18,7 @@ import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.TrainingTime;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.ClubScheduleRecord;
 import nu.borjessons.clubhouse.impl.dto.TeamScheduleRecord;
 import nu.borjessons.clubhouse.impl.dto.TrainingTimeRecord;
@@ -74,20 +75,20 @@ public class ScheduleServiceImpl implements ScheduleService {
   }
 
   @Override
-  public Collection<ClubScheduleRecord> getUserClubSchedule(String userId, String clubId, LocalDate startDate, LocalDate endDate) {
+  public Collection<ClubScheduleRecord> getLeaderClubSchedule(UserId userId, String clubId, LocalDate startDate, LocalDate endDate) {
+    Club club = clubRepository.findByClubId(clubId).orElseThrow();
+    User user = userRepository.findByUserId(userId).orElseThrow();
+    Set<Team> teams = new HashSet<>(user.getClubUser(clubId).orElseThrow().getManagedTeams());
+    return getClubScheduleRecords(club, teams, getDateRange(startDate, endDate));
+  }
+
+  @Override
+  public Collection<ClubScheduleRecord> getUserClubSchedule(UserId userId, String clubId, LocalDate startDate, LocalDate endDate) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     User user = userRepository.findByUserId(userId).orElseThrow();
     List<ClubUser> userAndChildren = user.getChildren().stream().map(child -> child.getClubUser(clubId)).map(Optional::get).collect(Collectors.toList());
     userAndChildren.add(user.getClubUser(clubId).orElseThrow());
     Set<Team> teams = userAndChildren.stream().map(ClubUser::getTeams).flatMap(List::stream).collect(Collectors.toSet());
-    return getClubScheduleRecords(club, teams, getDateRange(startDate, endDate));
-  }
-
-  @Override
-  public Collection<ClubScheduleRecord> getLeaderClubSchedule(String userId, String clubId, LocalDate startDate, LocalDate endDate) {
-    Club club = clubRepository.findByClubId(clubId).orElseThrow();
-    User user = userRepository.findByUserId(userId).orElseThrow();
-    Set<Team> teams = new HashSet<>(user.getClubUser(clubId).orElseThrow().getManagedTeams());
     return getClubScheduleRecords(club, teams, getDateRange(startDate, endDate));
   }
 }

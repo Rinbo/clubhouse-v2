@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.ClubDto;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
@@ -46,7 +47,7 @@ public class PrincipalController {
   }
 
   @PutMapping("/child/{childId}")
-  public UserDto updateChild(@AuthenticationPrincipal User principal, @PathVariable String childId, @Valid @RequestBody UpdateUserModel userDetails) {
+  public UserDto updateChild(@AuthenticationPrincipal User principal, @PathVariable UserId childId, @Valid @RequestBody UpdateUserModel userDetails) {
     return userService.updateChild(childId, principal.getUserId(), userDetails);
   }
 
@@ -61,7 +62,7 @@ public class PrincipalController {
   }
 
   @PutMapping("/add-parent")
-  public void addParentToChildren(@AuthenticationPrincipal User principal, @RequestParam String parentId, @RequestParam String childId) {
+  public void addParentToChildren(@AuthenticationPrincipal User principal, @RequestParam UserId parentId, @RequestParam UserId childId) {
     userService.addParentToChild(principal.getUserId(), childId, parentId);
   }
 }

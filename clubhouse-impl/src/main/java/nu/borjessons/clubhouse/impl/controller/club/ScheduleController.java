@@ -6,6 +6,7 @@ import java.util.Collection;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,14 +26,14 @@ import nu.borjessons.clubhouse.impl.service.ScheduleService;
 public class ScheduleController {
   private static void validateDates(LocalDate startDate, LocalDate endDate) {
     if (startDate.isAfter(endDate)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "startDate must come before endDate");
-    if (startDate.plus(32, ChronoUnit.DAYS).isAfter(endDate)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Date range cannot exceed one month");
+    if (!startDate.plus(32, ChronoUnit.DAYS).isAfter(endDate)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Date range cannot exceed one month");
   }
 
   private final ScheduleService scheduleService;
 
   @GetMapping("/schedule")
   public Collection<ClubScheduleRecord> getClubSchedule(@PathVariable String clubId,
-      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam LocalDate startDate,
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam LocalDate endDate) {
     validateDates(startDate, endDate);
     return scheduleService.getClubSchedule(clubId, startDate, endDate);
@@ -43,5 +44,13 @@ public class ScheduleController {
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam LocalDate startDate,
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam LocalDate endDate) {
     return scheduleService.getUserClubSchedule(principal.getUserId(), clubId, startDate, endDate);
+  }
+
+  @PreAuthorize("hasRole('LEADER')")
+  @GetMapping("/leader/my-schedule")
+  public Collection<ClubScheduleRecord> getMyLeaderClubSchedule(@AuthenticationPrincipal User principal, @PathVariable String clubId,
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam LocalDate startDate,
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam LocalDate endDate) {
+    return scheduleService.getLeaderClubSchedule(principal.getUserId(), clubId, startDate, endDate);
   }
 }

@@ -18,8 +18,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -27,6 +29,9 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 
 import io.jsonwebtoken.security.Keys;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
+import nu.borjessons.clubhouse.impl.dto.deserializer.UserIdDeserializer;
+import nu.borjessons.clubhouse.impl.dto.serializer.UserIdSerializer;
 import nu.borjessons.clubhouse.impl.security.TokenStore;
 import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
 
@@ -42,6 +47,14 @@ public class ClubhouseApplication {
         .appendLiteral(':')
         .appendValue(MINUTE_OF_HOUR, 2)
         .toFormatter();
+  }
+
+  private static Module createIdModule() {
+    SimpleModule simpleModule = new SimpleModule();
+
+    simpleModule.addSerializer(UserId.class, UserIdSerializer.INSTANCE);
+    simpleModule.addDeserializer(UserId.class, UserIdDeserializer.INSTANCE);
+    return simpleModule;
   }
 
   @Bean
@@ -76,8 +89,9 @@ public class ClubhouseApplication {
     javaTimeModule.addDeserializer(LocalDateTime.class, localDateTimeDeserializer);
     javaTimeModule.addDeserializer(LocalDate.class, localDateDeserializer);
     javaTimeModule.addDeserializer(LocalTime.class, localTimeDeserializer);
+
     javaTimeModule.addSerializer(LocalTime.class, localTimeSerializer);
-    objectMapper.registerModule(javaTimeModule);
+    objectMapper.registerModules(javaTimeModule, createIdModule());
 
     return objectMapper;
   }

@@ -17,6 +17,7 @@ import lombok.ToString;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @Getter
@@ -62,8 +63,8 @@ public class ClubUserDto {
     clubId = clubUser.getClub().getClubId();
     clubName = clubUser.getClub().getName();
     children = getClubChildren(clubUser);
-    parentIds = clubUser.getUser().getParents().stream().map(User::getUserId).collect(Collectors.toSet());
-    userId = clubUser.getUser().getUserId();
+    parentIds = clubUser.getUser().getParents().stream().map(User::getUserId).map(UserId::toString).collect(Collectors.toSet());
+    userId = clubUser.getUser().getUserId().toString();
     email = showEmail() ? clubUser.getUser().getEmail() : null;
   }
 
@@ -72,7 +73,7 @@ public class ClubUserDto {
     if (authentication == null) return false;
 
     User principal = (User) authentication.getPrincipal();
-    if (userId.equals(principal.getUserId())) return true;
+    if (userId.equals(principal.getUserId().toString())) return true;
 
     return authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
   }

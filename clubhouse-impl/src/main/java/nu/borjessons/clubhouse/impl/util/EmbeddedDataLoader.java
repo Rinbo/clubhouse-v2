@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.Club.Type;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.TeamDto;
@@ -44,7 +45,7 @@ public class EmbeddedDataLoader {
   public static final String POPS_EMAIL = "pops@ex.com";
   public static final String MOMMY_EMAIL = "mommy@ex.com";
   public static final String USER_EMAIL = "user@ex.com";
-  public static final String USER_ID = "user1";
+  public static final UserId USER_ID = new UserId("user1");
 
   private static CreateUserModel createOwnerModel() {
     final AddressModel addressModel = new AddressModel();
@@ -113,12 +114,12 @@ public class EmbeddedDataLoader {
     return user;
   }
 
-  private static TeamRequestModel createTeamModel(String leaderId) {
+  private static TeamRequestModel createTeamModel(UserId leaderId) {
     TeamRequestModel teamRequestModel = new TeamRequestModel();
     teamRequestModel.setName("Cool Team");
     teamRequestModel.setMinAge(5);
     teamRequestModel.setMaxAge(20);
-    teamRequestModel.setLeaderIds(List.of(leaderId));
+    teamRequestModel.setLeaderIds(List.of(leaderId.toString()));
     return teamRequestModel;
   }
 
@@ -160,7 +161,7 @@ public class EmbeddedDataLoader {
     TeamRequestModel teamModel = createTeamModel(dad.getUserId());
 
     TeamDto team = teamService.createTeam(CLUB_ID, teamModel);
-    ArrayList<String> teamMembers = new ArrayList<>(dad.getChildren().stream().map(BaseUserRecord::userId).toList());
+    ArrayList<UserId> teamMembers = new ArrayList<>(dad.getChildren().stream().map(BaseUserRecord::userId).map(UserId::new).toList());
     teamMembers.add(normalUserDto.getUserId());
     TeamDto updateTeamDto = teamService.updateTeamMembers(CLUB_ID, team.getTeamId(), teamMembers);
     log.info("created team: {}", updateTeamDto);
@@ -179,6 +180,6 @@ public class EmbeddedDataLoader {
     Collection<Role> existingRoleNames = roleRepository.findAll().stream().map(RoleEntity::getName).collect(Collectors.toSet());
     Collection<Role> allRoles = Arrays.asList(Role.values());
     allRoles.removeIf(existingRoleNames::contains);
-    roleRepository.saveAll(allRoles.stream().map(EmbeddedDataLoader::getRoleEntity).collect(Collectors.toList()));
+    roleRepository.saveAll(allRoles.stream().map(EmbeddedDataLoader::getRoleEntity).toList());
   }
 }

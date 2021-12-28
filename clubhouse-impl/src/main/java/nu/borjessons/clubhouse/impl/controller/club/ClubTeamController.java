@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.TeamDto;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
 import nu.borjessons.clubhouse.impl.security.util.ResourceAuthorization;
@@ -39,7 +40,7 @@ public class ClubTeamController {
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/add-child")
   public TeamDto addChildrenToTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
-      @RequestParam String childId) {
+      @RequestParam UserId childId) {
     resourceAuthorization.isChildOfUser(childId, principal);
     return teamService.addMemberToTeam(clubId, teamId, childId);
   }
@@ -90,7 +91,7 @@ public class ClubTeamController {
 
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/remove-leader")
-  public TeamDto removeLeader(@PathVariable String clubId, @PathVariable String teamId, @RequestParam String leaderId) {
+  public TeamDto removeLeader(@PathVariable String clubId, @PathVariable String teamId, @RequestParam UserId leaderId) {
     return teamService.removeLeaderFromTeam(clubId, teamId, leaderId);
   }
 
@@ -103,6 +104,6 @@ public class ClubTeamController {
   @PreAuthorize("hasRole('ADMIN')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/members")
   public TeamDto updateTeamMembers(@PathVariable String clubId, @PathVariable String teamId, @RequestBody List<String> userIds) {
-    return teamService.updateTeamMembers(clubId, teamId, userIds);
+    return teamService.updateTeamMembers(clubId, teamId, userIds.stream().map(UserId::new).toList());
   }
 }

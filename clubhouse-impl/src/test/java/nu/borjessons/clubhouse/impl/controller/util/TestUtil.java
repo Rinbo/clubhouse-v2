@@ -17,18 +17,19 @@ import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestUtil {
-  public static final String CHILD_1_ID = "child1";
+  public static final UserId CHILD_1_ID = new UserId("child1");
   public static final String CLUB_1_ID = "club1";
-  public static final String OWNER_1_ID = "owner1";
-  public static final String PARENT_1_ID = "parent1";
+  public static final UserId OWNER_1_ID = new UserId("owner1");
+  public static final UserId PARENT_1_ID = new UserId("parent1");
   public static final String TEAM_1_ID = "team1";
-  public static final String USER_1 = "user1";
+  public static final UserId USER_1 = new UserId("user1");
   public static final Club CLUB1 = createClub();
 
-  public static User getClubUser(String userId) {
+  public static User getClubUser(UserId userId) {
     return CLUB1.getClubUser(userId).orElseThrow().getUser();
   }
 

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import nu.borjessons.clubhouse.impl.data.Team;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.TeamDto;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
 import nu.borjessons.clubhouse.impl.repository.TeamRepository;
@@ -82,7 +83,7 @@ public class TeamUtil {
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
-  public static TeamDto removeLeaderFromTeam(String clubId, String leaderId, String teamId, String token) throws JsonProcessingException {
+  public static TeamDto removeLeaderFromTeam(String clubId, UserId leaderId, String teamId, String token) throws JsonProcessingException {
     final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/remove-leader")
         .queryParam("leaderId", leaderId)
         .buildAndExpand(clubId, teamId)

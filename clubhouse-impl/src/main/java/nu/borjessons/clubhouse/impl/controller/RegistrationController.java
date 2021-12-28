@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
@@ -43,20 +44,20 @@ public class RegistrationController {
 
   @PreAuthorize("hasRole('ADMIN') or #parentId == authentication.principal.userId")
   @PostMapping("/clubs/{clubId}/register-club-children")
-  public UserDto registerClubChildren(@PathVariable String clubId, @RequestParam String parentId,
+  public UserDto registerClubChildren(@PathVariable String clubId, @RequestParam UserId parentId,
       @Valid @RequestBody List<CreateChildRequestModel> childModels) {
     return registrationService.registerClubChildren(parentId, clubId, childModels);
   }
 
   @PreAuthorize("#parentId == authentication.principal.userId")
   @PostMapping("/users/{parentId}/register-child")
-  public UserDto registerChild(@PathVariable String parentId, @Valid @RequestBody CreateChildRequestModel childModel) {
+  public UserDto registerChild(@PathVariable UserId parentId, @Valid @RequestBody CreateChildRequestModel childModel) {
     return registrationService.registerChild(parentId, childModel);
   }
 
   @PreAuthorize("#parentId == authentication.principal.userId")
   @DeleteMapping("/users/{parentId}/unregister-child")
-  public UserDto unregisterChild(@PathVariable String parentId, @Valid @RequestParam String childId) {
+  public UserDto unregisterChild(@PathVariable UserId parentId, @Valid @RequestParam UserId childId) {
     return registrationService.unregisterChild(childId, parentId);
   }
 }
