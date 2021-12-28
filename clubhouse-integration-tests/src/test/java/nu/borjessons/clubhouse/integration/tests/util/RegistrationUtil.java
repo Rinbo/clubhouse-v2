@@ -68,14 +68,14 @@ public class RegistrationUtil {
     return RestUtil.deserializeJsonBody(response.getBody(), UserDto.class);
   }
 
-  public static UserDto unregisterChild(String childId, String parentId, String token) throws JsonProcessingException {
+  public static void unregisterChild(String childId, String parentId, String token) throws JsonProcessingException {
     String uri = RestUtil.getUriBuilder("/users/{parentId}/unregister-child")
         .queryParam("childId", childId)
         .buildAndExpand(parentId)
         .toUriString();
 
     ResponseEntity<String> response = RestUtil.deleteRequest(uri, token, String.class);
-    return RestUtil.deserializeJsonBody(response.getBody(), UserDto.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
   private static CreateChildRequestModel createChildModel(String childName) {

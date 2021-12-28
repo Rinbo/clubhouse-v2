@@ -16,7 +16,7 @@ public class AddressDto {
   private String street;
 
   public AddressDto(Address address) {
-    addressId = address.getAddressId();
+    addressId = address.getAddressId().toString();
     street = address.getStreet();
     postalCode = address.getPostalCode();
     city = address.getCity();
@@ -46,8 +46,7 @@ public class AddressDto {
       if (other.postalCode != null) return false;
     } else if (!postalCode.equals(other.postalCode)) return false;
     if (street == null) {
-      if (other.street != null) return false;
-    } else if (!street.equals(other.street)) return false;
-    return true;
+      return other.street == null;
+    } else return street.equals(other.street);
   }
 }

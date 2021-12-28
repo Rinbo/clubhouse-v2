@@ -20,6 +20,7 @@ import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
+import nu.borjessons.clubhouse.impl.dto.rest.AddressModel;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateChildRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
@@ -48,6 +49,17 @@ public class UserUtil {
     createUserModel.setEmail(firstName + "@ex.com");
     createUserModel.setPassword(EmbeddedDataLoader.DEFAULT_PASSWORD);
     return createUserModel;
+  }
+
+  public static CreateUserModel createUserModelWithAddress(String clubId, String firstName) {
+    CreateUserModel userModel = createUserModel(clubId, firstName);
+    AddressModel addressModel = new AddressModel();
+    addressModel.setCity("Rome");
+    addressModel.setCountry("Italy");
+    addressModel.setStreet("Rome Street 10");
+    addressModel.setPostalCode("12345");
+    userModel.setAddresses(List.of(addressModel));
+    return userModel;
   }
 
   public static CreateChildRequestModel createChildRequestModel(String firstName) {

@@ -2,6 +2,7 @@ package nu.borjessons.clubhouse.integration.tests;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
+import nu.borjessons.clubhouse.impl.dto.AddressDto;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubDto;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
@@ -131,6 +133,27 @@ class RegistrationIntegrationTest {
       UserDto updatedDad = UserUtil.getSelf(token);
       Assertions.assertEquals(1, updatedDad.getChildren().size());
       Assertions.assertFalse(updatedDad.getChildren().stream().anyMatch(child -> child.firstName().equals(childName)));
+    }
+  }
+
+  @Test
+  void registerUserWithAddress() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      UserDto userDto = RegistrationUtil.registerUser(UserUtil.createUserModelWithAddress(EmbeddedDataLoader.CLUB_ID, "Robin"));
+      String email = userDto.getEmail();
+      String token = UserUtil.loginUser(email, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      UserDto self = UserUtil.getSelf(token);
+      Assertions.assertEquals(email, self.getEmail());
+
+      Set<AddressDto> addresses = self.getAddresses();
+      Assertions.assertEquals(1, addresses.size());
+
+      AddressDto addressDto = addresses.iterator().next();
+      Assertions.assertEquals("Rome", addressDto.getCity());
+      Assertions.assertEquals("Italy", addressDto.getCountry());
+      Assertions.assertEquals("Rome Street 10", addressDto.getStreet());
+      Assertions.assertEquals("12345", addressDto.getPostalCode());
     }
   }
 

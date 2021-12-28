@@ -23,13 +23,12 @@ import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
 
 class ScheduleServiceImplTest {
-
-  public static final String USER_ID = "user-1";
-  public static final String COOL_TEAM = "Cool Team";
-  public static final String GIGANTIC_HALL = "Gigantic Hall";
-  public static final LocalTime START_TIME = LocalTime.of(16, 30);
-  public static final LocalTime END_TIME = LocalTime.of(18, 0);
-  public static final String ROBINS_CLUB = "Robins Club";
+  private static final String USER_ID = "user-1";
+  private static final String COOL_TEAM = "Cool Team";
+  private static final String GIGANTIC_HALL = "Gigantic Hall";
+  private static final LocalTime START_TIME = LocalTime.of(16, 30);
+  private static final LocalTime END_TIME = LocalTime.of(18, 0);
+  private static final String ROBINS_CLUB = "Robins Club";
 
   private static Club createClub() {
     Club club = new Club();

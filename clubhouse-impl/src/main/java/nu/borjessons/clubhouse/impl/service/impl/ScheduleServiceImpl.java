@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
@@ -23,6 +25,7 @@ import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
 import nu.borjessons.clubhouse.impl.service.ScheduleService;
 
+@Service
 @RequiredArgsConstructor
 public class ScheduleServiceImpl implements ScheduleService {
   private static List<LocalDate> getDateRange(LocalDate startDate, LocalDate endDate) {

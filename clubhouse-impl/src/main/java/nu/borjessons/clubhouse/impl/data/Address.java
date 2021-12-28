@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import nu.borjessons.clubhouse.impl.data.key.AddressId;
 
 @Entity
 @Getter
@@ -22,8 +23,8 @@ public class Address extends BaseEntity {
   private long id;
 
   @Setter(AccessLevel.PRIVATE)
-  @Column(nullable = false, unique = true)
-  private String addressId = UUID.randomUUID().toString();
+  @Column(nullable = false, unique = true, columnDefinition = "varchar(255)")
+  private AddressId addressId = new AddressId(UUID.randomUUID().toString());
 
   @Column(length = 30, nullable = false)
   private String city;
