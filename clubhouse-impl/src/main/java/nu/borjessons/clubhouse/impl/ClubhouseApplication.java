@@ -3,6 +3,10 @@ package nu.borjessons.clubhouse.impl;
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Key;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,12 +33,18 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
+import nu.borjessons.clubhouse.impl.data.key.ImageId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.deserializer.UserIdDeserializer;
+import nu.borjessons.clubhouse.impl.dto.serializer.ImageIdSerializer;
 import nu.borjessons.clubhouse.impl.dto.serializer.UserIdSerializer;
+import nu.borjessons.clubhouse.impl.repository.FileImageRepository;
+import nu.borjessons.clubhouse.impl.repository.ImageRepository;
 import nu.borjessons.clubhouse.impl.security.TokenStore;
 import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
 
+@Slf4j
 @SpringBootApplication
 public class ClubhouseApplication {
   public static void main(String[] args) {
@@ -53,8 +63,30 @@ public class ClubhouseApplication {
     SimpleModule simpleModule = new SimpleModule();
 
     simpleModule.addSerializer(UserId.class, UserIdSerializer.INSTANCE);
+    simpleModule.addSerializer(ImageId.class, ImageIdSerializer.INSTANCE);
+
     simpleModule.addDeserializer(UserId.class, UserIdDeserializer.INSTANCE);
+
     return simpleModule;
+  }
+
+  private static Path createClubhouseDirectory(Path base) throws IOException {
+    Path clubhouseDirectory = base.resolve("clubhouse");
+    if (Files.isDirectory(clubhouseDirectory)) return clubhouseDirectory;
+    
+    log.info("creating directory for image upload: {}", clubhouseDirectory);
+    return Files.createDirectory(clubhouseDirectory);
+  }
+
+  @Bean
+  ImageRepository createImageRepository() {
+    Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
+    try {
+      return new FileImageRepository(createClubhouseDirectory(tmpDir));
+    } catch (IOException e) {
+      log.error("Could not create directory for images, defaulting to system temp directory");
+      return new FileImageRepository(tmpDir);
+    }
   }
 
   @Bean

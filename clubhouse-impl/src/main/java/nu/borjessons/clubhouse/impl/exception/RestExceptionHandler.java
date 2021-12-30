@@ -51,7 +51,7 @@ public class RestExceptionHandler {
   }
 
   @ExceptionHandler(IllegalStateException.class)
-  public ResponseEntity<ErrorMessage> handleIllegalStateException(IllegalArgumentException ex, HttpServletRequest req) {
+  public ResponseEntity<ErrorMessage> handleIllegalStateException(IllegalStateException ex, HttpServletRequest req) {
     log.debug(stringifyStacktrace(ex));
 
     ErrorMessage errorMessage = new ErrorMessage(ex.getMessage(), req.getRequestURI(), HttpStatus.INTERNAL_SERVER_ERROR.value());
