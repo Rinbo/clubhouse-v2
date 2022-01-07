@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.springframework.stereotype.Service;
@@ -18,12 +19,8 @@ public class ImageServiceImpl implements ImageService {
   private final ImageRepository imageRepository;
 
   @Override
-  public byte[] getImage(ImageId imageId) {
-    try {
-      return imageRepository.findImageById(imageId);
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not fetch image: " + imageId);
-    }
+  public File getImage(ImageId imageId) {
+    return imageRepository.findImageById(imageId);
   }
 
   @Override

@@ -1,5 +1,11 @@
 package nu.borjessons.clubhouse.impl.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
+import javax.activation.FileTypeMap;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,9 +28,17 @@ import nu.borjessons.clubhouse.impl.service.ImageService;
 public class ImageController {
   private final ImageService imageService;
 
-  @GetMapping(value = "/{imageId}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
-  public byte[] getImage(@PathVariable ImageId imageId) {
-    return imageService.getImage(imageId);
+  @GetMapping(value = "/{imageId}")
+  public ResponseEntity<byte[]> getImage(@PathVariable ImageId imageId) throws IOException {
+    File file = imageService.getImage(imageId);
+    MediaType mediaType = MediaType.valueOf(FileTypeMap.getDefaultFileTypeMap().getContentType(file));
+    return ResponseEntity.ok().contentType(mediaType).body(Files.readAllBytes(file.toPath()));
+  }
+
+  @GetMapping(value = "/octet/{imageId}")
+  public ResponseEntity<byte[]> getOctetImage(@PathVariable ImageId imageId) throws IOException {
+    File file = imageService.getImage(imageId);
+    return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).body(Files.readAllBytes(file.toPath()));
   }
 
   @PostMapping(value = "/upload", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)

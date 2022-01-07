@@ -1,7 +1,7 @@
 package nu.borjessons.clubhouse.impl.repository;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
@@ -18,14 +18,14 @@ public class FileImageRepository implements ImageRepository {
   private final Path imageDirectory;
 
   @Override
-  public byte[] findImageById(ImageId imageId) throws IOException {
-    Path path = imageDirectory.resolve(Paths.get(imageId.toString()));
-    return Files.readAllBytes(path);
+  public File findImageById(ImageId imageId) {
+    return imageDirectory.resolve(Paths.get(imageId.toString() + ".jpg")).toFile();
   }
 
   @Override
   public ImageId saveImage(MultipartFile multipartFile) throws IOException {
-    Path filename = Paths.get(UUID.randomUUID() + ".jpg");
+    UUID uuid = UUID.randomUUID();
+    Path filename = Paths.get(uuid + ".jpg");
 
     log.info("filename: {}", filename);
 
@@ -33,8 +33,7 @@ public class FileImageRepository implements ImageRepository {
     log.info("filepath: {}", filepath);
 
     multipartFile.transferTo(filepath);
-    //Files.write(filepath, multipartFile.getBytes(), StandardOpenOption.APPEND);
 
-    return new ImageId(filename.toString());
+    return new ImageId(uuid.toString());
   }
 }

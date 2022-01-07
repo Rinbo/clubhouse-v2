@@ -73,7 +73,7 @@ public class ClubhouseApplication {
   private static Path createClubhouseDirectory(Path base) throws IOException {
     Path clubhouseDirectory = base.resolve("clubhouse");
     if (Files.isDirectory(clubhouseDirectory)) return clubhouseDirectory;
-    
+
     log.info("creating directory for image upload: {}", clubhouseDirectory);
     return Files.createDirectory(clubhouseDirectory);
   }
