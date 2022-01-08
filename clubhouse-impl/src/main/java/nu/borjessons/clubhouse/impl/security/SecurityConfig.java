@@ -1,10 +1,5 @@
 package nu.borjessons.clubhouse.impl.security;
 
-import static nu.borjessons.clubhouse.impl.security.util.SecurityUtil.H2_CONSOLE;
-import static nu.borjessons.clubhouse.impl.security.util.SecurityUtil.PUBLIC_CLUB_URLS;
-import static nu.borjessons.clubhouse.impl.security.util.SecurityUtil.REGISTRATION_URLS;
-import static nu.borjessons.clubhouse.impl.security.util.SecurityUtil.VALIDATE_TOKEN_URL;
-
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -56,7 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     http.cors(c -> c.configurationSource(r -> getCorsConfiguration()));
 
     http.authorizeRequests()
-        .antMatchers(PUBLIC_CLUB_URLS, REGISTRATION_URLS, VALIDATE_TOKEN_URL, H2_CONSOLE).permitAll()
+        .antMatchers(SecurityUtil.getPublicUrls()).permitAll()
         .anyRequest().authenticated()
         .and()
         .addFilterAt(new AuthenticationFilter(authenticationManager(), jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)
