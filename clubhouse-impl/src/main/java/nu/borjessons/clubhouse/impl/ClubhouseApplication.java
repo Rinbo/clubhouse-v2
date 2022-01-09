@@ -34,7 +34,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import nu.borjessons.clubhouse.impl.data.key.ImageId;
+import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.deserializer.UserIdDeserializer;
 import nu.borjessons.clubhouse.impl.dto.serializer.ImageIdSerializer;
@@ -63,7 +63,7 @@ public class ClubhouseApplication {
     SimpleModule simpleModule = new SimpleModule();
 
     simpleModule.addSerializer(UserId.class, UserIdSerializer.INSTANCE);
-    simpleModule.addSerializer(ImageId.class, ImageIdSerializer.INSTANCE);
+    simpleModule.addSerializer(ImageTokenId.class, ImageIdSerializer.INSTANCE);
 
     simpleModule.addDeserializer(UserId.class, UserIdDeserializer.INSTANCE);
 

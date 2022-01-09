@@ -1,13 +1,17 @@
 package nu.borjessons.clubhouse.impl.service;
 
-import java.io.File;
+import java.io.IOException;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import nu.borjessons.clubhouse.impl.data.key.ImageId;
+import nu.borjessons.clubhouse.impl.data.ImageToken;
+import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
+import nu.borjessons.clubhouse.impl.dto.ImageStream;
 
 public interface ImageService {
-  File getImage(ImageId imageId);
+  ImageStream getImage(ImageTokenId imageTokenId) throws IOException;
 
-  ImageId createImage(MultipartFile multipartFile);
+  ImageTokenId createImage(MultipartFile multipartFile);
+
+  ImageToken createClubLogo(String clubId, MultipartFile multipartFile);
 }

@@ -25,6 +25,7 @@ import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 
 @Getter
@@ -40,15 +41,17 @@ public class Club extends BaseEntity {
   @Column(nullable = false, length = 120, unique = true)
   private String clubId;
 
+  @OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.LAZY)
+  private Collection<ClubUser> clubUsers = new ArrayList<>();
+
   @Column(nullable = false, length = 120, unique = true)
   private String name;
 
   @Column(nullable = false, length = 120, unique = true)
   private String path;
 
-  @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
-  private Type type;
+  @Column(columnDefinition = "varchar(255)")
+  private ImageTokenId logoId;
 
   @OneToMany(
       mappedBy = "club",
@@ -57,8 +60,9 @@ public class Club extends BaseEntity {
       fetch = FetchType.LAZY)
   private Set<Team> teams = new HashSet<>();
 
-  @OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.LAZY)
-  private Collection<ClubUser> clubUsers = new ArrayList<>();
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private Type type;
 
   public Club(String name, Type type, String clubId) {
     this.name = name;
