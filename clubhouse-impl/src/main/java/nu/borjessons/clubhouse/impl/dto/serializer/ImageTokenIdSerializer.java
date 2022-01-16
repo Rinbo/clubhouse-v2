@@ -8,17 +8,17 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 
-public class ImageIdSerializer extends JsonSerializer<ImageTokenId> {
-  public static final JsonSerializer<ImageTokenId> INSTANCE = new ImageIdSerializer();
+public class ImageTokenIdSerializer extends JsonSerializer<ImageTokenId> {
+  public static final JsonSerializer<ImageTokenId> INSTANCE = new ImageTokenIdSerializer();
 
-  private ImageIdSerializer() {
+  private ImageTokenIdSerializer() {
     // do nothing
   }
 
   @Override
   public void serialize(ImageTokenId userId, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
     jsonGenerator.writeStartObject();
-    jsonGenerator.writeStringField("imageId", userId.toString());
+    jsonGenerator.writeStringField("imageTokenId", userId.toString());
     jsonGenerator.writeEndObject();
   }
 }

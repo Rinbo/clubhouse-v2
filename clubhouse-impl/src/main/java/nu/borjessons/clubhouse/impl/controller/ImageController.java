@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,20 +36,21 @@ public class ImageController {
 
   private final ImageService imageService;
 
-  @GetMapping(value = "/images/{imageId}")
-  public ResponseEntity<byte[]> getImage(@PathVariable ImageTokenId imageTokenId) throws IOException {
-    ImageStream imageStream = imageService.getImage(imageTokenId);
+  @GetMapping(value = "/images/{imageTokenId}")
+  public ResponseEntity<byte[]> getImage(@PathVariable String imageTokenId) throws IOException {
+    ImageStream imageStream = imageService.getImage(new ImageTokenId(imageTokenId));
     ImageToken imageToken = imageStream.imageToken();
     MediaType mediaType = MediaType.valueOf(imageToken.getContentType());
     return ResponseEntity.ok().contentType(mediaType).body(readBytes(imageStream.inputStream()));
   }
 
   // TODO limit file size
+  @PreAuthorize("hasRole('ADMIN')")
   @PostMapping(value = "/clubs/{clubId}/upload-logo", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<ImageTokenId> uploadClubLogo(@PathVariable String clubId, @RequestParam(value = "file") MultipartFile multipartFile) {
     log.info("multipartFile: {}", multipartFile);
     ImageToken imageToken = imageService.createClubLogo(clubId, multipartFile);
-    return ResponseEntity.ok().contentType(MediaType.valueOf(imageToken.getContentType())).body(imageToken.getImageTokenId());
+    return ResponseEntity.ok(imageToken.getImageTokenId());
   }
 
   // TODO Do I need this? For albums I guess. As a first step I want to add images to news items or club description. How do I upload several images?

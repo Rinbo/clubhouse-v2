@@ -7,6 +7,7 @@ abstract class BaseId {
 
   BaseId(String string) {
     Objects.requireNonNull(string, "string must not be null");
+
     this.string = string;
   }
 

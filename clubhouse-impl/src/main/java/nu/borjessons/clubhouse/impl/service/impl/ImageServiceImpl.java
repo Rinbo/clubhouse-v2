@@ -30,7 +30,7 @@ public class ImageServiceImpl implements ImageService {
   public ImageStream getImage(ImageTokenId imageTokenId) throws IOException {
     Validate.notNull(imageTokenId, "imageTokenId");
 
-    ImageToken imageToken = imageTokenRepository.findByImageTokenId(imageTokenId.toString()).orElseThrow();
+    ImageToken imageToken = imageTokenRepository.findByImageTokenId(imageTokenId).orElseThrow();
     return imageRepository.findImageByImageToken(imageToken);
   }
 
@@ -60,6 +60,7 @@ public class ImageServiceImpl implements ImageService {
       club.setLogoId(imageTokenId);
       clubRepository.save(club);
 
+      // TODO confirm that failure here rolls back entire transaction?
       ImageToken imageToken = new ImageToken(imageTokenId);
       imageToken.setContentType(multipartFile.getContentType());
       imageToken.setName(multipartFile.getOriginalFilename());

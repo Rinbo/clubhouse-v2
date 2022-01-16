@@ -36,8 +36,9 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
+import nu.borjessons.clubhouse.impl.dto.deserializer.ImageTokenDeserializer;
 import nu.borjessons.clubhouse.impl.dto.deserializer.UserIdDeserializer;
-import nu.borjessons.clubhouse.impl.dto.serializer.ImageIdSerializer;
+import nu.borjessons.clubhouse.impl.dto.serializer.ImageTokenIdSerializer;
 import nu.borjessons.clubhouse.impl.dto.serializer.UserIdSerializer;
 import nu.borjessons.clubhouse.impl.repository.FileImageRepository;
 import nu.borjessons.clubhouse.impl.repository.ImageRepository;
@@ -63,9 +64,10 @@ public class ClubhouseApplication {
     SimpleModule simpleModule = new SimpleModule();
 
     simpleModule.addSerializer(UserId.class, UserIdSerializer.INSTANCE);
-    simpleModule.addSerializer(ImageTokenId.class, ImageIdSerializer.INSTANCE);
+    simpleModule.addSerializer(ImageTokenId.class, ImageTokenIdSerializer.INSTANCE);
 
     simpleModule.addDeserializer(UserId.class, UserIdDeserializer.INSTANCE);
+    simpleModule.addDeserializer(ImageTokenId.class, ImageTokenDeserializer.INSTANCE);
 
     return simpleModule;
   }
