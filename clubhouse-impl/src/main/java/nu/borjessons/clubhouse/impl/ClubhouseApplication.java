@@ -38,6 +38,7 @@ import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.deserializer.ImageTokenDeserializer;
 import nu.borjessons.clubhouse.impl.dto.deserializer.UserIdDeserializer;
+import nu.borjessons.clubhouse.impl.dto.serializer.ImageTokenIdSerializer;
 import nu.borjessons.clubhouse.impl.dto.serializer.UserIdSerializer;
 import nu.borjessons.clubhouse.impl.repository.FileImageRepository;
 import nu.borjessons.clubhouse.impl.repository.ImageRepository;
@@ -51,18 +52,20 @@ public class ClubhouseApplication {
     SpringApplication.run(ClubhouseApplication.class, args);
   }
 
-  private static DateTimeFormatter createTimeFormatter() {
-    return new DateTimeFormatterBuilder()
-        .appendValue(HOUR_OF_DAY, 2)
-        .appendLiteral(':')
-        .appendValue(MINUTE_OF_HOUR, 2)
-        .toFormatter();
+  private static Path createClubhouseDirectory(Path base) throws IOException {
+    Path clubhouseDirectory = base.resolve("clubhouse");
+    if (Files.isDirectory(clubhouseDirectory))
+      return clubhouseDirectory;
+
+    log.info("creating directory for image upload: {}", clubhouseDirectory);
+    return Files.createDirectory(clubhouseDirectory);
   }
 
   private static Module createIdModule() {
     SimpleModule simpleModule = new SimpleModule();
 
     simpleModule.addSerializer(UserId.class, UserIdSerializer.INSTANCE);
+    simpleModule.addSerializer(ImageTokenId.class, ImageTokenIdSerializer.INSTANCE);
 
     simpleModule.addDeserializer(UserId.class, UserIdDeserializer.INSTANCE);
     simpleModule.addDeserializer(ImageTokenId.class, ImageTokenDeserializer.INSTANCE);
@@ -70,12 +73,12 @@ public class ClubhouseApplication {
     return simpleModule;
   }
 
-  private static Path createClubhouseDirectory(Path base) throws IOException {
-    Path clubhouseDirectory = base.resolve("clubhouse");
-    if (Files.isDirectory(clubhouseDirectory)) return clubhouseDirectory;
-
-    log.info("creating directory for image upload: {}", clubhouseDirectory);
-    return Files.createDirectory(clubhouseDirectory);
+  private static DateTimeFormatter createTimeFormatter() {
+    return new DateTimeFormatterBuilder()
+        .appendValue(HOUR_OF_DAY, 2)
+        .appendLiteral(':')
+        .appendValue(MINUTE_OF_HOUR, 2)
+        .toFormatter();
   }
 
   @Bean
