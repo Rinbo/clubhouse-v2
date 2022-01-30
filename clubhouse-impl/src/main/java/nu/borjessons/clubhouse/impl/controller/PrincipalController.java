@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
-import nu.borjessons.clubhouse.impl.dto.ClubDto;
+import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
@@ -52,7 +52,7 @@ public class PrincipalController {
   }
 
   @GetMapping("/clubs")
-  public List<ClubDto> getMyClubs(@AuthenticationPrincipal User principal) {
+  public List<ClubRecord> getMyClubs(@AuthenticationPrincipal User principal) {
     return userService.getMyClubs(principal.getUserId());
   }
 

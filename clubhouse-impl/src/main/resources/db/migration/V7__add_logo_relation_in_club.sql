@@ -1,0 +1,9 @@
+ALTER TABLE club
+DROP
+COLUMN logo_id;
+
+ALTER TABLE club
+    ADD logo_id BIGINT;
+
+ALTER TABLE club
+    ADD CONSTRAINT FK_CLUB_ON_LOGO FOREIGN KEY (logo_id) REFERENCES image_token (id);

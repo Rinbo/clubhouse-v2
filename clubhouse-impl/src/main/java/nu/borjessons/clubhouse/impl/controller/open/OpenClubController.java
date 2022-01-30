@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.dto.ClubDto;
+import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 
 @RequestMapping("/public")
@@ -18,12 +18,12 @@ public class OpenClubController {
   private final ClubService clubService;
 
   @GetMapping(path = "/clubs")
-  public Set<ClubDto> getAllClubs() {
+  public Set<ClubRecord> getAllClubs() {
     return clubService.getAllClubs();
   }
 
   @GetMapping(path = "/clubs/{pathname}")
-  public ClubDto getPublicClub(@PathVariable String pathname) {
+  public ClubRecord getPublicClub(@PathVariable String pathname) {
     return clubService.getPublicClub(pathname);
   }
 }

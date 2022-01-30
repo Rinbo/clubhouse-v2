@@ -16,7 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import nu.borjessons.clubhouse.impl.data.Club;
-import nu.borjessons.clubhouse.impl.dto.ClubDto;
+import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 
@@ -29,18 +29,16 @@ public class ClubUtil {
     return clubModel;
   }
 
-  public static List<ClubDto> getClubs() {
-    UriComponentsBuilder builder = RestUtil.getUriBuilder("/public/clubs");
-    RestTemplate restTemplate = new RestTemplate();
-    ResponseEntity<ClubDto[]> responseEntity = restTemplate.getForEntity(builder.toUriString(), ClubDto[].class);
-    ClubDto[] clubs = responseEntity.getBody();
-    Assertions.assertNotNull(clubs);
-    return Arrays.stream(clubs).collect(Collectors.toList());
+  public static ClubRecord getClub(String clubId, String token) {
+    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}").buildAndExpand(clubId).toUriString();
+    final ResponseEntity<ClubRecord> response = RestUtil.getRequest(uri, token, ClubRecord.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
   }
 
-  public static ClubDto getClub(String clubId, String token) {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}").buildAndExpand(clubId).toUriString();
-    final ResponseEntity<ClubDto> response = RestUtil.getRequest(uri, token, ClubDto.class);
+  public static ClubRecord getClubByPathName(String pathName) {
+    UriComponentsBuilder builder = RestUtil.getUriBuilder("/public/clubs/").path(pathName);
+    ResponseEntity<ClubRecord> response = new RestTemplate().getForEntity(builder.toUriString(), ClubRecord.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
   }
@@ -53,20 +51,22 @@ public class ClubUtil {
     return Arrays.stream(clubUserDtos).collect(Collectors.toList());
   }
 
-  public static List<ClubDto> getMyClubs(String token) {
+  public static List<ClubRecord> getClubs() {
+    UriComponentsBuilder builder = RestUtil.getUriBuilder("/public/clubs");
+    RestTemplate restTemplate = new RestTemplate();
+    ResponseEntity<ClubRecord[]> responseEntity = restTemplate.getForEntity(builder.toUriString(), ClubRecord[].class);
+    ClubRecord[] clubs = responseEntity.getBody();
+    Assertions.assertNotNull(clubs);
+    return Arrays.stream(clubs).collect(Collectors.toList());
+  }
+
+  public static List<ClubRecord> getMyClubs(String token) {
     UriComponentsBuilder builder = RestUtil.getUriBuilder("/principal/clubs");
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
-    ResponseEntity<ClubDto[]> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, ClubDto[].class);
+    ResponseEntity<ClubRecord[]> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, ClubRecord[].class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return Arrays.stream(Objects.requireNonNull(response.getBody())).collect(Collectors.toList());
-  }
-
-  public static ClubDto getClubByPathName(String pathName) {
-    UriComponentsBuilder builder = RestUtil.getUriBuilder("/public/clubs/").path(pathName);
-    ResponseEntity<ClubDto> response = new RestTemplate().getForEntity(builder.toUriString(), ClubDto.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    return response.getBody();
   }
 
   private ClubUtil() {

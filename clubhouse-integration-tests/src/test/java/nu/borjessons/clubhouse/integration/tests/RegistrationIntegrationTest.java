@@ -14,7 +14,7 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.AddressDto;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
-import nu.borjessons.clubhouse.impl.dto.ClubDto;
+import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
@@ -80,7 +80,7 @@ class RegistrationIntegrationTest {
       final UserDto userDTO = RegistrationUtil.registerClub(createClubModel);
       Assertions.assertEquals(name, userDTO.getFirstName());
 
-      final List<ClubDto> clubs = ClubUtil.getClubs();
+      final List<ClubRecord> clubs = ClubUtil.getClubs();
       Assertions.assertTrue(clubs.stream().anyMatch(club -> club.name().equals(name + " Sports")));
     }
   }

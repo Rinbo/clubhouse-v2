@@ -13,5 +13,7 @@ public interface ImageService {
 
   ImageTokenId createImage(MultipartFile multipartFile);
 
+  void deleteImage(ImageTokenId imageTokenId);
+
   ImageToken createClubLogo(String clubId, MultipartFile multipartFile);
 }

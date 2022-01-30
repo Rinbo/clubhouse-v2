@@ -12,4 +12,6 @@ public interface ImageRepository {
   ImageStream findImageByImageToken(ImageToken imageToken) throws IOException;
 
   ImageTokenId saveImage(MultipartFile multipartFile) throws IOException;
+
+  void deleteImage(ImageToken imageToken) throws IOException;
 }

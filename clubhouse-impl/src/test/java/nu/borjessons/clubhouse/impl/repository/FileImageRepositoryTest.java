@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -19,40 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.ImageToken;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.dto.ImageStream;
+import nu.borjessons.clubhouse.impl.util.FileUtils;
 
 @Slf4j
 class FileImageRepositoryTest {
   private static final Path BASE_IMAGE_DIRECTORY = Paths.get(System.getProperty("java.io.tmpdir"), "clubhouse-test");
   private static final String ORIGINAL_FILE_NAME = "cool-pic.jpg";
-
-  private static MultipartFile mockMultiPartFile() throws IOException {
-    MultipartFile multipartFile = Mockito.mock(MultipartFile.class);
-    Mockito.doNothing().when(multipartFile).transferTo(ArgumentMatchers.any(Path.class));
-    Mockito.when(multipartFile.getOriginalFilename()).thenReturn(ORIGINAL_FILE_NAME);
-    return multipartFile;
-  }
-
-  private static void cleanUp() {
-    try (Stream<Path> walk = Files.walk(BASE_IMAGE_DIRECTORY)) {
-      walk.sorted(Comparator.reverseOrder())
-          .forEach(path -> {
-            try {
-              Files.delete(path);
-            } catch (IOException e) {
-              log.warn("Failed to delete file: {}", path);
-            }
-
-          });
-    } catch (IOException e) {
-      log.warn("Failed to clean up after test");
-    }
-  }
-
-  private static Path createTempFile() throws IOException {
-    Path directory = Files.createDirectory(BASE_IMAGE_DIRECTORY);
-    String aFile = "aFile.txt";
-    return Files.createFile(directory.resolve(aFile));
-  }
 
   private static ImageToken createImageToken() {
     ImageToken imageToken = new ImageToken();
@@ -62,9 +32,22 @@ class FileImageRepositoryTest {
     return imageToken;
   }
 
+  private static Path createTempFile() throws IOException {
+    Path directory = Files.createDirectory(BASE_IMAGE_DIRECTORY);
+    String aFile = "aFile.txt";
+    return Files.createFile(directory.resolve(aFile));
+  }
+
+  private static MultipartFile mockMultiPartFile() throws IOException {
+    MultipartFile multipartFile = Mockito.mock(MultipartFile.class);
+    Mockito.doNothing().when(multipartFile).transferTo(ArgumentMatchers.any(Path.class));
+    Mockito.when(multipartFile.getOriginalFilename()).thenReturn(ORIGINAL_FILE_NAME);
+    return multipartFile;
+  }
+
   @AfterEach
-  void afterEach() {
-    cleanUp();
+  void afterEach() throws IOException {
+    FileUtils.deleteDirectoryRecursively(BASE_IMAGE_DIRECTORY);
   }
 
   @Test

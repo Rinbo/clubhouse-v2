@@ -14,7 +14,7 @@ import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
-import nu.borjessons.clubhouse.impl.dto.ClubDto;
+import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.repository.AddressRepository;
@@ -92,12 +92,12 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public List<ClubDto> getMyClubs(UserId userId) {
+  public List<ClubRecord> getMyClubs(UserId userId) {
     User user = getUser(userId);
     return user.getClubUsers()
         .stream()
         .map(ClubUser::getClub)
-        .map(ClubDto::new)
+        .map(ClubRecord::new)
         .toList();
   }
 

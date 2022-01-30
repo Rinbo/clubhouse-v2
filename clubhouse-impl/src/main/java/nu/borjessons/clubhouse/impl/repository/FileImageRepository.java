@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.ImageToken;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.dto.ImageStream;
+import nu.borjessons.clubhouse.impl.util.FileUtils;
 import nu.borjessons.clubhouse.impl.util.Validate;
 
 @Slf4j
@@ -44,5 +45,11 @@ public class FileImageRepository implements ImageRepository {
     multipartFile.transferTo(absolutPath.resolve(fileName));
 
     return new ImageTokenId(imageId);
+  }
+
+  @Override
+  public void deleteImage(ImageToken imageToken) throws IOException {
+    String imageTokenIdString = imageToken.getImageTokenId().toString();
+    FileUtils.deleteDirectoryRecursively(imageDirectory.resolve(imageTokenIdString));
   }
 }

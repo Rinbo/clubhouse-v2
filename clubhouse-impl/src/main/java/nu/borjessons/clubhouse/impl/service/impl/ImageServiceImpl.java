@@ -46,28 +46,38 @@ public class ImageServiceImpl implements ImageService {
   }
 
   @Override
+  public void deleteImage(ImageTokenId imageTokenId) {
+    ImageToken imageToken = imageTokenRepository.findByImageTokenId(imageTokenId).orElseThrow();
+    deleteImageIfExists(imageToken);
+    imageTokenRepository.delete(imageToken);
+  }
+
+  @Override
   @Transactional
   public ImageToken createClubLogo(String clubId, MultipartFile multipartFile) {
     Validate.notNull(clubId, "clubId");
     Validate.notNull(multipartFile, "multipartFile");
 
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
+    deleteImageIfExists(club.getLogo());
+
+    ImageTokenId imageTokenId = createImage(multipartFile);
+
+    ImageToken imageToken = new ImageToken(imageTokenId);
+    imageToken.setContentType(multipartFile.getContentType());
+    imageToken.setName(multipartFile.getOriginalFilename());
+
+    club.setLogo(imageToken);
+    return clubRepository.save(club).getLogo();
+  }
+
+  private void deleteImageIfExists(ImageToken imageToken) {
+    if (imageToken == null) return;
 
     try {
-      ImageTokenId imageTokenId = imageRepository.saveImage(multipartFile);
-
-      // TODO delete existing image before saving new token
-      club.setLogoId(imageTokenId);
-      clubRepository.save(club);
-
-      // TODO confirm that failure here rolls back entire transaction?
-      ImageToken imageToken = new ImageToken(imageTokenId);
-      imageToken.setContentType(multipartFile.getContentType());
-      imageToken.setName(multipartFile.getOriginalFilename());
-
-      return imageTokenRepository.save(imageToken);
+      imageRepository.deleteImage(imageToken);
     } catch (IOException e) {
-      throw new IllegalStateException("Could not save image");
+      throw new IllegalStateException("Could not delete image: " + imageToken, e);
     }
   }
 }

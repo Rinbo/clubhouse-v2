@@ -17,7 +17,7 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
-import nu.borjessons.clubhouse.impl.dto.ClubDto;
+import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
@@ -148,13 +148,13 @@ class ClubUserIntegrationTest {
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
 
       RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
-      ClubDto clubDTO = ClubUtil.getClubByPathName("judo-sports");
+      ClubRecord clubRecord = ClubUtil.getClubByPathName("judo-sports");
 
       UserDto pops = UserUtil.getSelf(token);
 
-      ClubUserDto clubUserDTO = UserUtil.addClubUser(clubDTO.clubId(), pops.getUserId(), token, Set.of());
+      ClubUserDto clubUserDTO = UserUtil.addClubUser(clubRecord.clubId(), pops.getUserId(), token, Set.of());
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
-      Assertions.assertEquals(2, UserUtil.getClubUsers(clubDTO.clubId(), token).size());
+      Assertions.assertEquals(2, UserUtil.getClubUsers(clubRecord.clubId(), token).size());
       Assertions.assertFalse(clubUserDTO.getRoles().contains(Role.PARENT));
     }
   }
@@ -166,18 +166,18 @@ class ClubUserIntegrationTest {
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
 
       RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
-      ClubDto clubDTO = ClubUtil.getClubByPathName("judo-sports");
+      ClubRecord clubRecord = ClubUtil.getClubByPathName("judo-sports");
 
       UserDto pops = UserUtil.getSelf(token);
 
-      ClubUserDto clubUserDTO = UserUtil.addClubUser(clubDTO.clubId(), pops.getUserId(), token,
+      ClubUserDto clubUserDTO = UserUtil.addClubUser(clubRecord.clubId(), pops.getUserId(), token,
           pops.getChildren()
               .stream()
               .map(BaseUserRecord::userId)
               .collect(Collectors.toSet()));
 
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
-      Assertions.assertEquals(4, UserUtil.getClubUsers(clubDTO.clubId(), token).size());
+      Assertions.assertEquals(4, UserUtil.getClubUsers(clubRecord.clubId(), token).size());
       Assertions.assertTrue(clubUserDTO.getRoles().contains(Role.PARENT));
     }
   }
@@ -189,15 +189,15 @@ class ClubUserIntegrationTest {
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
 
       RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
-      ClubDto clubDTO = ClubUtil.getClubByPathName("judo-sports");
+      ClubRecord clubRecord = ClubUtil.getClubByPathName("judo-sports");
 
       UserDto pops = UserUtil.getSelf(token);
 
-      ClubUserDto clubUserDto = UserUtil.addClubUser(clubDTO.clubId(), pops.getUserId(), token,
+      ClubUserDto clubUserDto = UserUtil.addClubUser(clubRecord.clubId(), pops.getUserId(), token,
           pops.getChildren().stream().map(BaseUserRecord::userId).limit(1).collect(Collectors.toSet()));
 
       Assertions.assertEquals(2, ClubUtil.getMyClubs(token).size());
-      Assertions.assertEquals(3, UserUtil.getClubUsers(clubDTO.clubId(), token).size());
+      Assertions.assertEquals(3, UserUtil.getClubUsers(clubRecord.clubId(), token).size());
       Assertions.assertTrue(clubUserDto.getRoles().contains(Role.PARENT));
     }
   }
@@ -311,11 +311,11 @@ class ClubUserIntegrationTest {
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
 
       RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
-      ClubDto clubDTO = ClubUtil.getClubByPathName("judo-sports");
+      ClubRecord clubRecord = ClubUtil.getClubByPathName("judo-sports");
 
       UserDto pops = UserUtil.getSelf(token);
 
-      String clubId = clubDTO.clubId();
+      String clubId = clubRecord.clubId();
       UserId userId = pops.getUserId();
       ClubUserDto clubUserDTO = UserUtil.addClubUser(clubId, userId, token, Set.of());
 

@@ -13,12 +13,14 @@ import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.util.Validate;
 
 @Entity
 @Getter
 @Setter
+@ToString
 @Table(name = "image_token", indexes = @Index(name = "ix_image_token_id", columnList = "imageTokenId"))
 public class ImageToken extends BaseEntity {
   @Id

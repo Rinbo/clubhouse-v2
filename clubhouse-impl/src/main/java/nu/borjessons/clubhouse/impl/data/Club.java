@@ -20,12 +20,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 
 @Getter
@@ -50,8 +50,8 @@ public class Club extends BaseEntity {
   @Column(nullable = false, length = 120, unique = true)
   private String path;
 
-  @Column(columnDefinition = "varchar(255)")
-  private ImageTokenId logoId;
+  @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
+  private ImageToken logo;
 
   @OneToMany(
       mappedBy = "club",

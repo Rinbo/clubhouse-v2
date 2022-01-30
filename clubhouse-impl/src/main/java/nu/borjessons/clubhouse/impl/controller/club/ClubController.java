@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.dto.ClubDto;
+import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 
 @RequestMapping("/clubs")
@@ -18,7 +18,7 @@ public class ClubController {
 
   @PreAuthorize("hasRole('USER')")
   @GetMapping(path = "/{clubId}")
-  public ClubDto getClub(@PathVariable String clubId) {
-    return new ClubDto(clubService.getClubByClubId(clubId));
+  public ClubRecord getClub(@PathVariable String clubId) {
+    return new ClubRecord(clubService.getClubByClubId(clubId));
   }
 }

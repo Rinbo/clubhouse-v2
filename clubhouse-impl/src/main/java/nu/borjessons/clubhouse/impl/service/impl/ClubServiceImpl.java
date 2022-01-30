@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Club;
-import nu.borjessons.clubhouse.impl.dto.ClubDto;
+import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 
@@ -22,12 +22,12 @@ public class ClubServiceImpl implements ClubService {
   }
 
   @Override
-  public Set<ClubDto> getAllClubs() {
-    return clubRepository.findAll().stream().map(ClubDto::new).collect(Collectors.toSet());
+  public Set<ClubRecord> getAllClubs() {
+    return clubRepository.findAll().stream().map(ClubRecord::new).collect(Collectors.toSet());
   }
 
   @Override
-  public ClubDto getPublicClub(String pathname) {
-    return clubRepository.findByPath(pathname).map(ClubDto::new).orElseThrow();
+  public ClubRecord getPublicClub(String pathname) {
+    return clubRepository.findByPath(pathname).map(ClubRecord::new).orElseThrow();
   }
 }
