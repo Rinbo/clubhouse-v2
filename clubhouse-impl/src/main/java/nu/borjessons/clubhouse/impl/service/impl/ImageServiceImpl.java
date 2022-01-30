@@ -47,11 +47,14 @@ public class ImageServiceImpl implements ImageService {
 
   @Override
   public void deleteImage(ImageTokenId imageTokenId) {
+    Validate.notNull(imageTokenId, "imageTokenId");
+
     ImageToken imageToken = imageTokenRepository.findByImageTokenId(imageTokenId).orElseThrow();
-    deleteImageIfExists(imageToken);
+    deleteImageFile(imageToken);
     imageTokenRepository.delete(imageToken);
   }
 
+  // TODO add metric for initiating logo save and one for success. Then provide metric with percentage of successful saves
   @Override
   @Transactional
   public ImageToken createClubLogo(String clubId, MultipartFile multipartFile) {
@@ -59,7 +62,9 @@ public class ImageServiceImpl implements ImageService {
     Validate.notNull(multipartFile, "multipartFile");
 
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
-    deleteImageIfExists(club.getLogo());
+
+    ImageToken existingLogo = club.getLogo();
+    if (existingLogo != null) deleteImageFile(existingLogo);
 
     ImageTokenId imageTokenId = createImage(multipartFile);
 
@@ -71,9 +76,7 @@ public class ImageServiceImpl implements ImageService {
     return clubRepository.save(club).getLogo();
   }
 
-  private void deleteImageIfExists(ImageToken imageToken) {
-    if (imageToken == null) return;
-
+  private void deleteImageFile(ImageToken imageToken) {
     try {
       imageRepository.deleteImage(imageToken);
     } catch (IOException e) {

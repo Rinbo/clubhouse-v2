@@ -47,11 +47,7 @@ public class User extends BaseEntity implements UserDetails {
   @Column(nullable = false, unique = true, columnDefinition = "varchar(255)")
   private UserId userId;
 
-  @OneToMany(
-      mappedBy = "user",
-      cascade = CascadeType.ALL,
-      orphanRemoval = true,
-      fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   private Set<Address> addresses = new HashSet<>();
 
   @ManyToMany(mappedBy = "parents", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
@@ -60,11 +56,7 @@ public class User extends BaseEntity implements UserDetails {
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
   private Set<User> parents = new HashSet<>();
 
-  @OneToMany(
-      mappedBy = "user",
-      cascade = CascadeType.ALL,
-      orphanRemoval = true,
-      fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   private Collection<ClubUser> clubUsers = new ArrayList<>();
 
   @Column(nullable = false)
@@ -99,11 +91,6 @@ public class User extends BaseEntity implements UserDetails {
     clubUser.setUser(this);
   }
 
-  public void removeClubUser(ClubUser clubUser) {
-    clubUsers.remove(clubUser);
-    clubUser.setUser(null);
-  }
-
   public void addAddress(Address address) {
     addresses.add(address);
     address.setUser(this);
@@ -132,6 +119,7 @@ public class User extends BaseEntity implements UserDetails {
     return addresses;
   }
 
+  // TODO logic move to utility class
   public int getAge() {
     LocalDate now = LocalDate.now();
     int age = now.getYear() - dateOfBirth.getYear();
@@ -215,6 +203,11 @@ public class User extends BaseEntity implements UserDetails {
   public void removeChild(User child) {
     children.remove(child);
     child.parents.remove(this);
+  }
+
+  public void removeClubUser(ClubUser clubUser) {
+    clubUsers.remove(clubUser);
+    clubUser.setUser(null);
   }
 
   public void removeParent(User parent) {

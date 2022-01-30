@@ -32,10 +32,9 @@ class FileImageRepositoryTest {
     return imageToken;
   }
 
-  private static Path createTempFile() throws IOException {
-    Path directory = Files.createDirectory(BASE_IMAGE_DIRECTORY);
-    String aFile = "aFile.txt";
-    return Files.createFile(directory.resolve(aFile));
+  private static Path createTempFile(ImageToken imageToken) throws IOException {
+    Path fileDirectory = Files.createDirectories(BASE_IMAGE_DIRECTORY.resolve(imageToken.getImageTokenId().toString()));
+    return Files.createFile(fileDirectory.resolve(imageToken.getName()));
   }
 
   private static MultipartFile mockMultiPartFile() throws IOException {
@@ -54,7 +53,7 @@ class FileImageRepositoryTest {
   void findImageByImageTokenTest() throws IOException {
     Path imageDirectory = Mockito.mock(Path.class);
     ImageToken imageToken = createImageToken();
-    Path path = createTempFile();
+    Path path = createTempFile(imageToken);
     Mockito.when(imageDirectory.resolve(ArgumentMatchers.any(Path.class))).thenReturn(path);
 
     FileImageRepository fileImageRepository = new FileImageRepository(imageDirectory);
@@ -84,5 +83,15 @@ class FileImageRepositoryTest {
     Mockito.verify(multipartFile).transferTo(pathArgumentCaptor.capture());
     Assertions.assertEquals(ORIGINAL_FILE_NAME, pathArgumentCaptor.getValue().getFileName().toString());
     Mockito.verifyNoMoreInteractions(multipartFile);
+  }
+
+  @Test
+  void deleteImageTest() throws IOException {
+    ImageToken imageToken = createImageToken();
+    Path path = createTempFile(imageToken);
+    Assertions.assertTrue(Files.exists(path));
+    FileImageRepository fileImageRepository = new FileImageRepository(BASE_IMAGE_DIRECTORY);
+    fileImageRepository.deleteImage(imageToken);
+    Assertions.assertFalse(Files.exists(path));
   }
 }
