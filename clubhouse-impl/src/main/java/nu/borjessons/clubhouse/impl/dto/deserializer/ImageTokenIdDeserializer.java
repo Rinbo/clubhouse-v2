@@ -9,10 +9,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 
-public class ImageTokenDeserializer extends JsonDeserializer<ImageTokenId> {
-  public static final JsonDeserializer<ImageTokenId> INSTANCE = new ImageTokenDeserializer();
+public class ImageTokenIdDeserializer extends JsonDeserializer<ImageTokenId> {
+  public static final JsonDeserializer<ImageTokenId> INSTANCE = new ImageTokenIdDeserializer();
 
-  private ImageTokenDeserializer() {
+  private ImageTokenIdDeserializer() {
     // do nothing
   }
 

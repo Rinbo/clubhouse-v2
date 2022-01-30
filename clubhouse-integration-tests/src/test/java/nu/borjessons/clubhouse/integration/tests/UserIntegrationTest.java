@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.integration.tests.util;
+package nu.borjessons.clubhouse.integration.tests;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,6 +8,8 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
+import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
+import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
 class UserIntegrationTest {
   @Test

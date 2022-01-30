@@ -24,15 +24,20 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
+import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
+import nu.borjessons.clubhouse.impl.dto.deserializer.ImageTokenIdDeserializer;
 import nu.borjessons.clubhouse.impl.dto.deserializer.UserIdDeserializer;
+import nu.borjessons.clubhouse.impl.dto.serializer.ImageTokenIdSerializer;
 import nu.borjessons.clubhouse.impl.dto.serializer.UserIdSerializer;
 
 public class RestUtil {
   public static final String BASE_URL = "http://localhost:8081";
 
-  public static UriComponentsBuilder getUriBuilder(String path) {
-    return UriComponentsBuilder.fromHttpUrl(BASE_URL).path(path);
+  public static <U> ResponseEntity<U> deleteRequest(String uri, String token, Class<U> returnType) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = getVoidHttpEntity(token);
+    return restTemplate.exchange(uri, HttpMethod.DELETE, entity, returnType);
   }
 
   public static <T> T deserializeJsonBody(String body, Class<T> clazz) throws JsonProcessingException {
@@ -47,28 +52,9 @@ public class RestUtil {
     return mapper.readValue(body, clazz);
   }
 
-  public static <U> ResponseEntity<U> deleteRequest(String uri, String token, Class<U> returnType) {
-    RestTemplate restTemplate = new RestTemplate();
-    HttpEntity<Void> entity = getVoidHttpEntity(token);
-    return restTemplate.exchange(uri, HttpMethod.DELETE, entity, returnType);
-  }
-
-  public static <T, U> ResponseEntity<U> postRequest(String uri, String token, T requestObject, Class<U> returnType) {
-    RestTemplate restTemplate = new RestTemplate();
-    HttpEntity<T> entity = getHttpEntity(token, requestObject);
-    return restTemplate.exchange(uri, HttpMethod.POST, entity, returnType);
-  }
-
-  public static <T, U> ResponseEntity<U> putRequest(String uri, String token, T requestObject, Class<U> returnType) {
-    RestTemplate restTemplate = new RestTemplate();
-    HttpEntity<T> entity = getHttpEntity(token, requestObject);
-    return restTemplate.exchange(uri, HttpMethod.PUT, entity, returnType);
-  }
-
-  public static <T, U> ResponseEntity<U> putRequest(String uri, String token, Class<U> returnType) {
-    RestTemplate restTemplate = new RestTemplate();
-    HttpEntity<Void> entity = getVoidHttpEntity(token);
-    return restTemplate.exchange(uri, HttpMethod.PUT, entity, returnType);
+  public static <T> HttpEntity<T> getHttpEntity(String token, T requestObject) {
+    HttpHeaders headers = getHttpHeaders(token);
+    return new HttpEntity<T>(requestObject, headers);
   }
 
   public static HttpHeaders getHttpHeaders(String token) {
@@ -95,9 +81,8 @@ public class RestUtil {
     return restTemplate.exchange(uri, HttpMethod.GET, entity, responseType);
   }
 
-  public static <T> HttpEntity<T> getHttpEntity(String token, T requestObject) {
-    HttpHeaders headers = getHttpHeaders(token);
-    return new HttpEntity<T>(requestObject, headers);
+  public static UriComponentsBuilder getUriBuilder(String path) {
+    return UriComponentsBuilder.fromHttpUrl(BASE_URL).path(path);
   }
 
   public static HttpEntity<Void> getVoidHttpEntity(String token) {
@@ -105,10 +90,31 @@ public class RestUtil {
     return new HttpEntity<>(headers);
   }
 
+  public static <T, U> ResponseEntity<U> postRequest(String uri, String token, T requestObject, Class<U> returnType) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<T> entity = getHttpEntity(token, requestObject);
+    return restTemplate.exchange(uri, HttpMethod.POST, entity, returnType);
+  }
+
+  public static <T, U> ResponseEntity<U> putRequest(String uri, String token, T requestObject, Class<U> returnType) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<T> entity = getHttpEntity(token, requestObject);
+    return restTemplate.exchange(uri, HttpMethod.PUT, entity, returnType);
+  }
+
+  public static <T, U> ResponseEntity<U> putRequest(String uri, String token, Class<U> returnType) {
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = getVoidHttpEntity(token);
+    return restTemplate.exchange(uri, HttpMethod.PUT, entity, returnType);
+  }
+
   private static Module createIdModule() {
     SimpleModule simpleModule = new SimpleModule();
 
+    simpleModule.addSerializer(ImageTokenId.class, ImageTokenIdSerializer.INSTANCE);
     simpleModule.addSerializer(UserId.class, UserIdSerializer.INSTANCE);
+
+    simpleModule.addDeserializer(ImageTokenId.class, ImageTokenIdDeserializer.INSTANCE);
     simpleModule.addDeserializer(UserId.class, UserIdDeserializer.INSTANCE);
     return simpleModule;
   }

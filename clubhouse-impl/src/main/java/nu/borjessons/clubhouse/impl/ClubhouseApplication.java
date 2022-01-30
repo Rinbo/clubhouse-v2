@@ -36,7 +36,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
-import nu.borjessons.clubhouse.impl.dto.deserializer.ImageTokenDeserializer;
+import nu.borjessons.clubhouse.impl.dto.deserializer.ImageTokenIdDeserializer;
 import nu.borjessons.clubhouse.impl.dto.deserializer.UserIdDeserializer;
 import nu.borjessons.clubhouse.impl.dto.serializer.ImageTokenIdSerializer;
 import nu.borjessons.clubhouse.impl.dto.serializer.UserIdSerializer;
@@ -48,12 +48,14 @@ import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
 @Slf4j
 @SpringBootApplication
 public class ClubhouseApplication {
+  public static final String APP_NAME = "clubhouse";
+
   public static void main(String[] args) {
     SpringApplication.run(ClubhouseApplication.class, args);
   }
 
   private static Path createClubhouseDirectory(Path base) throws IOException {
-    Path clubhouseDirectory = base.resolve("clubhouse");
+    Path clubhouseDirectory = base.resolve(APP_NAME);
     if (Files.isDirectory(clubhouseDirectory))
       return clubhouseDirectory;
 
@@ -68,7 +70,7 @@ public class ClubhouseApplication {
     simpleModule.addSerializer(ImageTokenId.class, ImageTokenIdSerializer.INSTANCE);
 
     simpleModule.addDeserializer(UserId.class, UserIdDeserializer.INSTANCE);
-    simpleModule.addDeserializer(ImageTokenId.class, ImageTokenDeserializer.INSTANCE);
+    simpleModule.addDeserializer(ImageTokenId.class, ImageTokenIdDeserializer.INSTANCE);
 
     return simpleModule;
   }

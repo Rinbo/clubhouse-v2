@@ -65,22 +65,22 @@ public class ImageController {
     return ResponseEntity.ok(imageToken.getImageTokenId());
   }
 
-  // TODO Do I need this? For albums I guess. As a first step I want to add images to news items or club description. How do I upload several images?
-  @PostMapping(value = "/clubs/{clubId}/upload-images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<ImageTokenId> uploadClubImages(@PathVariable String clubId, @RequestParam(value = "files") List<MultipartFile> multipartFiles) {
-    multipartFiles.forEach(ImageController::validateFileSize);
-
-    return null;
-  }
-
   @PostMapping(value = "/users/{userId}/upload-profile-image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<ImageTokenId> uploadProfileImage(@AuthenticationPrincipal User user, @PathVariable UserId userId,
       @RequestParam(value = "file") MultipartFile multipartFile) {
     resourceAuthorization.validateUserOrChild(userId, user.getUserId());
     validateFileSize(multipartFile);
 
-    // ImageId imageId = imageService.createProfileImage(userId, multipartFile);
-    return ResponseEntity.ok(null);
+    ImageToken imageToken = imageService.createProfileImage(userId, multipartFile);
+    return ResponseEntity.ok(imageToken.getImageTokenId());
+  }
+
+  // TODO Do I need this? For albums I guess. As a first step I want to add images to news items or club description. How do I upload several images?
+  @PostMapping(value = "/clubs/{clubId}/upload-images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<ImageTokenId> uploadClubImages(@PathVariable String clubId, @RequestParam(value = "files") List<MultipartFile> multipartFiles) {
+    multipartFiles.forEach(ImageController::validateFileSize);
+
+    return null;
   }
 }
 

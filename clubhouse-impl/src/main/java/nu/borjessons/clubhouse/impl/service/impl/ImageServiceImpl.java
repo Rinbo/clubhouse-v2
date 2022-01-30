@@ -10,11 +10,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ImageToken;
+import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.ImageStream;
 import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.repository.ImageRepository;
 import nu.borjessons.clubhouse.impl.repository.ImageTokenRepository;
+import nu.borjessons.clubhouse.impl.repository.UserRepository;
 import nu.borjessons.clubhouse.impl.service.ImageService;
 import nu.borjessons.clubhouse.impl.util.Validate;
 
@@ -25,6 +28,7 @@ public class ImageServiceImpl implements ImageService {
   private final ClubRepository clubRepository;
   private final ImageTokenRepository imageTokenRepository;
   private final ImageRepository imageRepository;
+  private final UserRepository userRepository;
 
   @Override
   public ImageStream getImage(ImageTokenId imageTokenId) throws IOException {
@@ -66,14 +70,35 @@ public class ImageServiceImpl implements ImageService {
     ImageToken existingLogo = club.getLogo();
     if (existingLogo != null) deleteImageFile(existingLogo);
 
+    ImageToken imageToken = createImageToken(multipartFile);
+
+    club.setLogo(imageToken);
+    return clubRepository.save(club).getLogo();
+  }
+
+  @Override
+  @Transactional
+  public ImageToken createProfileImage(UserId userId, MultipartFile multipartFile) {
+    Validate.notNull(userId, "userId");
+    Validate.notNull(multipartFile, "multipartFile");
+
+    User user = userRepository.findByUserId(userId).orElseThrow();
+
+    ImageToken existingProfileImage = user.getProfileImage();
+    if (existingProfileImage != null) deleteImageFile(existingProfileImage);
+
+    ImageToken imageToken = createImageToken(multipartFile);
+    user.setProfileImage(imageToken);
+    return userRepository.save(user).getProfileImage();
+  }
+
+  private ImageToken createImageToken(MultipartFile multipartFile) {
     ImageTokenId imageTokenId = createImage(multipartFile);
 
     ImageToken imageToken = new ImageToken(imageTokenId);
     imageToken.setContentType(multipartFile.getContentType());
     imageToken.setName(multipartFile.getOriginalFilename());
-
-    club.setLogo(imageToken);
-    return clubRepository.save(club).getLogo();
+    return imageToken;
   }
 
   private void deleteImageFile(ImageToken imageToken) {
