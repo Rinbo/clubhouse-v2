@@ -21,6 +21,7 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -58,6 +59,9 @@ public class User extends BaseEntity implements UserDetails {
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   private Collection<ClubUser> clubUsers = new ArrayList<>();
+
+  @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
+  private ImageToken profileImage;
 
   @Column(nullable = false)
   private LocalDate dateOfBirth;
