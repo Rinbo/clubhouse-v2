@@ -218,4 +218,9 @@ public class User extends BaseEntity implements UserDetails {
     parents.remove(parent);
     parent.removeChild(this);
   }
+
+  public String getProfileImageId() {
+    if (profileImage == null) return null;
+    return profileImage.getImageTokenId().toString();
+  }
 }

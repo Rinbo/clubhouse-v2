@@ -51,6 +51,7 @@ public class ClubUserDto {
   private Set<BaseUserRecord> children;
   private Set<String> parentIds;
   private String userId;
+  private String profileImageId;
   private String email;
 
   public ClubUserDto(ClubUser clubUser) {
@@ -65,6 +66,7 @@ public class ClubUserDto {
     children = getClubChildren(clubUser);
     parentIds = clubUser.getUser().getParents().stream().map(User::getUserId).map(UserId::toString).collect(Collectors.toSet());
     userId = clubUser.getUser().getUserId().toString();
+    profileImageId = clubUser.getUser().getProfileImageId();
     email = showEmail() ? clubUser.getUser().getEmail() : null;
   }
 

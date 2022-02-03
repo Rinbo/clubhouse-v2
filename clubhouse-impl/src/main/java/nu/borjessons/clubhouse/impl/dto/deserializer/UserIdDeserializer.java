@@ -19,6 +19,6 @@ public class UserIdDeserializer extends JsonDeserializer<UserId> {
   @Override
   public UserId deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
     JsonNode jsonNode = jsonParser.getCodec().readTree(jsonParser);
-    return new UserId(jsonNode.get("userId").asText());
+    return new UserId(jsonNode.asText());
   }
 }

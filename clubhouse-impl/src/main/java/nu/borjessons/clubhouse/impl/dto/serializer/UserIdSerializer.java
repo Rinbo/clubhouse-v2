@@ -17,8 +17,6 @@ public class UserIdSerializer extends JsonSerializer<UserId> {
 
   @Override
   public void serialize(UserId userId, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
-    jsonGenerator.writeStartObject();
-    jsonGenerator.writeStringField("userId", userId.toString());
-    jsonGenerator.writeEndObject();
+    jsonGenerator.writeString(userId.toString());
   }
 }
