@@ -46,7 +46,7 @@ public class ClubUserDto {
   private String lastName;
   private Set<Role> roles;
   private String dateOfBirth;
-  private String clubId;
+  private ClubRecord club;
   private String clubName;
   private Set<BaseUserRecord> children;
   private Set<String> parentIds;
@@ -61,7 +61,7 @@ public class ClubUserDto {
     lastName = clubUser.getUser().getLastName();
     roles = clubUser.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toSet());
     dateOfBirth = clubUser.getUser().getDateOfBirth().toString();
-    clubId = clubUser.getClub().getClubId();
+    club = new ClubRecord(clubUser.getClub());
     clubName = clubUser.getClub().getName();
     children = getClubChildren(clubUser);
     parentIds = clubUser.getUser().getParents().stream().map(User::getUserId).map(UserId::toString).collect(Collectors.toSet());

@@ -13,11 +13,10 @@ import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
 class TokenIntegrationTest {
-
   @Test
   void validateAndRevokeTokenTest() throws Exception {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
-        ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       final String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(HttpStatus.OK, UserUtil.validateToken(token).getStatusCode());
 
@@ -25,7 +24,7 @@ class TokenIntegrationTest {
       UserUtil.revokeToken(EmbeddedDataLoader.CLUB_ID, ownerToken, EmbeddedDataLoader.POPS_EMAIL);
 
       ResponseEntity<String> response = UserUtil.validateToken(token);
-      Assertions.assertEquals(HttpStatus.TEMPORARY_REDIRECT, response.getStatusCode());
+      Assertions.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
   }
 }

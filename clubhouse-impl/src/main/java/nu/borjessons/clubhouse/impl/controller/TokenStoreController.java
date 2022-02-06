@@ -31,8 +31,8 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 @RestController
 @Slf4j
 public class TokenStoreController {
-  private static ResponseEntity<String> createRedirectResponse() {
-    return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).build();
+  private static ResponseEntity<String> createUnauthorizedResponse() {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
   }
 
   private final ObjectMapper objectMapper;
@@ -52,11 +52,11 @@ public class TokenStoreController {
       if (claims.isPresent()) {
         return validateToken(cookie, claims.get());
       } else {
-        return createRedirectResponse();
+        return createUnauthorizedResponse();
       }
 
     } else {
-      return createRedirectResponse();
+      return createUnauthorizedResponse();
     }
   }
 
@@ -74,7 +74,7 @@ public class TokenStoreController {
       UserDto userDTO = userService.getUserByUserName(username);
       return ResponseEntity.ok(objectMapper.writeValueAsString(userDTO));
     } else {
-      return createRedirectResponse();
+      return createUnauthorizedResponse();
     }
   }
 

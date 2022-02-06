@@ -34,6 +34,12 @@ import nu.borjessons.clubhouse.impl.dto.serializer.UserIdSerializer;
 public class RestUtil {
   public static final String BASE_URL = "http://localhost:8081";
 
+  public static RestTemplate createRestTemplate() {
+    RestTemplate restTemplate = new RestTemplate();
+    restTemplate.setErrorHandler(NoOpResponseErrorHandler.INSTANCE);
+    return restTemplate;
+  }
+
   public static <U> ResponseEntity<U> deleteRequest(String uri, String token, Class<U> returnType) {
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = getVoidHttpEntity(token);

@@ -44,7 +44,7 @@ class ClubUserIntegrationTest {
       final ClubUserDto clubUserDTO = UserUtil.getClubUserPrincipal(EmbeddedDataLoader.CLUB_ID, token);
       Assertions.assertNotNull(clubUserDTO);
       Assertions.assertEquals("pops@ex.com", clubUserDTO.getEmail());
-      Assertions.assertEquals(EmbeddedDataLoader.CLUB_ID, clubUserDTO.getClubId());
+      Assertions.assertEquals(EmbeddedDataLoader.CLUB_ID, clubUserDTO.getClub().clubId());
       Assertions.assertEquals("Fritiof Sports", clubUserDTO.getClubName());
       Assertions.assertEquals("Pappa", clubUserDTO.getFirstName());
       Assertions.assertEquals("Börjesson", clubUserDTO.getLastName());

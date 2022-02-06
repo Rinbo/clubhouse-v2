@@ -31,6 +31,25 @@ import nu.borjessons.clubhouse.impl.dto.rest.UserLoginRequestModel;
 import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
 
 public class UserUtil {
+  public static ClubUserDto activateChildren(String clubId, UserId userId, String token, Set<String> childrenIds) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/activate-club-children").buildAndExpand(clubId, userId).toUriString();
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
+
+    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.PUT, httpEntity, ClubUserDto.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
+  }
+
+  public static ClubUserDto addClubUser(String clubId, UserId userId, String token, Set<String> childrenIds) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
+    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.POST, httpEntity, ClubUserDto.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
+  }
+
   public static ClubUserDto addExistingChildToClubUser(String clubId, String token, String userId, List<String> childrenIds) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/add-children").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
@@ -39,6 +58,51 @@ public class UserUtil {
     ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.PUT, entity, ClubUserDto.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
+  }
+
+  public static void addParentToChild(String originalParentToken, UserId childId, UserId newParentId) {
+    String uri = RestUtil.getUriBuilder("/principal/add-parent")
+        .queryParam("childId", childId)
+        .queryParam("parentId", newParentId)
+        .buildAndExpand().toUriString();
+
+    ResponseEntity<Void> response = RestUtil.putRequest(uri, originalParentToken, Void.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  public static AdminUpdateUserModel createAdminUpdateModel(String firstName, String lastName, String dateOfBirth, Set<Role> roles) {
+    AdminUpdateUserModel updateUserModel = new AdminUpdateUserModel();
+    updateUserModel.setFirstName(firstName);
+    updateUserModel.setLastName(lastName);
+    updateUserModel.setDateOfBirth(dateOfBirth);
+    updateUserModel.setRoles(roles);
+    return updateUserModel;
+  }
+
+  public static CreateChildRequestModel createChildRequestModel(String firstName) {
+    CreateChildRequestModel childRequestModel = new CreateChildRequestModel();
+    childRequestModel.setFirstName(firstName);
+    childRequestModel.setLastName("Childsson");
+    childRequestModel.setDateOfBirth("2020-01-01");
+    return childRequestModel;
+  }
+
+  public static FamilyRequestModel createFamilyModel(String clubId, String surname) {
+    FamilyRequestModel familyRequestModel = new FamilyRequestModel();
+    familyRequestModel.setClubId(clubId);
+
+    CreateUserModel dad = createUserModel(clubId, "Pappa");
+    dad.setLastName(surname);
+
+    CreateUserModel mom = createUserModel(clubId, "Mamma");
+    mom.setLastName(surname);
+
+    CreateChildRequestModel child = createChildRequestModel("Lilleman");
+    child.setLastName(surname);
+
+    familyRequestModel.setParents(List.of(dad, mom));
+    familyRequestModel.setChildren(List.of(child));
+    return familyRequestModel;
   }
 
   public static CreateUserModel createUserModel(String clubId, String firstName) {
@@ -63,32 +127,51 @@ public class UserUtil {
     return userModel;
   }
 
-  public static CreateChildRequestModel createChildRequestModel(String firstName) {
-    CreateChildRequestModel childRequestModel = new CreateChildRequestModel();
-    childRequestModel.setFirstName(firstName);
-    childRequestModel.setLastName("Childsson");
-    childRequestModel.setDateOfBirth("2020-01-01");
-    return childRequestModel;
+  public static void deleteSelf(String token) {
+    UriComponentsBuilder builder = RestUtil.getUriBuilder("/principal");
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
+
+    ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
-  public static String loginUser(String email, String password) {
-    UriComponentsBuilder builder = RestUtil.getUriBuilder("/login");
+  public static ClubUserDto getClubUserPrincipal(String clubId, String token) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/principal").buildAndExpand(clubId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
-
-    HttpEntity<UserLoginRequestModel> httpEntity = new HttpEntity<>(new UserLoginRequestModel(email, password));
-    ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, String.class);
-    HttpHeaders headers = response.getHeaders();
-    List<String> cookieHeader = headers.get("Set-Cookie");
-
+    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
+    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.GET, entity, ClubUserDto.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    Assertions.assertNotNull(cookieHeader);
-    return cookieHeader.get(0);
+    return response.getBody();
   }
 
   public static List<ClubUserDto> getClubUsers(String clubId, String token) throws JsonProcessingException {
     final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users").buildAndExpand(clubId).toUriString();
     final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
     final ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);
+    return Arrays.stream(clubUserDtos).collect(Collectors.toList());
+  }
+
+  public static List<ClubUserDto> getClubUsersByAge(String clubId, String token, int min, int max) throws JsonProcessingException {
+    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/age-range")
+        .queryParam("minAge", min)
+        .queryParam("maxAge", max)
+        .buildAndExpand(clubId).toUriString();
+
+    final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    final ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);
+    return Arrays.stream(clubUserDtos).collect(Collectors.toList());
+  }
+
+  public static List<ClubUserDto> getPrincipalClubUsers(String token) throws JsonProcessingException {
+    String uri = RestUtil.getUriBuilder("/principal/clubs/all-club-users").buildAndExpand().toUriString();
+
+    ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+    ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);
     return Arrays.stream(clubUserDtos).collect(Collectors.toList());
   }
 
@@ -113,31 +196,11 @@ public class UserUtil {
     return response.getBody();
   }
 
-  public static FamilyRequestModel createFamilyModel(String clubId, String surname) {
-    FamilyRequestModel familyRequestModel = new FamilyRequestModel();
-    familyRequestModel.setClubId(clubId);
-
-    CreateUserModel dad = createUserModel(clubId, "Pappa");
-    dad.setLastName(surname);
-
-    CreateUserModel mom = createUserModel(clubId, "Mamma");
-    mom.setLastName(surname);
-
-    CreateChildRequestModel child = createChildRequestModel("Lilleman");
-    child.setLastName(surname);
-
-    familyRequestModel.setParents(List.of(dad, mom));
-    familyRequestModel.setChildren(List.of(child));
-    return familyRequestModel;
-  }
-
-  public static void deleteSelf(String token) {
-    UriComponentsBuilder builder = RestUtil.getUriBuilder("/principal");
-    RestTemplate restTemplate = new RestTemplate();
-    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
-
-    ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+  public static BaseUserRecord getUserByEmail(String email, String token) {
+    String uri = RestUtil.getUriBuilder("/users").queryParam("email", email).buildAndExpand().toUriString();
+    ResponseEntity<BaseUserRecord> response = RestUtil.getRequest(uri, token, BaseUserRecord.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
   }
 
   public static ClubUserDto getUserIdByEmail(List<ClubUserDto> users, String email) {
@@ -148,17 +211,28 @@ public class UserUtil {
         .orElseThrow();
   }
 
-  public static List<ClubUserDto> getClubUsersByAge(String clubId, String token, int min, int max) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/age-range")
-        .queryParam("minAge", min)
-        .queryParam("maxAge", max)
-        .buildAndExpand(clubId).toUriString();
+  public static String loginUser(String email, String password) {
+    UriComponentsBuilder builder = RestUtil.getUriBuilder("/login");
+    RestTemplate restTemplate = new RestTemplate();
 
-    final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
+    HttpEntity<UserLoginRequestModel> httpEntity = new HttpEntity<>(new UserLoginRequestModel(email, password));
+    ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, String.class);
+    HttpHeaders headers = response.getHeaders();
+    List<String> cookieHeader = headers.get("Set-Cookie");
+
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    Assertions.assertNotNull(cookieHeader);
+    return cookieHeader.get(0);
+  }
 
-    final ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);
-    return Arrays.stream(clubUserDtos).collect(Collectors.toList());
+  public static ClubUserDto removeClubChildren(String clubId, UserId userId, String token, Set<String> childrenIds) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/remove-club-children").buildAndExpand(clubId, userId).toUriString();
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
+
+    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.PUT, httpEntity, ClubUserDto.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
   }
 
   public static void removeClubUser(String clubId, String token, UserId userId) {
@@ -167,6 +241,18 @@ public class UserUtil {
     HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
 
     ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.DELETE, entity, ClubUserDto.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  public static void revokeToken(String clubId, String token, String username) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/revoke-token")
+        .queryParam("username", username)
+        .buildAndExpand(clubId)
+        .toUriString();
+
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
+    ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
@@ -190,97 +276,11 @@ public class UserUtil {
     return RestUtil.deserializeJsonBody(response.getBody(), UserDto.class);
   }
 
-  public static AdminUpdateUserModel createAdminUpdateModel(String firstName, String lastName, String dateOfBirth, Set<Role> roles) {
-    AdminUpdateUserModel updateUserModel = new AdminUpdateUserModel();
-    updateUserModel.setFirstName(firstName);
-    updateUserModel.setLastName(lastName);
-    updateUserModel.setDateOfBirth(dateOfBirth);
-    updateUserModel.setRoles(roles);
-    return updateUserModel;
-  }
-
-  public static ClubUserDto addClubUser(String clubId, UserId userId, String token, Set<String> childrenIds) {
-    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
-    RestTemplate restTemplate = new RestTemplate();
-    HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
-    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.POST, httpEntity, ClubUserDto.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    return response.getBody();
-  }
-
-  public static ClubUserDto getClubUserPrincipal(String clubId, String token) {
-    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/principal").buildAndExpand(clubId).toUriString();
-    RestTemplate restTemplate = new RestTemplate();
-    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
-    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.GET, entity, ClubUserDto.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    return response.getBody();
-  }
-
   public static ResponseEntity<String> validateToken(String token) {
     String uri = RestUtil.getUriBuilder("/validate-token").toUriString();
-    RestTemplate restTemplate = new RestTemplate();
+    RestTemplate restTemplate = RestUtil.createRestTemplate();
     HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
     return restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
-  }
-
-  public static void revokeToken(String clubId, String token, String username) {
-    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/revoke-token")
-        .queryParam("username", username)
-        .buildAndExpand(clubId)
-        .toUriString();
-
-    RestTemplate restTemplate = new RestTemplate();
-    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
-    ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-  }
-
-  public static ClubUserDto activateChildren(String clubId, UserId userId, String token, Set<String> childrenIds) {
-    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/activate-club-children").buildAndExpand(clubId, userId).toUriString();
-    RestTemplate restTemplate = new RestTemplate();
-    HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
-
-    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.PUT, httpEntity, ClubUserDto.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    return response.getBody();
-  }
-
-  public static ClubUserDto removeClubChildren(String clubId, UserId userId, String token, Set<String> childrenIds) {
-    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/remove-club-children").buildAndExpand(clubId, userId).toUriString();
-    RestTemplate restTemplate = new RestTemplate();
-    HttpEntity<Set<String>> httpEntity = RestUtil.getHttpEntity(token, childrenIds);
-
-    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.PUT, httpEntity, ClubUserDto.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    return response.getBody();
-  }
-
-  public static List<ClubUserDto> getPrincipalClubUsers(String token) throws JsonProcessingException {
-    String uri = RestUtil.getUriBuilder("/principal/clubs/all-club-users").buildAndExpand().toUriString();
-
-    ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-
-    ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);
-    return Arrays.stream(clubUserDtos).collect(Collectors.toList());
-  }
-
-  public static BaseUserRecord getUserByEmail(String email, String token) {
-    String uri = RestUtil.getUriBuilder("/users").queryParam("email", email).buildAndExpand().toUriString();
-    ResponseEntity<BaseUserRecord> response = RestUtil.getRequest(uri, token, BaseUserRecord.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    return response.getBody();
-  }
-
-  public static void addParentToChild(String originalParentToken, UserId childId, UserId newParentId) {
-    String uri = RestUtil.getUriBuilder("/principal/add-parent")
-        .queryParam("childId", childId)
-        .queryParam("parentId", newParentId)
-        .buildAndExpand().toUriString();
-
-    ResponseEntity<Void> response = RestUtil.putRequest(uri, originalParentToken, Void.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
   private UserUtil() {
