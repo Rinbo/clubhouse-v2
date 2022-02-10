@@ -5,7 +5,7 @@ import javax.persistence.Converter;
 
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 
-@Converter(autoApply = true)
+@Converter
 public class UserIdConverter implements AttributeConverter<UserId, String> {
   @Override
   public String convertToDatabaseColumn(UserId userId) {

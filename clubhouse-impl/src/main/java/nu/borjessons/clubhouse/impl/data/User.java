@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -30,6 +31,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import nu.borjessons.clubhouse.impl.data.converter.UserIdConverter;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 
 @Getter
@@ -45,6 +47,7 @@ public class User extends BaseEntity implements UserDetails {
   private long id;
 
   @Setter(AccessLevel.PRIVATE)
+  @Convert(converter = UserIdConverter.class)
   @Column(nullable = false, unique = true, columnDefinition = "varchar(255)")
   private UserId userId;
 
