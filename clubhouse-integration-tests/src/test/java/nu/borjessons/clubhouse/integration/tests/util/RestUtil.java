@@ -24,10 +24,13 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
+import nu.borjessons.clubhouse.impl.data.key.AnnouncementId;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
+import nu.borjessons.clubhouse.impl.dto.deserializer.AnnouncementIdDeserializer;
 import nu.borjessons.clubhouse.impl.dto.deserializer.ImageTokenIdDeserializer;
 import nu.borjessons.clubhouse.impl.dto.deserializer.UserIdDeserializer;
+import nu.borjessons.clubhouse.impl.dto.serializer.AnnouncementIdSerializer;
 import nu.borjessons.clubhouse.impl.dto.serializer.ImageTokenIdSerializer;
 import nu.borjessons.clubhouse.impl.dto.serializer.UserIdSerializer;
 
@@ -119,9 +122,11 @@ public class RestUtil {
 
     simpleModule.addSerializer(ImageTokenId.class, ImageTokenIdSerializer.INSTANCE);
     simpleModule.addSerializer(UserId.class, UserIdSerializer.INSTANCE);
+    simpleModule.addSerializer(AnnouncementId.class, AnnouncementIdSerializer.INSTANCE);
 
     simpleModule.addDeserializer(ImageTokenId.class, ImageTokenIdDeserializer.INSTANCE);
     simpleModule.addDeserializer(UserId.class, UserIdDeserializer.INSTANCE);
+    simpleModule.addDeserializer(AnnouncementId.class, AnnouncementIdDeserializer.INSTANCE);
     return simpleModule;
   }
 

@@ -334,11 +334,4 @@ class ClubUserIntegrationTest {
       Assertions.assertTrue(updatedClubUserDto.getRoles().contains(Role.PARENT));
     }
   }
-
-  /**
-   * Pre-supposes original set is smaller and that updated set is a super set of original
-   */
-  private String getDiffEntry(Set<String> originalSet, Set<String> updatedSet) {
-    return updatedSet.stream().filter(id -> !originalSet.contains(id)).findFirst().orElseThrow();
-  }
 }

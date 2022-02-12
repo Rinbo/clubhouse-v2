@@ -34,10 +34,13 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import nu.borjessons.clubhouse.impl.data.key.AnnouncementId;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
+import nu.borjessons.clubhouse.impl.dto.deserializer.AnnouncementIdDeserializer;
 import nu.borjessons.clubhouse.impl.dto.deserializer.ImageTokenIdDeserializer;
 import nu.borjessons.clubhouse.impl.dto.deserializer.UserIdDeserializer;
+import nu.borjessons.clubhouse.impl.dto.serializer.AnnouncementIdSerializer;
 import nu.borjessons.clubhouse.impl.dto.serializer.ImageTokenIdSerializer;
 import nu.borjessons.clubhouse.impl.dto.serializer.UserIdSerializer;
 import nu.borjessons.clubhouse.impl.repository.FileImageRepository;
@@ -68,9 +71,11 @@ public class ClubhouseApplication {
 
     simpleModule.addSerializer(UserId.class, UserIdSerializer.INSTANCE);
     simpleModule.addSerializer(ImageTokenId.class, ImageTokenIdSerializer.INSTANCE);
+    simpleModule.addSerializer(AnnouncementId.class, AnnouncementIdSerializer.INSTANCE);
 
     simpleModule.addDeserializer(UserId.class, UserIdDeserializer.INSTANCE);
     simpleModule.addDeserializer(ImageTokenId.class, ImageTokenIdDeserializer.INSTANCE);
+    simpleModule.addDeserializer(AnnouncementId.class, AnnouncementIdDeserializer.INSTANCE);
 
     return simpleModule;
   }
