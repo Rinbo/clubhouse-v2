@@ -1,0 +1,10 @@
+ALTER TABLE announcement
+DROP
+CONSTRAINT FK_ANNOUNCEMENT_ON_LASTUPDATEDBY;
+
+ALTER TABLE announcement
+DROP
+COLUMN last_updated_by_id;
+
+ALTER TABLE announcement
+    ALTER COLUMN author_id DROP NOT NULL;

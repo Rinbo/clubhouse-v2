@@ -41,6 +41,9 @@ public class Club extends BaseEntity {
   @Column(nullable = false, length = 120, unique = true)
   private String clubId;
 
+  @OneToMany(mappedBy = "club", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private Collection<Announcement> announcements;
+
   @OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.LAZY)
   private Collection<ClubUser> clubUsers = new ArrayList<>();
 

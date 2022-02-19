@@ -1,5 +1,7 @@
 package nu.borjessons.clubhouse.impl.data;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -35,17 +37,14 @@ public class Announcement extends BaseEntity {
   @Column(nullable = false, columnDefinition = "TEXT")
   private String body;
 
-  // TODO What happens if an "author" is deleted? It will fail. The field must be nullified first. Try it for good measure
-  @ManyToOne(optional = false)
+  @ManyToOne
   private ClubUser author;
-
-  // TODO What if the last person to update and the author are different? Complex. I will have to explicitly define the referenced relationship
-  // What about the base user. What happens if he is deleted. Is there going to be a multi cascade event?
-  @ManyToOne(optional = false)
-  private ClubUser lastUpdatedBy;
 
   @ManyToOne(optional = false)
   private Club club;
-
   private boolean showAuthor;
+
+  public Announcement() {
+    announcementId = new AnnouncementId(UUID.randomUUID().toString());
+  }
 }
