@@ -27,8 +27,6 @@ public record AnnouncementRecord(
     Validate.notNull(announcementId, "announcementId");
     Validate.notNull(title, "title");
     Validate.notNull(body, "body");
-    Validate.notNull(createdAt, "createdAt");
-    Validate.notNull(updatedAt, "updatedAt");
   }
 
   public AnnouncementRecord(Announcement announcement) {
