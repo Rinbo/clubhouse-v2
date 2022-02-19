@@ -64,7 +64,6 @@ public class User extends BaseEntity implements UserDetails {
   private Collection<ClubUser> clubUsers = new ArrayList<>();
 
   @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
-  @Column(name = "image_token_id")
   private ImageToken profileImage;
 
   @Column(nullable = false)

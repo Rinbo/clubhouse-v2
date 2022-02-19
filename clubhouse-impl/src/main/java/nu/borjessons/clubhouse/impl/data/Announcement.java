@@ -32,7 +32,7 @@ public class Announcement extends BaseEntity {
   @Column(nullable = false)
   private String title;
 
-  @Column(nullable = false)
+  @Column(nullable = false, columnDefinition = "TEXT")
   private String body;
 
   // TODO What happens if an "author" is deleted? It will fail. The field must be nullified first. Try it for good measure
