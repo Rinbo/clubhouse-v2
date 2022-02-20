@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
+import nu.borjessons.clubhouse.impl.dto.AnnouncementRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
+import nu.borjessons.clubhouse.impl.service.AnnouncementService;
 import nu.borjessons.clubhouse.impl.service.ClubUserService;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
@@ -30,6 +34,7 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 public class PrincipalController {
   private final UserService userService;
   private final ClubUserService clubUserService;
+  private final AnnouncementService announcementService;
 
   @DeleteMapping()
   public void deleteSelf(@AuthenticationPrincipal User principal) {
@@ -64,5 +69,11 @@ public class PrincipalController {
   @PutMapping("/add-parent")
   public void addParentToChildren(@AuthenticationPrincipal User principal, @RequestParam UserId parentId, @RequestParam UserId childId) {
     userService.addParentToChild(principal.getUserId(), childId, parentId);
+  }
+
+  @GetMapping("/announcements")
+  public List<AnnouncementRecord> getAnnouncements(@AuthenticationPrincipal User principal, @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    return announcementService.getAllClubAnnouncements(principal, PageRequest.of(page, size, Sort.by("createdAt").descending()));
   }
 }

@@ -1,7 +1,9 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
 import java.util.Collection;
+import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.AnnouncementModel;
 import nu.borjessons.clubhouse.impl.repository.AnnouncementRepository;
 import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
+import nu.borjessons.clubhouse.impl.repository.UserRepository;
 import nu.borjessons.clubhouse.impl.service.AnnouncementService;
 
 @Service
@@ -24,12 +27,12 @@ public class AnnouncementServiceImpl implements AnnouncementService {
   private final ClubRepository clubRepository;
   private final AnnouncementRepository announcementRepository;
   private final ClubUserRepository clubUserRepository;
+  private final UserRepository userRepository;
 
-  // TODO implement pageable instead
   @Override
-  public Collection<AnnouncementRecord> getAllAnnouncements(String clubId) {
+  public Collection<AnnouncementRecord> getAnnouncements(String clubId, Pageable pageable) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
-    return club.getAnnouncements().stream().map(AnnouncementRecord::new).toList();
+    return announcementRepository.findAnnouncementByClubId(club.getId(), pageable);
   }
 
   @Override
@@ -64,5 +67,18 @@ public class AnnouncementServiceImpl implements AnnouncementService {
   @Transactional
   public void deleteAnnouncement(AnnouncementId announcementId) {
     announcementRepository.deleteAnnouncementByAnnouncementId(announcementId);
+  }
+
+  @Override
+  @Transactional
+  public List<AnnouncementRecord> getAllClubAnnouncements(User principal, Pageable pageable) {
+    List<Long> clubIds = userRepository
+        .getById(principal.getId())
+        .getClubUsers()
+        .stream()
+        .map(ClubUser::getClub)
+        .map(Club::getId)
+        .toList();
+    return announcementRepository.findAnnouncementsByClubIdIn(clubIds, pageable);
   }
 }

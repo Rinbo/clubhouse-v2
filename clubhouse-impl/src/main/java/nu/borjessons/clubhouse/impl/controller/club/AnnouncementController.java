@@ -4,6 +4,8 @@ import java.util.Collection;
 
 import javax.validation.Valid;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -29,8 +32,9 @@ public class AnnouncementController {
   private final AnnouncementService announcementService;
 
   @GetMapping
-  public Collection<AnnouncementRecord> getAnnouncements(@PathVariable String clubId) {
-    return announcementService.getAllAnnouncements(clubId);
+  public Collection<AnnouncementRecord> getAnnouncements(@PathVariable String clubId, @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    return announcementService.getAnnouncements(clubId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
   }
 
   @GetMapping("/{announcementId}")

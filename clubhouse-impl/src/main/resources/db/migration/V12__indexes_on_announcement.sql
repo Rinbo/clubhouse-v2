@@ -1,0 +1,1 @@
+CREATE INDEX ix_announcement_Id ON announcement (announcement_id);

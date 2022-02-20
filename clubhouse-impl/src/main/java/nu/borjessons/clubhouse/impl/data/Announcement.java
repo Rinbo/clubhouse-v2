@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -20,7 +21,8 @@ import nu.borjessons.clubhouse.impl.data.key.AnnouncementId;
 @Getter
 @Setter
 @Entity
-@Table(name = "announcement")
+@Table(name = "announcement",
+    indexes = {@Index(name = "ix_announcement_Id", columnList = "announcement_id")})
 public class Announcement extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
