@@ -105,6 +105,13 @@ public class RestUtil {
     return restTemplate.exchange(uri, HttpMethod.POST, entity, returnType);
   }
 
+  public static <T, U> ResponseEntity<U> postSerializedRequest(String uri, String token, T requestObject, Class<U> returnType) throws JsonProcessingException {
+    RestTemplate restTemplate = new RestTemplate();
+    String serializedRequestBody = getObjectMapper().writeValueAsString(requestObject);
+    HttpEntity<String> entity = getHttpEntity(token, serializedRequestBody);
+    return restTemplate.exchange(uri, HttpMethod.POST, entity, returnType);
+  }
+
   public static <T, U> ResponseEntity<U> putRequest(String uri, String token, T requestObject, Class<U> returnType) {
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<T> entity = getHttpEntity(token, requestObject);

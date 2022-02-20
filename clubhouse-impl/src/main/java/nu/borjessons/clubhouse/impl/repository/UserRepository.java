@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl.repository;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -18,4 +19,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
   Optional<User> findManagedUserById(UserId userId);
 
   Optional<User> findByUserId(UserId userId);
+
+  @Modifying
+  @Query(value = "UPDATE announcement SET author_id = NULL WHERE author_id IN (SELECT id FROM club_user WHERE user_id = ?1)", nativeQuery = true)
+  void removeUserAnnouncementReferences(long id);
 }

@@ -59,6 +59,7 @@ public class UserServiceImpl implements UserService {
     User user = getUser(id);
     Set<User> children = Set.copyOf(user.getChildren());
     children.forEach(child -> updateOrDeleteChild(child, user));
+    removeForeignKeyReferences(user);
     userRepository.delete(user);
   }
 
@@ -129,10 +130,15 @@ public class UserServiceImpl implements UserService {
   private void updateOrDeleteChild(User child, User parent) {
     child.removeParent(parent);
     if (child.getParents().isEmpty()) {
+      removeForeignKeyReferences(child);
       userRepository.delete(child);
     } else {
       userRepository.save(child);
     }
+  }
+
+  private void removeForeignKeyReferences(User user) {
+    userRepository.removeUserAnnouncementReferences(user.getId());
   }
 
   private User getUser(long id) {

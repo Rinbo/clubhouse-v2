@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -28,4 +29,8 @@ public interface ClubUserRepository extends JpaRepository<ClubUser, Long> {
 
   @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id IN (SELECT id from users where user_id = ?1)")
   List<ClubUser> findAllByUserId(String userId);
+
+  @Modifying
+  @Query(value = "UPDATE announcement SET author_id = NULL WHERE author_id = ?1", nativeQuery = true)
+  void removeClubUserAnnouncementReferences(long id);
 }

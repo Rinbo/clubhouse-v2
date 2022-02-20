@@ -42,7 +42,6 @@ public class Announcement extends BaseEntity {
 
   @ManyToOne(optional = false)
   private Club club;
-  private boolean showAuthor;
 
   public Announcement() {
     announcementId = new AnnouncementId(UUID.randomUUID().toString());

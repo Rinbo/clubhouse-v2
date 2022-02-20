@@ -33,10 +33,8 @@ import nu.borjessons.clubhouse.impl.util.ClubhouseUtils;
 @Service
 @RequiredArgsConstructor
 public class ClubUserServiceImpl implements ClubUserService {
-  private static void updateUserDetails(AdminUpdateUserModel userDetails, User user) {
-    user.setFirstName(userDetails.getFirstName());
-    user.setLastName(userDetails.getLastName());
-    user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
+  private static boolean isLeader(ClubUser clubUser) {
+    return clubUser.getRoles().stream().anyMatch(roleEntity -> roleEntity.getName() == Role.LEADER);
   }
 
   private static void updateAddresses(User user, Set<Address> addresses) {
@@ -45,10 +43,11 @@ public class ClubUserServiceImpl implements ClubUserService {
     addresses.forEach(user::addAddress);
   }
 
-  private static boolean isLeader(ClubUser clubUser) {
-    return clubUser.getRoles().stream().anyMatch(roleEntity -> roleEntity.getName() == Role.LEADER);
+  private static void updateUserDetails(AdminUpdateUserModel userDetails, User user) {
+    user.setFirstName(userDetails.getFirstName());
+    user.setLastName(userDetails.getLastName());
+    user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
   }
-
   private final ClubRepository clubRepository;
   private final ClubUserRepository clubUserRepository;
   private final ClubhouseMappers clubhouseMappers;
@@ -63,6 +62,7 @@ public class ClubUserServiceImpl implements ClubUserService {
   @Transactional
   public void removeUserFromClub(UserId userId, String clubId) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId.toString()).orElseThrow();
+    clubUserRepository.removeClubUserAnnouncementReferences(clubUser.getId());
     clubUserRepository.delete(clubUser);
   }
 
