@@ -27,7 +27,8 @@ import nu.borjessons.clubhouse.impl.service.AnnouncementService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/clubs/{clubId}/announcement")
+@PreAuthorize("hasRole('USER')")
+@RequestMapping("/clubs/{clubId}/announcements")
 public class AnnouncementController {
   private final AnnouncementService announcementService;
 
@@ -62,3 +63,5 @@ public class AnnouncementController {
     announcementService.deleteAnnouncement(announcementId);
   }
 }
+
+
