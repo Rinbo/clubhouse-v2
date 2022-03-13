@@ -6,6 +6,7 @@ import javax.validation.Valid;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,6 +32,11 @@ import nu.borjessons.clubhouse.impl.service.AnnouncementService;
 @RequestMapping("/clubs/{clubId}/announcements")
 public class AnnouncementController {
   private final AnnouncementService announcementService;
+
+  @GetMapping("/size")
+  public ResponseEntity<Integer> getSize(@PathVariable String clubId) {
+    return ResponseEntity.ok(announcementService.getSize(clubId));
+  }
 
   @GetMapping
   public Collection<AnnouncementRecord> getAnnouncements(@PathVariable String clubId, @RequestParam(defaultValue = "0") int page,

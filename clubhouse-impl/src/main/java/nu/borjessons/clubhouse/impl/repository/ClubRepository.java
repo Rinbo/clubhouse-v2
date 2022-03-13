@@ -1,16 +1,15 @@
 package nu.borjessons.clubhouse.impl.repository;
 
-import nu.borjessons.clubhouse.impl.data.Club;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import nu.borjessons.clubhouse.impl.data.Club;
 
 @Repository
 public interface ClubRepository extends JpaRepository<Club, Long> {
   Optional<Club> findByClubId(String clubId);
-
-  Club findByName(String name);
 
   Optional<Club> findByPath(String path);
 }

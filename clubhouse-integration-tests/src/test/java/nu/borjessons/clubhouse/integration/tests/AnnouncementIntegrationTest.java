@@ -145,6 +145,19 @@ class AnnouncementIntegrationTest {
     }
   }
 
+  @Test
+  void getAnnouncementSize() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE);
+      AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE);
+      AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE);
+
+      Assertions.assertEquals(3, AnnouncementUtil.getAnnouncementSize(token, EmbeddedDataLoader.CLUB_ID));
+    }
+  }
+
   private void verifyAnnouncementRecord(AnnouncementRecord announcementRecord, String body, String title) {
     Assertions.assertNotNull(announcementRecord);
     Assertions.assertEquals(title, announcementRecord.title());

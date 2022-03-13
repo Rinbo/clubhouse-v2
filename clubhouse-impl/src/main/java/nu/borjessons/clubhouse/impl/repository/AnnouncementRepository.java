@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,4 +21,7 @@ public interface AnnouncementRepository extends PagingAndSortingRepository<Annou
   List<AnnouncementRecord> findAnnouncementByClubId(long id, Pageable pageable);
 
   List<AnnouncementRecord> findAnnouncementsByClubIdIn(List<Long> clubIds, Pageable pageable);
+
+  @Query(value = "SELECT COUNT(*) FROM announcement WHERE club_id IN (SELECT id FROM club WHERE club_id = ?1)", nativeQuery = true)
+  int getSize(String clubId);
 }

@@ -22,4 +22,6 @@ public interface AnnouncementService {
   void deleteAnnouncement(AnnouncementId announcementId);
 
   List<AnnouncementRecord> getAllClubAnnouncements(User principal, Pageable pageable);
+
+  int getSize(String clubId);
 }

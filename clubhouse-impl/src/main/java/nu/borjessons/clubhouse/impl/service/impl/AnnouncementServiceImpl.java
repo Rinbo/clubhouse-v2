@@ -81,4 +81,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         .toList();
     return announcementRepository.findAnnouncementsByClubIdIn(clubIds, pageable);
   }
+
+  @Override
+  public int getSize(String clubId) {
+    return announcementRepository.getSize(clubId);
+  }
 }

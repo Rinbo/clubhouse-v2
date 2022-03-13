@@ -18,7 +18,7 @@ public class AnnouncementUtil {
   public static AnnouncementRecord createAnnouncement(String token, String clubId, String title) throws JsonProcessingException {
     URI uri = RestUtil.getUriBuilder("/clubs/{clubId}/announcements").buildAndExpand(clubId).toUri();
     ResponseEntity<String> response = RestUtil.postRequest(uri.toString(), token, new AnnouncementModel(title, "body"), String.class);
-    Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
     return RestUtil.deserializeJsonBody(response.getBody(), AnnouncementRecord.class);
   }
@@ -32,14 +32,23 @@ public class AnnouncementUtil {
   public static AnnouncementRecord getAnnouncement(String token, String clubId, AnnouncementId announcementId) throws JsonProcessingException {
     URI uri = RestUtil.getUriBuilder("/clubs/{clubId}/announcements/{announcementId}").buildAndExpand(clubId, announcementId).toUri();
     ResponseEntity<String> response = RestUtil.getRequest(uri.toString(), token, String.class);
-    Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return RestUtil.deserializeJsonBody(response.getBody(), AnnouncementRecord.class);
+  }
+
+  public static int getAnnouncementSize(String token, String clubId) {
+    URI uri = RestUtil.getUriBuilder("/clubs/{clubId}/announcements/size").buildAndExpand(clubId).toUri();
+    ResponseEntity<Integer> response = RestUtil.getRequest(uri.toString(), token, Integer.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    Integer count = response.getBody();
+    Assertions.assertNotNull(count);
+    return count;
   }
 
   public static List<AnnouncementRecord> getAnnouncements(String token, String clubId) throws JsonProcessingException {
     URI uri = RestUtil.getUriBuilder("/clubs/{clubId}/announcements").buildAndExpand(clubId).toUri();
     ResponseEntity<String> response = RestUtil.getRequest(uri.toString(), token, String.class);
-    Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return Arrays.stream(RestUtil.deserializeJsonBody(response.getBody(), AnnouncementRecord[].class)).toList();
   }
 
@@ -50,7 +59,7 @@ public class AnnouncementUtil {
         .buildAndExpand(clubId).toUri();
 
     ResponseEntity<String> response = RestUtil.getRequest(uri.toString(), token, String.class);
-    Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return Arrays.stream(RestUtil.deserializeJsonBody(response.getBody(), AnnouncementRecord[].class)).toList();
   }
 
@@ -61,7 +70,7 @@ public class AnnouncementUtil {
         .buildAndExpand().toUri();
 
     ResponseEntity<String> response = RestUtil.getRequest(uri.toString(), token, String.class);
-    Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return Arrays.stream(RestUtil.deserializeJsonBody(response.getBody(), AnnouncementRecord[].class)).toList();
   }
 
@@ -69,7 +78,7 @@ public class AnnouncementUtil {
       throws JsonProcessingException {
     URI uri = RestUtil.getUriBuilder("/clubs/{clubId}/announcements/{announcementId}").buildAndExpand(clubId, announcementId).toUri();
     ResponseEntity<String> response = RestUtil.putRequest(uri.toString(), token, new AnnouncementModel("updated title", "updated body"), String.class);
-    Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return RestUtil.deserializeJsonBody(response.getBody(), AnnouncementRecord.class);
   }
 }
