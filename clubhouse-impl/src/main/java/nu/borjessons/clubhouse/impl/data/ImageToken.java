@@ -31,7 +31,7 @@ public class ImageToken extends BaseEntity {
 
   @Setter(AccessLevel.PRIVATE)
   @Convert(converter = ImageTokenIdConverter.class)
-  @Column(nullable = false, unique = true, columnDefinition = "varchar(255)")
+  @Column(nullable = false, unique = true, columnDefinition = "varchar(64)")
   private ImageTokenId imageTokenId;
 
   @Column(nullable = false)

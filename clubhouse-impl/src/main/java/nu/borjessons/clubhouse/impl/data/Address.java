@@ -26,7 +26,7 @@ public class Address extends BaseEntity {
 
   @Setter(AccessLevel.PRIVATE)
   @Convert(converter = AddressIdConverter.class)
-  @Column(nullable = false, unique = true, columnDefinition = "varchar(255)")
+  @Column(nullable = false, unique = true, columnDefinition = "varchar(64)")
   private AddressId addressId = new AddressId(UUID.randomUUID().toString());
 
   @Column(length = 30, nullable = false)

@@ -30,7 +30,7 @@ public class Announcement extends BaseEntity {
 
   @Setter(AccessLevel.PRIVATE)
   @Convert(converter = AnnouncementIdConverter.class)
-  @Column(name = "announcement_id", nullable = false, unique = true, columnDefinition = "varchar(255)")
+  @Column(name = "announcement_id", nullable = false, unique = true, columnDefinition = "varchar(64)")
   private AnnouncementId announcementId;
 
   @Column(nullable = false)

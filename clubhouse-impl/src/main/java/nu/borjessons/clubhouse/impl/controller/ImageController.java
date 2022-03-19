@@ -48,6 +48,14 @@ public class ImageController {
   private final ImageService imageService;
   private final ResourceAuthorization resourceAuthorization;
 
+  // TODO Thought: Protect photos so that they are only accessible from a club route. Means that if the user has access to club he can view image
+  // This would make it difficult to link to images on public page
+  // What if instead we attach each uploaded photo to an album (primary). That way you can always do a lookup on the clubId in db
+  // prior to fetching it. You don't provide clubId in route, but rather the club is fetched from imagetoken prior to fetching. This
+  // would require a lookup in the db for each photo which is expensive. All the more reason to store it somewhere else
+  // But it would at least allow for creating a mapping structure in the file system
+  // Exclusions from this would be club logo and profile images which would have to fetch the image from a different route
+
   @GetMapping(value = "/images/{imageTokenId}")
   public ResponseEntity<byte[]> getImage(@PathVariable String imageTokenId) throws IOException {
     ImageStream imageStream = imageService.getImage(new ImageTokenId(imageTokenId));

@@ -48,7 +48,7 @@ public class User extends BaseEntity implements UserDetails {
 
   @Setter(AccessLevel.PRIVATE)
   @Convert(converter = UserIdConverter.class)
-  @Column(nullable = false, unique = true, columnDefinition = "varchar(255)")
+  @Column(nullable = false, unique = true, columnDefinition = "varchar(64)")
   private UserId userId;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

@@ -22,6 +22,20 @@ import nu.borjessons.clubhouse.impl.util.Validate;
 public class FileImageRepository implements ImageRepository {
   private final Path imageDirectory;
 
+  // TODO: If a different folder structure is necessary:
+  
+  // save profile image
+  // save club logo
+  // save club image
+
+  // getProfileImage
+  // getClubLogo
+  // getClubImage
+
+  // delete profile image
+  // delete club logo
+  // delete club image
+
   @Override
   public ImageStream findImageByImageToken(ImageToken imageToken) throws IOException {
     Validate.notNull(imageToken, "imageToken");
