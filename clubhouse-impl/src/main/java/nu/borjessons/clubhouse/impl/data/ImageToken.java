@@ -44,7 +44,7 @@ public class ImageToken extends BaseEntity {
   private String contentType;
 
   @Convert(converter = PathConverter.class)
-  @Column(columnDefinition = "varchar(64)")
+  @Column(columnDefinition = "varchar(255)")
   private Path path;
 
   public ImageToken(ImageTokenId imageTokenId, Path path) {
