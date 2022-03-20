@@ -21,6 +21,7 @@ import nu.borjessons.clubhouse.impl.util.FileUtils;
 
 @Slf4j
 class FileImageRepositoryTest {
+  public static final Path PATH = Path.of("");
   private static final Path BASE_IMAGE_DIRECTORY = Paths.get(System.getProperty("java.io.tmpdir"), "clubhouse-test");
   private static final String ORIGINAL_FILE_NAME = "cool-pic.jpg";
 
@@ -29,11 +30,15 @@ class FileImageRepositoryTest {
     imageToken.setName(ORIGINAL_FILE_NAME);
     imageToken.setId(1L);
     imageToken.setContentType("image/jpeg");
+    imageToken.setPath(PATH);
     return imageToken;
   }
 
   private static Path createTempFile(ImageToken imageToken) throws IOException {
-    Path fileDirectory = Files.createDirectories(BASE_IMAGE_DIRECTORY.resolve(imageToken.getImageTokenId().toString()));
+    Path fileDirectory = Files.createDirectories(
+        BASE_IMAGE_DIRECTORY
+            .resolve(imageToken.getPath())
+            .resolve(imageToken.getImageTokenId().toString()));
     return Files.createFile(fileDirectory.resolve(imageToken.getName()));
   }
 
@@ -74,7 +79,7 @@ class FileImageRepositoryTest {
     MultipartFile multipartFile = mockMultiPartFile();
     FileImageRepository fileImageRepository = new FileImageRepository(BASE_IMAGE_DIRECTORY);
 
-    ImageTokenId imageTokenId = fileImageRepository.saveImage(multipartFile);
+    ImageTokenId imageTokenId = fileImageRepository.saveImage(multipartFile, PATH);
     Assertions.assertNotNull(imageTokenId);
 
     ArgumentCaptor<Path> pathArgumentCaptor = ArgumentCaptor.forClass(Path.class);

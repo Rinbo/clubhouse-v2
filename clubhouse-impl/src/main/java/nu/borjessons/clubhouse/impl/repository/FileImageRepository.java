@@ -22,37 +22,27 @@ import nu.borjessons.clubhouse.impl.util.Validate;
 public class FileImageRepository implements ImageRepository {
   private final Path imageDirectory;
 
-  // TODO: If a different folder structure is necessary:
-  
-  // save profile image
-  // save club logo
-  // save club image
-
-  // getProfileImage
-  // getClubLogo
-  // getClubImage
-
-  // delete profile image
-  // delete club logo
-  // delete club image
-
   @Override
   public ImageStream findImageByImageToken(ImageToken imageToken) throws IOException {
     Validate.notNull(imageToken, "imageToken");
 
     ImageTokenId imageTokenId = imageToken.getImageTokenId();
-    Path path = imageDirectory.resolve(Paths.get(imageTokenId.toString(), imageToken.getName()));
+    Path relativePath = imageToken.getPath().resolve(Paths.get(imageTokenId.toString(), imageToken.getName()));
+    Path path = imageDirectory.resolve(relativePath);
     return new ImageStream(imageToken, Files.newInputStream(path));
   }
 
   @Override
-  public ImageTokenId saveImage(MultipartFile multipartFile) throws IOException {
+  public ImageTokenId saveImage(MultipartFile multipartFile, Path path) throws IOException {
     Validate.notNull(multipartFile, "multipartFile");
 
     String fileName = Objects.requireNonNull(multipartFile.getOriginalFilename(), "originalFilename must not be null");
     String imageId = UUID.randomUUID().toString();
 
-    Path absolutPath = imageDirectory.resolve(imageId);
+    Path absolutPath = imageDirectory
+        .resolve(path)
+        .resolve(imageId);
+
     Files.createDirectories(absolutPath);
 
     log.info("absolutPath: {}", absolutPath);
@@ -64,6 +54,9 @@ public class FileImageRepository implements ImageRepository {
   @Override
   public void deleteImage(ImageToken imageToken) throws IOException {
     String imageTokenIdString = imageToken.getImageTokenId().toString();
-    FileUtils.deleteDirectoryRecursively(imageDirectory.resolve(imageTokenIdString));
+    FileUtils.deleteDirectoryRecursively(
+        imageDirectory
+            .resolve(imageToken.getPath())
+            .resolve(imageTokenIdString));
   }
 }

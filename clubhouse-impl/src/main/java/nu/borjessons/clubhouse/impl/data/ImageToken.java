@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.data;
 
+import java.nio.file.Path;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -16,7 +17,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import nu.borjessons.clubhouse.impl.data.converter.ImageTokenIdConverter;
+import nu.borjessons.clubhouse.impl.data.converter.PathConverter;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
+import nu.borjessons.clubhouse.impl.service.impl.ImageServiceImpl;
 import nu.borjessons.clubhouse.impl.util.Validate;
 
 @Entity
@@ -40,13 +43,20 @@ public class ImageToken extends BaseEntity {
   @Column(nullable = false)
   private String contentType;
 
-  public ImageToken(ImageTokenId imageTokenId) {
+  @Convert(converter = PathConverter.class)
+  @Column(columnDefinition = "varchar(64)")
+  private Path path;
+
+  public ImageToken(ImageTokenId imageTokenId, Path path) {
     Validate.notNull(imageTokenId, "imageTokenId");
+    Validate.notNull(path, "path");
 
     this.imageTokenId = imageTokenId;
+    this.path = path;
   }
 
   public ImageToken() {
-    this.imageTokenId = new ImageTokenId(UUID.randomUUID().toString());
+    imageTokenId = new ImageTokenId(UUID.randomUUID().toString());
+    path = ImageServiceImpl.EMPTY_PATH;
   }
 }

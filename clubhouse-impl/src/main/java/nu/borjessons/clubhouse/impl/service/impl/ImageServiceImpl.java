@@ -1,6 +1,8 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,9 @@ import nu.borjessons.clubhouse.impl.util.Validate;
 @RequiredArgsConstructor
 @Service
 public class ImageServiceImpl implements ImageService {
+  public static final Path EMPTY_PATH = Path.of("");
+  private static final String MULTIPART_FILE_STRING = "multipartFile";
+
   private final ClubRepository clubRepository;
   private final ImageTokenRepository imageTokenRepository;
   private final ImageRepository imageRepository;
@@ -39,17 +44,6 @@ public class ImageServiceImpl implements ImageService {
   }
 
   @Override
-  public ImageTokenId createImage(MultipartFile multipartFile) {
-    Validate.notNull(multipartFile, "multipartFile");
-
-    try {
-      return imageRepository.saveImage(multipartFile);
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not save image");
-    }
-  }
-
-  @Override
   public void deleteImage(ImageTokenId imageTokenId) {
     Validate.notNull(imageTokenId, "imageTokenId");
 
@@ -58,7 +52,6 @@ public class ImageServiceImpl implements ImageService {
     imageTokenRepository.delete(imageToken);
   }
 
-  // TODO add metric for initiating logo save and one for success. Then provide metric with percentage of successful saves
   @Override
   @Transactional
   public ImageToken createClubLogo(String clubId, MultipartFile multipartFile) {
@@ -70,7 +63,7 @@ public class ImageServiceImpl implements ImageService {
     ImageToken existingLogo = club.getLogo();
     if (existingLogo != null) deleteImageFile(existingLogo);
 
-    ImageToken imageToken = createImageToken(multipartFile);
+    ImageToken imageToken = createImageToken(multipartFile, Paths.get("clubs", clubId, "logo"));
 
     club.setLogo(imageToken);
     return clubRepository.save(club).getLogo();
@@ -87,15 +80,25 @@ public class ImageServiceImpl implements ImageService {
     ImageToken existingProfileImage = user.getProfileImage();
     if (existingProfileImage != null) deleteImageFile(existingProfileImage);
 
-    ImageToken imageToken = createImageToken(multipartFile);
+    ImageToken imageToken = createImageToken(multipartFile, Path.of("profile images"));
     user.setProfileImage(imageToken);
     return userRepository.save(user).getProfileImage();
   }
 
-  private ImageToken createImageToken(MultipartFile multipartFile) {
-    ImageTokenId imageTokenId = createImage(multipartFile);
+  private ImageTokenId saveImage(MultipartFile multipartFile, Path path) {
+    Validate.notNull(multipartFile, MULTIPART_FILE_STRING);
 
-    ImageToken imageToken = new ImageToken(imageTokenId);
+    try {
+      return imageRepository.saveImage(multipartFile, path);
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not save image");
+    }
+  }
+
+  private ImageToken createImageToken(MultipartFile multipartFile, Path path) {
+    ImageTokenId imageTokenId = saveImage(multipartFile, path);
+
+    ImageToken imageToken = new ImageToken(imageTokenId, path);
     imageToken.setContentType(multipartFile.getContentType());
     imageToken.setName(multipartFile.getOriginalFilename());
     return imageToken;
