@@ -53,13 +53,13 @@ public class AnnouncementController {
     return announcementService.getAnnouncement(announcementId);
   }
 
+  // TODO make passed imageToken id an optional
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
   public AnnouncementRecord createAnnouncement(@AuthenticationPrincipal User principal, @PathVariable String clubId,
-      @RequestParam(value = "file") MultipartFile multipartFile, @Valid @RequestBody AnnouncementModel announcementModel) {
+      @RequestParam(value = "file", required = false) MultipartFile multipartFile, @RequestParam("title") String title, @RequestParam("body") String body) {
 
-    ImageToken imageToken = imageService.createClubImage(clubId, multipartFile);
-    return announcementService.createAnnouncement(clubId, announcementModel, imageToken, principal);
+    return announcementService.createAnnouncement(clubId, new AnnouncementModel(title, body), getOptionalImageTokenId(multipartFile, clubId), principal);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -73,6 +73,11 @@ public class AnnouncementController {
   @DeleteMapping("/{announcementId}")
   public void deleteAnnouncement(@PathVariable AnnouncementId announcementId, @PathVariable String clubId) {
     announcementService.deleteAnnouncement(announcementId);
+  }
+
+  private ImageToken getOptionalImageTokenId(MultipartFile multipartFile, String clubId) {
+    if (multipartFile == null) return null;
+    return imageService.createClubImage(clubId, multipartFile);
   }
 }
 

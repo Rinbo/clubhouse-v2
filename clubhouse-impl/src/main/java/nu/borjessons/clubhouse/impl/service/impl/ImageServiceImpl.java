@@ -87,7 +87,7 @@ public class ImageServiceImpl implements ImageService {
 
   @Override
   public ImageToken createClubImage(String clubId, MultipartFile multipartFile) {
-    return createImageToken(multipartFile, Paths.get("clubs", clubId));
+    return imageTokenRepository.save(createImageToken(multipartFile, Paths.get("clubs", clubId)));
   }
 
   private ImageTokenId saveImage(MultipartFile multipartFile, Path path) {

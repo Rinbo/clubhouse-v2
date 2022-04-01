@@ -3,6 +3,8 @@ package nu.borjessons.clubhouse.impl.service;
 import java.util.Collection;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.data.domain.Pageable;
 
 import nu.borjessons.clubhouse.impl.data.ImageToken;
@@ -14,7 +16,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.AnnouncementModel;
 public interface AnnouncementService {
   Collection<AnnouncementRecord> getAnnouncements(String clubId, Pageable pageable);
 
-  AnnouncementRecord createAnnouncement(String clubId, AnnouncementModel announcementModel, ImageToken imageToken,
+  AnnouncementRecord createAnnouncement(String clubId, @Valid AnnouncementModel announcementModel, ImageToken imageToken,
       User principal);
 
   AnnouncementRecord updateAnnouncement(AnnouncementId announcementId, String clubId, AnnouncementModel announcementModel);
