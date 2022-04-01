@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Announcement;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
+import nu.borjessons.clubhouse.impl.data.ImageToken;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.AnnouncementId;
 import nu.borjessons.clubhouse.impl.dto.AnnouncementRecord;
@@ -37,7 +38,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
   @Override
   @Transactional
-  public AnnouncementRecord createAnnouncement(String clubId, AnnouncementModel announcementModel, User principal) {
+  public AnnouncementRecord createAnnouncement(String clubId, AnnouncementModel announcementModel, ImageToken imageToken, User principal) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, principal.getId()).orElseThrow();
 
     Announcement announcement = new Announcement();
@@ -45,6 +46,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     announcement.setTitle(announcementModel.getTitle());
     announcement.setBody(announcementModel.getBody());
     announcement.setClub(clubUser.getClub());
+    announcement.setImageToken(imageToken);
 
     return new AnnouncementRecord(announcementRepository.save(announcement));
   }

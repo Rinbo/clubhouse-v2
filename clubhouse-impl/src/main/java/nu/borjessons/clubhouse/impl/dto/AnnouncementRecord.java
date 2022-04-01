@@ -5,8 +5,10 @@ import java.util.Locale;
 
 import nu.borjessons.clubhouse.impl.data.Announcement;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
+import nu.borjessons.clubhouse.impl.data.ImageToken;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.AnnouncementId;
+import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.util.Validate;
 
 public record AnnouncementRecord(
@@ -14,6 +16,7 @@ public record AnnouncementRecord(
     String title,
     String body,
     String author,
+    ImageTokenId imageTokenId,
     LocalDateTime createdAt,
     LocalDateTime updatedAt) {
 
@@ -21,6 +24,11 @@ public record AnnouncementRecord(
     if (clubUser == null) return null;
     User author = clubUser.getUser();
     return String.format(Locale.ROOT, "%s %s", author.getFirstName(), author.getLastName());
+  }
+
+  private static ImageTokenId getImageTokenId(ImageToken imageToken) {
+    if (imageToken == null) return null;
+    return imageToken.getImageTokenId();
   }
 
   public AnnouncementRecord {
@@ -34,6 +42,7 @@ public record AnnouncementRecord(
         announcement.getTitle(),
         announcement.getBody(),
         getAuthor(announcement.getAuthor()),
+        getImageTokenId(announcement.getImageToken()),
         announcement.getCreatedAt(),
         announcement.getUpdatedAt());
   }

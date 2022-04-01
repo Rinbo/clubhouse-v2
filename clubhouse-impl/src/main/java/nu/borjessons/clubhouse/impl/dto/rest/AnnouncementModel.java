@@ -13,6 +13,7 @@ import nu.borjessons.clubhouse.impl.util.Validate;
 public final class AnnouncementModel {
   @NotNull(message = "Title cannot be null")
   private String title;
+
   @NotNull(message = "Body cannot be null")
   private String body;
 

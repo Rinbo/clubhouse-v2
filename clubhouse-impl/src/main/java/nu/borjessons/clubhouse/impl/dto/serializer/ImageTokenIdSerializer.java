@@ -17,8 +17,6 @@ public class ImageTokenIdSerializer extends JsonSerializer<ImageTokenId> {
 
   @Override
   public void serialize(ImageTokenId imageTokenId, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
-    jsonGenerator.writeStartObject();
-    jsonGenerator.writeStringField("imageTokenId", imageTokenId.toString());
-    jsonGenerator.writeEndObject();
+    jsonGenerator.writeString(imageTokenId.toString());
   }
 }

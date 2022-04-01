@@ -18,13 +18,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.data.ImageToken;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.AnnouncementId;
 import nu.borjessons.clubhouse.impl.dto.AnnouncementRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.AnnouncementModel;
 import nu.borjessons.clubhouse.impl.service.AnnouncementService;
+import nu.borjessons.clubhouse.impl.service.ImageService;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,6 +35,7 @@ import nu.borjessons.clubhouse.impl.service.AnnouncementService;
 @RequestMapping("/clubs/{clubId}/announcements")
 public class AnnouncementController {
   private final AnnouncementService announcementService;
+  private final ImageService imageService;
 
   @GetMapping("/size")
   public ResponseEntity<Integer> getSize(@PathVariable String clubId) {
@@ -52,8 +56,10 @@ public class AnnouncementController {
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
   public AnnouncementRecord createAnnouncement(@AuthenticationPrincipal User principal, @PathVariable String clubId,
-      @Valid @RequestBody AnnouncementModel announcementModel) {
-    return announcementService.createAnnouncement(clubId, announcementModel, principal);
+      @RequestParam(value = "file") MultipartFile multipartFile, @Valid @RequestBody AnnouncementModel announcementModel) {
+
+    ImageToken imageToken = imageService.createClubImage(clubId, multipartFile);
+    return announcementService.createAnnouncement(clubId, announcementModel, imageToken, principal);
   }
 
   @PreAuthorize("hasRole('ADMIN')")

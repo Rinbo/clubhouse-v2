@@ -85,13 +85,18 @@ public class ImageServiceImpl implements ImageService {
     return userRepository.save(user).getProfileImage();
   }
 
+  @Override
+  public ImageToken createClubImage(String clubId, MultipartFile multipartFile) {
+    return createImageToken(multipartFile, Paths.get("clubs", clubId));
+  }
+
   private ImageTokenId saveImage(MultipartFile multipartFile, Path path) {
     Validate.notNull(multipartFile, MULTIPART_FILE_STRING);
 
     try {
       return imageRepository.saveImage(multipartFile, path);
     } catch (IOException e) {
-      throw new IllegalStateException("Could not save image");
+      throw new IllegalStateException("Could not save image", e);
     }
   }
 
