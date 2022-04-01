@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.impl.dto;
 
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.util.Validate;
 
 public record BaseUserRecord(
@@ -8,7 +9,7 @@ public record BaseUserRecord(
     String firstName,
     String lastName,
     String dateOfBirth,
-    String profileImageId,
+    ImageTokenId imageTokenId,
     boolean managedUser) {
 
   public BaseUserRecord {
@@ -24,7 +25,7 @@ public record BaseUserRecord(
         user.getFirstName(),
         user.getLastName(),
         user.getDateOfBirth().toString(),
-        user.getProfileImageId(),
+        user.getImageTokenId(),
         user.isManagedAccount());
   }
 }

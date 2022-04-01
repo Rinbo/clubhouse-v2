@@ -19,6 +19,6 @@ public class ImageTokenIdDeserializer extends JsonDeserializer<ImageTokenId> {
   @Override
   public ImageTokenId deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
     JsonNode jsonNode = jsonParser.getCodec().readTree(jsonParser);
-    return new ImageTokenId(jsonNode.get("imageTokenId").asText());
+    return new ImageTokenId(jsonNode.asText());
   }
 }

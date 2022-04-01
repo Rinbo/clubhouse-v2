@@ -17,6 +17,7 @@ import lombok.ToString;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -51,7 +52,7 @@ public class ClubUserDto {
   private Set<BaseUserRecord> children;
   private Set<String> parentIds;
   private String userId;
-  private String profileImageId;
+  private ImageTokenId imageTokenId;
   private String email;
 
   public ClubUserDto(ClubUser clubUser) {
@@ -66,7 +67,7 @@ public class ClubUserDto {
     children = getClubChildren(clubUser);
     parentIds = clubUser.getUser().getParents().stream().map(User::getUserId).map(UserId::toString).collect(Collectors.toSet());
     userId = clubUser.getUser().getUserId().toString();
-    profileImageId = clubUser.getUser().getProfileImageId();
+    imageTokenId = clubUser.getUser().getImageTokenId();
     email = showEmail() ? clubUser.getUser().getEmail() : null;
   }
 

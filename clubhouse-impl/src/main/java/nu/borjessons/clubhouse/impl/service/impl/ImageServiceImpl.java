@@ -77,12 +77,12 @@ public class ImageServiceImpl implements ImageService {
 
     User user = userRepository.findByUserId(userId).orElseThrow();
 
-    ImageToken existingProfileImage = user.getProfileImage();
+    ImageToken existingProfileImage = user.getImageToken();
     if (existingProfileImage != null) deleteImageFile(existingProfileImage);
 
     ImageToken imageToken = createImageToken(multipartFile, Path.of("profile images"));
-    user.setProfileImage(imageToken);
-    return userRepository.save(user).getProfileImage();
+    user.setImageToken(imageToken);
+    return userRepository.save(user).getImageToken();
   }
 
   @Override

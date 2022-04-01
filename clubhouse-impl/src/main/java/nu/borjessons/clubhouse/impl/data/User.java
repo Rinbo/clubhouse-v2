@@ -32,6 +32,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import nu.borjessons.clubhouse.impl.data.converter.UserIdConverter;
+import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 
 @Getter
@@ -64,7 +65,7 @@ public class User extends BaseEntity implements UserDetails {
   private Collection<ClubUser> clubUsers = new ArrayList<>();
 
   @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
-  private ImageToken profileImage;
+  private ImageToken imageToken;
 
   @Column(nullable = false)
   private LocalDate dateOfBirth;
@@ -222,8 +223,8 @@ public class User extends BaseEntity implements UserDetails {
     parent.removeChild(this);
   }
 
-  public String getProfileImageId() {
-    if (profileImage == null) return null;
-    return profileImage.getImageTokenId().toString();
+  public ImageTokenId getImageTokenId() {
+    if (imageToken == null) return null;
+    return imageToken.getImageTokenId();
   }
 }

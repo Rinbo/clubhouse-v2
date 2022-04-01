@@ -53,7 +53,7 @@ public class ImageUtil {
 
     ImageTokenId imageTokenId = RestUtil.deserializeJsonBody(response.getBody(), ImageTokenId.class);
 
-    FileUtils.deleteDirectoryRecursively(BASE_DIRECTORY.resolve(imageTokenId.toString()));
+    FileUtils.deleteDirectoryRecursively(BASE_DIRECTORY);
     return imageTokenId;
   }
 }
