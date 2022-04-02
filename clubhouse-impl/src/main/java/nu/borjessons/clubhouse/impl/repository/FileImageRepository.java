@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +32,14 @@ public class FileImageRepository implements ImageRepository {
     Path relativePath = imageToken.getPath().resolve(Paths.get(imageTokenId.toString(), imageToken.getName()));
     Path path = imageDirectory.resolve(relativePath);
     return new ImageStream(imageToken, Files.newInputStream(path));
+  }
+
+  @Override
+  public List<Path> getClubImagePaths(Path path) throws IOException {
+    Path clubPath = imageDirectory.resolve(path);
+    try (Stream<Path> pathStream = Files.walk(clubPath, 1)) {
+      return pathStream.toList();
+    }
   }
 
   @Override

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -21,7 +22,7 @@ import nu.borjessons.clubhouse.impl.util.FileUtils;
 
 @Slf4j
 class FileImageRepositoryTest {
-  public static final Path PATH = Path.of("");
+  public static final Path PATH = Paths.get("clubs", "club1");
   private static final Path BASE_IMAGE_DIRECTORY = Paths.get(System.getProperty("java.io.tmpdir"), "clubhouse-test");
   private static final String ORIGINAL_FILE_NAME = "cool-pic.jpg";
 
@@ -52,6 +53,18 @@ class FileImageRepositoryTest {
   @AfterEach
   void afterEach() throws IOException {
     FileUtils.deleteDirectoryRecursively(BASE_IMAGE_DIRECTORY);
+  }
+
+  @Test
+  void getAllPathsInClubDirectoryTest() throws IOException {
+    ImageToken imageToken1 = createImageToken();
+    ImageToken imageToken2 = createImageToken();
+    createTempFile(imageToken1);
+    createTempFile(imageToken2);
+
+    FileImageRepository fileImageRepository = new FileImageRepository(BASE_IMAGE_DIRECTORY);
+    List<Path> paths = fileImageRepository.getClubImagePaths(PATH);
+    Assertions.assertEquals(3, paths.size());
   }
 
   @Test
