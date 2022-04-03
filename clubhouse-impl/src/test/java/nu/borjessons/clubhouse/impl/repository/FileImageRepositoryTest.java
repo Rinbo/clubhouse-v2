@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -59,12 +58,14 @@ class FileImageRepositoryTest {
   void getAllPathsInClubDirectoryTest() throws IOException {
     ImageToken imageToken1 = createImageToken();
     ImageToken imageToken2 = createImageToken();
+    FileImageRepository fileImageRepository = new FileImageRepository(BASE_IMAGE_DIRECTORY);
+
+    Assertions.assertEquals(0, fileImageRepository.getClubImagePaths(PATH).size());
+
     createTempFile(imageToken1);
     createTempFile(imageToken2);
 
-    FileImageRepository fileImageRepository = new FileImageRepository(BASE_IMAGE_DIRECTORY);
-    List<Path> paths = fileImageRepository.getClubImagePaths(PATH);
-    Assertions.assertEquals(3, paths.size());
+    Assertions.assertEquals(2, fileImageRepository.getClubImagePaths(PATH).size());
   }
 
   @Test

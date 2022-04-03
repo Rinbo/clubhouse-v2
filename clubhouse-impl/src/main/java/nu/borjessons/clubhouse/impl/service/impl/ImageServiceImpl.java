@@ -28,8 +28,12 @@ import nu.borjessons.clubhouse.impl.util.Validate;
 @Service
 public class ImageServiceImpl implements ImageService {
   public static final Path EMPTY_PATH = Path.of("");
-  private static final String MULTIPART_FILE_STRING = "multipartFile";
-
+  public static final String LOGO_ROOT_FOLDER_NAME = "logo";
+  private static final String CLUBS_ROOT_FOLDER_NAME = "clubs";
+  private static final String IMAGE_TOKEN_ID_PARAMETER_NAME = "imageTokenId";
+  private static final String MULTIPART_FILE_PARAMETER_NAME = "multipartFile";
+  private static final String MULTIPART_FILE_STRING = ImageServiceImpl.MULTIPART_FILE_PARAMETER_NAME;
+  private static final String PROFILE_IMAGES_ROOT_FOLDER_NAME = "profile images";
   private final ClubRepository clubRepository;
   private final ImageTokenRepository imageTokenRepository;
   private final ImageRepository imageRepository;
@@ -37,7 +41,7 @@ public class ImageServiceImpl implements ImageService {
 
   @Override
   public ImageStream getImage(ImageTokenId imageTokenId) throws IOException {
-    Validate.notNull(imageTokenId, "imageTokenId");
+    Validate.notNull(imageTokenId, IMAGE_TOKEN_ID_PARAMETER_NAME);
 
     ImageToken imageToken = imageTokenRepository.findByImageTokenId(imageTokenId).orElseThrow();
     return imageRepository.findImageByImageToken(imageToken);
@@ -45,7 +49,7 @@ public class ImageServiceImpl implements ImageService {
 
   @Override
   public void deleteImage(ImageTokenId imageTokenId) {
-    Validate.notNull(imageTokenId, "imageTokenId");
+    Validate.notNull(imageTokenId, IMAGE_TOKEN_ID_PARAMETER_NAME);
 
     ImageToken imageToken = imageTokenRepository.findByImageTokenId(imageTokenId).orElseThrow();
     deleteImageFile(imageToken);
@@ -56,14 +60,14 @@ public class ImageServiceImpl implements ImageService {
   @Transactional
   public ImageToken createClubLogo(String clubId, MultipartFile multipartFile) {
     Validate.notNull(clubId, "clubId");
-    Validate.notNull(multipartFile, "multipartFile");
+    Validate.notNull(multipartFile, MULTIPART_FILE_PARAMETER_NAME);
 
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
 
     ImageToken existingLogo = club.getLogo();
     if (existingLogo != null) deleteImageFile(existingLogo);
 
-    ImageToken imageToken = createImageToken(multipartFile, Paths.get("clubs", clubId, "logo"));
+    ImageToken imageToken = createImageToken(multipartFile, Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId, LOGO_ROOT_FOLDER_NAME));
 
     club.setLogo(imageToken);
     return clubRepository.save(club).getLogo();
@@ -73,21 +77,26 @@ public class ImageServiceImpl implements ImageService {
   @Transactional
   public ImageToken createProfileImage(UserId userId, MultipartFile multipartFile) {
     Validate.notNull(userId, "userId");
-    Validate.notNull(multipartFile, "multipartFile");
+    Validate.notNull(multipartFile, ImageServiceImpl.MULTIPART_FILE_PARAMETER_NAME);
 
     User user = userRepository.findByUserId(userId).orElseThrow();
 
     ImageToken existingProfileImage = user.getImageToken();
     if (existingProfileImage != null) deleteImageFile(existingProfileImage);
 
-    ImageToken imageToken = createImageToken(multipartFile, Path.of("profile images"));
+    ImageToken imageToken = createImageToken(multipartFile, Path.of(PROFILE_IMAGES_ROOT_FOLDER_NAME));
     user.setImageToken(imageToken);
     return userRepository.save(user).getImageToken();
   }
 
   @Override
   public ImageToken createClubImage(String clubId, MultipartFile multipartFile) {
-    return imageTokenRepository.save(createImageToken(multipartFile, Paths.get("clubs", clubId)));
+    return imageTokenRepository.save(createImageToken(multipartFile, Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId)));
+  }
+
+  @Override
+  public void createClubRootImageFolder(String clubId) {
+    imageRepository.createClubRootImageDirectory(Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId));
   }
 
   private ImageTokenId saveImage(MultipartFile multipartFile, Path path) {

@@ -25,9 +25,11 @@ import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.repository.RoleRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
+import nu.borjessons.clubhouse.impl.service.ImageService;
 import nu.borjessons.clubhouse.impl.service.RegistrationService;
 import nu.borjessons.clubhouse.impl.util.ClubhouseMappers;
 
+// TODO eventually remove the mappers and create converter functions in controller that does the mapping to internal DTO?
 @RequiredArgsConstructor
 @Service
 @Transactional
@@ -38,6 +40,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   private final ClubhouseMappers clubhouseMappers;
   private final RoleRepository roleRepository;
   private final UserRepository userRepository;
+  private final ImageService imageService;
 
   @Override
   public UserDto registerClubChildren(UserId userId, String clubId, List<CreateChildRequestModel> childDetails) {
@@ -57,6 +60,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   public UserDto registerClub(CreateClubModel clubDetails) {
     Club club = clubRepository.save(clubhouseMappers.clubCreationModelToClub(clubDetails));
     User user = userRepository.save(addClubUser(club, getRoleEntities(OWNER_ROLES), constructUserEntity(clubDetails.getOwner())));
+    imageService.createClubRootImageFolder(club.getClubId());
     return UserDto.create(user);
   }
 
@@ -64,6 +68,7 @@ public class RegistrationServiceImpl implements RegistrationService {
   public UserDto registerClub(CreateClubModel clubDetails, String clubId) {
     Club club = clubRepository.save(clubhouseMappers.clubCreationModelToClub(clubDetails, clubId));
     User user = userRepository.save(addClubUser(club, getRoleEntities(OWNER_ROLES), constructUserEntity(clubDetails.getOwner())));
+    imageService.createClubRootImageFolder(club.getClubId());
     return UserDto.create(user);
   }
 

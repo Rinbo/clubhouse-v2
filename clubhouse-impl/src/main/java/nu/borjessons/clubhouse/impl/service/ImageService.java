@@ -19,4 +19,6 @@ public interface ImageService {
   ImageToken createProfileImage(UserId userId, MultipartFile multipartFile);
 
   ImageToken createClubImage(String clubId, MultipartFile multipartFile);
+
+  void createClubRootImageFolder(String clubId);
 }

@@ -18,4 +18,6 @@ public interface ImageRepository {
   ImageTokenId saveImage(MultipartFile multipartFile, Path path) throws IOException;
 
   void deleteImage(ImageToken imageToken) throws IOException;
+
+  void createClubRootImageDirectory(Path path);
 }

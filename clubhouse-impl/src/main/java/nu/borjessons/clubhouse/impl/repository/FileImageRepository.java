@@ -2,6 +2,7 @@ package nu.borjessons.clubhouse.impl.repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -16,12 +17,17 @@ import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.ImageToken;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.dto.ImageStream;
+import nu.borjessons.clubhouse.impl.service.impl.ImageServiceImpl;
 import nu.borjessons.clubhouse.impl.util.FileUtils;
 import nu.borjessons.clubhouse.impl.util.Validate;
 
 @Slf4j
 @RequiredArgsConstructor
 public class FileImageRepository implements ImageRepository {
+  private static boolean isNotLogoRootFolder(Path path) {
+    return !path.endsWith(ImageServiceImpl.LOGO_ROOT_FOLDER_NAME);
+  }
+
   private final Path imageDirectory;
 
   @Override
@@ -38,7 +44,10 @@ public class FileImageRepository implements ImageRepository {
   public List<Path> getClubImagePaths(Path path) throws IOException {
     Path clubPath = imageDirectory.resolve(path);
     try (Stream<Path> pathStream = Files.walk(clubPath, 1)) {
-      return pathStream.toList();
+      return pathStream.skip(1).filter(FileImageRepository::isNotLogoRootFolder).toList();
+    } catch (NoSuchFileException e) {
+      log.debug("File not found {}", path, e);
+      return List.of();
     }
   }
 
@@ -68,5 +77,14 @@ public class FileImageRepository implements ImageRepository {
         imageDirectory
             .resolve(imageToken.getPath())
             .resolve(imageTokenIdString));
+  }
+
+  @Override
+  public void createClubRootImageDirectory(Path path) {
+    try {
+      Files.createDirectories(imageDirectory.resolve(path));
+    } catch (IOException e) {
+      log.error("Could not create root club image directory {}", path, e);
+    }
   }
 }
