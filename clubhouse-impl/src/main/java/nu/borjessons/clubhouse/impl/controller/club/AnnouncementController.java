@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.impl.controller.club;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -43,9 +44,9 @@ public class AnnouncementController {
   }
 
   @GetMapping
-  public Collection<AnnouncementRecord> getAnnouncements(@PathVariable String clubId, @RequestParam(defaultValue = "0") int page,
+  public Collection<AnnouncementRecord> getClubAnnouncements(@PathVariable String clubId, @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
-    return announcementService.getAnnouncements(clubId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
+    return announcementService.getClubAnnouncements(clubId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
   }
 
   @GetMapping("/{announcementId}")
@@ -53,13 +54,13 @@ public class AnnouncementController {
     return announcementService.getAnnouncement(announcementId);
   }
 
-  // TODO make passed imageToken id an optional
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
   public AnnouncementRecord createAnnouncement(@AuthenticationPrincipal User principal, @PathVariable String clubId,
       @RequestParam(value = "file", required = false) MultipartFile multipartFile, @RequestParam("title") String title, @RequestParam("body") String body) {
 
-    return announcementService.createAnnouncement(clubId, new AnnouncementModel(title, body), getOptionalImageTokenId(multipartFile, clubId), principal);
+    return announcementService.createAnnouncement(clubId, new AnnouncementModel(title, body), getOptionalImageTokenId(multipartFile, clubId).orElseThrow(),
+        principal);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -75,9 +76,9 @@ public class AnnouncementController {
     announcementService.deleteAnnouncement(announcementId);
   }
 
-  private ImageToken getOptionalImageTokenId(MultipartFile multipartFile, String clubId) {
-    if (multipartFile == null) return null;
-    return imageService.createClubImage(clubId, multipartFile);
+  private Optional<ImageToken> getOptionalImageTokenId(MultipartFile multipartFile, String clubId) {
+    if (multipartFile == null) return Optional.empty();
+    return Optional.of(imageService.createClubImage(clubId, multipartFile));
   }
 }
 

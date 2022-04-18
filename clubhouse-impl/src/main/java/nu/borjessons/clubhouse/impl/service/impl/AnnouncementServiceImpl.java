@@ -31,7 +31,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
   private final UserRepository userRepository;
 
   @Override
-  public Collection<AnnouncementRecord> getAnnouncements(String clubId, Pageable pageable) {
+  public Collection<AnnouncementRecord> getClubAnnouncements(String clubId, Pageable pageable) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     return announcementRepository.findAnnouncementByClubId(club.getId(), pageable);
   }

@@ -14,7 +14,7 @@ import nu.borjessons.clubhouse.impl.dto.AnnouncementRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.AnnouncementModel;
 
 public interface AnnouncementService {
-  Collection<AnnouncementRecord> getAnnouncements(String clubId, Pageable pageable);
+  Collection<AnnouncementRecord> getClubAnnouncements(String clubId, Pageable pageable);
 
   AnnouncementRecord createAnnouncement(String clubId, @Valid AnnouncementModel announcementModel, ImageToken imageToken,
       User principal);
