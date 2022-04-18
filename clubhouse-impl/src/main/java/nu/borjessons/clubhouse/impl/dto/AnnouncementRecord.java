@@ -13,6 +13,9 @@ import nu.borjessons.clubhouse.impl.util.Validate;
 
 public record AnnouncementRecord(
     AnnouncementId announcementId,
+    String clubId,
+    String clubName,
+    ImageTokenId clubLogo,
     String title,
     String body,
     String author,
@@ -39,6 +42,9 @@ public record AnnouncementRecord(
 
   public AnnouncementRecord(Announcement announcement) {
     this(announcement.getAnnouncementId(),
+        announcement.getClub().getClubId(),
+        announcement.getClub().getName(),
+        getImageTokenId(announcement.getClub().getLogo()),
         announcement.getTitle(),
         announcement.getBody(),
         getAuthor(announcement.getAuthor()),

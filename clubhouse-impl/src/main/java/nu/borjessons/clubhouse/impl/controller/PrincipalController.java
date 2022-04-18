@@ -1,6 +1,6 @@
 package nu.borjessons.clubhouse.impl.controller;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.validation.Valid;
 
@@ -57,12 +57,12 @@ public class PrincipalController {
   }
 
   @GetMapping("/clubs")
-  public List<ClubRecord> getMyClubs(@AuthenticationPrincipal User principal) {
+  public Collection<ClubRecord> getMyClubs(@AuthenticationPrincipal User principal) {
     return userService.getMyClubs(principal.getUserId());
   }
 
   @GetMapping("/clubs/all-club-users")
-  public List<ClubUserDto> getAllMyClubUsers(@AuthenticationPrincipal User principal) {
+  public Collection<ClubUserDto> getAllMyClubUsers(@AuthenticationPrincipal User principal) {
     return clubUserService.getAllUsersClubUsers(principal.getUserId());
   }
 
@@ -72,7 +72,7 @@ public class PrincipalController {
   }
 
   @GetMapping("/announcements")
-  public List<AnnouncementRecord> getAnnouncements(@AuthenticationPrincipal User principal, @RequestParam(defaultValue = "0") int page,
+  public Collection<AnnouncementRecord> getAnnouncements(@AuthenticationPrincipal User principal, @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
     return announcementService.getAllClubAnnouncements(principal, PageRequest.of(page, size, Sort.by("createdAt").descending()));
   }
