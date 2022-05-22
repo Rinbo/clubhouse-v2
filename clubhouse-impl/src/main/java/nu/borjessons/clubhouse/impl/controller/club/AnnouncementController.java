@@ -1,7 +1,6 @@
 package nu.borjessons.clubhouse.impl.controller.club;
 
 import java.util.Collection;
-import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -59,7 +58,7 @@ public class AnnouncementController {
   public AnnouncementRecord createAnnouncement(@AuthenticationPrincipal User principal, @PathVariable String clubId,
       @RequestParam(value = "file", required = false) MultipartFile multipartFile, @RequestParam("title") String title, @RequestParam("body") String body) {
 
-    return announcementService.createAnnouncement(clubId, new AnnouncementModel(title, body), getOptionalImageTokenId(multipartFile, clubId).orElseThrow(),
+    return announcementService.createAnnouncement(clubId, new AnnouncementModel(title, body), createImageToken(multipartFile, clubId),
         principal);
   }
 
@@ -76,9 +75,9 @@ public class AnnouncementController {
     announcementService.deleteAnnouncement(announcementId);
   }
 
-  private Optional<ImageToken> getOptionalImageTokenId(MultipartFile multipartFile, String clubId) {
-    if (multipartFile == null) return Optional.empty();
-    return Optional.of(imageService.createClubImage(clubId, multipartFile));
+  private ImageToken createImageToken(MultipartFile multipartFile, String clubId) {
+    if (multipartFile == null) return null;
+    return imageService.createClubImage(clubId, multipartFile);
   }
 }
 
