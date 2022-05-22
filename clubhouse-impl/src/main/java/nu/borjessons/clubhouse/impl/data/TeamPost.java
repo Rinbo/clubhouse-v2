@@ -28,7 +28,7 @@ public class TeamPost extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
-  
+
   @Setter(AccessLevel.PRIVATE)
   @Convert(converter = TeamPostIdConverter.class)
   @Column(nullable = false, unique = true, columnDefinition = "varchar(64)")
@@ -46,7 +46,7 @@ public class TeamPost extends BaseEntity {
   @ManyToOne(optional = false)
   private Team team;
 
-  @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "teamPost", orphanRemoval = true, cascade = CascadeType.ALL)
   private List<TeamPostComment> teamPostComments;
 }
 
