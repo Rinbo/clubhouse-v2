@@ -56,7 +56,8 @@ public class AnnouncementController {
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
   public AnnouncementRecord createAnnouncement(@AuthenticationPrincipal User principal, @PathVariable String clubId,
-      @RequestParam(value = "file", required = false) MultipartFile multipartFile, @RequestParam("title") String title, @RequestParam("body") String body) {
+      @RequestParam(value = "file", required = false) MultipartFile multipartFile, @RequestParam(value = "title") String title,
+      @RequestParam(value = "body") String body) {
 
     return announcementService.createAnnouncement(clubId, new AnnouncementModel(title, body), createImageToken(multipartFile, clubId),
         principal);

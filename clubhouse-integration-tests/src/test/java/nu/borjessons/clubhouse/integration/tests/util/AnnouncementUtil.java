@@ -5,8 +5,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -16,8 +23,20 @@ import nu.borjessons.clubhouse.impl.dto.rest.AnnouncementModel;
 
 public class AnnouncementUtil {
   public static AnnouncementRecord createAnnouncement(String token, String clubId, String title) throws JsonProcessingException {
-    URI uri = RestUtil.getUriBuilder("/clubs/{clubId}/announcements").buildAndExpand(clubId).toUri();
-    ResponseEntity<String> response = RestUtil.postRequest(uri.toString(), token, new AnnouncementModel(title, "body"), String.class);
+    URI uri = RestUtil.getUriBuilder("/clubs/{clubId}/announcements")
+        .buildAndExpand(clubId).toUri();
+
+    HttpHeaders httpHeaders = RestUtil.getHttpHeaders(token);
+    httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+    MultiValueMap<String, String> requestMap = new LinkedMultiValueMap<>();
+    requestMap.add("title", title);
+    requestMap.add("body", "body");
+
+    HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(requestMap, httpHeaders);
+
+    RestTemplate restTemplate = new RestTemplate();
+    ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
     return RestUtil.deserializeJsonBody(response.getBody(), AnnouncementRecord.class);
