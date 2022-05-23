@@ -12,6 +12,10 @@ public record ClubRecord(String clubId, String name, String path, Club.Type type
   }
 
   public ClubRecord(Club club) {
-    this(club.getClubId(), club.getName(), club.getPath(), club.getType(), club.getLogo() != null ? club.getLogo().getImageTokenId().toString() : null);
+    this(club.getClubId(),
+        club.getName(),
+        club.getPath(),
+        club.getType(),
+        club.getLogo() != null ? club.getLogo().getImageTokenId().toString() : null);
   }
 }

@@ -1,11 +1,14 @@
 package nu.borjessons.clubhouse.impl.data;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -46,7 +49,11 @@ public class TeamPost extends BaseEntity {
   @ManyToOne(optional = false)
   private Team team;
 
-  @OneToMany(mappedBy = "teamPost", orphanRemoval = true, cascade = CascadeType.ALL)
-  private List<TeamPostComment> teamPostComments;
+  @OneToMany(mappedBy = "teamPost", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+  private List<TeamPostComment> teamPostComments = new ArrayList<>();
+
+  public TeamPost() {
+    teamPostId = new TeamPostId(UUID.randomUUID().toString());
+  }
 }
 
