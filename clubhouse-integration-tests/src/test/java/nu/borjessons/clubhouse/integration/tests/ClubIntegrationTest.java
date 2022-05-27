@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import nu.borjessons.clubhouse.impl.dto.ClubRecord;
-import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
+import nu.borjessons.clubhouse.impl.util.dev.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.ClubUtil;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;

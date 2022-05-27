@@ -20,7 +20,7 @@ import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
-import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
+import nu.borjessons.clubhouse.impl.util.dev.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.ClubUtil;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import nu.borjessons.clubhouse.integration.tests.util.RegistrationUtil;

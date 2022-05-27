@@ -14,7 +14,7 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
-import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
+import nu.borjessons.clubhouse.impl.util.dev.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 

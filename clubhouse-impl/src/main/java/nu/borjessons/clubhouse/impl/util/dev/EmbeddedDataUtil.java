@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.util;
+package nu.borjessons.clubhouse.impl.util.dev;
 
 import java.util.Arrays;
 import java.util.Collection;

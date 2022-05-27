@@ -28,7 +28,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.UserLoginRequestModel;
-import nu.borjessons.clubhouse.impl.util.EmbeddedDataLoader;
+import nu.borjessons.clubhouse.impl.util.dev.EmbeddedDataLoader;
 
 public class UserUtil {
   public static ClubUserDto activateChildren(String clubId, UserId userId, String token, Set<String> childrenIds) {
