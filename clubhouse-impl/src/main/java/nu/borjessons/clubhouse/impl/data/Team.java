@@ -11,6 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -23,7 +24,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "team")
+@Table(name = "team", indexes = {@Index(name = "idx_team_teamid", columnList = "teamId")})
 public class Team extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

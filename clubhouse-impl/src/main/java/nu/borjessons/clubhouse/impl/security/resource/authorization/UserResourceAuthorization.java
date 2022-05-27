@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.security.util;
+package nu.borjessons.clubhouse.impl.security.resource.authorization;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import nu.borjessons.clubhouse.impl.repository.UserRepository;
 
 @Component
 @RequiredArgsConstructor
-public class ResourceAuthorization {
+public class UserResourceAuthorization {
   private static void throwUnauthorizedException(String message) {
     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, message);
   }

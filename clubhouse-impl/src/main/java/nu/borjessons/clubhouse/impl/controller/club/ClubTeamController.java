@@ -25,7 +25,7 @@ import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.TeamDto;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
-import nu.borjessons.clubhouse.impl.security.util.ResourceAuthorization;
+import nu.borjessons.clubhouse.impl.security.resource.authorization.UserResourceAuthorization;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 import nu.borjessons.clubhouse.impl.service.TeamService;
 
@@ -34,14 +34,14 @@ import nu.borjessons.clubhouse.impl.service.TeamService;
 public class ClubTeamController {
   private final TeamService teamService;
   private final ClubService clubService;
-  private final ResourceAuthorization resourceAuthorization;
+  private final UserResourceAuthorization userResourceAuthorization;
 
   // TODO Do I want to allow a parent to add a child to a team?
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/add-child")
   public TeamDto addChildrenToTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
       @RequestParam UserId childId) {
-    resourceAuthorization.validateIsChildOfUser(childId, principal.getUserId());
+    userResourceAuthorization.validateIsChildOfUser(childId, principal.getUserId());
     return teamService.addMemberToTeam(clubId, teamId, childId);
   }
 
