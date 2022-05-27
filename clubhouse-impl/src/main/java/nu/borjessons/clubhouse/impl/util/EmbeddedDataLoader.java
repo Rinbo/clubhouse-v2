@@ -1,11 +1,8 @@
 package nu.borjessons.clubhouse.impl.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -34,36 +31,18 @@ import nu.borjessons.clubhouse.impl.service.RegistrationService;
 import nu.borjessons.clubhouse.impl.service.TeamService;
 
 @Component
-@Profile({"local", "test", "dev"})
+@Profile({"test", "dev"})
 @Slf4j
 @RequiredArgsConstructor
 public class EmbeddedDataLoader {
   public static final String BORJESSON = "Börjesson";
   public static final String CLUB_ID = "club1";
   public static final String DEFAULT_PASSWORD = "password";
+  public static final String MOMMY_EMAIL = "mommy@ex.com";
   public static final String OWNER_EMAIL = "owner@ex.com";
   public static final String POPS_EMAIL = "pops@ex.com";
-  public static final String MOMMY_EMAIL = "mommy@ex.com";
   public static final String USER_EMAIL = "user@ex.com";
   public static final UserId USER_ID = new UserId("user1");
-
-  private static CreateUserModel createOwnerModel() {
-    final AddressModel addressModel = new AddressModel();
-    addressModel.setCity("Gothenburg");
-    addressModel.setCountry("Sweden");
-    addressModel.setStreet("Elm Street 5");
-    addressModel.setPostalCode("666");
-
-    CreateUserModel owner = new CreateUserModel();
-    owner.setFirstName("Robin");
-    owner.setLastName(BORJESSON);
-    owner.setDateOfBirth("1980-01-01");
-    owner.setClubId("dummy");
-    owner.setEmail(OWNER_EMAIL);
-    owner.setPassword(DEFAULT_PASSWORD);
-    owner.setAddresses(List.of(addressModel));
-    return owner;
-  }
 
   private static FamilyRequestModel createFamilyRequestModel() {
     FamilyRequestModel familyModel = new FamilyRequestModel();
@@ -114,6 +93,24 @@ public class EmbeddedDataLoader {
     return user;
   }
 
+  private static CreateUserModel createOwnerModel() {
+    final AddressModel addressModel = new AddressModel();
+    addressModel.setCity("Gothenburg");
+    addressModel.setCountry("Sweden");
+    addressModel.setStreet("Elm Street 5");
+    addressModel.setPostalCode("666");
+
+    CreateUserModel owner = new CreateUserModel();
+    owner.setFirstName("Robin");
+    owner.setLastName(BORJESSON);
+    owner.setDateOfBirth("1980-01-01");
+    owner.setClubId("dummy");
+    owner.setEmail(OWNER_EMAIL);
+    owner.setPassword(DEFAULT_PASSWORD);
+    owner.setAddresses(List.of(addressModel));
+    return owner;
+  }
+
   private static TeamRequestModel createTeamModel(UserId leaderId) {
     TeamRequestModel teamRequestModel = new TeamRequestModel();
     teamRequestModel.setName("Cool Team");
@@ -133,10 +130,11 @@ public class EmbeddedDataLoader {
   private final RegistrationService registrationService;
   private final RoleRepository roleRepository;
   private final TeamService teamService;
+  private final RoleLoader roleLoader;
 
   @PostConstruct
   private void loadData() {
-    createNonExistentRoles();
+    EmbeddedDataUtil.loadRoles(roleRepository);
 
     CreateUserModel owner = createOwnerModel();
 
@@ -174,12 +172,5 @@ public class EmbeddedDataLoader {
     userDetails.setDateOfBirth(parent.getDateOfBirth());
     userDetails.setRoles(roles);
     clubUserService.updateUser(parent.getUserId(), CLUB_ID, userDetails);
-  }
-
-  private void createNonExistentRoles() {
-    Collection<Role> existingRoleNames = roleRepository.findAll().stream().map(RoleEntity::getName).collect(Collectors.toSet());
-    Collection<Role> allRoles = Arrays.asList(Role.values());
-    allRoles.removeIf(existingRoleNames::contains);
-    roleRepository.saveAll(allRoles.stream().map(EmbeddedDataLoader::getRoleEntity).toList());
   }
 }
