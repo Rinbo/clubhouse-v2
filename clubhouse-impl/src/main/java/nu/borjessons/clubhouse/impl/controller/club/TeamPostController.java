@@ -2,6 +2,8 @@ package nu.borjessons.clubhouse.impl.controller.club;
 
 import java.util.Collection;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -37,9 +40,9 @@ public class TeamPostController {
 
   @PreAuthorize("hasRole('USER')")
   @GetMapping
-  public Collection<TeamPostRecord> getPosts(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId) {
-    // TODO resourceChecking Either ADMIN or has access to Team
-    return null;
+  public Collection<TeamPostRecord> getPosts(@PathVariable String clubId, @PathVariable String teamId, @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    return teamPostService.getPosts(teamId, PageRequest.of(page, size, Sort.by("sticky").descending().and(Sort.by("updatedAt").descending())));
   }
 
   @PreAuthorize("hasRole('USER')")
@@ -53,9 +56,15 @@ public class TeamPostController {
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/{teamPostId}")
   public TeamPostRecord updatePost(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
-      @PathVariable TeamPostId teamPostId) {
-    // TODO resourceChecking Must belong to user and user be member of team
-    return null;
+      @PathVariable TeamPostId teamPostId, @RequestBody TeamPostRequest teamPostRequest) {
+    // TODO make resource auth to make sure this is the user that created it
+    return teamPostService.updatePost(principal, clubId, teamId, teamPostId, teamPostRequest);
+  }
+
+  @PreAuthorize("hasRole('ADMIN') or hasRole('LEADER')")
+  @PutMapping("/{teamPostId}/toggle-sticky")
+  public TeamPostRecord toggleSticky(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId) {
+    return teamPostService.toggleSticky(teamPostId);
   }
 
   @PreAuthorize("hasRole('USER')")
