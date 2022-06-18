@@ -1,11 +1,15 @@
 package nu.borjessons.clubhouse.impl.controller.club;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,10 +27,16 @@ import nu.borjessons.clubhouse.impl.dto.TeamPostRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamPostRequest;
 import nu.borjessons.clubhouse.impl.service.TeamPostService;
 
+/**
+ * Read access for all members of club
+ * Write access to own post
+ * Toggle sticky only for {@code ADMINS} and {@code LEADER}
+ */
 @RestController
 @RequestMapping("/clubs/{clubId}/teams/{teamId}/posts")
 @RequiredArgsConstructor
 public class TeamPostController {
+  private static final List<GrantedAuthority> ADMIN_ROLES = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_LEADER"));
 
   private final TeamPostService teamPostService;
 
@@ -47,21 +57,18 @@ public class TeamPostController {
 
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/{teamPostId}")
-  public TeamPostRecord getPost(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
-      @PathVariable TeamPostId teamPostId) {
-    // TODO resourceChecking Either ADMIN or has access to Team
-    return null;
+  public TeamPostRecord getPost(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId) {
+    return teamPostService.getPost(teamPostId);
   }
 
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/{teamPostId}")
   public TeamPostRecord updatePost(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
       @PathVariable TeamPostId teamPostId, @RequestBody TeamPostRequest teamPostRequest) {
-    // TODO make resource auth to make sure this is the user that created it
     return teamPostService.updatePost(principal, clubId, teamId, teamPostId, teamPostRequest);
   }
 
-  @PreAuthorize("hasRole('ADMIN') or hasRole('LEADER')")
+  @PreAuthorize("hasRole('USER') or hasRole('LEADER')")
   @PutMapping("/{teamPostId}/toggle-sticky")
   public TeamPostRecord toggleSticky(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId) {
     return teamPostService.toggleSticky(teamPostId);
@@ -69,8 +76,14 @@ public class TeamPostController {
 
   @PreAuthorize("hasRole('USER')")
   @DeleteMapping("/{teamPostId}")
-  public void delete(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId) {
-    // TODO resourceChecking Must be admin or post belong to user
-  }
+  public ResponseEntity<String> delete(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
+      @PathVariable TeamPostId teamPostId) {
+    if (principal.getAuthorities().stream().anyMatch(ADMIN_ROLES::contains)) {
+      teamPostService.deletePost(teamPostId);
+    } else {
+      teamPostService.deletePost(principal, clubId, teamPostId);
+    }
 
+    return ResponseEntity.ok("Post successfully deleted");
+  }
 }

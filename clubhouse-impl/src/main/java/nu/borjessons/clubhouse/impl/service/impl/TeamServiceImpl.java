@@ -106,7 +106,7 @@ public class TeamServiceImpl implements TeamService {
   @Transactional
   public Set<TeamDto> getTeamsByUserId(String clubId, UserId userId) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId.toString()).orElseThrow();
-    return clubUser.getTeams()
+    return clubUser.getJoinedTeams()
         .stream()
         .map(TeamDto::create)
         .collect(Collectors.toSet());

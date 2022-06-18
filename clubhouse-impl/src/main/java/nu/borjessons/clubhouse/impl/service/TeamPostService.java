@@ -17,4 +17,10 @@ public interface TeamPostService {
   TeamPostRecord toggleSticky(TeamPostId teamPostId);
 
   TeamPostRecord updatePost(User principal, String clubId, String teamId, TeamPostId teamPostId, TeamPostRequest teamPostRequest);
+
+  TeamPostRecord getPost(TeamPostId teamPostId);
+
+  void deletePost(TeamPostId teamPostId);
+
+  void deletePost(User principal, String clubId, TeamPostId teamPostId);
 }

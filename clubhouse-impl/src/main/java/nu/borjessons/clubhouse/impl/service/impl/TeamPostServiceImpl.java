@@ -50,8 +50,7 @@ public class TeamPostServiceImpl implements TeamPostService {
   @Transactional
   @Override
   public TeamPostRecord createPost(User user, String clubId, String teamId, TeamPostRequest teamPostRequest) {
-    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, user.getId())
-        .orElseThrow(notFoundExceptionSupplier("user not found: " + user.getUserId()));
+    ClubUser clubUser = getClubUser(user, clubId);
 
     Team team = teamRepository.findByTeamId(teamId).orElseThrow(notFoundExceptionSupplier("team not found: " + teamId));
 
@@ -60,7 +59,7 @@ public class TeamPostServiceImpl implements TeamPostService {
 
   @Override
   public Collection<TeamPostRecord> getPosts(String teamId, PageRequest pageRequest) {
-    return teamPostRepository.getTeamPostByTeamId(teamId, pageRequest).stream().map(TeamPostRecord::new).toList();
+    return teamPostRepository.findByTeamPostByTeamId(teamId, pageRequest).stream().map(TeamPostRecord::new).toList();
   }
 
   @Override
@@ -73,14 +72,38 @@ public class TeamPostServiceImpl implements TeamPostService {
   @Override
   @Transactional
   public TeamPostRecord updatePost(User principal, String clubId, String teamId, TeamPostId teamPostId, TeamPostRequest teamPostRequest) {
-    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, principal.getId())
-        .orElseThrow(notFoundExceptionSupplier("user not found: " + principal.getUserId()));
-
-    TeamPost teamPost = teamPostRepository.findByTeamPostIdAndClubUser(teamPostId, clubUser)
-        .orElseThrow(notFoundExceptionSupplier(
-            String.format(Locale.ROOT, "Post with id %s not found for user %s", teamPostId, clubUser.getId())));
-
+    ClubUser clubUser = getClubUser(principal, clubId);
+    TeamPost teamPost = getTeamPost(clubUser, teamPostId);
     updateTeamPost(teamPost, teamPostRequest);
+
     return new TeamPostRecord(teamPostRepository.save(teamPost));
+  }
+
+  @Override
+  public TeamPostRecord getPost(TeamPostId teamPostId) {
+    return new TeamPostRecord(teamPostRepository.findByTeamPostId(teamPostId).orElseThrow(notFoundExceptionSupplier("team post not found: " + teamPostId)));
+  }
+
+  @Override
+  public void deletePost(TeamPostId teamPostId) {
+    teamPostRepository.deleteByTeamPostId(teamPostId);
+  }
+
+  @Transactional
+  @Override
+  public void deletePost(User principal, String clubId, TeamPostId teamPostId) {
+    ClubUser clubUser = getClubUser(principal, clubId);
+    TeamPost teamPost = getTeamPost(clubUser, teamPostId);
+    teamPostRepository.delete(teamPost);
+  }
+
+  private TeamPost getTeamPost(ClubUser clubUser, TeamPostId teamPostId) {
+    return teamPostRepository.findByTeamPostIdAndClubUser(teamPostId, clubUser)
+        .orElseThrow(notFoundExceptionSupplier(String.format(Locale.ROOT, "Post with id %s not found for user %s", teamPostId, clubUser.getId())));
+  }
+
+  private ClubUser getClubUser(User principal, String clubId) {
+    return clubUserRepository.findByClubIdAndUserId(clubId, principal.getId())
+        .orElseThrow(notFoundExceptionSupplier("user not found: " + principal.getUserId()));
   }
 }

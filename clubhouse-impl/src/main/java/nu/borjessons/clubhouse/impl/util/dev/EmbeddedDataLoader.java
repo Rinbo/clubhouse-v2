@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.Club.Type;
-import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.Role;
@@ -120,17 +119,10 @@ public class EmbeddedDataLoader {
     return teamRequestModel;
   }
 
-  private static RoleEntity getRoleEntity(Role role) {
-    final RoleEntity roleEntity = new RoleEntity();
-    roleEntity.setName(role);
-    return roleEntity;
-  }
-
   private final ClubUserService clubUserService;
   private final RegistrationService registrationService;
   private final RoleRepository roleRepository;
   private final TeamService teamService;
-  private final RoleLoader roleLoader;
 
   @PostConstruct
   private void loadData() {

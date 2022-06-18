@@ -26,87 +26,87 @@ public class TeamUtil {
     return teamRequestModel;
   }
 
-  public static List<Team> getAllTeams(TeamRepository teamRepository) {
-    return teamRepository.findAll();
-  }
-
   public static TeamDto createTeam(String clubId, TeamRequestModel teamRequestModel, String token) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams").buildAndExpand(clubId).toUriString();
-    final ResponseEntity<String> response = RestUtil.postRequest(uri, token, teamRequestModel, String.class);
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams").buildAndExpand(clubId).toUriString();
+    ResponseEntity<String> response = RestUtil.postRequest(uri, token, teamRequestModel, String.class);
     Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
     return RestUtil.deserializeJsonBody(response.getBody(), TeamDto.class);
 
   }
 
-  public static List<TeamDto> getMyTeams(String clubId, String token) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/my-teams").buildAndExpand(clubId).toUriString();
-    final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    final TeamDto[] teamDtos = RestUtil.deserializeJsonBody(response.getBody(), TeamDto[].class);
-    return Arrays.stream(teamDtos).collect(Collectors.toList());
+  public static List<Team> getAllTeams(TeamRepository teamRepository) {
+    return teamRepository.findAll();
   }
 
   public static List<TeamDto> getClubTeams(String clubId, String token) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams").buildAndExpand(clubId).toUriString();
-    final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams").buildAndExpand(clubId).toUriString();
+    ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    final TeamDto[] teamDtos = RestUtil.deserializeJsonBody(response.getBody(), TeamDto[].class);
+    TeamDto[] teamDtos = RestUtil.deserializeJsonBody(response.getBody(), TeamDto[].class);
+    return Arrays.stream(teamDtos).collect(Collectors.toList());
+  }
+
+  public static List<TeamDto> getMyTeams(String clubId, String token) throws JsonProcessingException {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/my-teams").buildAndExpand(clubId).toUriString();
+    ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    TeamDto[] teamDtos = RestUtil.deserializeJsonBody(response.getBody(), TeamDto[].class);
     return Arrays.stream(teamDtos).collect(Collectors.toList());
   }
 
   public static TeamDto getTeamById(String clubId, String teamId, String token) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}")
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}")
         .buildAndExpand(clubId, teamId)
         .toUriString();
 
-    final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
+    ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return RestUtil.deserializeJsonBody(response.getBody(), TeamDto.class);
   }
 
   public static TeamDto joinTeam(String clubId, String teamId, String token) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/join")
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/join")
         .buildAndExpand(clubId, teamId)
         .toUriString();
 
-    final ResponseEntity<String> response = RestUtil.putRequest(uri, token, String.class);
+    ResponseEntity<String> response = RestUtil.putRequest(uri, token, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return RestUtil.deserializeJsonBody(response.getBody(), TeamDto.class);
   }
 
   public static void leaveTeam(String clubId, String teamId, String token) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/leave")
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/leave")
         .buildAndExpand(clubId, teamId)
         .toUriString();
 
-    final ResponseEntity<String> response = RestUtil.putRequest(uri, token, String.class);
+    ResponseEntity<String> response = RestUtil.putRequest(uri, token, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
   public static TeamDto removeLeaderFromTeam(String clubId, UserId leaderId, String teamId, String token) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/remove-leader")
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/remove-leader")
         .queryParam("leaderId", leaderId)
         .buildAndExpand(clubId, teamId)
         .toUriString();
-    final ResponseEntity<String> response = RestUtil.putRequest(uri, token, String.class);
+    ResponseEntity<String> response = RestUtil.putRequest(uri, token, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return RestUtil.deserializeJsonBody(response.getBody(), TeamDto.class);
   }
 
   public static TeamDto updateTeam(String clubId, TeamRequestModel teamRequestModel, String teamId, String token) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}")
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}")
         .buildAndExpand(clubId, teamId)
         .toUriString();
-    final ResponseEntity<String> response = RestUtil.putRequest(uri, token, teamRequestModel, String.class);
+    ResponseEntity<String> response = RestUtil.putRequest(uri, token, teamRequestModel, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return RestUtil.deserializeJsonBody(response.getBody(), TeamDto.class);
   }
 
   public static TeamDto updateTeamMembers(String clubId, String teamId, List<String> memberList, String token) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/members")
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/members")
         .buildAndExpand(clubId, teamId)
         .toUriString();
-    final ResponseEntity<String> response = RestUtil.putRequest(uri, token, memberList, String.class);
+    ResponseEntity<String> response = RestUtil.putRequest(uri, token, memberList, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return RestUtil.deserializeJsonBody(response.getBody(), TeamDto.class);
   }

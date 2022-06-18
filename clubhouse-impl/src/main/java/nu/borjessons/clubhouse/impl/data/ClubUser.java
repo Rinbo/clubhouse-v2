@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -42,6 +43,10 @@ public class ClubUser extends BaseEntity {
 
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<RoleEntity> roles = new HashSet<>();
+
+  public List<Team> getJoinedTeams() {
+    return Stream.concat(teams.stream(), this.managedTeams.stream()).toList();
+  }
 
   public void addRoleEntity(RoleEntity roleEntity) {
     roles.add(roleEntity);
