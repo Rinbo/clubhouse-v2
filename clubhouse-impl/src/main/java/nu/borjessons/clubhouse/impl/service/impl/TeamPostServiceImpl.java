@@ -13,13 +13,14 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.TeamPost;
+import nu.borjessons.clubhouse.impl.data.TeamPostComment;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.TeamPostId;
 import nu.borjessons.clubhouse.impl.dto.TeamPostRecord;
+import nu.borjessons.clubhouse.impl.dto.rest.TeamPostCommentRequest;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamPostRequest;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.repository.TeamPostRepository;
-import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 import nu.borjessons.clubhouse.impl.service.TeamPostService;
 
 @Service
@@ -45,14 +46,12 @@ public class TeamPostServiceImpl implements TeamPostService {
 
   private final ClubUserRepository clubUserRepository;
   private final TeamPostRepository teamPostRepository;
-  private final TeamRepository teamRepository;
 
   @Transactional
   @Override
   public TeamPostRecord createPost(User user, String clubId, String teamId, TeamPostRequest teamPostRequest) {
     ClubUser clubUser = getClubUser(user, clubId);
-
-    Team team = teamRepository.findByTeamId(teamId).orElseThrow(notFoundExceptionSupplier("team not found: " + teamId));
+    Team team = findClubUserTeam(clubUser, teamId);
 
     return new TeamPostRecord(teamPostRepository.save(createTeamPost(clubUser, team, teamPostRequest)));
   }
@@ -95,6 +94,25 @@ public class TeamPostServiceImpl implements TeamPostService {
     ClubUser clubUser = getClubUser(principal, clubId);
     TeamPost teamPost = getTeamPost(clubUser, teamPostId);
     teamPostRepository.delete(teamPost);
+  }
+
+  @Override
+  public TeamPostRecord createComment(User principal, String clubId, TeamPostId teamPostId, TeamPostCommentRequest teamPostCommentRequest) {
+    ClubUser clubUser = getClubUser(principal, clubId);
+    TeamPostComment teamPostComment = new TeamPostComment();
+    teamPostComment.setComment(teamPostCommentRequest.comment());
+    teamPostComment.setClubUser(clubUser);
+
+    TeamPost teamPost = teamPostRepository.findByTeamPostId(teamPostId).orElseThrow(notFoundExceptionSupplier("team post not found: " + teamPostId));
+    teamPost.addComment(teamPostComment);
+    return new TeamPostRecord(teamPostRepository.save(teamPost));
+  }
+
+  private Team findClubUserTeam(ClubUser clubUser, String teamId) {
+    return clubUser.getJoinedTeams()
+        .stream().filter(t -> t.getTeamId().equals(teamId))
+        .findFirst()
+        .orElseThrow(notFoundExceptionSupplier("team not found: " + teamId));
   }
 
   private TeamPost getTeamPost(ClubUser clubUser, TeamPostId teamPostId) {

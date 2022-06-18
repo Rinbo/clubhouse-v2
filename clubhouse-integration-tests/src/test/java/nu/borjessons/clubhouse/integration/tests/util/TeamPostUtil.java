@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import nu.borjessons.clubhouse.impl.data.key.TeamPostId;
 import nu.borjessons.clubhouse.impl.dto.TeamPostRecord;
+import nu.borjessons.clubhouse.impl.dto.rest.TeamPostCommentRequest;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamPostRequest;
 
 public class TeamPostUtil {
@@ -20,6 +21,14 @@ public class TeamPostUtil {
   public static TeamPostRecord create(String token, String clubId, String teamId) throws JsonProcessingException {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/posts").buildAndExpand(clubId, teamId).toUriString();
     ResponseEntity<String> responseEntity = RestUtil.postRequest(uri, token, createTeamPostRequest(), String.class);
+    Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+    return RestUtil.deserializeJsonBody(responseEntity.getBody(), TeamPostRecord.class);
+  }
+
+  public static TeamPostRecord createComment(String token, String clubId, String teamId, TeamPostId teamPostId) throws JsonProcessingException {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/posts/{teamPostId}/comment").buildAndExpand(clubId, teamId, teamPostId).toUriString();
+    ResponseEntity<String> responseEntity = RestUtil.postRequest(uri, token, new TeamPostCommentRequest("a comment"), String.class);
     Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
 
     return RestUtil.deserializeJsonBody(responseEntity.getBody(), TeamPostRecord.class);

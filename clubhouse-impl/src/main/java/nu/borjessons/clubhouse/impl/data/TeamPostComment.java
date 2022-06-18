@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,6 +20,7 @@ public class TeamPostComment extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
+  @Column(columnDefinition = "TEXT")
   private String comment;
 
   @ManyToOne(optional = false)

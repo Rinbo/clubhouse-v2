@@ -73,4 +73,18 @@ class TeamPostIntegrationTest {
       Assertions.assertTrue(TeamPostUtil.getAll(token, EmbeddedDataLoader.CLUB_ID, teamId).isEmpty());
     }
   }
+
+  @Test
+  void createComment() throws Exception {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String teamId = TeamUtil.getMyTeams(EmbeddedDataLoader.CLUB_ID, token).iterator().next().getTeamId();
+      TeamPostId teamPostId = TeamPostUtil.create(token, EmbeddedDataLoader.CLUB_ID, teamId).teamPostId();
+
+      TeamPostRecord teamPostRecord = TeamPostUtil.createComment(token, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId);
+
+      Assertions.assertEquals("a comment", teamPostRecord.teamPostComments().iterator().next().comment());
+    }
+  }
 }

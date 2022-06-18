@@ -41,6 +41,7 @@ public class TeamPost extends BaseEntity {
 
   private String title;
 
+  @Column(columnDefinition = "TEXT")
   private String body;
 
   @ManyToOne
@@ -54,6 +55,11 @@ public class TeamPost extends BaseEntity {
 
   public TeamPost() {
     teamPostId = new TeamPostId(UUID.randomUUID().toString());
+  }
+
+  public void addComment(TeamPostComment teamPostComment) {
+    teamPostComment.setTeamPost(this);
+    this.teamPostComments.add(teamPostComment);
   }
 }
 
