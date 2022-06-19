@@ -90,14 +90,14 @@ public class TeamPostController {
   }
 
   @PreAuthorize("hasRole('USER')")
-  @PostMapping("/{teamPostId}/comment")
+  @PostMapping("/{teamPostId}/comments")
   public TeamPostRecord createTeamPostComment(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
       @PathVariable TeamPostId teamPostId, @RequestBody TeamPostCommentRequest teamPostCommentRequest) {
     return teamPostService.createComment(principal, clubId, teamPostId, teamPostCommentRequest);
   }
 
   @PreAuthorize("hasRole('USER')")
-  @PostMapping("/{teamPostId}/comments/{teamPostCommentId}")
+  @PutMapping("/{teamPostId}/comments/{teamPostCommentId}")
   public TeamPostRecord updateTeamPostComment(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
       @PathVariable TeamPostId teamPostId, @PathVariable long teamPostCommentId, @RequestBody TeamPostCommentRequest teamPostCommentRequest) {
     return teamPostService.updateComment(principal, clubId, teamPostCommentId, teamPostCommentRequest);
@@ -120,6 +120,6 @@ public class TeamPostController {
   @GetMapping("/{teamPostId}/comments")
   public Collection<TeamPostCommentRecord> getTeamPostComments(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId,
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    return teamPostService.getTeamPostComments(teamPostId, PageRequest.of(page, size));
+    return teamPostService.getTeamPostComments(teamPostId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
   }
 }
