@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.TeamPostId;
+import nu.borjessons.clubhouse.impl.dto.TeamPostCommentRecord;
 import nu.borjessons.clubhouse.impl.dto.TeamPostRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamPostCommentRequest;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamPostRequest;
@@ -93,5 +94,32 @@ public class TeamPostController {
   public TeamPostRecord createTeamPostComment(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
       @PathVariable TeamPostId teamPostId, @RequestBody TeamPostCommentRequest teamPostCommentRequest) {
     return teamPostService.createComment(principal, clubId, teamPostId, teamPostCommentRequest);
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @PostMapping("/{teamPostId}/comments/{teamPostCommentId}")
+  public TeamPostRecord updateTeamPostComment(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
+      @PathVariable TeamPostId teamPostId, @PathVariable long teamPostCommentId, @RequestBody TeamPostCommentRequest teamPostCommentRequest) {
+    return teamPostService.updateComment(principal, clubId, teamPostCommentId, teamPostCommentRequest);
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @DeleteMapping("/{teamPostId}/comments/{teamPostCommentId}")
+  public ResponseEntity<String> deleteTeamPostComment(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
+      @PathVariable TeamPostId teamPostId, @PathVariable long teamPostCommentId) {
+    if (principal.getAuthorities().stream().anyMatch(ADMIN_ROLES::contains)) {
+      teamPostService.deleteTeamPostComment(teamPostCommentId);
+    } else {
+      teamPostService.deleteTeamPostComment(principal, clubId, teamPostCommentId);
+    }
+
+    return ResponseEntity.ok("Comment successfully deleted");
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping("/{teamPostId}/comments")
+  public Collection<TeamPostCommentRecord> getTeamPostComments(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId,
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    return teamPostService.getTeamPostComments(teamPostId, PageRequest.of(page, size));
   }
 }
