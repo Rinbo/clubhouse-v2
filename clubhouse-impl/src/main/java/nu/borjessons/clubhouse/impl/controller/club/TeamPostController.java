@@ -42,6 +42,11 @@ public class TeamPostController {
 
   private final TeamPostService teamPostService;
 
+  @GetMapping("/size")
+  public ResponseEntity<Integer> getSize(@PathVariable String clubId, @PathVariable String teamId) {
+    return ResponseEntity.ok(teamPostService.getSize(teamId));
+  }
+
   @PreAuthorize("hasRole('USER')")
   @PostMapping
   public TeamPostRecord createPost(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
@@ -87,6 +92,11 @@ public class TeamPostController {
     }
 
     return ResponseEntity.ok("Post successfully deleted");
+  }
+
+  @GetMapping("/{teamPostId}/comments/size")
+  public ResponseEntity<Integer> getSize(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId) {
+    return ResponseEntity.ok(teamPostService.getCommentSize(teamPostId));
   }
 
   @PreAuthorize("hasRole('USER')")

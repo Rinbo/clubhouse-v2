@@ -136,6 +136,16 @@ public class TeamPostServiceImpl implements TeamPostService {
     return teamPostCommentRepository.findByTeamPostId(teamPostId, pageRequest).stream().map(TeamPostCommentRecord::new).toList();
   }
 
+  @Override
+  public int getSize(String teamId) {
+    return teamPostRepository.countByTeamId(teamId);
+  }
+
+  @Override
+  public int getCommentSize(TeamPostId teamPostId) {
+    return teamPostCommentRepository.countByTeamPostId(teamPostId);
+  }
+
   private TeamPostComment getTeamPostComment(long teamPostCommentId, ClubUser clubUser) {
     return teamPostCommentRepository.findByIdAndClubUser(teamPostCommentId, clubUser)
         .orElseThrow(notFoundExceptionSupplier("teamPostCommentId not found: " + teamPostCommentId));

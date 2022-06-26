@@ -101,8 +101,10 @@ class TeamPostIntegrationTest {
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       TeamPostRecord teamPostRecord = createTeamPostRecord(token);
+
       String teamId = teamPostRecord.teamId();
       TeamPostId teamPostId = teamPostRecord.teamPostId();
+
       TeamPostUtil.createComment(token, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId);
       TeamPostUtil.createComment(token, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId);
       TeamPostUtil.createComment(token, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId);

@@ -17,4 +17,7 @@ public interface TeamPostCommentRepository extends PagingAndSortingRepository<Te
 
   @Query("select t from TeamPostComment t where t.teamPost.id in (select tp.id from TeamPost tp where tp.teamPostId = ?1)")
   Collection<TeamPostComment> findByTeamPostId(TeamPostId teamPostId, PageRequest pageRequest);
+
+  @Query(value = "SELECT COUNT(*) FROM team_post_comment WHERE team_post_id IN (SELECT id FROM team_post WHERE team_post.team_post_id = ?1)", nativeQuery = true)
+  int countByTeamPostId(TeamPostId teamPostId);
 }

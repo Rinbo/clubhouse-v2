@@ -23,4 +23,7 @@ public interface TeamPostRepository extends PagingAndSortingRepository<TeamPost,
   Optional<TeamPost> findByTeamPostIdAndClubUser(TeamPostId teamPostId, ClubUser clubUser);
 
   void deleteByTeamPostId(TeamPostId teamPostId);
+
+  @Query(value = "SELECT COUNT(*) FROM team_post WHERE team_id IN (SELECT id FROM team WHERE team.team_id = ?1)", nativeQuery = true)
+  int countByTeamId(String teamId);
 }

@@ -35,4 +35,8 @@ public interface TeamPostService {
   void deleteTeamPostComment(User principal, String clubId, long teamPostCommentId);
 
   Collection<TeamPostCommentRecord> getTeamPostComments(TeamPostId teamPostId, PageRequest pageRequest);
+
+  int getSize(String teamId);
+
+  int getCommentSize(TeamPostId teamPostId);
 }
