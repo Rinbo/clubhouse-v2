@@ -23,6 +23,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.TeamPostRequest;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.repository.TeamPostCommentRepository;
 import nu.borjessons.clubhouse.impl.repository.TeamPostRepository;
+import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 import nu.borjessons.clubhouse.impl.service.TeamPostService;
 
 @Service
@@ -47,6 +48,7 @@ public class TeamPostServiceImpl implements TeamPostService {
   }
 
   private final ClubUserRepository clubUserRepository;
+  private final TeamRepository teamRepository;
   private final TeamPostRepository teamPostRepository;
   private final TeamPostCommentRepository teamPostCommentRepository;
 
@@ -54,7 +56,7 @@ public class TeamPostServiceImpl implements TeamPostService {
   @Override
   public TeamPostRecord createPost(User user, String clubId, String teamId, TeamPostRequest teamPostRequest) {
     ClubUser clubUser = getClubUser(user, clubId);
-    Team team = findClubUserTeam(clubUser, teamId);
+    Team team = teamRepository.findByTeamId(teamId).orElseThrow(notFoundExceptionSupplier("Team not found " + teamId));
 
     return new TeamPostRecord(teamPostRepository.save(createTeamPost(clubUser, team, teamPostRequest)));
   }
