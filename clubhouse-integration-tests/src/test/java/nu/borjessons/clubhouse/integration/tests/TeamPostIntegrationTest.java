@@ -29,7 +29,7 @@ class TeamPostIntegrationTest {
     try {
       TeamPostUtil.delete(userToken, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId);
     } catch (HttpClientErrorException e) {
-      Assertions.assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
+      Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
     }
   }
 
@@ -60,22 +60,6 @@ class TeamPostIntegrationTest {
       verifyTeamPost(TeamPostUtil.get(userToken, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId), teamId, TeamPostUtil.TITLE,
           TeamPostUtil.BODY);
       Assertions.assertEquals(1, TeamPostUtil.getAll(token, EmbeddedDataLoader.CLUB_ID, teamId).size());
-
-      TeamPostUtil.delete(token, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId);
-      Assertions.assertTrue(TeamPostUtil.getAll(token, EmbeddedDataLoader.CLUB_ID, teamId).isEmpty());
-    }
-  }
-
-  @Test
-  void updateDeleteTest() throws Exception {
-    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
-        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      String teamId = TeamUtil.getMyTeams(EmbeddedDataLoader.CLUB_ID, token).iterator().next().getTeamId();
-      TeamPostId teamPostId = TeamPostUtil.create(token, EmbeddedDataLoader.CLUB_ID, teamId).teamPostId();
-
-      verifyTeamPost(TeamPostUtil.getAll(token, EmbeddedDataLoader.CLUB_ID, teamId).iterator().next(), teamId, TeamPostUtil.TITLE, TeamPostUtil.BODY);
-      verifyTeamPost(TeamPostUtil.update(token, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId), teamId, "Updated title", "Updated body");
 
       TeamPostUtil.delete(token, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId);
       Assertions.assertTrue(TeamPostUtil.getAll(token, EmbeddedDataLoader.CLUB_ID, teamId).isEmpty());
@@ -133,6 +117,22 @@ class TeamPostIntegrationTest {
       Assertions.assertEquals("updated Comment", teamPostCommentRecord.comment());
       TeamPostUtil.deleteComment(token, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId, teamPostCommentId);
       Assertions.assertEquals(0, TeamPostUtil.getComments(token, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId, 0, 10).size());
+    }
+  }
+
+  @Test
+  void updateDeleteTest() throws Exception {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String teamId = TeamUtil.getMyTeams(EmbeddedDataLoader.CLUB_ID, token).iterator().next().getTeamId();
+      TeamPostId teamPostId = TeamPostUtil.create(token, EmbeddedDataLoader.CLUB_ID, teamId).teamPostId();
+
+      verifyTeamPost(TeamPostUtil.getAll(token, EmbeddedDataLoader.CLUB_ID, teamId).iterator().next(), teamId, TeamPostUtil.TITLE, TeamPostUtil.BODY);
+      verifyTeamPost(TeamPostUtil.update(token, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId), teamId, "Updated title", "Updated body");
+
+      TeamPostUtil.delete(token, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId);
+      Assertions.assertTrue(TeamPostUtil.getAll(token, EmbeddedDataLoader.CLUB_ID, teamId).isEmpty());
     }
   }
 }

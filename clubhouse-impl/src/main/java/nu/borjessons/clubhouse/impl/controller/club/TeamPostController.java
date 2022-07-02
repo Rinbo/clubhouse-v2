@@ -27,6 +27,7 @@ import nu.borjessons.clubhouse.impl.dto.TeamPostCommentRecord;
 import nu.borjessons.clubhouse.impl.dto.TeamPostRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamPostCommentRequest;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamPostRequest;
+import nu.borjessons.clubhouse.impl.security.resource.authorization.TeamPostResourceAuthorization;
 import nu.borjessons.clubhouse.impl.service.TeamPostService;
 
 /**
@@ -39,13 +40,8 @@ import nu.borjessons.clubhouse.impl.service.TeamPostService;
 @RequiredArgsConstructor
 public class TeamPostController {
   private static final List<GrantedAuthority> ADMIN_ROLES = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_LEADER"));
-
+  private final TeamPostResourceAuthorization teamPostResourceAuthorization;
   private final TeamPostService teamPostService;
-
-  @GetMapping("/size")
-  public ResponseEntity<Integer> getSize(@PathVariable String clubId, @PathVariable String teamId) {
-    return ResponseEntity.ok(teamPostService.getSize(teamId));
-  }
 
   @PreAuthorize("hasRole('USER')")
   @PostMapping
@@ -56,50 +52,6 @@ public class TeamPostController {
   }
 
   @PreAuthorize("hasRole('USER')")
-  @GetMapping
-  public Collection<TeamPostRecord> getPosts(@PathVariable String clubId, @PathVariable String teamId, @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size) {
-    return teamPostService.getPosts(teamId, PageRequest.of(page, size, Sort.by("sticky").descending().and(Sort.by("updatedAt").descending())));
-  }
-
-  @PreAuthorize("hasRole('USER')")
-  @GetMapping("/{teamPostId}")
-  public TeamPostRecord getPost(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId) {
-    return teamPostService.getPost(teamPostId);
-  }
-
-  @PreAuthorize("hasRole('USER')")
-  @PutMapping("/{teamPostId}")
-  public TeamPostRecord updatePost(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
-      @PathVariable TeamPostId teamPostId, @RequestBody TeamPostRequest teamPostRequest) {
-    return teamPostService.updatePost(principal, clubId, teamId, teamPostId, teamPostRequest);
-  }
-
-  @PreAuthorize("hasRole('USER') or hasRole('LEADER')")
-  @PutMapping("/{teamPostId}/toggle-sticky")
-  public TeamPostRecord toggleSticky(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId) {
-    return teamPostService.toggleSticky(teamPostId);
-  }
-
-  @PreAuthorize("hasRole('USER')")
-  @DeleteMapping("/{teamPostId}")
-  public ResponseEntity<String> delete(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
-      @PathVariable TeamPostId teamPostId) {
-    if (principal.getAuthorities().stream().anyMatch(ADMIN_ROLES::contains)) {
-      teamPostService.deletePost(teamPostId);
-    } else {
-      teamPostService.deletePost(principal, clubId, teamPostId);
-    }
-
-    return ResponseEntity.ok("Post successfully deleted");
-  }
-
-  @GetMapping("/{teamPostId}/comments/size")
-  public ResponseEntity<Integer> getSize(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId) {
-    return ResponseEntity.ok(teamPostService.getCommentSize(teamPostId));
-  }
-
-  @PreAuthorize("hasRole('USER')")
   @PostMapping("/{teamPostId}/comments")
   public TeamPostRecord createTeamPostComment(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
       @PathVariable TeamPostId teamPostId, @RequestBody TeamPostCommentRequest teamPostCommentRequest) {
@@ -107,10 +59,10 @@ public class TeamPostController {
   }
 
   @PreAuthorize("hasRole('USER')")
-  @PutMapping("/{teamPostId}/comments/{teamPostCommentId}")
-  public TeamPostRecord updateTeamPostComment(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
-      @PathVariable TeamPostId teamPostId, @PathVariable long teamPostCommentId, @RequestBody TeamPostCommentRequest teamPostCommentRequest) {
-    return teamPostService.updateComment(principal, clubId, teamPostCommentId, teamPostCommentRequest);
+  @DeleteMapping("/{teamPostId}")
+  public ResponseEntity<String> deletePost(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId) {
+    teamPostService.deletePost(teamPostResourceAuthorization.getAuthorizedTeamPost(clubId, teamPostId));
+    return ResponseEntity.ok("Post successfully deleted");
   }
 
   @PreAuthorize("hasRole('USER')")
@@ -126,10 +78,53 @@ public class TeamPostController {
     return ResponseEntity.ok("Comment successfully deleted");
   }
 
+  @GetMapping("/{teamPostId}/comments/size")
+  public ResponseEntity<Integer> getCommentSize(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId) {
+    return ResponseEntity.ok(teamPostService.getCommentSize(teamPostId));
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping("/{teamPostId}")
+  public TeamPostRecord getPost(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId) {
+    return teamPostService.getPost(teamPostId);
+  }
+
+  @GetMapping("/size")
+  public ResponseEntity<Integer> getPostSize(@PathVariable String clubId, @PathVariable String teamId) {
+    return ResponseEntity.ok(teamPostService.getSize(teamId));
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping
+  public Collection<TeamPostRecord> getPosts(@PathVariable String clubId, @PathVariable String teamId, @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    return teamPostService.getPosts(teamId, PageRequest.of(page, size, Sort.by("sticky").descending().and(Sort.by("updatedAt").descending())));
+  }
+
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/{teamPostId}/comments")
   public Collection<TeamPostCommentRecord> getTeamPostComments(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId,
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
     return teamPostService.getTeamPostComments(teamPostId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
+  }
+
+  @PreAuthorize("hasRole('USER') or hasRole('LEADER')")
+  @PutMapping("/{teamPostId}/toggle-sticky")
+  public TeamPostRecord toggleSticky(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId) {
+    return teamPostService.toggleSticky(teamPostId);
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @PutMapping("/{teamPostId}")
+  public TeamPostRecord updatePost(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId,
+      @RequestBody TeamPostRequest teamPostRequest) {
+    return teamPostService.updatePost(teamPostResourceAuthorization.getSelfAuthorizedTeamPost(clubId, teamPostId), teamPostRequest);
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @PutMapping("/{teamPostId}/comments/{teamPostCommentId}")
+  public TeamPostRecord updateTeamPostComment(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
+      @PathVariable TeamPostId teamPostId, @PathVariable long teamPostCommentId, @RequestBody TeamPostCommentRequest teamPostCommentRequest) {
+    return teamPostService.updateComment(principal, clubId, teamPostCommentId, teamPostCommentRequest);
   }
 }
