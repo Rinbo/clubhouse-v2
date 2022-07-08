@@ -74,15 +74,10 @@ public class TeamPostServiceImpl implements TeamPostService {
     teamPostRepository.delete(teamPost);
   }
 
+  @Transactional
   @Override
-  public void deleteTeamPostComment(long teamPostCommentId) {
-    teamPostCommentRepository.deleteById(teamPostCommentId);
-  }
-
-  @Override
-  public void deleteTeamPostComment(User principal, String clubId, long teamPostCommentId) {
-    ClubUser clubUser = getClubUser(principal, clubId);
-    teamPostCommentRepository.delete(getTeamPostComment(teamPostCommentId, clubUser));
+  public void deleteTeamPostComment(TeamPostComment teamPostComment) {
+    teamPostCommentRepository.delete(teamPostComment);
   }
 
   @Override
@@ -119,11 +114,9 @@ public class TeamPostServiceImpl implements TeamPostService {
     return new TeamPostRecord(teamPostRepository.save(teamPost));
   }
 
-  @Override
   @Transactional
-  public TeamPostRecord updateComment(User principal, String clubId, long teamPostCommentId, TeamPostCommentRequest teamPostCommentRequest) {
-    ClubUser clubUser = getClubUser(principal, clubId);
-    TeamPostComment teamPostComment = getTeamPostComment(teamPostCommentId, clubUser);
+  @Override
+  public TeamPostRecord updateComment(TeamPostComment teamPostComment, TeamPostCommentRequest teamPostCommentRequest) {
     teamPostComment.setComment(teamPostCommentRequest.comment());
     return new TeamPostRecord(teamPostCommentRepository.save(teamPostComment).getTeamPost());
   }

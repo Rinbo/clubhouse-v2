@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.springframework.data.domain.PageRequest;
 
 import nu.borjessons.clubhouse.impl.data.TeamPost;
+import nu.borjessons.clubhouse.impl.data.TeamPostComment;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.TeamPostId;
 import nu.borjessons.clubhouse.impl.dto.TeamPostCommentRecord;
@@ -19,9 +20,7 @@ public interface TeamPostService {
 
   void deletePost(TeamPost teamPost);
 
-  void deleteTeamPostComment(long teamPostCommentId);
-
-  void deleteTeamPostComment(User principal, String clubId, long teamPostCommentId);
+  void deleteTeamPostComment(TeamPostComment teamPostComment);
 
   int getCommentSize(TeamPostId teamPostId);
 
@@ -35,7 +34,7 @@ public interface TeamPostService {
 
   TeamPostRecord toggleSticky(TeamPostId teamPostId);
 
-  TeamPostRecord updateComment(User principal, String clubId, long teamPostCommentId, TeamPostCommentRequest teamPostCommentRequest);
+  TeamPostRecord updateComment(TeamPostComment teamPostComment, TeamPostCommentRequest teamPostCommentRequest);
 
   TeamPostRecord updatePost(TeamPost teamPost, TeamPostRequest teamPostRequest);
 }

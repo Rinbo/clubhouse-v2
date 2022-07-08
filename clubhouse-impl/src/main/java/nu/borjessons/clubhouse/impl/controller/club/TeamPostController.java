@@ -69,11 +69,7 @@ public class TeamPostController {
   @DeleteMapping("/{teamPostId}/comments/{teamPostCommentId}")
   public ResponseEntity<String> deleteTeamPostComment(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
       @PathVariable TeamPostId teamPostId, @PathVariable long teamPostCommentId) {
-    if (principal.getAuthorities().stream().anyMatch(ADMIN_ROLES::contains)) {
-      teamPostService.deleteTeamPostComment(teamPostCommentId);
-    } else {
-      teamPostService.deleteTeamPostComment(principal, clubId, teamPostCommentId);
-    }
+    teamPostService.deleteTeamPostComment(teamPostResourceAuthorization.getAuthorizedTeamPostComment(clubId, teamPostCommentId));
 
     return ResponseEntity.ok("Comment successfully deleted");
   }
@@ -125,6 +121,6 @@ public class TeamPostController {
   @PutMapping("/{teamPostId}/comments/{teamPostCommentId}")
   public TeamPostRecord updateTeamPostComment(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
       @PathVariable TeamPostId teamPostId, @PathVariable long teamPostCommentId, @RequestBody TeamPostCommentRequest teamPostCommentRequest) {
-    return teamPostService.updateComment(principal, clubId, teamPostCommentId, teamPostCommentRequest);
+    return teamPostService.updateComment(teamPostResourceAuthorization.getSelfAuthorizedTeamPostComment(clubId, teamPostCommentId), teamPostCommentRequest);
   }
 }
