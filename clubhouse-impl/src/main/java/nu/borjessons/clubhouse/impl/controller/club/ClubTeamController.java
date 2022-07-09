@@ -1,8 +1,8 @@
 package nu.borjessons.clubhouse.impl.controller.club;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -32,8 +32,8 @@ import nu.borjessons.clubhouse.impl.service.TeamService;
 @RequiredArgsConstructor
 @RestController
 public class ClubTeamController {
-  private final TeamService teamService;
   private final ClubService clubService;
+  private final TeamService teamService;
   private final UserResourceAuthorization userResourceAuthorization;
 
   // TODO Do I want to allow a parent to add a child to a team?
@@ -69,12 +69,8 @@ public class ClubTeamController {
 
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/clubs/{clubId}/teams")
-  public Set<TeamDto> getTeams(@PathVariable String clubId) {
-    return clubService.getClubByClubId(clubId)
-        .getTeams()
-        .stream()
-        .map(TeamDto::create)
-        .collect(Collectors.toSet());
+  public Collection<TeamDto> getTeams(@PathVariable String clubId) {
+    return teamService.getClubTeams(clubId);
   }
 
   @PreAuthorize("hasRole('USER')")

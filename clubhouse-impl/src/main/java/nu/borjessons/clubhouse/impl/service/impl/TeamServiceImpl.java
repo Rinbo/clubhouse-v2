@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,19 +40,6 @@ public class TeamServiceImpl implements TeamService {
 
   @Override
   @Transactional
-  public TeamDto updateTeamMembers(String clubId, String teamId, List<UserId> userIds) {
-    Club club = clubRepository.findByClubId(clubId).orElseThrow();
-    Team team = club.getTeamByTeamId(teamId).orElseThrow();
-
-    List<ClubUser> teamMembers = clubUserRepository.findByClubIdAndUserIds(clubId, userIds.stream().map(UserId::toString).toList());
-    List.copyOf(team.getMembers()).forEach(team::removeMember);
-    teamMembers.forEach(team::addMember);
-
-    return TeamDto.create(teamRepository.save(team));
-  }
-
-  @Override
-  @Transactional
   public TeamDto createTeam(String clubId, TeamRequestModel teamModel) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     List<ClubUser> leaders = getClubLeaders(teamModel.getLeaderIds().stream().map(UserId::new).toList(), club);
@@ -68,12 +56,18 @@ public class TeamServiceImpl implements TeamService {
   }
 
   @Override
+  public Collection<TeamDto> getClubTeams(String clubId) {
+    return teamRepository.findByClubId(clubId).stream().map(TeamDto::create).toList();
+  }
+
+  @Override
   @Transactional
-  public void removeMemberFromTeam(String clubId, String teamId, UserId userId) {
+  public Set<TeamDto> getTeamsByUserId(String clubId, UserId userId) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId.toString()).orElseThrow();
-    Team team = clubUser.getClub().getTeamByTeamId(teamId).orElseThrow();
-    team.removeMember(clubUser);
-    teamRepository.save(team);
+    return clubUser.getJoinedTeams()
+        .stream()
+        .map(TeamDto::create)
+        .collect(Collectors.toSet());
   }
 
   @Override
@@ -83,6 +77,15 @@ public class TeamServiceImpl implements TeamService {
     Team team = clubUser.getClub().getTeamByTeamId(teamId).orElseThrow();
     team.removeLeader(clubUser);
     return TeamDto.create(teamRepository.save(team));
+  }
+
+  @Override
+  @Transactional
+  public void removeMemberFromTeam(String clubId, String teamId, UserId userId) {
+    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId.toString()).orElseThrow();
+    Team team = clubUser.getClub().getTeamByTeamId(teamId).orElseThrow();
+    team.removeMember(clubUser);
+    teamRepository.save(team);
   }
 
   @Override
@@ -104,12 +107,22 @@ public class TeamServiceImpl implements TeamService {
 
   @Override
   @Transactional
-  public Set<TeamDto> getTeamsByUserId(String clubId, UserId userId) {
-    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId.toString()).orElseThrow();
-    return clubUser.getJoinedTeams()
+  public TeamDto updateTeamMembers(String clubId, String teamId, List<UserId> userIds) {
+    Club club = clubRepository.findByClubId(clubId).orElseThrow();
+    Team team = club.getTeamByTeamId(teamId).orElseThrow();
+
+    List<ClubUser> teamMembers = clubUserRepository.findByClubIdAndUserIds(clubId, userIds.stream().map(UserId::toString).toList());
+    List.copyOf(team.getMembers()).forEach(team::removeMember);
+    teamMembers.forEach(team::addMember);
+
+    return TeamDto.create(teamRepository.save(team));
+  }
+
+  private List<ClubUser> getClubLeaders(List<UserId> leaderIds, Club club) {
+    return club.getClubUsers(leaderIds)
         .stream()
-        .map(TeamDto::create)
-        .collect(Collectors.toSet());
+        .map(this::validateIsLeader)
+        .toList();
   }
 
   private ClubUser validateIsLeader(ClubUser clubUser) {
@@ -121,12 +134,5 @@ public class TeamServiceImpl implements TeamService {
 
     if (!isLeader) throw new IllegalArgumentException(String.format("User with id %s does not have role leader", clubUser.getUser().getUserId()));
     return clubUser;
-  }
-
-  private List<ClubUser> getClubLeaders(List<UserId> leaderIds, Club club) {
-    return club.getClubUsers(leaderIds)
-        .stream()
-        .map(this::validateIsLeader)
-        .toList();
   }
 }
