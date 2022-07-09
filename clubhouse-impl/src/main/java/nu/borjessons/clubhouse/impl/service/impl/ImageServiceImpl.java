@@ -35,8 +35,8 @@ public class ImageServiceImpl implements ImageService {
   private static final String MULTIPART_FILE_STRING = ImageServiceImpl.MULTIPART_FILE_PARAMETER_NAME;
   private static final String PROFILE_IMAGES_ROOT_FOLDER_NAME = "profile images";
   private final ClubRepository clubRepository;
-  private final ImageTokenRepository imageTokenRepository;
   private final ImageRepository imageRepository;
+  private final ImageTokenRepository imageTokenRepository;
   private final UserRepository userRepository;
 
   @Override
@@ -99,16 +99,6 @@ public class ImageServiceImpl implements ImageService {
     imageRepository.createClubRootImageDirectory(Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId));
   }
 
-  private ImageTokenId saveImage(MultipartFile multipartFile, Path path) {
-    Validate.notNull(multipartFile, MULTIPART_FILE_STRING);
-
-    try {
-      return imageRepository.saveImage(multipartFile, path);
-    } catch (IOException e) {
-      throw new IllegalStateException("Could not save image", e);
-    }
-  }
-
   private ImageToken createImageToken(MultipartFile multipartFile, Path path) {
     ImageTokenId imageTokenId = saveImage(multipartFile, path);
 
@@ -122,7 +112,17 @@ public class ImageServiceImpl implements ImageService {
     try {
       imageRepository.deleteImage(imageToken);
     } catch (IOException e) {
-      throw new IllegalStateException("Could not delete image: " + imageToken, e);
+      log.error("Could not delete image: {}", imageToken, e);
+    }
+  }
+
+  private ImageTokenId saveImage(MultipartFile multipartFile, Path path) {
+    Validate.notNull(multipartFile, MULTIPART_FILE_STRING);
+
+    try {
+      return imageRepository.saveImage(multipartFile, path);
+    } catch (IOException e) {
+      throw new IllegalStateException("Could not save image", e);
     }
   }
 }
