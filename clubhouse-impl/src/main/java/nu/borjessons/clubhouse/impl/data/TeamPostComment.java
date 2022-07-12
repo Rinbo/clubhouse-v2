@@ -16,16 +16,16 @@ import lombok.Setter;
 @Entity
 @Table(name = "team_post_comment")
 public class TeamPostComment extends BaseEntity {
+  @ManyToOne
+  private ClubUser clubUser;
+
+  @Column(nullable = false, columnDefinition = "TEXT")
+  private String comment;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
-  @Column(columnDefinition = "TEXT")
-  private String comment;
-
   @ManyToOne(optional = false)
   private TeamPost teamPost;
-
-  @ManyToOne
-  private ClubUser clubUser;
 }

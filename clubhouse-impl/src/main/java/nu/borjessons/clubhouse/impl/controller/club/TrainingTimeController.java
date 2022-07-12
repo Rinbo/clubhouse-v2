@@ -26,32 +26,33 @@ import nu.borjessons.clubhouse.impl.service.TrainingTimeService;
 @RestController
 @RequestMapping("/clubs/{clubId}")
 public class TrainingTimeController {
-  private final TrainingTimeService trainingTimeService;
   private final Function<TrainingTimeRequest, TrainingTime> scheduleInputConverter;
-
-  @PreAuthorize("hasRole('USER')")
-  @GetMapping("/teams/{teamId}/training-time")
-  public Collection<TrainingTimeRecord> getSchedule(@PathVariable String teamId) {
-    return trainingTimeService.getTrainingTimes(teamId);
-  }
+  private final TrainingTimeService trainingTimeService;
 
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/teams/{teamId}/training-time")
-  public TrainingTimeRecord createTrainingTime(@PathVariable String teamId, @Valid @RequestBody TrainingTimeRequest trainingTimeRequest) {
+  public TrainingTimeRecord createTrainingTime(@PathVariable String clubId, @PathVariable String teamId,
+      @Valid @RequestBody TrainingTimeRequest trainingTimeRequest) {
     return trainingTimeService.createTrainingTime(teamId, scheduleInputConverter.apply(trainingTimeRequest));
   }
 
   @PreAuthorize("hasRole('ADMIN')")
-  @PutMapping("/teams/{teamId}/training-time/{trainingTimeId}")
-  public TrainingTimeRecord updateTrainingTime(@PathVariable String teamId, @PathVariable String trainingTimeId,
-      @Valid @RequestBody TrainingTimeRequest trainingTimeRequest) {
-    return trainingTimeService.updateTrainingTime(trainingTimeId, scheduleInputConverter.apply(trainingTimeRequest));
+  @DeleteMapping("/teams/{teamId}/training-time/{trainingTimeId}")
+  public ResponseEntity<String> deleteTrainingTime(@PathVariable String clubId, @PathVariable String teamId, @PathVariable String trainingTimeId) {
+    trainingTimeService.deleteTrainingTime(trainingTimeId);
+    return ResponseEntity.ok(String.format("trainingTime with id %s was successfully deleted", trainingTimeId));
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping("/teams/{teamId}/training-time")
+  public Collection<TrainingTimeRecord> getSchedule(@PathVariable String clubId, @PathVariable String teamId) {
+    return trainingTimeService.getTrainingTimes(teamId);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
-  @DeleteMapping("/teams/{teamId}/training-time/{trainingTimeId}")
-  public ResponseEntity<String> deleteTrainingTime(@PathVariable String teamId, @PathVariable String trainingTimeId) {
-    trainingTimeService.deleteTrainingTime(trainingTimeId);
-    return ResponseEntity.ok(String.format("trainingTime with id %s was successfully deleted", trainingTimeId));
+  @PutMapping("/teams/{teamId}/training-time/{trainingTimeId}")
+  public TrainingTimeRecord updateTrainingTime(@PathVariable String clubId, @PathVariable String teamId, @PathVariable String trainingTimeId,
+      @Valid @RequestBody TrainingTimeRequest trainingTimeRequest) {
+    return trainingTimeService.updateTrainingTime(trainingTimeId, scheduleInputConverter.apply(trainingTimeRequest));
   }
 }

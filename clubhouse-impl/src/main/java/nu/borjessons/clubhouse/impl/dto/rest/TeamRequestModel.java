@@ -14,7 +14,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TeamRequestModel {
-  @NotNull(message = "LeaderId list cannot be null")
   private List<String> leaderIds = new ArrayList<>();
 
   @NotNull(message = "Maximum age limit cannot be null")
@@ -30,4 +29,6 @@ public class TeamRequestModel {
   @NotNull(message = "Team name cannot be null")
   @Size(min = 2, message = "Team name must consist of at least two characters")
   private String name;
+
+  private List<TrainingTimeRequest> trainingTimes = new ArrayList<>();
 }

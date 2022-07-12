@@ -71,7 +71,7 @@ class TeamPostIntegrationTest {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       TeamPostRecord teamPostRecord = createTeamPostRecord(UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD));
-      TeamPostCommentRecord teamPostCommentRecord = teamPostRecord.teamPostComments().iterator().next();
+      TeamPostCommentRecord teamPostCommentRecord = teamPostRecord.comments().iterator().next();
       Assertions.assertEquals("a comment", teamPostCommentRecord.comment());
       Assertions.assertNotEquals(0, teamPostCommentRecord.id());
       Assertions.assertNotNull(teamPostCommentRecord.createdAt());
@@ -107,10 +107,10 @@ class TeamPostIntegrationTest {
       TeamPostRecord teamPostRecord = createTeamPostRecord(token);
       String teamId = teamPostRecord.teamId();
       TeamPostId teamPostId = teamPostRecord.teamPostId();
-      long teamPostCommentId = teamPostRecord.teamPostComments().iterator().next().id();
+      long teamPostCommentId = teamPostRecord.comments().iterator().next().id();
 
       TeamPostCommentRecord teamPostCommentRecord = TeamPostUtil.updateComment(token, EmbeddedDataLoader.CLUB_ID, teamId, teamPostId, teamPostCommentId)
-          .teamPostComments()
+          .comments()
           .iterator()
           .next();
 

@@ -28,30 +28,30 @@ import nu.borjessons.clubhouse.impl.data.key.TeamPostId;
 @Entity
 @Table(name = "team_post", indexes = {@Index(name = "idx_teampost_teampostid", columnList = "teamPostId")})
 public class TeamPost extends BaseEntity {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
-
-  @Setter(AccessLevel.PRIVATE)
-  @Convert(converter = TeamPostIdConverter.class)
-  @Column(nullable = false, unique = true, columnDefinition = "varchar(64)")
-  private TeamPostId teamPostId;
-
-  private boolean sticky;
-
-  private String title;
-
-  @Column(columnDefinition = "TEXT")
+  @Column(nullable = false, columnDefinition = "TEXT")
   private String body;
 
   @ManyToOne
   private ClubUser clubUser;
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
+
+  private boolean sticky;
 
   @ManyToOne(optional = false)
   private Team team;
 
   @OneToMany(mappedBy = "teamPost", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
   private List<TeamPostComment> teamPostComments = new ArrayList<>();
+
+  @Setter(AccessLevel.PRIVATE)
+  @Convert(converter = TeamPostIdConverter.class)
+  @Column(nullable = false, unique = true, columnDefinition = "varchar(64)")
+  private TeamPostId teamPostId;
+
+  private String title;
 
   public TeamPost() {
     teamPostId = new TeamPostId(UUID.randomUUID().toString());

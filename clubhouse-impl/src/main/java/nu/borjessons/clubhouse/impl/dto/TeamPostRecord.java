@@ -15,7 +15,7 @@ public record TeamPostRecord(
     String body,
     boolean sticky,
     String teamId,
-    Collection<TeamPostCommentRecord> teamPostComments,
+    Collection<TeamPostCommentRecord> comments,
     BaseUserRecord author,
     LocalDateTime createdAt) {
   public TeamPostRecord {
@@ -23,7 +23,7 @@ public record TeamPostRecord(
     Validate.notNull(title, "title");
     Validate.notNull(body, "body");
     Validate.notNull(teamId, "teamId");
-    Validate.notNull(teamPostComments, "teamPostComments");
+    Validate.notNull(comments, "comments");
     Validate.notNull(createdAt, "createdAt");
   }
 
