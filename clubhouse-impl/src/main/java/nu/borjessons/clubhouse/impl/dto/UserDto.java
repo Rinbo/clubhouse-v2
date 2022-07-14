@@ -23,6 +23,7 @@ public final class UserDto {
     return UserDto.builder()
         .addresses(user.getAddresses().stream().map(AddressDto::new).collect(Collectors.toSet()))
         .children(user.getChildren().stream().map(BaseUserRecord::new).collect(Collectors.toSet()))
+        .darkMode(true)
         .dateOfBirth(user.getDateOfBirth().toString())
         .email(user.getEmail())
         .firstName(firstName)
@@ -37,6 +38,7 @@ public final class UserDto {
 
   private final Set<AddressDto> addresses;
   private final Set<BaseUserRecord> children;
+  private final boolean darkMode;
   private final String dateOfBirth;
   private final String email;
   private final String firstName;

@@ -30,4 +30,6 @@
 
 - Add Redis store for activity logging instead of keeping in db. We will log a lot and it will be much better for performance. No relations needed.
 
+## Announcements
 
+- When deleting an announcement the corresponding image does not seem to be deleted from file system. Check!
