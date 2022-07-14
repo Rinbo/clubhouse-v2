@@ -43,40 +43,45 @@ public class ClubUserDto {
         .collect(Collectors.toSet());
   }
 
-  private String firstName;
-  private String lastName;
-  private Set<Role> roles;
-  private String dateOfBirth;
+  private Set<BaseUserRecord> children;
   private ClubRecord club;
   private String clubName;
-  private Set<BaseUserRecord> children;
-  private Set<String> parentIds;
-  private String userId;
-  private ImageTokenId imageTokenId;
+  private String dateOfBirth;
   private String email;
+  private String firstName;
+  private ImageTokenId imageTokenId;
+  private String lastName;
+  private boolean managedUser;
+  private Set<String> parentIds;
+  private Set<Role> roles;
+  private String userId;
 
   public ClubUserDto(ClubUser clubUser) {
     Objects.requireNonNull(clubUser, "ClubUser must not be null");
 
-    firstName = clubUser.getUser().getFirstName();
-    lastName = clubUser.getUser().getLastName();
-    roles = clubUser.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toSet());
-    dateOfBirth = clubUser.getUser().getDateOfBirth().toString();
+    User user = clubUser.getUser();
+    UserId uuid = user.getUserId();
+
+    children = getClubChildren(clubUser);
     club = new ClubRecord(clubUser.getClub());
     clubName = clubUser.getClub().getName();
-    children = getClubChildren(clubUser);
-    parentIds = clubUser.getUser().getParents().stream().map(User::getUserId).map(UserId::toString).collect(Collectors.toSet());
-    userId = clubUser.getUser().getUserId().toString();
-    imageTokenId = clubUser.getUser().getImageTokenId();
-    email = showEmail() ? clubUser.getUser().getEmail() : null;
+    dateOfBirth = user.getDateOfBirth().toString();
+    email = showEmail(uuid) ? user.getEmail() : null;
+    firstName = user.getFirstName();
+    imageTokenId = user.getImageTokenId();
+    lastName = user.getLastName();
+    managedUser = user.isManagedAccount();
+    parentIds = user.getParents().stream().map(User::getUserId).map(UserId::toString).collect(Collectors.toSet());
+    roles = clubUser.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toSet());
+    userId = uuid.toString();
   }
 
-  private boolean showEmail() {
+  private boolean showEmail(UserId userId) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null) return false;
 
     User principal = (User) authentication.getPrincipal();
-    if (userId.equals(principal.getUserId().toString())) return true;
+    if (userId.toString().equals(principal.getUserId().toString())) return true;
 
     return authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
   }

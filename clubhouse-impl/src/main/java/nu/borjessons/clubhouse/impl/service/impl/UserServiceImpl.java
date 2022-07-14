@@ -31,6 +31,15 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
 
   @Override
+  public void addParentToChild(UserId originalParentId, UserId childId, UserId newParentId) {
+    User originalParent = userRepository.findByUserId(originalParentId).orElseThrow();
+    User child = originalParent.getChildren().stream().filter(c -> c.getUserId().equals(childId)).findFirst().orElseThrow();
+    User newParent = userRepository.findByUserId(newParentId).orElseThrow();
+    newParent.addChild(child);
+    userRepository.save(newParent);
+  }
+
+  @Override
   public UserDto createUser(User user) {
     return UserDto.create(userRepository.save(user));
   }
@@ -44,16 +53,6 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserDto getUserByUserName(String username) {
-    return UserDto.create(getUserByEmail(username));
-  }
-
-  @Override
-  public UserDto getById(long id) {
-    return UserDto.create(getUser(id));
-  }
-
-  @Override
   @Transactional
   public void deleteUser(long id) {
     User user = getUser(id);
@@ -64,8 +63,39 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public UserDto getById(long id) {
+    return UserDto.create(getUser(id));
+  }
+
+  @Override
+  public List<ClubRecord> getMyClubs(UserId userId) {
+    User user = getUser(userId);
+    return user.getClubUsers()
+        .stream()
+        .map(ClubUser::getClub)
+        .map(ClubRecord::new)
+        .toList();
+  }
+
+  @Override
   public User getUserByEmail(String email) {
     return userRepository.findByEmail(email).orElseThrow();
+  }
+
+  @Override
+  public UserDto getUserByUserName(String username) {
+    return UserDto.create(getUserByEmail(username));
+  }
+
+  @Transactional
+  @Override
+  public UserDto updateChild(UserId childId, UserId parentId, UpdateUserModel userDetails) {
+    User parent = userRepository.findByUserId(parentId).orElseThrow();
+    User child = parent.getChildren().stream().filter(c -> c.getUserId().equals(childId)).findFirst().orElseThrow();
+    child.setFirstName(userDetails.getFirstName());
+    child.setLastName(userDetails.getLastName());
+    child.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
+    return UserDto.create(userRepository.save(child));
   }
 
   @Override
@@ -86,45 +116,28 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void updateUserLoginTime(String email) {
+  @Transactional
+  public UserDto updateUserLoginTime(String email) {
     User user = userRepository.findByEmail(email).orElseThrow();
     user.setLastLoginTime(LocalDateTime.now());
-    userRepository.save(user);
-  }
-
-  @Override
-  public List<ClubRecord> getMyClubs(UserId userId) {
-    User user = getUser(userId);
-    return user.getClubUsers()
-        .stream()
-        .map(ClubUser::getClub)
-        .map(ClubRecord::new)
-        .toList();
-  }
-
-  @Transactional
-  @Override
-  public UserDto updateChild(UserId childId, UserId parentId, UpdateUserModel userDetails) {
-    User parent = userRepository.findByUserId(parentId).orElseThrow();
-    User child = parent.getChildren().stream().filter(c -> c.getUserId().equals(childId)).findFirst().orElseThrow();
-    child.setFirstName(userDetails.getFirstName());
-    child.setLastName(userDetails.getLastName());
-    child.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
-    return UserDto.create(userRepository.save(child));
-  }
-
-  @Override
-  public void addParentToChild(UserId originalParentId, UserId childId, UserId newParentId) {
-    User originalParent = userRepository.findByUserId(originalParentId).orElseThrow();
-    User child = originalParent.getChildren().stream().filter(c -> c.getUserId().equals(childId)).findFirst().orElseThrow();
-    User newParent = userRepository.findByUserId(newParentId).orElseThrow();
-    newParent.addChild(child);
-    userRepository.save(newParent);
+    return UserDto.create(userRepository.save(user));
   }
 
   @Override
   public UserDetails loadUserByUsername(String username) {
     return userRepository.findByEmail(username).orElseThrow();
+  }
+
+  private User getUser(long id) {
+    return userRepository.findById(id).orElseThrow();
+  }
+
+  private User getUser(UserId userId) {
+    return userRepository.findByUserId(userId).orElseThrow();
+  }
+
+  private void removeForeignKeyReferences(User user) {
+    userRepository.removeUserAnnouncementReferences(user.getId());
   }
 
   private void updateOrDeleteChild(User child, User parent) {
@@ -135,17 +148,5 @@ public class UserServiceImpl implements UserService {
     } else {
       userRepository.save(child);
     }
-  }
-
-  private void removeForeignKeyReferences(User user) {
-    userRepository.removeUserAnnouncementReferences(user.getId());
-  }
-
-  private User getUser(long id) {
-    return userRepository.findById(id).orElseThrow();
-  }
-
-  private User getUser(UserId userId) {
-    return userRepository.findByUserId(userId).orElseThrow();
   }
 }

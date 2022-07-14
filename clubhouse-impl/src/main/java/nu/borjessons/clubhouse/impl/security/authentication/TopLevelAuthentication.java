@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.security.authentication;
 
+import java.io.Serial;
 import java.util.Collection;
 
 import org.springframework.security.core.Authentication;
@@ -9,12 +10,12 @@ import org.springframework.util.Assert;
 import nu.borjessons.clubhouse.impl.data.User;
 
 public class TopLevelAuthentication implements Authentication {
+  @Serial
   private static final long serialVersionUID = 6128259538648957141L;
-
+  private boolean authenticated;
+  private Collection<? extends GrantedAuthority> authorities;
   private final Object credentials;
   private Object principal;
-  private Collection<? extends GrantedAuthority> authorities;
-  private boolean authenticated;
 
   public TopLevelAuthentication(Object credentials) {
     this.credentials = credentials;

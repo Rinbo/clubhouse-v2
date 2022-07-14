@@ -12,25 +12,25 @@ import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 
 public interface UserService extends UserDetailsService {
 
+  void addParentToChild(UserId originalParentId, UserId childId, UserId newParentId);
+
   UserDto createUser(User user);
 
   List<UserDto> createUsers(List<User> users);
 
-  UserDto getUserByUserName(String username);
+  void deleteUser(long id);
 
   UserDto getById(long id);
 
-  void deleteUser(long id);
+  List<ClubRecord> getMyClubs(UserId userId);
 
   User getUserByEmail(String username);
 
-  UserDto updateUser(long id, UpdateUserModel userDetails);
-
-  void updateUserLoginTime(String email);
-
-  List<ClubRecord> getMyClubs(UserId userId);
+  UserDto getUserByUserName(String username);
 
   UserDto updateChild(UserId childId, UserId parentId, UpdateUserModel userDetails);
 
-  void addParentToChild(UserId originalParentId, UserId childId, UserId newParentId);
+  UserDto updateUser(long id, UpdateUserModel userDetails);
+
+  UserDto updateUserLoginTime(String email);
 }

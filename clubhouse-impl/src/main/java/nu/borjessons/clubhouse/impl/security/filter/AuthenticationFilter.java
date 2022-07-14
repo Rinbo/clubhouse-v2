@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UserLoginRequestModel;
 import nu.borjessons.clubhouse.impl.security.TokenStore;
 import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
@@ -28,6 +29,7 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
   private final AuthenticationManager authenticationManager;
   private final JWTUtil jwtUtil;
+  private final ObjectMapper objectMapper;
   private final TokenStore tokenStore;
   private final UserService userService;
 
@@ -45,10 +47,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
   }
 
   @Override
-  public void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) {
+  public void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) throws IOException {
     User user = (User) auth.getPrincipal();
     String username = user.getUsername();
-    userService.updateUserLoginTime(username);
+    UserDto userDto = userService.updateUserLoginTime(username);
     String token = jwtUtil.doGenerateToken(username);
     Cookie cookie = new Cookie(SecurityUtil.JWT_TOKEN_KEY, token);
     cookie.setMaxAge(604800);
@@ -56,6 +58,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     cookie.setHttpOnly(true);
     cookie.setSecure(req.isSecure());
     res.addCookie(cookie);
+    res.getWriter().write(objectMapper.writeValueAsString(userDto));
+    res.addHeader("Content-Type", "application/json");
     tokenStore.put(username, token);
   }
 }

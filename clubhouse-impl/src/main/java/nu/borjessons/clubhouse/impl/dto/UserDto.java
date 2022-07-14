@@ -9,23 +9,29 @@ import lombok.ToString;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
+import nu.borjessons.clubhouse.impl.util.Validate;
 
 @Builder
 @Getter
 @ToString
 public final class UserDto {
   public static UserDto create(User user) {
+    Validate.notNull(user, "user");
+
+    String firstName = user.getFirstName();
+    String lastName = user.getLastName();
     return UserDto.builder()
-        .userId(user.getUserId())
-        .email(user.getEmail())
-        .firstName(user.getFirstName())
-        .lastName(user.getLastName())
-        .dateOfBirth(user.getDateOfBirth().toString())
-        .children(user.getChildren().stream().map(BaseUserRecord::new).collect(Collectors.toSet()))
-        .parentIds(user.getParents().stream().map(User::getUserId).map(UserId::toString).collect(Collectors.toSet()))
         .addresses(user.getAddresses().stream().map(AddressDto::new).collect(Collectors.toSet()))
+        .children(user.getChildren().stream().map(BaseUserRecord::new).collect(Collectors.toSet()))
+        .dateOfBirth(user.getDateOfBirth().toString())
+        .email(user.getEmail())
+        .firstName(firstName)
         .imageTokenId(user.getImageTokenId())
+        .lastName(lastName)
         .managedUser(user.isManagedAccount())
+        .name(String.format("%s %s", firstName, lastName))
+        .parentIds(user.getParents().stream().map(User::getUserId).map(UserId::toString).collect(Collectors.toSet()))
+        .userId(user.getUserId())
         .build();
   }
 
@@ -34,9 +40,10 @@ public final class UserDto {
   private final String dateOfBirth;
   private final String email;
   private final String firstName;
+  private final ImageTokenId imageTokenId;
   private final String lastName;
+  private final boolean managedUser;
+  private final String name;
   private final Set<String> parentIds;
   private final UserId userId;
-  private final ImageTokenId imageTokenId;
-  private final boolean managedUser;
 }

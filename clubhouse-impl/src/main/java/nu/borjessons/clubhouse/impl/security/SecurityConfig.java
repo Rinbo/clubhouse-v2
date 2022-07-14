@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.security.filter.AuthenticationFilter;
 import nu.borjessons.clubhouse.impl.security.filter.ClubsAuthorizationFilter;
@@ -32,6 +34,7 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
   private final ClubTokenAuthenticationProvider clubTokenAuthenticationProvider;
   private final JWTUtil jwtUtil;
+  private final ObjectMapper objectMapper;
   private final PasswordEncoder passwordEncoder;
   private final TokenStore tokenStore;
   private final TopLevelAuthenticationProvider topLevelAuthenticationProvider;
@@ -54,7 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers(SecurityUtil.getPublicUrls()).permitAll()
         .anyRequest().authenticated()
         .and()
-        .addFilterAt(new AuthenticationFilter(authenticationManager(), jwtUtil, tokenStore, userService), BasicAuthenticationFilter.class)
+        .addFilterAt(new AuthenticationFilter(authenticationManager(), jwtUtil, objectMapper, tokenStore, userService), BasicAuthenticationFilter.class)
         .addFilterAfter(new TopLevelAuthorizationFilter(authenticationManager()), BasicAuthenticationFilter.class)
         .addFilterAfter(new ClubsAuthorizationFilter(authenticationManager()), BasicAuthenticationFilter.class)
         .sessionManagement()
