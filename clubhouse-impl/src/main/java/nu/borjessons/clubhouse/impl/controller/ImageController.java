@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,12 @@ import nu.borjessons.clubhouse.impl.service.ImageService;
 public class ImageController {
   public static final int MAX_FILE_SIZE_BYTES = 2_000_000;
 
+  private static CacheControl createCacheControlHeader() {
+    return CacheControl.maxAge(120, TimeUnit.SECONDS)
+        .noTransform()
+        .mustRevalidate();
+  }
+
   private static byte[] readBytes(InputStream inputStream) throws IOException {
     try (inputStream) {
       return inputStream.readAllBytes();
@@ -53,7 +61,17 @@ public class ImageController {
     ImageStream imageStream = imageService.getImage(new ImageTokenId(imageTokenId));
     ImageToken imageToken = imageStream.imageToken();
     MediaType mediaType = MediaType.valueOf(imageToken.getContentType());
-    return ResponseEntity.ok().contentType(mediaType).body(readBytes(imageStream.inputStream()));
+    return ResponseEntity.ok()
+        .cacheControl(createCacheControlHeader())
+        .contentType(mediaType).body(readBytes(imageStream.inputStream()));
+  }
+
+  // TODO Do I need this? For albums I guess. As a first step I want to add images to news items or club description. How do I upload several images?
+  @PostMapping(value = "/clubs/{clubId}/upload-images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<ImageTokenId> uploadClubImages(@PathVariable String clubId, @RequestParam(value = "files") List<MultipartFile> multipartFiles) {
+    multipartFiles.forEach(ImageController::validateFileSize);
+
+    return null;
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -73,14 +91,6 @@ public class ImageController {
 
     ImageToken imageToken = imageService.createProfileImage(userId, multipartFile);
     return ResponseEntity.ok(imageToken.getImageTokenId());
-  }
-
-  // TODO Do I need this? For albums I guess. As a first step I want to add images to news items or club description. How do I upload several images?
-  @PostMapping(value = "/clubs/{clubId}/upload-images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<ImageTokenId> uploadClubImages(@PathVariable String clubId, @RequestParam(value = "files") List<MultipartFile> multipartFiles) {
-    multipartFiles.forEach(ImageController::validateFileSize);
-
-    return null;
   }
 }
 
