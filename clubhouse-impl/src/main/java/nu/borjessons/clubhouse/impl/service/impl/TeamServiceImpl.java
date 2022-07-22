@@ -42,17 +42,17 @@ public class TeamServiceImpl implements TeamService {
   @Transactional
   public TeamDto createTeam(String clubId, TeamRequestModel teamModel) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
-    List<ClubUser> leaders = getClubLeaders(teamModel.getLeaderIds().stream().map(UserId::new).toList(), club);
+    List<ClubUser> leaders = getClubUsers(teamModel.getLeaderIds().stream().map(UserId::new).toList(), club);
+    List<ClubUser> members = getClubUsers(teamModel.getMemberIds().stream().map(UserId::new).toList(), club);
 
     Team team = new Team();
+    team.setDescription(teamModel.getDescription());
     team.setName(teamModel.getName());
-    team.setMinAge(teamModel.getMinAge());
-    team.setMaxAge(teamModel.getMaxAge());
     leaders.forEach(team::addLeader);
+    members.forEach(team::addMember);
 
     club.addTeam(team);
-    final Team savedTeam = teamRepository.save(team);
-    return TeamDto.create(savedTeam);
+    return TeamDto.create(teamRepository.save(team));
   }
 
   @Override
@@ -93,13 +93,17 @@ public class TeamServiceImpl implements TeamService {
   public TeamDto updateTeam(String clubId, String teamId, TeamRequestModel teamModel) {
     Club club = clubRepository.findByClubId(clubId).orElseThrow();
     Team team = club.getTeamByTeamId(teamId).orElseThrow();
-    List<ClubUser> leaders = getClubLeaders(teamModel.getLeaderIds().stream().map(UserId::new).toList(), club);
+    List<ClubUser> leaders = getClubUsers(teamModel.getLeaderIds().stream().map(UserId::new).toList(), club);
+    List<ClubUser> members = getClubUsers(teamModel.getMemberIds().stream().map(UserId::new).toList(), club);
 
+    team.setDescription(teamModel.getDescription());
     team.setName(teamModel.getName());
-    team.setMinAge(teamModel.getMinAge());
-    team.setMaxAge(teamModel.getMaxAge());
+
     List.copyOf(team.getLeaders()).forEach(team::removeLeader);
     leaders.forEach(team::addLeader);
+
+    List.copyOf(team.getMembers()).forEach(team::removeMember);
+    members.forEach(team::addMember);
 
     club.addTeam(team);
     return TeamDto.create(teamRepository.save(team));
@@ -118,7 +122,7 @@ public class TeamServiceImpl implements TeamService {
     return TeamDto.create(teamRepository.save(team));
   }
 
-  private List<ClubUser> getClubLeaders(List<UserId> leaderIds, Club club) {
+  private List<ClubUser> getClubUsers(List<UserId> leaderIds, Club club) {
     return club.getClubUsers(leaderIds)
         .stream()
         .map(this::validateIsLeader)

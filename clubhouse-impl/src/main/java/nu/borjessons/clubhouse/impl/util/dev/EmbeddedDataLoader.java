@@ -113,8 +113,6 @@ public class EmbeddedDataLoader {
   private static TeamRequestModel createTeamModel(UserId leaderId) {
     TeamRequestModel teamRequestModel = new TeamRequestModel();
     teamRequestModel.setName("Cool Team");
-    teamRequestModel.setMinAge(5);
-    teamRequestModel.setMaxAge(20);
     teamRequestModel.setLeaderIds(List.of(leaderId.toString()));
     return teamRequestModel;
   }

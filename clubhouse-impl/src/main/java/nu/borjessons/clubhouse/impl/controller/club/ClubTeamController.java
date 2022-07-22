@@ -6,7 +6,6 @@ import java.util.Set;
 
 import javax.validation.Valid;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -36,7 +34,6 @@ public class ClubTeamController {
   private final TeamService teamService;
   private final UserResourceAuthorization userResourceAuthorization;
 
-  // TODO Do I want to allow a parent to add a child to a team?
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/add-child")
   public TeamDto addChildrenToTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
@@ -45,7 +42,6 @@ public class ClubTeamController {
     return teamService.addMemberToTeam(clubId, teamId, childId);
   }
 
-  @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping(path = "/clubs/{clubId}/teams")
   public TeamDto createTeam(@PathVariable String clubId, @RequestBody @Valid TeamRequestModel teamModel) {

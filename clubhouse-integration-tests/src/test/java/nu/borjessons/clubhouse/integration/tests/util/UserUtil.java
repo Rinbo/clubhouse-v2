@@ -152,19 +152,6 @@ public class UserUtil {
     return Arrays.stream(clubUserDtos).collect(Collectors.toList());
   }
 
-  public static List<ClubUserDto> getClubUsersByAge(String clubId, String token, int min, int max) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/age-range")
-        .queryParam("minAge", min)
-        .queryParam("maxAge", max)
-        .buildAndExpand(clubId).toUriString();
-
-    final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-
-    final ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);
-    return Arrays.stream(clubUserDtos).collect(Collectors.toList());
-  }
-
   public static List<ClubUserDto> getPrincipalClubUsers(String token) throws JsonProcessingException {
     String uri = RestUtil.getUriBuilder("/principal/clubs/all-club-users").buildAndExpand().toUriString();
 

@@ -42,49 +42,35 @@ import nu.borjessons.clubhouse.impl.data.key.UserId;
 public class User extends BaseEntity implements UserDetails {
   @Serial
   private static final long serialVersionUID = 3842546232021972948L;
-
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  private Set<Address> addresses = new HashSet<>();
+  @ManyToMany(mappedBy = "parents", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+  private Set<User> children = new HashSet<>();
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  private Collection<ClubUser> clubUsers = new ArrayList<>();
+  @Column(nullable = false)
+  private LocalDate dateOfBirth;
+  @Column(nullable = false, length = 120, unique = true, name = "email")
+  private String email;
+  @Column(nullable = false)
+  private String encryptedPassword;
+  @Column(nullable = false, length = 50)
+  private String firstName;
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
-
+  @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
+  private ImageToken imageToken;
+  private LocalDateTime lastLoginTime;
+  @Column(nullable = false, length = 50)
+  private String lastName;
+  private boolean managedAccount;
+  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+  private Set<User> parents = new HashSet<>();
   @Setter(AccessLevel.PRIVATE)
   @Convert(converter = UserIdConverter.class)
   @Column(nullable = false, unique = true, columnDefinition = "varchar(64)")
   private UserId userId;
-
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-  private Set<Address> addresses = new HashSet<>();
-
-  @ManyToMany(mappedBy = "parents", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
-  private Set<User> children = new HashSet<>();
-
-  @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
-  private Set<User> parents = new HashSet<>();
-
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-  private Collection<ClubUser> clubUsers = new ArrayList<>();
-
-  @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
-  private ImageToken imageToken;
-
-  @Column(nullable = false)
-  private LocalDate dateOfBirth;
-
-  @Column(nullable = false, length = 120, unique = true, name = "email")
-  private String email;
-
-  @Column(nullable = false)
-  private String encryptedPassword;
-
-  @Column(nullable = false, length = 50)
-  private String firstName;
-
-  private LocalDateTime lastLoginTime;
-
-  @Column(nullable = false, length = 50)
-  private String lastName;
-
-  private boolean managedAccount;
 
   public User() {
     userId = new UserId(UUID.randomUUID().toString());
@@ -92,11 +78,6 @@ public class User extends BaseEntity implements UserDetails {
 
   public User(UserId userId) {
     this.userId = userId;
-  }
-
-  public void addClubUser(ClubUser clubUser) {
-    clubUsers.add(clubUser);
-    clubUser.setUser(this);
   }
 
   public void addAddress(Address address) {
@@ -109,13 +90,14 @@ public class User extends BaseEntity implements UserDetails {
     child.parents.add(this);
   }
 
+  public void addClubUser(ClubUser clubUser) {
+    clubUsers.add(clubUser);
+    clubUser.setUser(this);
+  }
+
   public void addParent(User parent) {
     parents.add(parent);
     parent.addChild(this);
-  }
-
-  public Optional<ClubUser> getClubUser(String clubId) {
-    return clubUsers.stream().filter(clubUser -> clubUser.getClub().getClubId().equals(clubId)).findFirst();
   }
 
   public Set<Address> getAddresses() {
@@ -125,24 +107,6 @@ public class User extends BaseEntity implements UserDetails {
           .flatMap(Set::stream)
           .collect(Collectors.toSet());
     return addresses;
-  }
-
-  // TODO logic move to utility class
-  public int getAge() {
-    LocalDate now = LocalDate.now();
-    int age = now.getYear() - dateOfBirth.getYear();
-    int mn = now.getMonth().getValue();
-    int mb = dateOfBirth.getMonth().getValue();
-    int dn = now.getDayOfMonth();
-    int db = dateOfBirth.getDayOfMonth();
-
-    if (mn > mb)
-      return age;
-    if (mn < mb)
-      return age - 1;
-    if (dn >= db)
-      return age;
-    return age - 1;
   }
 
   @Override
@@ -178,6 +142,15 @@ public class User extends BaseEntity implements UserDetails {
   @Override
   public boolean isEnabled() {
     return true;
+  }
+
+  public Optional<ClubUser> getClubUser(String clubId) {
+    return clubUsers.stream().filter(clubUser -> clubUser.getClub().getClubId().equals(clubId)).findFirst();
+  }
+
+  public ImageTokenId getImageTokenId() {
+    if (imageToken == null) return null;
+    return imageToken.getImageTokenId();
   }
 
   @Override
@@ -221,10 +194,5 @@ public class User extends BaseEntity implements UserDetails {
   public void removeParent(User parent) {
     parents.remove(parent);
     parent.removeChild(this);
-  }
-
-  public ImageTokenId getImageTokenId() {
-    if (imageToken == null) return null;
-    return imageToken.getImageTokenId();
   }
 }

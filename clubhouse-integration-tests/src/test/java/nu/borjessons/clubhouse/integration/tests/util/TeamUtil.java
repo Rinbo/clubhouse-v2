@@ -17,11 +17,11 @@ import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
 import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 
 public class TeamUtil {
-  public static TeamRequestModel createRequestModel(List<String> leaderIds, String name) {
+  public static TeamRequestModel createRequestModel(List<String> memberIds, List<String> leaderIds, String name) {
     TeamRequestModel teamRequestModel = new TeamRequestModel();
     teamRequestModel.setName(name);
-    teamRequestModel.setMinAge(5);
-    teamRequestModel.setMaxAge(20);
+    teamRequestModel.setDescription("Generic team");
+    teamRequestModel.setMemberIds(memberIds);
     teamRequestModel.setLeaderIds(leaderIds);
     return teamRequestModel;
   }
@@ -29,9 +29,8 @@ public class TeamUtil {
   public static TeamDto createTeam(String clubId, TeamRequestModel teamRequestModel, String token) throws JsonProcessingException {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams").buildAndExpand(clubId).toUriString();
     ResponseEntity<String> response = RestUtil.postRequest(uri, token, teamRequestModel, String.class);
-    Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return RestUtil.deserializeJsonBody(response.getBody(), TeamDto.class);
-
   }
 
   public static List<Team> getAllTeams(TeamRepository teamRepository) {

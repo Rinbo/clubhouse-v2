@@ -15,12 +15,11 @@ import nu.borjessons.clubhouse.impl.data.Team;
 public final class TeamDto {
   public static TeamDto create(Team team) {
     return TeamDto.builder()
-        .teamId(team.getTeamId())
-        .name(team.getName())
-        .minAge(team.getMinAge())
-        .maxAge(team.getMaxAge())
+        .description(team.getDescription())
         .members(team.getMembers().stream().map(ClubUserDto::new).collect(Collectors.toSet()))
         .leaders(team.getLeaders().stream().map(ClubUserDto::new).collect(Collectors.toSet()))
+        .name(team.getName())
+        .teamId(team.getTeamId())
         .trainingTimes(
             team.getTrainingTimes()
                 .stream()
@@ -30,11 +29,10 @@ public final class TeamDto {
         .build();
   }
 
-  private final String teamId;
-  private final String name;
-  private final int minAge;
-  private final int maxAge;
-  private final Set<ClubUserDto> members;
+  private final String description;
   private final Set<ClubUserDto> leaders;
+  private final Set<ClubUserDto> members;
+  private final String name;
+  private final String teamId;
   private final List<TrainingTimeRecord> trainingTimes;
 }

@@ -1,15 +1,12 @@
 package nu.borjessons.clubhouse.impl.controller.club;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,7 +36,6 @@ import nu.borjessons.clubhouse.impl.service.TeamPostService;
 @RequestMapping("/clubs/{clubId}/teams/{teamId}/posts")
 @RequiredArgsConstructor
 public class TeamPostController {
-  private static final List<GrantedAuthority> ADMIN_ROLES = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_LEADER"));
   private final TeamPostResourceAuthorization teamPostResourceAuthorization;
   private final TeamPostService teamPostService;
 

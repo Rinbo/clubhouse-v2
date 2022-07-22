@@ -26,18 +26,15 @@ import lombok.Setter;
 @Entity
 @Table(name = "team", indexes = {@Index(name = "idx_team_teamid", columnList = "teamId")})
 public class Team extends BaseEntity {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
-
-  @Setter(AccessLevel.PRIVATE)
-  @Column(nullable = false, unique = true)
-  private String teamId;
-
   @ManyToOne(fetch = FetchType.LAZY)
   private Club club;
 
+  @Column(columnDefinition = "TEXT")
   private String description;
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
 
   @ManyToMany(mappedBy = "managedTeams", fetch = FetchType.LAZY)
   private List<ClubUser> leaders = new ArrayList<>();
@@ -45,12 +42,12 @@ public class Team extends BaseEntity {
   @ManyToMany(mappedBy = "teams", fetch = FetchType.LAZY)
   private List<ClubUser> members = new ArrayList<>();
 
-  private int minAge;
-
-  private int maxAge;
-
   @Column(nullable = false)
   private String name;
+
+  @Setter(AccessLevel.PRIVATE)
+  @Column(nullable = false, unique = true)
+  private String teamId;
 
   @OneToMany(mappedBy = "team", orphanRemoval = true, cascade = CascadeType.ALL)
   private List<TrainingTime> trainingTimes;
@@ -64,24 +61,14 @@ public class Team extends BaseEntity {
     trainingTimes = new ArrayList<>();
   }
 
-  public void addMember(ClubUser clubUser) {
-    members.add(clubUser);
-    clubUser.getTeams().add(this);
-  }
-
-  public void removeMember(ClubUser clubUser) {
-    members.remove(clubUser);
-    clubUser.getTeams().remove(this);
-  }
-
   public void addLeader(ClubUser clubUser) {
     leaders.add(clubUser);
     clubUser.getManagedTeams().add(this);
   }
 
-  public void removeLeader(ClubUser clubUser) {
-    leaders.remove(clubUser);
-    clubUser.getManagedTeams().remove(this);
+  public void addMember(ClubUser clubUser) {
+    members.add(clubUser);
+    clubUser.getTeams().add(this);
   }
 
   public void addTrainingTime(TrainingTime trainingTime) {
@@ -104,5 +91,15 @@ public class Team extends BaseEntity {
     if (!(obj instanceof Team other))
       return false;
     return teamId.equals(other.teamId);
+  }
+
+  public void removeLeader(ClubUser clubUser) {
+    leaders.remove(clubUser);
+    clubUser.getManagedTeams().remove(this);
+  }
+
+  public void removeMember(ClubUser clubUser) {
+    members.remove(clubUser);
+    clubUser.getTeams().remove(this);
   }
 }

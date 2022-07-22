@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -21,19 +20,35 @@ import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
-import nu.borjessons.clubhouse.impl.service.ClubService;
 import nu.borjessons.clubhouse.impl.service.ClubUserService;
 
 @RequiredArgsConstructor
 @RestController
 public class ClubUserController {
-  private final ClubService clubService;
   private final ClubUserService clubUserService;
+
+  @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
+  @PutMapping("/clubs/{clubId}/users/{userId}/activate-club-children")
+  public ClubUserDto activateClubChildren(@PathVariable String clubId, @PathVariable UserId userId, @RequestBody List<String> childrenIds) {
+    return clubUserService.activateClubChildren(clubId, userId, childrenIds.stream().map(UserId::new).toList());
+  }
+
+  @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.userId")
+  @PostMapping("/clubs/{clubId}/users/{userId}")
+  public ClubUserDto addUserToClub(@PathVariable String clubId, @PathVariable UserId userId, @RequestBody List<String> childrenIds) {
+    return clubUserService.addUserToClub(clubId, userId, childrenIds.stream().map(UserId::new).toList());
+  }
 
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/clubs/{clubId}/principal")
   public ClubUserDto getClubUserPrincipal(@AuthenticationPrincipal User principal, @PathVariable String clubId) {
     return clubUserService.getClubUser(clubId, principal.getUserId());
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/clubs/{clubId}/leaders")
+  public Collection<ClubUserDto> getLeaders(@PathVariable String clubId) {
+    return clubUserService.getLeaders(clubId);
   }
 
   @PreAuthorize("hasRole('USER')")
@@ -42,22 +57,16 @@ public class ClubUserController {
     return clubUserService.getClubUser(clubId, userId);
   }
 
-  @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping("/clubs/{clubId}/users/age-range")
-  public Collection<ClubUserDto> getUsersByAgeRange(@PathVariable String clubId, @RequestParam int minAge, @RequestParam int maxAge) {
-    return clubService
-        .getClubByClubId(clubId)
-        .getClubUsers()
-        .stream()
-        .filter(clubUser -> clubUser.getUser().getAge() >= minAge && clubUser.getUser().getAge() <= maxAge)
-        .map(ClubUserDto::new)
-        .toList();
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping(path = "/clubs/{clubId}/users")
+  public Collection<ClubUserDto> getUsers(@PathVariable String clubId) {
+    return clubUserService.getClubUsers(clubId);
   }
 
-  @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.userId")
-  @PostMapping("/clubs/{clubId}/users/{userId}")
-  public ClubUserDto addUserToClub(@PathVariable String clubId, @PathVariable UserId userId, @RequestBody List<String> childrenIds) {
-    return clubUserService.addUserToClub(clubId, userId, childrenIds.stream().map(UserId::new).toList());
+  @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
+  @PutMapping("/clubs/{clubId}/users/{userId}/remove-club-children")
+  public ClubUserDto removeClubChildren(@PathVariable String clubId, @PathVariable UserId userId, @RequestBody List<String> childrenIds) {
+    return clubUserService.removeClubChildren(clubId, userId, childrenIds.stream().map(UserId::new).toList());
   }
 
   @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.userId")
@@ -70,31 +79,5 @@ public class ClubUserController {
   @PutMapping("/clubs/{clubId}/users/{userId}")
   public ClubUserDto updateUser(@PathVariable String clubId, @PathVariable UserId userId, @Valid @RequestBody AdminUpdateUserModel userDetails) {
     return clubUserService.updateUser(userId, clubId, userDetails);
-  }
-
-  //TODO Give admin access to this method as well
-  @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
-  @PutMapping("/clubs/{clubId}/users/{userId}/activate-club-children")
-  public ClubUserDto activateClubChildren(@PathVariable String clubId, @PathVariable UserId userId, @RequestBody List<String> childrenIds) {
-    return clubUserService.activateClubChildren(clubId, userId, childrenIds.stream().map(UserId::new).toList());
-  }
-
-  //TODO Give admin access to this method as well
-  @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
-  @PutMapping("/clubs/{clubId}/users/{userId}/remove-club-children")
-  public ClubUserDto removeClubChildren(@PathVariable String clubId, @PathVariable UserId userId, @RequestBody List<String> childrenIds) {
-    return clubUserService.removeClubChildren(clubId, userId, childrenIds.stream().map(UserId::new).toList());
-  }
-
-  @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping("/clubs/{clubId}/leaders")
-  public Collection<ClubUserDto> getLeaders(@PathVariable String clubId) {
-    return clubUserService.getLeaders(clubId);
-  }
-
-  @PreAuthorize("hasRole('USER')")
-  @GetMapping(path = "/clubs/{clubId}/users")
-  public Collection<ClubUserDto> getUsers(@PathVariable String clubId) {
-    return clubUserService.getClubUsers(clubId);
   }
 }
