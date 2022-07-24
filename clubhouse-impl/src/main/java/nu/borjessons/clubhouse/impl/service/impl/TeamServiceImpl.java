@@ -56,6 +56,12 @@ public class TeamServiceImpl implements TeamService {
   }
 
   @Override
+  @Transactional
+  public void deleteTeam(String teamId) {
+    teamRepository.deleteByTeamId(teamId);
+  }
+
+  @Override
   public Collection<TeamDto> getClubTeams(String clubId) {
     return teamRepository.findByClubId(clubId).stream().map(TeamDto::create).toList();
   }

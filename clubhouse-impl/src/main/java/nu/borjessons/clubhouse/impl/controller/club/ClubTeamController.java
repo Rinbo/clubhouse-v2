@@ -6,8 +6,10 @@ import java.util.Set;
 
 import javax.validation.Valid;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -91,6 +93,13 @@ public class ClubTeamController {
   @PutMapping("/clubs/{clubId}/teams/{teamId}")
   public TeamDto updateTeam(@PathVariable String clubId, @PathVariable String teamId, @RequestBody @Valid TeamRequestModel teamModel) {
     return teamService.updateTeam(clubId, teamId, teamModel);
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @DeleteMapping("/clubs/{clubId}/teams/{teamId}")
+  public ResponseEntity<String> updateTeam(@PathVariable String clubId, @PathVariable String teamId) {
+    teamService.deleteTeam(teamId);
+    return ResponseEntity.ok("Team deleted");
   }
 
   @PreAuthorize("hasRole('ADMIN')")

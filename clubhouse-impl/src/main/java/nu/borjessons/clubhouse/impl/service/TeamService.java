@@ -14,6 +14,8 @@ public interface TeamService {
 
   TeamDto createTeam(String clubId, TeamRequestModel teamModel);
 
+  void deleteTeam(String teamId);
+
   Collection<TeamDto> getClubTeams(String clubId);
 
   Set<TeamDto> getTeamsByUserId(String clubId, UserId userId);
