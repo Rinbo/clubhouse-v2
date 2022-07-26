@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
+import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.service.ClubUserService;
@@ -61,6 +62,12 @@ public class ClubUserController {
   @GetMapping(path = "/clubs/{clubId}/users")
   public Collection<ClubUserDto> getUsers(@PathVariable String clubId) {
     return clubUserService.getClubUsers(clubId);
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping(path = "/clubs/{clubId}/basic-users")
+  public Collection<BaseUserRecord> getUsersBasic(@PathVariable String clubId) {
+    return clubUserService.getClubUsersBasic(clubId);
   }
 
   @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
