@@ -15,12 +15,16 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.MultipartConfigElement;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.unit.DataSize;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -105,21 +109,11 @@ public class ClubhouseApplication {
   }
 
   @Bean
-  PasswordEncoder createPasswordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
-
-  @Bean
   JWTUtil createJwtUtil(@Value("${token.secret}") String secret, @Value("${token.expiration}") String expirationTime) {
     final Key key = Keys.hmacShaKeyFor(secret.getBytes());
     long expirationMillis = Long.parseLong(expirationTime) * 1000;
 
     return new JWTUtil(expirationMillis, key);
-  }
-
-  @Bean
-  TokenStore createTokenStore() {
-    return new TokenStore(new ConcurrentHashMap<>());
   }
 
   @Bean
@@ -141,5 +135,23 @@ public class ClubhouseApplication {
     objectMapper.registerModules(javaTimeModule, createIdModule());
 
     return objectMapper;
+  }
+
+  @Bean
+  PasswordEncoder createPasswordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  TokenStore createTokenStore() {
+    return new TokenStore(new ConcurrentHashMap<>());
+  }
+
+  @Bean
+  MultipartConfigElement multipartConfigElement() {
+    MultipartConfigFactory factory = new MultipartConfigFactory();
+    factory.setMaxFileSize(DataSize.ofBytes(3_000_000));
+    factory.setMaxRequestSize(DataSize.ofBytes(3_000_000));
+    return factory.createMultipartConfig();
   }
 }

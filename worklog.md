@@ -33,3 +33,7 @@
 ## Announcements
 
 - When deleting an announcement the corresponding image does not seem to be deleted from file system. Check!
+
+## Searching
+
+- Eventually we would like to be able to search for teams and users
