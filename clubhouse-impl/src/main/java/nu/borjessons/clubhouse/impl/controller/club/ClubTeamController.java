@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.data.Club;
-import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.TeamDto;
@@ -60,9 +58,7 @@ public class ClubTeamController {
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/clubs/{clubId}/teams/{teamId}")
   public TeamDto getTeam(@PathVariable String clubId, @PathVariable String teamId) {
-    Club club = clubService.getClubByClubId(clubId);
-    Team team = club.getTeamByTeamId(teamId).orElseThrow();
-    return TeamDto.create(team);
+    return teamService.getTeam(teamId);
   }
 
   @PreAuthorize("hasRole('USER')")

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
+import nu.borjessons.clubhouse.impl.dto.rest.ClubColorRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
 
 public class ClubUtil {
@@ -67,6 +68,14 @@ public class ClubUtil {
     ResponseEntity<ClubRecord[]> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, ClubRecord[].class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return Arrays.stream(Objects.requireNonNull(response.getBody())).collect(Collectors.toList());
+  }
+
+  public static ClubRecord updateClubColor(String clubId, String token, ClubColorRecord clubColorRecord) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/color").buildAndExpand(clubId).toUriString();
+    ResponseEntity<ClubRecord> response = RestUtil.putRequest(uri, token, clubColorRecord, ClubRecord.class);
+
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
   }
 
   private ClubUtil() {

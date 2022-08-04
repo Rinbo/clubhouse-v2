@@ -20,4 +20,7 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
   List<Team> findByClubId(String clubId);
 
   Optional<Team> findByTeamId(String teamId);
+
+  @Query("select t from Team t where t.teamId = ?1")
+  Optional<Team> getByTeamId(String teamId);
 }

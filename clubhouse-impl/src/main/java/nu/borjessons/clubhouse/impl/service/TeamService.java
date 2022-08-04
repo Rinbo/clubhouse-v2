@@ -9,7 +9,6 @@ import nu.borjessons.clubhouse.impl.dto.TeamDto;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
 
 public interface TeamService {
-
   TeamDto addMemberToTeam(String clubId, String teamId, UserId userId);
 
   TeamDto createTeam(String clubId, TeamRequestModel teamModel);
@@ -17,6 +16,8 @@ public interface TeamService {
   void deleteTeam(String teamId);
 
   Collection<TeamDto> getClubTeams(String clubId);
+
+  TeamDto getTeam(String teamId);
 
   Set<TeamDto> getTeamsByUserId(String clubId, UserId userId);
 

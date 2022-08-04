@@ -6,6 +6,7 @@ import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpEntity;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -125,6 +127,16 @@ public class RestUtil {
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = getVoidHttpEntity(token);
     return restTemplate.exchange(uri, HttpMethod.PUT, entity, returnType);
+  }
+
+  public static <T> void verifyForbiddenAccess(Supplier<T> supplier) {
+    try {
+      supplier.get();
+    } catch (HttpClientErrorException e) {
+      Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+      return;
+    }
+    throw new IllegalStateException("Test failed. Expected exception to be thrown");
   }
 
   private static Module createIdModule() {

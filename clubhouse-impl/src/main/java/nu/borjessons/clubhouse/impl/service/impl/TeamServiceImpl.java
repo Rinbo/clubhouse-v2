@@ -2,6 +2,7 @@ package nu.borjessons.clubhouse.impl.service.impl;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -64,6 +65,11 @@ public class TeamServiceImpl implements TeamService {
   @Override
   public Collection<TeamDto> getClubTeams(String clubId) {
     return teamRepository.findByClubId(clubId).stream().map(TeamDto::create).toList();
+  }
+
+  @Override
+  public TeamDto getTeam(String teamId) {
+    return TeamDto.create(teamRepository.getByTeamId(teamId).orElseThrow(() -> new NoSuchElementException("Team not found: " + teamId)));
   }
 
   @Override
