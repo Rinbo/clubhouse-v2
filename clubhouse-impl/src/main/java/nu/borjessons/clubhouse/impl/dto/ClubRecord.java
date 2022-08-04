@@ -3,7 +3,7 @@ package nu.borjessons.clubhouse.impl.dto;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.util.Validate;
 
-public record ClubRecord(String clubId, String name, String path, Club.Type type, String imageTokenId) {
+public record ClubRecord(String clubId, String name, String path, Club.Type type, String imageTokenId, String primaryColor, String secondaryColor) {
   public ClubRecord {
     Validate.notEmpty(clubId, "clubId");
     Validate.notEmpty(name, "name");
@@ -16,6 +16,9 @@ public record ClubRecord(String clubId, String name, String path, Club.Type type
         club.getName(),
         club.getPath(),
         club.getType(),
-        club.getLogo() != null ? club.getLogo().getImageTokenId().toString() : null);
+        club.getLogo() != null ? club.getLogo().getImageTokenId().toString() : null,
+        club.getPrimaryColor(),
+        club.getSecondaryColor()
+    );
   }
 }

@@ -55,6 +55,12 @@ public class Club extends BaseEntity {
   @Column(nullable = false, length = 120, unique = true)
   private String path;
 
+  @Column(columnDefinition = "VARCHAR(16)")
+  private String primaryColor;
+
+  @Column(columnDefinition = "VARCHAR(16)")
+  private String secondaryColor;
+
   @OneToMany(
       mappedBy = "club",
       cascade = CascadeType.ALL,
