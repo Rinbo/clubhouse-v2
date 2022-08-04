@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -33,28 +32,28 @@ import nu.borjessons.clubhouse.impl.data.key.UserId;
 @Entity
 @Table(name = "club", indexes = @Index(name = "ix_club_id", columnList = "clubId"))
 public class Club extends BaseEntity {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
+  @OneToMany(mappedBy = "club", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private Collection<Announcement> announcements;
 
   @Setter(AccessLevel.PRIVATE)
   @Column(nullable = false, length = 120, unique = true)
   private String clubId;
 
-  @OneToMany(mappedBy = "club", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private Collection<Announcement> announcements;
-
   @OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.LAZY)
   private Collection<ClubUser> clubUsers = new ArrayList<>();
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
+
+  @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
+  private ImageToken logo;
 
   @Column(nullable = false, length = 120, unique = true)
   private String name;
 
   @Column(nullable = false, length = 120, unique = true)
   private String path;
-
-  @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
-  private ImageToken logo;
 
   @OneToMany(
       mappedBy = "club",
@@ -67,33 +66,25 @@ public class Club extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private Type type;
 
-  public Club(String name, Type type, String clubId) {
-    this.name = name;
-    this.path = name.toLowerCase().replace(" ", "-");
-    this.type = type;
+  public Club(String clubId, String name, String path, Type type) {
     this.clubId = clubId;
+    this.name = name;
+    this.path = path;
+    this.type = type;
   }
 
   public Club() {
     clubId = UUID.randomUUID().toString();
   }
 
+  public void addClubUser(ClubUser clubUser) {
+    clubUsers.add(clubUser);
+    clubUser.setClub(this);
+  }
+
   public void addTeam(Team team) {
     teams.add(team);
     team.setClub(this);
-  }
-
-  public Set<User> getManagedUsers() {
-    return clubUsers.stream()
-        .map(ClubUser::getUser)
-        .filter(User::isManagedAccount)
-        .collect(Collectors.toSet());
-  }
-
-  public List<ClubUser> getClubUsers(List<UserId> userIds) {
-    return clubUsers.stream()
-        .filter(clubUser -> userIds.contains(clubUser.getUser().getUserId()))
-        .toList();
   }
 
   public Optional<ClubUser> getClubUser(UserId userId) {
@@ -102,18 +93,14 @@ public class Club extends BaseEntity {
             .equals(userId)).findFirst();
   }
 
+  public List<ClubUser> getClubUsers(List<UserId> userIds) {
+    return clubUsers.stream()
+        .filter(clubUser -> userIds.contains(clubUser.getUser().getUserId()))
+        .toList();
+  }
+
   public Optional<Team> getTeamByTeamId(String teamId) {
     return getTeams().stream().filter(team -> team.getTeamId().equals(teamId)).findFirst();
-  }
-
-  public void removeClubUser(ClubUser clubUser) {
-    clubUsers.remove(clubUser);
-    clubUser.setClub(null);
-  }
-
-  public void addClubUser(ClubUser clubUser) {
-    clubUsers.add(clubUser);
-    clubUser.setClub(this);
   }
 
   @Override

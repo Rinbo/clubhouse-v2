@@ -23,6 +23,11 @@ import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 @RequiredArgsConstructor
 public class ClubhouseMappers {
   private static final String EMAIL_EXTENSION = "@clubhouse.nu";
+
+  private static String convertNameToPath(String name) {
+    return name.toLowerCase().replace(" ", "-");
+  }
+
   private final PasswordEncoder passwordEncoder;
 
   public Set<Address> addressModelToAddress(List<AddressModel> addressModels) {
@@ -42,11 +47,13 @@ public class ClubhouseMappers {
   }
 
   public Club clubCreationModelToClub(CreateClubModel clubDetails) {
-    return new Club(clubDetails.getName(), clubDetails.getType(), UUID.randomUUID().toString());
+    String name = clubDetails.getName();
+    return new Club(UUID.randomUUID().toString(), name, convertNameToPath(name), clubDetails.getType());
   }
 
   public Club clubCreationModelToClub(CreateClubModel clubDetails, String clubId) {
-    return new Club(clubDetails.getName(), clubDetails.getType(), clubId);
+    String name = clubDetails.getName();
+    return new Club(clubId, clubDetails.getName(), convertNameToPath(name), clubDetails.getType());
   }
 
   public User userCreationModelToUser(CreateUserModel userDetails) {
