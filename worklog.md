@@ -7,12 +7,14 @@
 - ClubUserDto is extremely inefficient. Getting a ClubUserDto requires fetching all ClubUsers in the given club and searching that lists for the children and
   parents of the given ClubUser. This has to be fixed.
 - Evaluate passing a BaseUserDto of the parents as well instead of just the userIds. This will make the frontend more efficient.
+- Remove club from club user dto. Delegate to club context.
 
 ## Team
 
-- The max/min age logic is extremely stupid. This has to go. What do I replace it with? An enum for JUNIOR, SENIOR, etc?
-- P15 indicator, can probably be included in the name and/or the description. But I still need to implement some sorting logic when adding a member to a team.
-  You will want to limit the options that you search from to the age group of the team.
+- ~~The max/min age logic is extremely stupid. This has to go. What do I replace it with? An enum for JUNIOR, SENIOR, etc?~~
+- ~~P15 indicator, can probably be included in the name and/or the description. But I still need to implement some sorting logic when adding a member to a
+  team.~~
+  ~~You will want to limit the options that you search from to the age group of the team.~~
 
 ## Images
 

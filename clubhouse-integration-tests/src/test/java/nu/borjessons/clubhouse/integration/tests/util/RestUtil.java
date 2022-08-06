@@ -136,7 +136,7 @@ public class RestUtil {
       Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
       return;
     }
-    throw new IllegalStateException("Test failed. Expected exception to be thrown");
+    Assertions.fail("Expected exception to be thrown");
   }
 
   private static Module createIdModule() {
