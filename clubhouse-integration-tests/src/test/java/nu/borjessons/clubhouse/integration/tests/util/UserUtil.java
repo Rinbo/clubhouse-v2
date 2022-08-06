@@ -152,6 +152,15 @@ public class UserUtil {
     return Arrays.stream(clubUserDtos).collect(Collectors.toList());
   }
 
+  public static List<BaseUserRecord> getClubUsersSubset(String clubId, String token, List<String> userIds) throws JsonProcessingException {
+    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/subset")
+        .queryParam("userIds", String.join(",", userIds))
+        .buildAndExpand(clubId).toUriString();
+    final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
+    final BaseUserRecord[] baseUserRecords = RestUtil.deserializeJsonBody(response.getBody(), BaseUserRecord[].class);
+    return Arrays.stream(baseUserRecords).collect(Collectors.toList());
+  }
+
   public static List<ClubUserDto> getPrincipalClubUsers(String token) throws JsonProcessingException {
     String uri = RestUtil.getUriBuilder("/principal/clubs/all-club-users").buildAndExpand().toUriString();
 

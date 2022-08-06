@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -68,6 +69,12 @@ public class ClubUserController {
   @GetMapping(path = "/clubs/{clubId}/basic-users")
   public Collection<BaseUserRecord> getUsersBasic(@PathVariable String clubId) {
     return clubUserService.getClubUsersBasic(clubId);
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping(path = "/clubs/{clubId}/users/subset")
+  public Collection<BaseUserRecord> getUsersSubset(@PathVariable String clubId, @RequestParam List<UserId> userIds) {
+    return clubUserService.getClubUsersSubset(clubId, userIds);
   }
 
   @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")

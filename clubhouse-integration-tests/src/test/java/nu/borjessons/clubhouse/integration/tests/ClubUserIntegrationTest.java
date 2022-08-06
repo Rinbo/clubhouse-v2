@@ -1,6 +1,8 @@
 package nu.borjessons.clubhouse.integration.tests;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +31,10 @@ import nu.borjessons.clubhouse.integration.tests.util.RegistrationUtil;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
 class ClubUserIntegrationTest {
+  private static List<String> getUserIdsAndSort(Collection<BaseUserRecord> baseUserRecords) {
+    return baseUserRecords.stream().sorted(Comparator.comparing(BaseUserRecord::userId)).map(BaseUserRecord::userId).toList();
+  }
+
   private static void validateEquals(AdminUpdateUserModel updateUserModel, ClubUserDto clubUserDTO) {
     Assertions.assertEquals(updateUserModel.getFirstName(), clubUserDTO.getFirstName());
     Assertions.assertEquals(updateUserModel.getLastName(), clubUserDTO.getLastName());
@@ -40,7 +46,7 @@ class ClubUserIntegrationTest {
   void adminFailsAttemptToHackSystemAdmin() throws Exception {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       AdminUpdateUserModel updateUserModel = UserUtil.createAdminUpdateModel("Erik", "Johnson", "2000-01-01",
           Set.of(Role.PARENT, Role.LEADER, Role.USER, Role.SYSTEM_ADMIN));
 
@@ -53,8 +59,8 @@ class ClubUserIntegrationTest {
   void adminGetsAllClubUsersTest() throws Exception {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final List<ClubUserDto> clubUserDtos = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
+      String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      List<ClubUserDto> clubUserDtos = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
       Assertions.assertEquals(6, clubUserDtos.size());
     }
   }
@@ -63,8 +69,8 @@ class ClubUserIntegrationTest {
   void adminGetsLeadersTest() throws Exception {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final List<ClubUserDto> clubUserDtos = ClubUtil.getClubLeaders(EmbeddedDataLoader.CLUB_ID, ownerToken);
+      String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      List<ClubUserDto> clubUserDtos = ClubUtil.getClubLeaders(EmbeddedDataLoader.CLUB_ID, ownerToken);
       Assertions.assertEquals(3, clubUserDtos.size());
     }
   }
@@ -72,11 +78,11 @@ class ClubUserIntegrationTest {
   @Test
   void adminRemovesClubUser() throws Exception {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
-      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
-      final List<ClubUserDto> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
-      final ClubUserDto papa = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
-      final ClubUserDto mommy = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.MOMMY_EMAIL);
+      List<ClubUserDto> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
+      ClubUserDto papa = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
+      ClubUserDto mommy = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.MOMMY_EMAIL);
 
       UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, new UserId(papa.getUserId()));
       Assertions.assertEquals(5, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken).size());
@@ -89,14 +95,14 @@ class ClubUserIntegrationTest {
   @Test
   void getClubUser() throws Exception {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
-      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final List<ClubUserDto> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
-      final ClubUserDto papa = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
-      final UserId papaUserId = new UserId(papa.getUserId());
+      String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      List<ClubUserDto> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
+      ClubUserDto papa = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
+      UserId papaUserId = new UserId(papa.getUserId());
 
       Assertions.assertEquals(papa, UserUtil.getUser(EmbeddedDataLoader.CLUB_ID, ownerToken, papaUserId));
 
-      final String papaToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String papaToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
       try {
         UserUtil.getUser(EmbeddedDataLoader.CLUB_ID, papaToken, papaUserId);
@@ -110,8 +116,8 @@ class ClubUserIntegrationTest {
   void getClubUserPrincipal() throws Exception {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      final String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final ClubUserDto clubUserDTO = UserUtil.getClubUserPrincipal(EmbeddedDataLoader.CLUB_ID, token);
+      String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      ClubUserDto clubUserDTO = UserUtil.getClubUserPrincipal(EmbeddedDataLoader.CLUB_ID, token);
       Assertions.assertNotNull(clubUserDTO);
       Assertions.assertEquals("pops@ex.com", clubUserDTO.getEmail());
       Assertions.assertEquals(EmbeddedDataLoader.CLUB_ID, clubUserDTO.getClub().clubId());
@@ -123,11 +129,23 @@ class ClubUserIntegrationTest {
   }
 
   @Test
+  void getClubUsersSubset() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      UserDto userDto = UserUtil.getSelf(token);
+      List<String> childrenIds = getUserIdsAndSort(userDto.getChildren());
+      List<BaseUserRecord> baseUserRecords = UserUtil.getClubUsersSubset(EmbeddedDataLoader.CLUB_ID, token, childrenIds);
+      Assertions.assertEquals(childrenIds, getUserIdsAndSort(baseUserRecords));
+    }
+  }
+
+  @Test
   void onlyShowMyEmailTest() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      final String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final List<ClubUserDto> clubUserDtos = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, token);
+      String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      List<ClubUserDto> clubUserDtos = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, token);
       ClubUserDto pappa = clubUserDtos.stream().filter(c -> c.getFirstName().equals("Pappa")).findFirst().orElseThrow();
       Assertions.assertEquals(EmbeddedDataLoader.POPS_EMAIL, pappa.getEmail());
       clubUserDtos.removeIf(c -> c.getFirstName().equals("Pappa"));
@@ -138,7 +156,7 @@ class ClubUserIntegrationTest {
   @Test
   void parentJoinsClubAndAddsOnlyOneChild() throws Exception {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
-      final String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
 
       RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
@@ -158,7 +176,7 @@ class ClubUserIntegrationTest {
   @Test
   void parentJoinsClubAndBringsNoChildren() throws Exception {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
-      final String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
 
       RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
@@ -176,7 +194,7 @@ class ClubUserIntegrationTest {
   @Test
   void parentJoinsClubAndRetainsAllChildren() throws Exception {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
-      final String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
 
       RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
@@ -237,7 +255,7 @@ class ClubUserIntegrationTest {
   @Test
   void throwForbiddenExceptionWhenUserGetsAllClubUsersTest() throws Exception {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
-      final String userToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String userToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       try {
         UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, userToken);
       } catch (HttpClientErrorException e) {
@@ -249,7 +267,7 @@ class ClubUserIntegrationTest {
   @Test
   void throwForbiddenExceptionWhenUserGetsLeadersTest() throws Exception {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
-      final String userToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String userToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       try {
         ClubUtil.getClubLeaders(EmbeddedDataLoader.CLUB_ID, userToken);
       } catch (HttpClientErrorException e) {
@@ -261,9 +279,9 @@ class ClubUserIntegrationTest {
   @Test
   void updateClubUser() throws Exception {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
-      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      final List<ClubUserDto> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
-      final ClubUserDto papaBase = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
+      String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      List<ClubUserDto> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
+      ClubUserDto papaBase = UserUtil.getUserIdByEmail(clubUsers, EmbeddedDataLoader.POPS_EMAIL);
       AdminUpdateUserModel updateUserModel = UserUtil.createAdminUpdateModel("Erik", "Johnson", "2000-01-01",
           Set.of(Role.PARENT, Role.LEADER, Role.USER));
 
@@ -275,7 +293,7 @@ class ClubUserIntegrationTest {
   void userJoinsAnotherClubAndThenActivatesChildren() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      final String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
 
       RegistrationUtil.registerClub(ClubUtil.createClubModel("Judo"));
@@ -306,12 +324,12 @@ class ClubUserIntegrationTest {
   @Test
   void userRemovesHimself() throws JsonProcessingException {
     try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
-      final String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
       UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, token, EmbeddedDataLoader.USER_ID);
       Assertions.assertEquals(0, ClubUtil.getMyClubs(token).size());
 
-      final String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       List<ClubUserDto> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken);
 
       // User tries to remove another user which is forbidden

@@ -24,6 +24,8 @@ public interface ClubUserService {
 
   Collection<BaseUserRecord> getClubUsersBasic(String clubId);
 
+  Collection<BaseUserRecord> getClubUsersSubset(String clubId, List<UserId> userIds);
+
   Collection<ClubUserDto> getLeaders(String clubId);
 
   ClubUserDto removeClubChildren(String clubId, UserId userId, List<UserId> childrenIds);

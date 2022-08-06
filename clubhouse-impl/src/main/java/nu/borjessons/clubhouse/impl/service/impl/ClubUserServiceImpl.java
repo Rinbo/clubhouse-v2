@@ -164,6 +164,18 @@ public class ClubUserServiceImpl implements ClubUserService {
     return new ClubUserDto(userRepository.save(user).getClubUser(clubId).orElseThrow());
   }
 
+  @Override
+  public Collection<BaseUserRecord> getClubUsersSubset(String clubId, List<UserId> userIds) {
+    return clubUserRepository.findByClubIdAndUserIds(clubId, userIds
+            .stream()
+            .map(UserId::toString)
+            .toList())
+        .stream()
+        .map(ClubUser::getUser)
+        .map(BaseUserRecord::new)
+        .toList();
+  }
+
   /**
    * Adds ClubUser for children unless they have already been added by another parent. If that is the case, just adds role PARENT
    */
