@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -83,6 +84,10 @@ public class ClubUserDto {
     User principal = (User) authentication.getPrincipal();
     if (userId.toString().equals(principal.getUserId().toString())) return true;
 
-    return authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    return authentication
+        .getAuthorities()
+        .stream()
+        .map(GrantedAuthority::getAuthority)
+        .anyMatch(authority -> authority.equals("ROLE_ADMIN"));
   }
 }

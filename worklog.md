@@ -5,7 +5,7 @@
 ## ClubUser
 
 - ClubUserDto is extremely inefficient. Getting a ClubUserDto requires fetching all ClubUsers in the given club and searching that lists for the children and
-  parents of the given ClubUser. This has to be fixed.
+  parents of the given ClubUser. This has to be fixed. Perhaps make separate call for children and parents? Just give ids?
 - Evaluate passing a BaseUserDto of the parents as well instead of just the userIds. This will make the frontend more efficient.
 - Remove club from club user dto. Delegate to club context.
 
