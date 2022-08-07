@@ -2,6 +2,10 @@
 
 ### Performance
 
+## Resource deletion
+
+Thoroughly test deletion of users, parents, children, teams and clubs. Make sure everything is removed properly (including images)
+
 ## ClubUser
 
 - ClubUserDto is extremely inefficient. Getting a ClubUserDto requires fetching all ClubUsers in the given club and searching that lists for the children and

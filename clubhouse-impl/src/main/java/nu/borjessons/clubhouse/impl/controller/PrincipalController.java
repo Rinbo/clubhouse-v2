@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.AnnouncementRecord;
+import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
@@ -32,33 +33,18 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 @RequiredArgsConstructor
 @RestController
 public class PrincipalController {
-  private final UserService userService;
-  private final ClubUserService clubUserService;
   private final AnnouncementService announcementService;
+  private final ClubUserService clubUserService;
+  private final UserService userService;
+
+  @PutMapping("/add-parent")
+  public void addParentToChildren(@AuthenticationPrincipal User principal, @RequestParam UserId parentId, @RequestParam UserId childId) {
+    userService.addParentToChild(principal.getUserId(), childId, parentId);
+  }
 
   @DeleteMapping()
   public void deleteSelf(@AuthenticationPrincipal User principal) {
     userService.deleteUser(principal.getId());
-  }
-
-  @GetMapping()
-  public UserDto getSelf(@AuthenticationPrincipal User principal) {
-    return userService.getById(principal.getId());
-  }
-
-  @PutMapping()
-  public UserDto updateSelf(@AuthenticationPrincipal User principal, @Valid @RequestBody UpdateUserModel userDetails) {
-    return userService.updateUser(principal.getId(), userDetails);
-  }
-
-  @PutMapping("/child/{childId}")
-  public UserDto updateChild(@AuthenticationPrincipal User principal, @PathVariable UserId childId, @Valid @RequestBody UpdateUserModel userDetails) {
-    return userService.updateChild(childId, principal.getUserId(), userDetails);
-  }
-
-  @GetMapping("/clubs")
-  public Collection<ClubRecord> getMyClubs(@AuthenticationPrincipal User principal) {
-    return userService.getMyClubs(principal.getUserId());
   }
 
   @GetMapping("/clubs/all-club-users")
@@ -66,14 +52,34 @@ public class PrincipalController {
     return clubUserService.getAllUsersClubUsers(principal.getUserId());
   }
 
-  @PutMapping("/add-parent")
-  public void addParentToChildren(@AuthenticationPrincipal User principal, @RequestParam UserId parentId, @RequestParam UserId childId) {
-    userService.addParentToChild(principal.getUserId(), childId, parentId);
-  }
-
   @GetMapping("/announcements")
   public Collection<AnnouncementRecord> getAnnouncements(@AuthenticationPrincipal User principal, @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
     return announcementService.getAllClubAnnouncements(principal, PageRequest.of(page, size, Sort.by("createdAt").descending()));
+  }
+
+  @GetMapping("/children")
+  public Collection<BaseUserRecord> getChildren(@AuthenticationPrincipal User principal) {
+    return userService.getChildren(principal.getId());
+  }
+
+  @GetMapping("/clubs")
+  public Collection<ClubRecord> getMyClubs(@AuthenticationPrincipal User principal) {
+    return userService.getMyClubs(principal.getUserId());
+  }
+
+  @GetMapping()
+  public UserDto getSelf(@AuthenticationPrincipal User principal) {
+    return userService.getById(principal.getId());
+  }
+
+  @PutMapping("/child/{childId}")
+  public UserDto updateChild(@AuthenticationPrincipal User principal, @PathVariable UserId childId, @Valid @RequestBody UpdateUserModel userDetails) {
+    return userService.updateChild(childId, principal.getUserId(), userDetails);
+  }
+
+  @PutMapping()
+  public UserDto updateSelf(@AuthenticationPrincipal User principal, @Valid @RequestBody UpdateUserModel userDetails) {
+    return userService.updateUser(principal.getId(), userDetails);
   }
 }

@@ -1,8 +1,6 @@
 package nu.borjessons.clubhouse.integration.tests;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,10 +29,6 @@ import nu.borjessons.clubhouse.integration.tests.util.RegistrationUtil;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
 class ClubUserIntegrationTest {
-  private static List<String> getUserIdsAndSort(Collection<BaseUserRecord> baseUserRecords) {
-    return baseUserRecords.stream().sorted(Comparator.comparing(BaseUserRecord::userId)).map(BaseUserRecord::userId).toList();
-  }
-
   private static void validateEquals(AdminUpdateUserModel updateUserModel, ClubUserDto clubUserDTO) {
     Assertions.assertEquals(updateUserModel.getFirstName(), clubUserDTO.getFirstName());
     Assertions.assertEquals(updateUserModel.getLastName(), clubUserDTO.getLastName());
@@ -134,9 +128,9 @@ class ClubUserIntegrationTest {
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserDto userDto = UserUtil.getSelf(token);
-      List<String> childrenIds = getUserIdsAndSort(userDto.getChildren());
+      List<String> childrenIds = UserUtil.getUserIdsAndSort(userDto.getChildren());
       List<BaseUserRecord> baseUserRecords = UserUtil.getClubUsersSubset(EmbeddedDataLoader.CLUB_ID, token, childrenIds);
-      Assertions.assertEquals(childrenIds, getUserIdsAndSort(baseUserRecords));
+      Assertions.assertEquals(childrenIds, UserUtil.getUserIdsAndSort(baseUserRecords));
     }
   }
 

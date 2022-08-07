@@ -2,6 +2,8 @@ package nu.borjessons.clubhouse.impl.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -14,6 +16,7 @@ import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
+import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
@@ -65,6 +68,17 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserDto getById(long id) {
     return UserDto.create(getUser(id));
+  }
+
+  @Override
+  public Collection<BaseUserRecord> getChildren(long id) {
+    return userRepository
+        .getById(id)
+        .getChildren()
+        .stream()
+        .sorted(Comparator.comparing(User::getFirstName))
+        .map(BaseUserRecord::new)
+        .toList();
   }
 
   @Override

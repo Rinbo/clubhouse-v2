@@ -1,6 +1,8 @@
 package nu.borjessons.clubhouse.integration.tests.util;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -136,6 +138,13 @@ public class UserUtil {
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
+  public static List<BaseUserRecord> getChildren(String token) throws JsonProcessingException {
+    String uri = RestUtil.getUriBuilder("/principal/children").buildAndExpand().toUriString();
+    ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
+    BaseUserRecord[] baseUserRecords = RestUtil.deserializeJsonBody(response.getBody(), BaseUserRecord[].class);
+    return Arrays.stream(baseUserRecords).collect(Collectors.toList());
+  }
+
   public static ClubUserDto getClubUserPrincipal(String clubId, String token) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/principal").buildAndExpand(clubId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
@@ -146,18 +155,18 @@ public class UserUtil {
   }
 
   public static List<ClubUserDto> getClubUsers(String clubId, String token) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users").buildAndExpand(clubId).toUriString();
-    final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
-    final ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users").buildAndExpand(clubId).toUriString();
+    ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
+    ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);
     return Arrays.stream(clubUserDtos).collect(Collectors.toList());
   }
 
   public static List<BaseUserRecord> getClubUsersSubset(String clubId, String token, List<String> userIds) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/subset")
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/subset")
         .queryParam("userIds", String.join(",", userIds))
         .buildAndExpand(clubId).toUriString();
-    final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
-    final BaseUserRecord[] baseUserRecords = RestUtil.deserializeJsonBody(response.getBody(), BaseUserRecord[].class);
+    ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
+    BaseUserRecord[] baseUserRecords = RestUtil.deserializeJsonBody(response.getBody(), BaseUserRecord[].class);
     return Arrays.stream(baseUserRecords).collect(Collectors.toList());
   }
 
@@ -205,6 +214,10 @@ public class UserUtil {
         .filter(user -> user.getEmail().equals(email))
         .findFirst()
         .orElseThrow();
+  }
+
+  public static List<String> getUserIdsAndSort(Collection<BaseUserRecord> baseUserRecords) {
+    return baseUserRecords.stream().sorted(Comparator.comparing(BaseUserRecord::userId)).map(BaseUserRecord::userId).toList();
   }
 
   public static String loginUser(String email, String password) {

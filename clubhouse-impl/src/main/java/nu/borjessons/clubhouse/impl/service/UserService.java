@@ -1,11 +1,13 @@
 package nu.borjessons.clubhouse.impl.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
+import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
@@ -21,6 +23,8 @@ public interface UserService extends UserDetailsService {
   void deleteUser(long id);
 
   UserDto getById(long id);
+
+  Collection<BaseUserRecord> getChildren(long id);
 
   List<ClubRecord> getMyClubs(UserId userId);
 
