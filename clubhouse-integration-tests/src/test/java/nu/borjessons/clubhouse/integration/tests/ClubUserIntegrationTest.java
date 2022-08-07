@@ -111,14 +111,15 @@ class ClubUserIntegrationTest {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      UserDto userDto = UserUtil.getSelf(token);
+      List<BaseUserRecord> children = UserUtil.getClubUsersSubset(EmbeddedDataLoader.CLUB_ID, token, UserUtil.getUserIdsAndSort(userDto.getChildren()));
       ClubUserDto clubUserDTO = UserUtil.getClubUserPrincipal(EmbeddedDataLoader.CLUB_ID, token);
       Assertions.assertNotNull(clubUserDTO);
       Assertions.assertEquals("pops@ex.com", clubUserDTO.getEmail());
       Assertions.assertEquals(EmbeddedDataLoader.CLUB_ID, clubUserDTO.getClub().clubId());
-      Assertions.assertEquals("Fritiof Sports", clubUserDTO.getClubName());
       Assertions.assertEquals("Pappa", clubUserDTO.getFirstName());
       Assertions.assertEquals("Börjesson", clubUserDTO.getLastName());
-      Assertions.assertEquals(2, clubUserDTO.getChildren().size());
+      Assertions.assertEquals(2, children.size());
     }
   }
 
@@ -240,9 +241,8 @@ class ClubUserIntegrationTest {
 
       String momToken = UserUtil.loginUser(EmbeddedDataLoader.MOMMY_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserDto mom = UserUtil.getSelf(momToken);
-
-      ClubUserDto momClubUser = UserUtil.getUser(EmbeddedDataLoader.CLUB_ID, momToken, mom.getUserId());
-      Assertions.assertEquals(1, momClubUser.getChildren().size());
+      List<BaseUserRecord> clubChildren = UserUtil.getClubUsersSubset(EmbeddedDataLoader.CLUB_ID, momToken, UserUtil.getUserIdsAndSort(mom.getChildren()));
+      Assertions.assertEquals(1, clubChildren.size());
     }
   }
 
