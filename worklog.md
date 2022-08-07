@@ -8,10 +8,10 @@ Thoroughly test deletion of users, parents, children, teams and clubs. Make sure
 
 ## ClubUser
 
-- ClubUserDto is extremely inefficient. Getting a ClubUserDto requires fetching all ClubUsers in the given club and searching that lists for the children and
-  parents of the given ClubUser. This has to be fixed. Perhaps make separate call for children and parents? Just give ids?
-- Evaluate passing a BaseUserDto of the parents as well instead of just the userIds. This will make the frontend more efficient.
-- Remove club from club user dto. Delegate to club context.
+- ~~ClubUserDto is extremely inefficient. Getting a ClubUserDto requires fetching all ClubUsers in the given club and searching that lists for the children
+  and~~
+  ~~parents of the given ClubUser. This has to be fixed. Perhaps make separate call for children and parents? Just give ids?~~
+- ~~Evaluate passing a BaseUserDto of the parents as well instead of just the userIds. This will make the frontend more efficient.~~
 
 ## Team
 
@@ -31,6 +31,8 @@ Thoroughly test deletion of users, parents, children, teams and clubs. Make sure
 
 - Can roles be kept in cookie? When changing role of a user - log them out by removing the token from tokenStore.
 - How do I add roles to an already existing cookie? We only log in once. This will be difficult and probably not feasible.
+- Maybe make a cache for clubUser and user instead which we fetch from after the first hit and which get modified by an interaction with user and clubUser
+  tables. Could the context of authorization be reduced?
 
 ## Logging
 
@@ -38,7 +40,8 @@ Thoroughly test deletion of users, parents, children, teams and clubs. Make sure
 
 ## Announcements
 
-- When deleting an announcement the corresponding image does not seem to be deleted from file system. Check!
+- ~~When deleting an announcement the corresponding image does not seem to be deleted from file system. Check! (UPDATE: Words as intended. Uploaded announcement
+  images should remain in the club even after announcement gets deleted)~~
 
 ## Searching
 
