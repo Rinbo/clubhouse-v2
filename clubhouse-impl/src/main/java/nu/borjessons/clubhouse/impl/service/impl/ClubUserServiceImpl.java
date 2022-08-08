@@ -28,8 +28,8 @@ import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.repository.RoleRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
 import nu.borjessons.clubhouse.impl.service.ClubUserService;
-import nu.borjessons.clubhouse.impl.util.ClubhouseMappers;
-import nu.borjessons.clubhouse.impl.util.ClubhouseUtils;
+import nu.borjessons.clubhouse.impl.util.AppMappers;
+import nu.borjessons.clubhouse.impl.util.AppUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -47,12 +47,11 @@ public class ClubUserServiceImpl implements ClubUserService {
   private static void updateUserDetails(AdminUpdateUserModel userDetails, User user) {
     user.setFirstName(userDetails.getFirstName());
     user.setLastName(userDetails.getLastName());
-    user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
+    user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), AppUtils.DATE_FORMAT));
   }
-
+  private final AppMappers appMappers;
   private final ClubRepository clubRepository;
   private final ClubUserRepository clubUserRepository;
-  private final ClubhouseMappers clubhouseMappers;
   private final RoleRepository roleRepository;
   private final UserRepository userRepository;
 
@@ -123,6 +122,18 @@ public class ClubUserServiceImpl implements ClubUserService {
   }
 
   @Override
+  public Collection<BaseUserRecord> getClubUsersSubset(String clubId, List<UserId> userIds) {
+    return clubUserRepository.findByClubIdAndUserIds(clubId, userIds
+            .stream()
+            .map(UserId::toString)
+            .toList())
+        .stream()
+        .map(ClubUser::getUser)
+        .map(BaseUserRecord::new)
+        .toList();
+  }
+
+  @Override
   public Collection<ClubUserDto> getLeaders(String clubId) {
     List<ClubUser> clubUsers = clubUserRepository.findByClubId(clubId);
     return clubUsers.stream()
@@ -159,21 +170,9 @@ public class ClubUserServiceImpl implements ClubUserService {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId.toString()).orElseThrow();
     User user = clubUser.getUser();
     updateUserDetails(userDetails, user);
-    updateAddresses(user, clubhouseMappers.addressModelToAddress(userDetails.getAddresses()));
+    updateAddresses(user, appMappers.addressModelToAddress(userDetails.getAddresses()));
     updateRoles(clubUser, userDetails.getRoles());
     return new ClubUserDto(userRepository.save(user).getClubUser(clubId).orElseThrow());
-  }
-
-  @Override
-  public Collection<BaseUserRecord> getClubUsersSubset(String clubId, List<UserId> userIds) {
-    return clubUserRepository.findByClubIdAndUserIds(clubId, userIds
-            .stream()
-            .map(UserId::toString)
-            .toList())
-        .stream()
-        .map(ClubUser::getUser)
-        .map(BaseUserRecord::new)
-        .toList();
   }
 
   /**

@@ -42,31 +42,48 @@ import nu.borjessons.clubhouse.impl.data.key.UserId;
 public class User extends BaseEntity implements UserDetails {
   @Serial
   private static final long serialVersionUID = 3842546232021972948L;
+
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   private Set<Address> addresses = new HashSet<>();
+
   @ManyToMany(mappedBy = "parents", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
   private Set<User> children = new HashSet<>();
+
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   private Collection<ClubUser> clubUsers = new ArrayList<>();
+
   @Column(nullable = false)
   private LocalDate dateOfBirth;
+
   @Column(nullable = false, length = 120, unique = true, name = "email")
   private String email;
+
   @Column(nullable = false)
   private String encryptedPassword;
+
   @Column(nullable = false, length = 50)
   private String firstName;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
+
   @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
   private ImageToken imageToken;
+
   private LocalDateTime lastLoginTime;
+
   @Column(nullable = false, length = 50)
   private String lastName;
+
   private boolean managedAccount;
+
   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
   private Set<User> parents = new HashSet<>();
+
+  @Column(nullable = false, columnDefinition = "boolean default false")
+  private boolean showEmail;
+
   @Setter(AccessLevel.PRIVATE)
   @Convert(converter = UserIdConverter.class)
   @Column(nullable = false, unique = true, columnDefinition = "varchar(64)")

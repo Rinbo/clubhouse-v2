@@ -21,7 +21,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.CreateUserModel;
 
 @Component
 @RequiredArgsConstructor
-public class ClubhouseMappers {
+public class AppMappers {
   private static final String EMAIL_EXTENSION = "@clubhouse.nu";
 
   private static String convertNameToPath(String name) {
@@ -41,7 +41,7 @@ public class ClubhouseMappers {
     child.setLastName(childModel.getLastName());
     child.setEmail(childIdentifier + EMAIL_EXTENSION);
     child.setEncryptedPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
-    child.setDateOfBirth(LocalDate.parse(childModel.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
+    child.setDateOfBirth(LocalDate.parse(childModel.getDateOfBirth(), AppUtils.DATE_FORMAT));
     child.setManagedAccount(true);
     return child;
   }
@@ -66,7 +66,7 @@ public class ClubhouseMappers {
     user.setFirstName(userDetails.getFirstName());
     user.setLastName(userDetails.getLastName());
     user.setEncryptedPassword(passwordEncoder.encode(userDetails.getPassword()));
-    user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
+    user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), AppUtils.DATE_FORMAT));
 
     return user;
   }

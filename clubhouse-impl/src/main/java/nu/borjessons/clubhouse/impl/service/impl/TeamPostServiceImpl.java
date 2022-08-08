@@ -22,7 +22,7 @@ import nu.borjessons.clubhouse.impl.repository.TeamPostCommentRepository;
 import nu.borjessons.clubhouse.impl.repository.TeamPostRepository;
 import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 import nu.borjessons.clubhouse.impl.service.TeamPostService;
-import nu.borjessons.clubhouse.impl.util.ClubhouseUtils;
+import nu.borjessons.clubhouse.impl.util.AppUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +54,7 @@ public class TeamPostServiceImpl implements TeamPostService {
     teamPostComment.setClubUser(clubUser);
 
     TeamPost teamPost = teamPostRepository.findByTeamPostId(teamPostId)
-        .orElseThrow(ClubhouseUtils.createNotFoundExceptionSupplier("team post not found: " + teamPostId));
+        .orElseThrow(AppUtils.createNotFoundExceptionSupplier("team post not found: " + teamPostId));
     teamPost.addComment(teamPostComment);
     return new TeamPostRecord(teamPostRepository.save(teamPost));
   }
@@ -63,7 +63,7 @@ public class TeamPostServiceImpl implements TeamPostService {
   @Override
   public TeamPostRecord createPost(User user, String clubId, String teamId, TeamPostRequest teamPostRequest) {
     ClubUser clubUser = getClubUser(user, clubId);
-    Team team = teamRepository.findByTeamId(teamId).orElseThrow(ClubhouseUtils.createNotFoundExceptionSupplier("Team not found " + teamId));
+    Team team = teamRepository.findByTeamId(teamId).orElseThrow(AppUtils.createNotFoundExceptionSupplier("Team not found " + teamId));
 
     return new TeamPostRecord(teamPostRepository.save(createTeamPost(clubUser, team, teamPostRequest)));
   }
@@ -88,7 +88,7 @@ public class TeamPostServiceImpl implements TeamPostService {
   @Override
   public TeamPostRecord getPost(TeamPostId teamPostId) {
     return new TeamPostRecord(
-        teamPostRepository.findByTeamPostId(teamPostId).orElseThrow(ClubhouseUtils.createNotFoundExceptionSupplier("team post not found: " + teamPostId)));
+        teamPostRepository.findByTeamPostId(teamPostId).orElseThrow(AppUtils.createNotFoundExceptionSupplier("team post not found: " + teamPostId)));
   }
 
   @Override
@@ -109,7 +109,7 @@ public class TeamPostServiceImpl implements TeamPostService {
   @Override
   public TeamPostRecord toggleSticky(TeamPostId teamPostId) {
     TeamPost teamPost = teamPostRepository.findByTeamPostId(teamPostId)
-        .orElseThrow(ClubhouseUtils.createNotFoundExceptionSupplier("Post not found: " + teamPostId));
+        .orElseThrow(AppUtils.createNotFoundExceptionSupplier("Post not found: " + teamPostId));
     teamPost.setSticky(!teamPost.isSticky());
     return new TeamPostRecord(teamPostRepository.save(teamPost));
   }
@@ -130,11 +130,11 @@ public class TeamPostServiceImpl implements TeamPostService {
 
   private ClubUser getClubUser(User principal, String clubId) {
     return clubUserRepository.findByClubIdAndUserId(clubId, principal.getId())
-        .orElseThrow(ClubhouseUtils.createNotFoundExceptionSupplier("user not found: " + principal.getUserId()));
+        .orElseThrow(AppUtils.createNotFoundExceptionSupplier("user not found: " + principal.getUserId()));
   }
 
   private TeamPostComment getTeamPostComment(long teamPostCommentId, ClubUser clubUser) {
     return teamPostCommentRepository.findByIdAndClubUser(teamPostCommentId, clubUser)
-        .orElseThrow(ClubhouseUtils.createNotFoundExceptionSupplier("teamPostCommentId not found: " + teamPostCommentId));
+        .orElseThrow(AppUtils.createNotFoundExceptionSupplier("teamPostCommentId not found: " + teamPostCommentId));
   }
 }

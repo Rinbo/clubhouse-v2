@@ -27,7 +27,7 @@ import nu.borjessons.clubhouse.impl.repository.RoleRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
 import nu.borjessons.clubhouse.impl.service.ImageService;
 import nu.borjessons.clubhouse.impl.service.RegistrationService;
-import nu.borjessons.clubhouse.impl.util.ClubhouseMappers;
+import nu.borjessons.clubhouse.impl.util.AppMappers;
 
 // TODO eventually remove the mappers and create converter functions in controller that does the mapping to internal DTO?
 @RequiredArgsConstructor
@@ -35,12 +35,11 @@ import nu.borjessons.clubhouse.impl.util.ClubhouseMappers;
 @Transactional
 public class RegistrationServiceImpl implements RegistrationService {
   private static final Set<Role> OWNER_ROLES = Set.of(Role.USER, Role.OWNER, Role.ADMIN, Role.LEADER);
-
+  private final AppMappers appMappers;
   private final ClubRepository clubRepository;
-  private final ClubhouseMappers clubhouseMappers;
+  private final ImageService imageService;
   private final RoleRepository roleRepository;
   private final UserRepository userRepository;
-  private final ImageService imageService;
 
   @Override
   public UserDto registerClubChildren(UserId userId, String clubId, List<CreateChildRequestModel> childDetails) {
@@ -58,7 +57,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
   @Override
   public UserDto registerClub(CreateClubModel clubDetails) {
-    Club club = clubRepository.save(clubhouseMappers.clubCreationModelToClub(clubDetails));
+    Club club = clubRepository.save(appMappers.clubCreationModelToClub(clubDetails));
     User user = userRepository.save(addClubUser(club, getRoleEntities(OWNER_ROLES), constructUserEntity(clubDetails.getOwner())));
     imageService.createClubRootImageFolder(club.getClubId());
     return UserDto.create(user);
@@ -66,7 +65,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
   @Override
   public UserDto registerClub(CreateClubModel clubDetails, String clubId) {
-    Club club = clubRepository.save(clubhouseMappers.clubCreationModelToClub(clubDetails, clubId));
+    Club club = clubRepository.save(appMappers.clubCreationModelToClub(clubDetails, clubId));
     User user = userRepository.save(addClubUser(club, getRoleEntities(OWNER_ROLES), constructUserEntity(clubDetails.getOwner())));
     imageService.createClubRootImageFolder(club.getClubId());
     return UserDto.create(user);
@@ -110,11 +109,22 @@ public class RegistrationServiceImpl implements RegistrationService {
     return UserDto.create(userRepository.save(user));
   }
 
+  @Override
+  public UserDto registerUser(CreateUserModel userDetails, UserId userId) {
+    Club club = clubRepository.findByClubId(userDetails.getClubId()).orElseThrow();
+
+    User user = appMappers.userCreationModelToUser(userDetails, userId);
+    Set<Role> roles = new HashSet<>(Collections.singletonList(Role.USER));
+
+    addClubUser(club, getRoleEntities(roles), user);
+    return UserDto.create(userRepository.save(user));
+  }
+
   @Transactional
   @Override
   public UserDto registerChild(UserId parentId, CreateChildRequestModel childModel) {
     User parent = userRepository.findByUserId(parentId).orElseThrow();
-    User child = clubhouseMappers.childCreationModelToUser(childModel);
+    User child = appMappers.childCreationModelToUser(childModel);
     parent.addChild(child);
     User savedParent = userRepository.save(parent);
     return UserDto.create(savedParent);
@@ -130,23 +140,6 @@ public class RegistrationServiceImpl implements RegistrationService {
     return UserDto.create(parent);
   }
 
-  @Override
-  public UserDto registerUser(CreateUserModel userDetails, UserId userId) {
-    Club club = clubRepository.findByClubId(userDetails.getClubId()).orElseThrow();
-
-    User user = clubhouseMappers.userCreationModelToUser(userDetails, userId);
-    Set<Role> roles = new HashSet<>(Collections.singletonList(Role.USER));
-
-    addClubUser(club, getRoleEntities(roles), user);
-    return UserDto.create(userRepository.save(user));
-  }
-
-  private Set<User> mapChildModelToUser(List<CreateChildRequestModel> childrenDetails) {
-    return childrenDetails.stream()
-        .map(clubhouseMappers::childCreationModelToUser)
-        .collect(Collectors.toSet());
-  }
-
   private User addChildrenToParent(User parent, Set<User> children) {
     children.forEach(parent::addChild);
     return parent;
@@ -160,14 +153,20 @@ public class RegistrationServiceImpl implements RegistrationService {
     return user;
   }
 
+  private User constructUserEntity(CreateUserModel userDetails) {
+    User user = appMappers.userCreationModelToUser(userDetails);
+    Set<Address> addresses = appMappers.addressModelToAddress(userDetails.getAddresses());
+    addresses.forEach(user::addAddress);
+    return user;
+  }
+
   private Set<RoleEntity> getRoleEntities(Set<Role> myRoles) {
     return roleRepository.findByRoleNames(myRoles.stream().map(Role::toString).collect(Collectors.toSet()));
   }
 
-  private User constructUserEntity(CreateUserModel userDetails) {
-    User user = clubhouseMappers.userCreationModelToUser(userDetails);
-    Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
-    addresses.forEach(user::addAddress);
-    return user;
+  private Set<User> mapChildModelToUser(List<CreateChildRequestModel> childrenDetails) {
+    return childrenDetails.stream()
+        .map(appMappers::childCreationModelToUser)
+        .collect(Collectors.toSet());
   }
 }

@@ -28,6 +28,7 @@ import nu.borjessons.clubhouse.impl.data.key.UserId;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class ClubUserDto {
+  private Set<String> childrenIds;
   private ClubRecord club;
   private String dateOfBirth;
   private String email;
@@ -45,6 +46,7 @@ public class ClubUserDto {
     User user = clubUser.getUser();
     UserId uuid = user.getUserId();
 
+    childrenIds = user.getChildren().stream().map(User::getUserId).map(UserId::toString).collect(Collectors.toSet());
     club = new ClubRecord(clubUser.getClub());
     dateOfBirth = user.getDateOfBirth().toString();
     email = showEmail(uuid) ? user.getEmail() : null;

@@ -6,6 +6,11 @@
 
 Thoroughly test deletion of users, parents, children, teams and clubs. Make sure everything is removed properly (including images)
 
+## Messaging
+
+- Implement ability for admins to send email to team and individual users.
+- Implement chat system :)
+
 ## ClubUser
 
 - ~~ClubUserDto is extremely inefficient. Getting a ClubUserDto requires fetching all ClubUsers in the given club and searching that lists for the children

@@ -23,14 +23,14 @@ import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.repository.AddressRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
 import nu.borjessons.clubhouse.impl.service.UserService;
-import nu.borjessons.clubhouse.impl.util.ClubhouseMappers;
-import nu.borjessons.clubhouse.impl.util.ClubhouseUtils;
+import nu.borjessons.clubhouse.impl.util.AppMappers;
+import nu.borjessons.clubhouse.impl.util.AppUtils;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
   private final AddressRepository addressRepository;
-  private final ClubhouseMappers clubhouseMappers;
+  private final AppMappers appMappers;
   private final UserRepository userRepository;
 
   @Override
@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
     User child = parent.getChildren().stream().filter(c -> c.getUserId().equals(childId)).findFirst().orElseThrow();
     child.setFirstName(userDetails.getFirstName());
     child.setLastName(userDetails.getLastName());
-    child.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
+    child.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), AppUtils.DATE_FORMAT));
     return UserDto.create(userRepository.save(child));
   }
 
@@ -118,9 +118,9 @@ public class UserServiceImpl implements UserService {
     User user = getUser(id);
     user.setFirstName(userDetails.getFirstName());
     user.setLastName(userDetails.getLastName());
-    user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), ClubhouseUtils.DATE_FORMAT));
+    user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), AppUtils.DATE_FORMAT));
 
-    Set<Address> addresses = clubhouseMappers.addressModelToAddress(userDetails.getAddresses());
+    Set<Address> addresses = appMappers.addressModelToAddress(userDetails.getAddresses());
     Set<Address> oldAddresses = user.getAddresses();
     oldAddresses.forEach(user::removeAddress);
     addressRepository.deleteAll(oldAddresses);

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,12 +23,14 @@ import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
+import nu.borjessons.clubhouse.impl.security.resource.authorization.UserResourceAuthorization;
 import nu.borjessons.clubhouse.impl.service.ClubUserService;
 
 @RequiredArgsConstructor
 @RestController
 public class ClubUserController {
   private final ClubUserService clubUserService;
+  private final UserResourceAuthorization userResourceAuthorization;
 
   @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
   @PutMapping("/clubs/{clubId}/users/{userId}/activate-club-children")
@@ -45,6 +48,12 @@ public class ClubUserController {
   @GetMapping("/clubs/{clubId}/principal")
   public ClubUserDto getClubUserPrincipal(@AuthenticationPrincipal User principal, @PathVariable String clubId) {
     return clubUserService.getClubUser(clubId, principal.getUserId());
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping("/clubs/clubId/users/{userId}/email")
+  public ResponseEntity<String> getEmail(@PathVariable UserId userId) {
+    return ResponseEntity.ok(userResourceAuthorization.getUserEmail(userId));
   }
 
   @PreAuthorize("hasRole('ADMIN')")
