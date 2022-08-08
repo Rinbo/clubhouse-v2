@@ -25,7 +25,7 @@ public class UserResourceAuthorization {
     String email = user.getEmail();
 
     if (user.isShowEmail()) return email;
-    if (user.getUserId().equals(userId)) return email;
+    if (user.getUserId().equals(securityContextFacade.getAuthenticationPrincipal().getUserId())) return email;
     if (securityContextFacade.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) return email;
 
     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");

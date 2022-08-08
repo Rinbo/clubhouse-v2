@@ -26,6 +26,7 @@ import nu.borjessons.clubhouse.impl.util.dev.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.ClubUtil;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import nu.borjessons.clubhouse.integration.tests.util.RegistrationUtil;
+import nu.borjessons.clubhouse.integration.tests.util.RestUtil;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
 class ClubUserIntegrationTest {
@@ -132,6 +133,23 @@ class ClubUserIntegrationTest {
       List<String> childrenIds = UserUtil.getUserIdsAndSort(userDto.getChildren());
       List<BaseUserRecord> baseUserRecords = UserUtil.getClubUsersSubset(EmbeddedDataLoader.CLUB_ID, token, childrenIds);
       Assertions.assertEquals(childrenIds, UserUtil.getUserIdsAndSort(baseUserRecords));
+    }
+  }
+
+  @Test
+  void getUserEmail() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String popsToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String adminToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String userToken = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+
+      RestUtil.verifyForbiddenAccess(() -> UserUtil.getUserEmail(popsToken, EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.USER_ID));
+      Assertions.assertEquals(EmbeddedDataLoader.USER_EMAIL, UserUtil.getUserEmail(userToken, EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.USER_ID));
+      Assertions.assertEquals(EmbeddedDataLoader.USER_EMAIL, UserUtil.getUserEmail(adminToken, EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.USER_ID));
+
+      UserUtil.updateSelf(userToken, UserUtil.createUpdateModel("Hej", "Hello", "2000-01-01", true));
+      Assertions.assertEquals(EmbeddedDataLoader.USER_EMAIL, UserUtil.getUserEmail(popsToken, EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.USER_ID));
     }
   }
 

@@ -27,4 +27,6 @@ public class UpdateUserModel {
   @NotNull(message = "Last name cannot be null")
   @Size(min = 2, message = "Last name must not be less than two characters")
   private String lastName;
+
+  private boolean showEmail;
 }

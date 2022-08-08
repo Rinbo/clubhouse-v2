@@ -119,6 +119,7 @@ public class UserServiceImpl implements UserService {
     user.setFirstName(userDetails.getFirstName());
     user.setLastName(userDetails.getLastName());
     user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), AppUtils.DATE_FORMAT));
+    user.setShowEmail(userDetails.isShowEmail());
 
     Set<Address> addresses = appMappers.addressModelToAddress(userDetails.getAddresses());
     Set<Address> oldAddresses = user.getAddresses();

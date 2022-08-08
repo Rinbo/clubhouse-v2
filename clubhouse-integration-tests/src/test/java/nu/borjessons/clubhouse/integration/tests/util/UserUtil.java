@@ -73,12 +73,9 @@ public class UserUtil {
   }
 
   public static AdminUpdateUserModel createAdminUpdateModel(String firstName, String lastName, String dateOfBirth, Set<Role> roles) {
-    AdminUpdateUserModel updateUserModel = new AdminUpdateUserModel();
-    updateUserModel.setFirstName(firstName);
-    updateUserModel.setLastName(lastName);
-    updateUserModel.setDateOfBirth(dateOfBirth);
-    updateUserModel.setRoles(roles);
-    return updateUserModel;
+    AdminUpdateUserModel adminUpdateUserModel = (AdminUpdateUserModel) createUpdateModel(firstName, lastName, dateOfBirth, false);
+    adminUpdateUserModel.setRoles(roles);
+    return adminUpdateUserModel;
   }
 
   public static CreateChildRequestModel createChildRequestModel(String firstName) {
@@ -105,6 +102,15 @@ public class UserUtil {
     familyRequestModel.setParents(List.of(dad, mom));
     familyRequestModel.setChildren(List.of(child));
     return familyRequestModel;
+  }
+
+  public static UpdateUserModel createUpdateModel(String firstName, String lastName, String dateOfBirth, boolean showEmail) {
+    UpdateUserModel updateUserModel = new UpdateUserModel();
+    updateUserModel.setFirstName(firstName);
+    updateUserModel.setLastName(lastName);
+    updateUserModel.setDateOfBirth(dateOfBirth);
+    updateUserModel.setShowEmail(showEmail);
+    return updateUserModel;
   }
 
   public static CreateUserModel createUserModel(String clubId, String firstName) {
@@ -204,6 +210,13 @@ public class UserUtil {
   public static BaseUserRecord getUserByEmail(String email, String token) {
     String uri = RestUtil.getUriBuilder("/users").queryParam("email", email).buildAndExpand().toUriString();
     ResponseEntity<BaseUserRecord> response = RestUtil.getRequest(uri, token, BaseUserRecord.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
+  }
+
+  public static String getUserEmail(String token, String clubId, UserId userId) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}/email").buildAndExpand(clubId, userId).toUriString();
+    ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
   }
