@@ -38,6 +38,7 @@ public class ClubUserDto {
   private boolean managedUser;
   private Set<String> parentIds;
   private Set<Role> roles;
+  private boolean showEmail;
   private String userId;
 
   public ClubUserDto(ClubUser clubUser) {
@@ -56,6 +57,7 @@ public class ClubUserDto {
     managedUser = user.isManagedAccount();
     parentIds = user.getParents().stream().map(User::getUserId).map(UserId::toString).collect(Collectors.toSet());
     roles = clubUser.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toSet());
+    showEmail = user.isShowEmail();
     userId = uuid.toString();
   }
 

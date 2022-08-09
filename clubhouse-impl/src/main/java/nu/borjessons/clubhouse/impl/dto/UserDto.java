@@ -32,6 +32,7 @@ public final class UserDto {
         .managedUser(user.isManagedAccount())
         .name(String.format("%s %s", firstName, lastName))
         .parentIds(user.getParents().stream().map(User::getUserId).map(UserId::toString).collect(Collectors.toSet()))
+        .showEmail(user.isShowEmail())
         .userId(user.getUserId())
         .build();
   }
@@ -47,5 +48,6 @@ public final class UserDto {
   private final boolean managedUser;
   private final String name;
   private final Set<String> parentIds;
+  private final boolean showEmail;
   private final UserId userId;
 }
