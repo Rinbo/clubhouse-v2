@@ -65,10 +65,10 @@ class PrincipalIntegrationTest {
   void getAllMyClubUsers() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       List<ClubUserDto> clubUserDtos = UserUtil.getPrincipalClubUsers(token);
       Assertions.assertEquals(1, clubUserDtos.size());
-      clubUserDtos.forEach(clubUserDTO -> Assertions.assertEquals(EmbeddedDataLoader.POPS_EMAIL, clubUserDTO.getEmail()));
+      clubUserDtos.forEach(clubUserDTO -> Assertions.assertEquals(EmbeddedDataLoader.USER_ID, clubUserDTO.getUserId()));
     }
   }
 

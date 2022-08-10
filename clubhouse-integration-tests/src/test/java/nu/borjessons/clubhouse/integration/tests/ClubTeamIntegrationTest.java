@@ -94,13 +94,13 @@ class ClubTeamIntegrationTest {
   void removeLeaderFromTeamTest() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      ClubUserDto leaderDTO = UserUtil.getUserIdByEmail(UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken), EmbeddedDataLoader.POPS_EMAIL);
+      ClubUserDto leaderDTO = UserUtil.getUserIdByEmail(EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.POPS_EMAIL, context);
       List<TeamDto> teamDtos = TeamUtil.getClubTeams(EmbeddedDataLoader.CLUB_ID, ownerToken);
       String teamId = teamDtos.get(0).getTeamId();
 
       Assertions.assertEquals(1, TeamUtil.getTeamById(EmbeddedDataLoader.CLUB_ID, teamId, ownerToken).getLeaders().size());
 
-      TeamDto teamDTO = TeamUtil.removeLeaderFromTeam(EmbeddedDataLoader.CLUB_ID, new UserId(leaderDTO.getUserId()), teamId, ownerToken);
+      TeamDto teamDTO = TeamUtil.removeLeaderFromTeam(EmbeddedDataLoader.CLUB_ID, leaderDTO.getUserId(), teamId, ownerToken);
       Assertions.assertEquals(0, teamDTO.getLeaders().size());
       Assertions.assertEquals(0, TeamUtil.getTeamById(EmbeddedDataLoader.CLUB_ID, teamId, ownerToken).getLeaders().size());
     }
@@ -120,7 +120,7 @@ class ClubTeamIntegrationTest {
       Set<ClubUserDto> members = updatedTeamDto.getMembers();
       Assertions.assertEquals(1, members.size());
       Assertions.assertEquals(1, updatedTeamDto.getLeaders().size());
-      Assertions.assertEquals(EmbeddedDataLoader.USER_EMAIL, members.iterator().next().getEmail());
+      Assertions.assertEquals(EmbeddedDataLoader.USER_ID, members.iterator().next().getUserId());
     }
   }
 
@@ -129,13 +129,13 @@ class ClubTeamIntegrationTest {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       String teamName = "Some other name";
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      ClubUserDto mamaClubUser = UserUtil.getUserIdByEmail(UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken), EmbeddedDataLoader.MOMMY_EMAIL);
+      ClubUserDto mamaClubUser = UserUtil.getUserIdByEmail(EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.MOMMY_EMAIL, context);
       List<TeamDto> teamDtos = TeamUtil.getClubTeams(EmbeddedDataLoader.CLUB_ID, ownerToken);
       String teamId = teamDtos.iterator().next().getTeamId();
 
       validateLeaderHasExpectedEmail(EmbeddedDataLoader.POPS_EMAIL, ownerToken, teamId);
 
-      TeamRequestModel teamRequestModel = TeamUtil.createRequestModel(List.of(), List.of(mamaClubUser.getUserId()), teamName);
+      TeamRequestModel teamRequestModel = TeamUtil.createRequestModel(List.of(), List.of(mamaClubUser.getUserId().toString()), teamName);
       TeamDto teamDTO = TeamUtil.updateTeam(EmbeddedDataLoader.CLUB_ID, teamRequestModel, teamId, ownerToken);
       Assertions.assertEquals(1, teamDTO.getLeaders().size());
       Assertions.assertEquals(0, teamDTO.getMembers().size());
@@ -159,10 +159,12 @@ class ClubTeamIntegrationTest {
   }
 
   private void validateLeaderHasExpectedEmail(String expectedEmail, String token, String teamId) throws JsonProcessingException {
-    Assertions.assertEquals(expectedEmail, TeamUtil.getTeamById(EmbeddedDataLoader.CLUB_ID, teamId, token)
+    UserId userId = TeamUtil.getTeamById(EmbeddedDataLoader.CLUB_ID, teamId, token)
         .getLeaders()
         .iterator()
         .next()
-        .getEmail());
+        .getUserId();
+
+    Assertions.assertEquals(expectedEmail, UserUtil.getUserEmail(token, EmbeddedDataLoader.CLUB_ID, userId));
   }
 }

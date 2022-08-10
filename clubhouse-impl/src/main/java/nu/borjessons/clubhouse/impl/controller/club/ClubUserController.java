@@ -52,7 +52,7 @@ public class ClubUserController {
 
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/clubs/{clubId}/users/{userId}/email")
-  public ResponseEntity<String> getEmail(@PathVariable UserId userId) {
+  public ResponseEntity<String> getEmail(@PathVariable String clubId, @PathVariable UserId userId) {
     return ResponseEntity.ok(userResourceAuthorization.getUserEmail(userId));
   }
 

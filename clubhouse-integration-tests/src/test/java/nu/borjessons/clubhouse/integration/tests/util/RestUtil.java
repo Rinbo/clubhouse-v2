@@ -139,6 +139,16 @@ public class RestUtil {
     Assertions.fail("Expected exception to be thrown");
   }
 
+  public static void verifyForbiddenAccess(Runnable runnable) {
+    try {
+      runnable.run();
+    } catch (HttpClientErrorException e) {
+      Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+      return;
+    }
+    Assertions.fail("Expected exception to be thrown");
+  }
+
   private static Module createIdModule() {
     SimpleModule simpleModule = new SimpleModule();
 
