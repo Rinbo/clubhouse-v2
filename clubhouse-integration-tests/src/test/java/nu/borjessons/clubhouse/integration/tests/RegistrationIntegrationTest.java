@@ -33,7 +33,7 @@ class RegistrationIntegrationTest {
   void adminRegistersNewClubChildTest() throws JsonProcessingException {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      UserId daddyId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.POPS_EMAIL, context).getUserId();
+      UserId daddyId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context);
       UserDto daddyWithOneMoreKid = RegistrationUtil.registerClubChild(EmbeddedDataLoader.CLUB_ID, CHILD_NAME, daddyId, token);
 
       Assertions.assertNotNull(daddyWithOneMoreKid);

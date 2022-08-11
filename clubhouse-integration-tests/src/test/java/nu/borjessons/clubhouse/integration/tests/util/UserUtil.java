@@ -19,7 +19,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
@@ -33,7 +32,6 @@ import nu.borjessons.clubhouse.impl.dto.rest.FamilyRequestModel;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.dto.rest.UserLoginRequestModel;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
-import nu.borjessons.clubhouse.impl.service.impl.ClubUserServiceImpl;
 import nu.borjessons.clubhouse.impl.util.dev.EmbeddedDataLoader;
 
 public class UserUtil {
@@ -77,7 +75,11 @@ public class UserUtil {
   }
 
   public static AdminUpdateUserModel createAdminUpdateModel(String firstName, String lastName, String dateOfBirth, Set<Role> roles) {
-    AdminUpdateUserModel adminUpdateUserModel = (AdminUpdateUserModel) createUpdateModel(firstName, lastName, dateOfBirth, false);
+    AdminUpdateUserModel adminUpdateUserModel = new AdminUpdateUserModel();
+    adminUpdateUserModel.setFirstName(firstName);
+    adminUpdateUserModel.setLastName(lastName);
+    adminUpdateUserModel.setDateOfBirth(dateOfBirth);
+    adminUpdateUserModel.setShowEmail(false);
     adminUpdateUserModel.setRoles(roles);
     return adminUpdateUserModel;
   }
@@ -225,11 +227,8 @@ public class UserUtil {
     return response.getBody();
   }
 
-  // TODO return UserId instead and pass only email and context to this function. Most callers seem to only want the
-  // userId anyways, and then the function does what it is named after.
-  public static ClubUserDto getUserIdByEmail(String clubId, String email, ConfigurableApplicationContext context) {
-    User user = context.getBean(UserRepository.class).findByEmail(email).orElseThrow();
-    return context.getBean(ClubUserServiceImpl.class).getClubUserByUsername(clubId, email).orElseThrow();
+  public static UserId getUserIdByEmail(String email, ConfigurableApplicationContext context) {
+    return context.getBean(UserRepository.class).findByEmail(email).orElseThrow().getUserId();
   }
 
   public static List<String> getUserIdsAndSort(Collection<BaseUserRecord> baseUserRecords) {

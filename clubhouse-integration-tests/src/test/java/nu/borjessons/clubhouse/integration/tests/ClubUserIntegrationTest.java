@@ -12,7 +12,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
 import nu.borjessons.clubhouse.impl.data.key.UserId;
@@ -76,13 +75,10 @@ class ClubUserIntegrationTest {
         ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
-      ClubUserDto papa = UserUtil.getUserIdByEmail(EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.POPS_EMAIL, context);
-      ClubUserDto mommy = UserUtil.getUserIdByEmail(EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.MOMMY_EMAIL, context);
-
-      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, papa.getUserId());
+      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context));
       Assertions.assertEquals(5, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken).size());
 
-      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, mommy.getUserId());
+      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, UserUtil.getUserIdByEmail(EmbeddedDataLoader.MOMMY_EMAIL, context));
       Assertions.assertEquals(4, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken).size());
     }
   }
@@ -91,13 +87,11 @@ class ClubUserIntegrationTest {
   void getClubUser() {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      ClubUserDto papa = UserUtil.getUserIdByEmail(EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.POPS_EMAIL, context);
-      UserId papaUserId = papa.getUserId();
-
-      Assertions.assertEquals(papa, UserUtil.getUser(EmbeddedDataLoader.CLUB_ID, ownerToken, papaUserId));
-
+      UserId papaUserId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context);
       String papaToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      RestUtil.verifyForbiddenAccess(() -> UserUtil.getUser(EmbeddedDataLoader.CLUB_ID, papaToken, papaUserId));
+
+      Assertions.assertEquals(papaUserId, UserUtil.getUser(EmbeddedDataLoader.CLUB_ID, ownerToken, papaUserId).getUserId());
+      Assertions.assertEquals(papaUserId, UserUtil.getUser(EmbeddedDataLoader.CLUB_ID, papaToken, papaUserId).getUserId());
     }
   }
 
@@ -272,11 +266,11 @@ class ClubUserIntegrationTest {
   void updateClubUser() throws Exception {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      ClubUserDto papaBase = UserUtil.getUserIdByEmail(EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.POPS_EMAIL, context);
+      UserId papaId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context);
       AdminUpdateUserModel updateUserModel = UserUtil.createAdminUpdateModel("Erik", "Johnson", "2000-01-01",
           Set.of(Role.PARENT, Role.LEADER, Role.USER));
 
-      validateEquals(updateUserModel, UserUtil.updateClubUser(updateUserModel, EmbeddedDataLoader.CLUB_ID, ownerToken, papaBase.getUserId()));
+      validateEquals(updateUserModel, UserUtil.updateClubUser(updateUserModel, EmbeddedDataLoader.CLUB_ID, ownerToken, papaId));
     }
   }
 
@@ -313,7 +307,7 @@ class ClubUserIntegrationTest {
   }
 
   @Test
-  void userRemovesHimself() throws JsonProcessingException {
+  void userRemovesHimself() {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
@@ -321,7 +315,7 @@ class ClubUserIntegrationTest {
       Assertions.assertEquals(0, ClubUtil.getMyClubs(token).size());
 
       // User tries to remove another user which is forbidden
-      UserId userId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.POPS_EMAIL, context).getUserId();
+      UserId userId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context);
       RestUtil.verifyForbiddenAccess(() -> UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, token, userId));
     }
   }
