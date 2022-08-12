@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Club;
@@ -18,6 +19,7 @@ import nu.borjessons.clubhouse.impl.service.ClubService;
 public class ClubServiceImpl implements ClubService {
   private final ClubRepository clubRepository;
 
+  @Transactional
   @Override
   public void deleteClub(String clubId) {
     clubRepository.deleteByClubId(clubId);

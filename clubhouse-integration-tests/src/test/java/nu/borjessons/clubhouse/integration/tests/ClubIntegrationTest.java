@@ -11,10 +11,12 @@ import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
 import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
+import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.ClubColorRecord;
 import nu.borjessons.clubhouse.impl.util.dev.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.ClubUtil;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
+import nu.borjessons.clubhouse.integration.tests.util.RegistrationUtil;
 import nu.borjessons.clubhouse.integration.tests.util.RestUtil;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
@@ -34,6 +36,25 @@ class ClubIntegrationTest {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       ClubRecord ownerClubRecord = ClubUtil.getClub(EmbeddedDataLoader.CLUB_ID, ownerToken);
       validateAgainstTestClub(ownerClubRecord);
+    }
+  }
+
+  @Test
+  void ownerDeletesClubTest() throws Exception {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String userToken = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      UserDto fenix = RegistrationUtil.registerClub(ClubUtil.createClubModel("Fenix"));
+      String fenixToken = UserUtil.loginUser(fenix.getEmail(), EmbeddedDataLoader.DEFAULT_PASSWORD);
+
+      Assertions.assertEquals(2, ClubUtil.getClubs().size());
+      RestUtil.verifyForbiddenAccess(() -> ClubUtil.deleteClub(EmbeddedDataLoader.CLUB_ID, userToken));
+      RestUtil.verifyForbiddenAccess(() -> ClubUtil.deleteClub(EmbeddedDataLoader.CLUB_ID, fenixToken));
+
+      ClubUtil.deleteClub(EmbeddedDataLoader.CLUB_ID, ownerToken);
+      Assertions.assertTrue(UserUtil.getPrincipalClubUsers(ownerToken).isEmpty());
+      Assertions.assertEquals(1, ClubUtil.getClubs().size());
     }
   }
 

@@ -39,7 +39,7 @@ public class Club extends BaseEntity {
   @Column(nullable = false, length = 120, unique = true)
   private String clubId;
 
-  @OneToMany(mappedBy = "club", orphanRemoval = true, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "club", orphanRemoval = true, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
   private Collection<ClubUser> clubUsers = new ArrayList<>();
 
   @Id

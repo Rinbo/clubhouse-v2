@@ -30,9 +30,16 @@ public class ClubUtil {
     return clubModel;
   }
 
+  public static void deleteClub(String clubId, String token) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}").buildAndExpand(clubId).toUriString();
+    ResponseEntity<String> response = RestUtil.deleteRequest(uri, token, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    Assertions.assertEquals("Club deleted", response.getBody());
+  }
+
   public static ClubRecord getClub(String clubId, String token) {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}").buildAndExpand(clubId).toUriString();
-    final ResponseEntity<ClubRecord> response = RestUtil.getRequest(uri, token, ClubRecord.class);
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}").buildAndExpand(clubId).toUriString();
+    ResponseEntity<ClubRecord> response = RestUtil.getRequest(uri, token, ClubRecord.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
   }
