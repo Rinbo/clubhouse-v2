@@ -19,6 +19,11 @@ public class ClubServiceImpl implements ClubService {
   private final ClubRepository clubRepository;
 
   @Override
+  public void deleteClub(String clubId) {
+    clubRepository.deleteByClubId(clubId);
+  }
+
+  @Override
   public Set<ClubRecord> getAllClubs() {
     return clubRepository.findAll().stream().map(ClubRecord::new).collect(Collectors.toSet());
   }

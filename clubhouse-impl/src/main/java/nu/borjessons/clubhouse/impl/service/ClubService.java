@@ -6,6 +6,8 @@ import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.ClubColorRecord;
 
 public interface ClubService {
+  void deleteClub(String clubId);
+
   Set<ClubRecord> getAllClubs();
 
   ClubRecord getClubByClubId(String clubId);
