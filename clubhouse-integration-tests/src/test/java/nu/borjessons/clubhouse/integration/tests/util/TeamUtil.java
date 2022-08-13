@@ -33,6 +33,13 @@ public class TeamUtil {
     return RestUtil.deserializeJsonBody(response.getBody(), TeamDto.class);
   }
 
+  public static void deleteTeam(String token, String clubId, String teamId) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}").buildAndExpand(clubId, teamId).toUriString();
+    ResponseEntity<String> response = RestUtil.deleteRequest(uri, token, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    Assertions.assertEquals("Team deleted", response.getBody());
+  }
+
   public static List<Team> getAllTeams(TeamRepository teamRepository) {
     return teamRepository.findAll();
   }

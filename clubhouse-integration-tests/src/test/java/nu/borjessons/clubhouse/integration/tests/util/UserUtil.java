@@ -157,6 +157,16 @@ public class UserUtil {
     return Arrays.stream(baseUserRecords).collect(Collectors.toList());
   }
 
+  public static ClubUserDto getClubUser(String clubId, String token, UserId userId) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
+    RestTemplate restTemplate = new RestTemplate();
+    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
+
+    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.GET, entity, ClubUserDto.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
+  }
+
   public static ClubUserDto getClubUserPrincipal(String clubId, String token) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/principal").buildAndExpand(clubId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
@@ -201,16 +211,6 @@ public class UserUtil {
     UserDto userDTO = RestUtil.deserializeJsonBody(response.getBody(), UserDto.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return userDTO;
-  }
-
-  public static ClubUserDto getUser(String clubId, String token, UserId userId) {
-    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
-    RestTemplate restTemplate = new RestTemplate();
-    HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
-
-    ResponseEntity<ClubUserDto> response = restTemplate.exchange(uri, HttpMethod.GET, entity, ClubUserDto.class);
-    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    return response.getBody();
   }
 
   public static BaseUserRecord getUserByEmail(String email, String token) {

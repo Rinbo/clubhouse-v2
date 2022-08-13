@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import nu.borjessons.clubhouse.impl.repository.ClubRepository;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 import nu.borjessons.clubhouse.impl.service.TeamService;
+import nu.borjessons.clubhouse.impl.util.AppUtils;
 
 @RequiredArgsConstructor
 @Service
@@ -59,6 +61,9 @@ public class TeamServiceImpl implements TeamService {
   @Override
   @Transactional
   public void deleteTeam(String teamId) {
+    Team team = teamRepository.findByTeamId(teamId).orElseThrow(AppUtils.createNotFoundExceptionSupplier("Team not found: " + teamId));
+    removeClubUsersAndSave(List.copyOf(team.getMembers()), team::removeMember);
+    removeClubUsersAndSave(List.copyOf(team.getLeaders()), team::removeLeader);
     teamRepository.deleteByTeamId(teamId);
   }
 
@@ -145,6 +150,13 @@ public class TeamServiceImpl implements TeamService {
     return club.getClubUsers(userIds)
         .stream()
         .toList();
+  }
+
+  private void removeClubUsersAndSave(List<ClubUser> clubUsers, Consumer<ClubUser> consumer) {
+    for (ClubUser clubUser : clubUsers) {
+      consumer.accept(clubUser);
+    }
+    clubUserRepository.saveAllAndFlush(clubUsers);
   }
 
   private ClubUser validateIsLeader(ClubUser clubUser) {

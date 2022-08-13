@@ -10,13 +10,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
+import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.TeamDto;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
+import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 import nu.borjessons.clubhouse.impl.util.dev.EmbeddedDataLoader;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
+import nu.borjessons.clubhouse.integration.tests.util.RestUtil;
 import nu.borjessons.clubhouse.integration.tests.util.TeamUtil;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
@@ -39,11 +43,22 @@ class ClubTeamIntegrationTest {
   }
 
   @Test
-  void getMyTeamsTest() throws Exception {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
-      String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      List<TeamDto> teamDtos = TeamUtil.getMyTeams(EmbeddedDataLoader.CLUB_ID, token);
-      Assertions.assertEquals(1, teamDtos.size());
+  void deleteTeamTest() throws Exception {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      TeamRepository teamRepository = context.getBean(TeamRepository.class);
+      String userToken = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      List<Team> teams = TeamUtil.getAllTeams(teamRepository);
+      Assertions.assertEquals(1, teams.size());
+      Assertions.assertEquals(6, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken).size());
+
+      String teamId = teams.iterator().next().getTeamId();
+      RestUtil.verifyForbiddenAccess(() -> TeamUtil.deleteTeam(userToken, EmbeddedDataLoader.CLUB_ID, teamId));
+
+      TeamUtil.deleteTeam(ownerToken, EmbeddedDataLoader.CLUB_ID, teamId);
+      Assertions.assertEquals(0, TeamUtil.getAllTeams(teamRepository).size());
+      Assertions.assertEquals(6, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken).size());
     }
   }
 

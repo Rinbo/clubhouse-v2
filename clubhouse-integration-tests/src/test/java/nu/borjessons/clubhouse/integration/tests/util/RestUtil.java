@@ -6,7 +6,6 @@ import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpEntity;
@@ -127,16 +126,6 @@ public class RestUtil {
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = getVoidHttpEntity(token);
     return restTemplate.exchange(uri, HttpMethod.PUT, entity, returnType);
-  }
-
-  public static <T> void verifyForbiddenAccess(Supplier<T> supplier) {
-    try {
-      supplier.get();
-    } catch (HttpClientErrorException e) {
-      Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
-      return;
-    }
-    Assertions.fail("Expected exception to be thrown");
   }
 
   public static void verifyForbiddenAccess(Runnable runnable) {

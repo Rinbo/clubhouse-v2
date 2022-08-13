@@ -90,8 +90,8 @@ class ClubUserIntegrationTest {
       UserId papaUserId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context);
       String papaToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
-      Assertions.assertEquals(papaUserId, UserUtil.getUser(EmbeddedDataLoader.CLUB_ID, ownerToken, papaUserId).getUserId());
-      Assertions.assertEquals(papaUserId, UserUtil.getUser(EmbeddedDataLoader.CLUB_ID, papaToken, papaUserId).getUserId());
+      Assertions.assertEquals(papaUserId, UserUtil.getClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, papaUserId).getUserId());
+      Assertions.assertEquals(papaUserId, UserUtil.getClubUser(EmbeddedDataLoader.CLUB_ID, papaToken, papaUserId).getUserId());
     }
   }
 
