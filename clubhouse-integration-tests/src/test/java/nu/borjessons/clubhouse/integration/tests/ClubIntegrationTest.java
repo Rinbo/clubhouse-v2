@@ -14,6 +14,7 @@ import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.ClubColorRecord;
 import nu.borjessons.clubhouse.impl.util.dev.EmbeddedDataLoader;
+import nu.borjessons.clubhouse.integration.tests.util.AnnouncementUtil;
 import nu.borjessons.clubhouse.integration.tests.util.ClubUtil;
 import nu.borjessons.clubhouse.integration.tests.util.IntegrationTestHelper;
 import nu.borjessons.clubhouse.integration.tests.util.RegistrationUtil;
@@ -47,6 +48,7 @@ class ClubIntegrationTest {
       String userToken = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserDto fenix = RegistrationUtil.registerClub(ClubUtil.createClubModel("Fenix"));
       String fenixToken = UserUtil.loginUser(fenix.getEmail(), EmbeddedDataLoader.DEFAULT_PASSWORD);
+      AnnouncementUtil.createAnnouncement(ownerToken, EmbeddedDataLoader.CLUB_ID, "Hello");
 
       Assertions.assertEquals(2, ClubUtil.getClubs().size());
       RestUtil.verifyForbiddenAccess(() -> ClubUtil.deleteClub(EmbeddedDataLoader.CLUB_ID, userToken));

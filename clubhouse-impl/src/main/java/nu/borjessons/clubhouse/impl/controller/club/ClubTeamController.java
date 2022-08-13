@@ -24,13 +24,11 @@ import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.TeamDto;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
 import nu.borjessons.clubhouse.impl.security.resource.authorization.UserResourceAuthorization;
-import nu.borjessons.clubhouse.impl.service.ClubService;
 import nu.borjessons.clubhouse.impl.service.TeamService;
 
 @RequiredArgsConstructor
 @RestController
 public class ClubTeamController {
-  private final ClubService clubService;
   private final TeamService teamService;
   private final UserResourceAuthorization userResourceAuthorization;
 
@@ -46,6 +44,13 @@ public class ClubTeamController {
   @PostMapping(path = "/clubs/{clubId}/teams")
   public TeamDto createTeam(@PathVariable String clubId, @RequestBody @Valid TeamRequestModel teamModel) {
     return teamService.createTeam(clubId, teamModel);
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @DeleteMapping("/clubs/{clubId}/teams/{teamId}")
+  public ResponseEntity<String> deleteTeam(@PathVariable String clubId, @PathVariable String teamId) {
+    teamService.deleteTeam(teamId);
+    return ResponseEntity.ok("Team deleted");
   }
 
   // TODO Need one for getting leader teams and children teams.
@@ -89,13 +94,6 @@ public class ClubTeamController {
   @PutMapping("/clubs/{clubId}/teams/{teamId}")
   public TeamDto updateTeam(@PathVariable String clubId, @PathVariable String teamId, @RequestBody @Valid TeamRequestModel teamModel) {
     return teamService.updateTeam(clubId, teamId, teamModel);
-  }
-
-  @PreAuthorize("hasRole('ADMIN')")
-  @DeleteMapping("/clubs/{clubId}/teams/{teamId}")
-  public ResponseEntity<String> updateTeam(@PathVariable String clubId, @PathVariable String teamId) {
-    teamService.deleteTeam(teamId);
-    return ResponseEntity.ok("Team deleted");
   }
 
   @PreAuthorize("hasRole('ADMIN')")
