@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl.service.impl;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import nu.borjessons.clubhouse.impl.repository.ImageRepository;
 import nu.borjessons.clubhouse.impl.repository.ImageTokenRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
 import nu.borjessons.clubhouse.impl.service.ImageService;
+import nu.borjessons.clubhouse.impl.util.AppUtils;
 import nu.borjessons.clubhouse.impl.util.Validate;
 
 @Slf4j
@@ -34,26 +36,16 @@ public class ImageServiceImpl implements ImageService {
   private static final String MULTIPART_FILE_PARAMETER_NAME = "multipartFile";
   private static final String MULTIPART_FILE_STRING = ImageServiceImpl.MULTIPART_FILE_PARAMETER_NAME;
   private static final String PROFILE_IMAGES_ROOT_FOLDER_NAME = "profile images";
+
   private final ClubRepository clubRepository;
   private final ImageRepository imageRepository;
   private final ImageTokenRepository imageTokenRepository;
   private final UserRepository userRepository;
 
   @Override
-  public ImageStream getImage(ImageTokenId imageTokenId) throws IOException {
-    Validate.notNull(imageTokenId, IMAGE_TOKEN_ID_PARAMETER_NAME);
-
-    ImageToken imageToken = imageTokenRepository.findByImageTokenId(imageTokenId).orElseThrow();
-    return imageRepository.findImageByImageToken(imageToken);
-  }
-
-  @Override
-  public void deleteImage(ImageTokenId imageTokenId) {
-    Validate.notNull(imageTokenId, IMAGE_TOKEN_ID_PARAMETER_NAME);
-
-    ImageToken imageToken = imageTokenRepository.findByImageTokenId(imageTokenId).orElseThrow();
-    deleteImageFile(imageToken);
-    imageTokenRepository.delete(imageToken);
+  public ImageToken createClubImage(String clubId, MultipartFile multipartFile) {
+    validateClubExists(clubId);
+    return imageTokenRepository.save(createImageToken(multipartFile, Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId)));
   }
 
   @Override
@@ -62,7 +54,7 @@ public class ImageServiceImpl implements ImageService {
     Validate.notNull(clubId, "clubId");
     Validate.notNull(multipartFile, MULTIPART_FILE_PARAMETER_NAME);
 
-    Club club = clubRepository.findByClubId(clubId).orElseThrow();
+    Club club = validateClubExists(clubId);
 
     ImageToken existingLogo = club.getLogo();
     if (existingLogo != null) deleteImageFile(existingLogo);
@@ -74,12 +66,18 @@ public class ImageServiceImpl implements ImageService {
   }
 
   @Override
+  public void createClubRootImageFolder(String clubId) {
+    validateClubExists(clubId);
+    imageRepository.createClubRootImageDirectory(Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId));
+  }
+
+  @Override
   @Transactional
   public ImageToken createProfileImage(UserId userId, MultipartFile multipartFile) {
     Validate.notNull(userId, "userId");
     Validate.notNull(multipartFile, ImageServiceImpl.MULTIPART_FILE_PARAMETER_NAME);
 
-    User user = userRepository.findByUserId(userId).orElseThrow();
+    User user = userRepository.findByUserId(userId).orElseThrow(AppUtils.createNotFoundExceptionSupplier("User not found: " + userId));
 
     ImageToken existingProfileImage = user.getImageToken();
     if (existingProfileImage != null) deleteImageFile(existingProfileImage);
@@ -90,13 +88,32 @@ public class ImageServiceImpl implements ImageService {
   }
 
   @Override
-  public ImageToken createClubImage(String clubId, MultipartFile multipartFile) {
-    return imageTokenRepository.save(createImageToken(multipartFile, Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId)));
+  public void deleteImage(ImageTokenId imageTokenId) {
+    Validate.notNull(imageTokenId, IMAGE_TOKEN_ID_PARAMETER_NAME);
+
+    ImageToken imageToken = imageTokenRepository.findByImageTokenId(imageTokenId).orElseThrow();
+    deleteImageFile(imageToken);
+    imageTokenRepository.delete(imageToken);
+  }
+
+  // TODO this won't do. If paths are to great we will run out of memory. Create an announcements folder in clubs
+  // When we add albums feature refactor to have an album folder containing album-id folders with the actual images.
+  @Override
+  public List<Path> getClubImagePaths(String clubId) {
+    validateClubExists(clubId);
+    try {
+      return imageRepository.getClubImagePaths(Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId));
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to fetch all paths for clubId " + clubId, e);
+    }
   }
 
   @Override
-  public void createClubRootImageFolder(String clubId) {
-    imageRepository.createClubRootImageDirectory(Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId));
+  public ImageStream getImage(ImageTokenId imageTokenId) throws IOException {
+    Validate.notNull(imageTokenId, IMAGE_TOKEN_ID_PARAMETER_NAME);
+
+    ImageToken imageToken = imageTokenRepository.findByImageTokenId(imageTokenId).orElseThrow();
+    return imageRepository.findImageByImageToken(imageToken);
   }
 
   private ImageToken createImageToken(MultipartFile multipartFile, Path path) {
@@ -124,5 +141,9 @@ public class ImageServiceImpl implements ImageService {
     } catch (IOException e) {
       throw new IllegalStateException("Could not save image", e);
     }
+  }
+
+  private Club validateClubExists(String clubId) {
+    return clubRepository.findByClubId(clubId).orElseThrow(AppUtils.createNotFoundExceptionSupplier("Can not find club with id: " + clubId));
   }
 }

@@ -12,17 +12,20 @@ import nu.borjessons.clubhouse.impl.data.ClubUser;
 
 @Repository
 public interface ClubUserRepository extends JpaRepository<ClubUser, Long> {
+  @Query("select count(c) from ClubUser c where c.club.id = ?1")
+  int countByClubId(String clubId);
+
   @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id IN (SELECT id from users where user_id = ?1)")
   List<ClubUser> findAllByUserId(String userId);
 
   @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE club_id IN (SELECT id from club where club_id = ?1)")
   List<ClubUser> findByClubId(String clubId);
 
-  @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id = ?2 AND club_id IN (SELECT id from club where club_id = ?1)")
-  Optional<ClubUser> findByClubIdAndUserId(String clubId, long userId);
-
   @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id IN (SELECT id from users where user_id=?2) AND club_id IN (SELECT id from club where club_id = ?1)")
   Optional<ClubUser> findByClubIdAndUserId(String clubId, String userId);
+
+  @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id = ?2 AND club_id IN (SELECT id from club where club_id = ?1)")
+  Optional<ClubUser> findByClubIdAndUserId(String clubId, long userId);
 
   @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id IN (SELECT id from users where user_id in (?2)) AND club_id IN (SELECT id from club where club_id = ?1)")
   List<ClubUser> findByClubIdAndUserIds(String clubId, List<String> userIds);

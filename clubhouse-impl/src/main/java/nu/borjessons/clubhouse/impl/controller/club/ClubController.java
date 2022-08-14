@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.dto.ClubRecord;
+import nu.borjessons.clubhouse.impl.dto.ClubStatisticsRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.ClubColorRecord;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 
@@ -32,6 +33,12 @@ public class ClubController {
   @GetMapping(path = "/{clubId}")
   public ClubRecord getClub(@PathVariable String clubId) {
     return clubService.getClubByClubId(clubId);
+  }
+
+  @PreAuthorize("hasRole('USER')")
+  @GetMapping(path = "/{clubId}/statistics")
+  public ClubStatisticsRecord getClubStatistics(@PathVariable String clubId) {
+    return clubService.getClubStatistics(clubId);
   }
 
   @PreAuthorize("hasRole('ADMIN')")

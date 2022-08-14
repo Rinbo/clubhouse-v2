@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl.service;
 import java.util.Set;
 
 import nu.borjessons.clubhouse.impl.dto.ClubRecord;
+import nu.borjessons.clubhouse.impl.dto.ClubStatisticsRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.ClubColorRecord;
 
 public interface ClubService {
@@ -11,6 +12,8 @@ public interface ClubService {
   Set<ClubRecord> getAllClubs();
 
   ClubRecord getClubByClubId(String clubId);
+
+  ClubStatisticsRecord getClubStatistics(String clubId);
 
   ClubRecord getPublicClub(String pathname);
 

@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.integration.tests;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
 import nu.borjessons.clubhouse.impl.dto.ClubRecord;
+import nu.borjessons.clubhouse.impl.dto.ClubStatisticsRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.ClubColorRecord;
@@ -37,6 +39,18 @@ class ClubIntegrationTest {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       ClubRecord ownerClubRecord = ClubUtil.getClub(EmbeddedDataLoader.CLUB_ID, ownerToken);
       validateAgainstTestClub(ownerClubRecord);
+    }
+  }
+
+  @Test
+  void getClubStatisticsTest() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      ClubStatisticsRecord clubStatisticsRecord = ClubUtil.getClubStatistics(token, EmbeddedDataLoader.CLUB_ID);
+      Assertions.assertEquals(6, clubStatisticsRecord.userCount());
+      Assertions.assertEquals(1, clubStatisticsRecord.teamCount());
+      Assertions.assertEquals(0, clubStatisticsRecord.announcementCount());
     }
   }
 

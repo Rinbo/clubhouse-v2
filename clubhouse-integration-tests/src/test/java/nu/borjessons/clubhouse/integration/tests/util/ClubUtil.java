@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.dto.ClubRecord;
+import nu.borjessons.clubhouse.impl.dto.ClubStatisticsRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.ClubColorRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.CreateClubModel;
@@ -52,11 +53,18 @@ public class ClubUtil {
   }
 
   public static List<ClubUserDto> getClubLeaders(String clubId, String token) throws JsonProcessingException {
-    final String uri = RestUtil.getUriBuilder("/clubs/{clubId}/leaders").buildAndExpand(clubId).toUriString();
-    final ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/leaders").buildAndExpand(clubId).toUriString();
+    ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
     ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);
     Assertions.assertNotNull(clubUserDtos);
     return Arrays.stream(clubUserDtos).collect(Collectors.toList());
+  }
+
+  public static ClubStatisticsRecord getClubStatistics(String token, String clubId) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/statistics").buildAndExpand(clubId).toUriString();
+    ResponseEntity<ClubStatisticsRecord> response = RestUtil.getRequest(uri, token, ClubStatisticsRecord.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
   }
 
   public static List<ClubRecord> getClubs() {
