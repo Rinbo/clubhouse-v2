@@ -49,6 +49,9 @@ public class Team extends BaseEntity {
   @Column(nullable = false, unique = true)
   private String teamId;
 
+  @OneToMany(mappedBy = "team", orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private final List<TeamPost> teamPosts = new ArrayList<>();
+
   @OneToMany(mappedBy = "team", orphanRemoval = true, cascade = CascadeType.ALL)
   private List<TrainingTime> trainingTimes;
 

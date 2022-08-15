@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Comparator;
 
 import nu.borjessons.clubhouse.impl.data.BaseEntity;
+import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.TeamPost;
 import nu.borjessons.clubhouse.impl.data.key.TeamPostId;
 import nu.borjessons.clubhouse.impl.util.Validate;
@@ -18,6 +19,11 @@ public record TeamPostRecord(
     Collection<TeamPostCommentRecord> comments,
     BaseUserRecord author,
     LocalDateTime createdAt) {
+  private static BaseUserRecord createBaseUserRecord(ClubUser clubUser) {
+    if (clubUser == null) return null;
+    return new BaseUserRecord(clubUser.getUser());
+  }
+
   public TeamPostRecord {
     Validate.notNull(teamPostId, "teamPostId");
     Validate.notNull(title, "title");
@@ -34,6 +40,7 @@ public record TeamPostRecord(
         teamPost.isSticky(),
         teamPost.getTeam().getTeamId(),
         teamPost.getTeamPostComments().stream().sorted(Comparator.comparing(BaseEntity::getCreatedAt)).map(TeamPostCommentRecord::new).toList(),
-        new BaseUserRecord(teamPost.getClubUser().getUser()), teamPost.getCreatedAt());
+        createBaseUserRecord(teamPost.getClubUser()),
+        teamPost.getCreatedAt());
   }
 }

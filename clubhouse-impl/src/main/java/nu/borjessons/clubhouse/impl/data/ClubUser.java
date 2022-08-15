@@ -25,31 +25,31 @@ import nu.borjessons.clubhouse.impl.dto.Role;
 @Entity
 @Table(name = "club_user", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "club_id"}))
 public class ClubUser extends BaseEntity {
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Club club;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  private Club club;
+  @ManyToMany(fetch = FetchType.LAZY)
+  private List<Team> managedTeams = new ArrayList<>();
+
+  @ManyToMany(fetch = FetchType.EAGER)
+  private Set<RoleEntity> roles = new HashSet<>();
+  
+  @ManyToMany(fetch = FetchType.LAZY)
+  private List<Team> teams = new ArrayList<>();
 
   @ManyToOne(fetch = FetchType.LAZY)
   private User user;
 
-  @ManyToMany(fetch = FetchType.LAZY)
-  private List<Team> managedTeams = new ArrayList<>();
-
-  @ManyToMany(fetch = FetchType.LAZY)
-  private List<Team> teams = new ArrayList<>();
-
-  @ManyToMany(fetch = FetchType.EAGER)
-  private Set<RoleEntity> roles = new HashSet<>();
+  public void addRoleEntity(RoleEntity roleEntity) {
+    roles.add(roleEntity);
+  }
 
   public List<Team> getJoinedTeams() {
     return Stream.concat(teams.stream(), this.managedTeams.stream()).toList();
-  }
-
-  public void addRoleEntity(RoleEntity roleEntity) {
-    roles.add(roleEntity);
   }
 
   public void removeParentRole() {

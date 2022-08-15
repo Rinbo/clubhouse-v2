@@ -28,6 +28,7 @@ public class ClubServiceImpl implements ClubService {
   private final EntityManager entityManager;
   private final ImageService imageService;
 
+  // TODO remove all images in club including top folder (recursive delete)
   @Transactional
   @Override
   public void deleteClub(String clubId) {
