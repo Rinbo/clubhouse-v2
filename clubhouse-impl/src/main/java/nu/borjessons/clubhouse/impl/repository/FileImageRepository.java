@@ -31,6 +31,11 @@ public class FileImageRepository implements ImageRepository {
   private final Path imageDirectory;
 
   @Override
+  public List<ImageTokenId> deleteFolderAndGetTokens(Path path) {
+    return null;
+  }
+
+  @Override
   public ImageStream findImageByImageToken(ImageToken imageToken) throws IOException {
     Validate.notNull(imageToken, "imageToken");
 

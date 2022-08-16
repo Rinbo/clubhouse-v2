@@ -33,6 +33,7 @@ public class ClubServiceImpl implements ClubService {
   @Override
   public void deleteClub(String clubId) {
     clubRepository.deleteByClubId(clubId);
+    imageService.deleteAllClubImages(clubId);
   }
 
   @Override

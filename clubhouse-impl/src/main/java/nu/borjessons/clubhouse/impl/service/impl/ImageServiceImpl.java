@@ -88,6 +88,12 @@ public class ImageServiceImpl implements ImageService {
   }
 
   @Override
+  public void deleteAllClubImages(String clubId) {
+    List<ImageTokenId> imageTokenIds = imageRepository.deleteFolderAndGetTokens(Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId));
+    imageTokenRepository.deleteAllByImageTokenId(imageTokenIds);
+  }
+
+  @Override
   public void deleteImage(ImageTokenId imageTokenId) {
     Validate.notNull(imageTokenId, IMAGE_TOKEN_ID_PARAMETER_NAME);
 

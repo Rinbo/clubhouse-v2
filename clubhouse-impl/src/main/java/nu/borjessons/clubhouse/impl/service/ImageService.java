@@ -20,6 +20,8 @@ public interface ImageService {
 
   ImageToken createProfileImage(UserId userId, MultipartFile multipartFile);
 
+  void deleteAllClubImages(String clubId);
+
   void deleteImage(ImageTokenId imageTokenId);
 
   List<Path> getClubImagePaths(String clubId);

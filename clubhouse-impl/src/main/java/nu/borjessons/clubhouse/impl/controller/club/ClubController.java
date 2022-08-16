@@ -16,33 +16,33 @@ import nu.borjessons.clubhouse.impl.dto.ClubStatisticsRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.ClubColorRecord;
 import nu.borjessons.clubhouse.impl.service.ClubService;
 
-@RequestMapping("/clubs")
+@RequestMapping("/clubs/{clubId}")
 @RequiredArgsConstructor
 @RestController
 public class ClubController {
   private final ClubService clubService;
 
   @PreAuthorize("hasRole('OWNER')")
-  @DeleteMapping(path = "/{clubId}")
+  @DeleteMapping
   public ResponseEntity<String> deleteClub(@PathVariable String clubId) {
     clubService.deleteClub(clubId);
     return ResponseEntity.ok("Club deleted");
   }
 
   @PreAuthorize("hasRole('USER')")
-  @GetMapping(path = "/{clubId}")
+  @GetMapping
   public ClubRecord getClub(@PathVariable String clubId) {
     return clubService.getClubByClubId(clubId);
   }
 
   @PreAuthorize("hasRole('USER')")
-  @GetMapping(path = "/{clubId}/statistics")
+  @GetMapping(path = "/statistics")
   public ClubStatisticsRecord getClubStatistics(@PathVariable String clubId) {
     return clubService.getClubStatistics(clubId);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
-  @PutMapping(path = "/{clubId}/color")
+  @PutMapping(path = "/color")
   public ClubRecord updateColor(@PathVariable String clubId, @RequestBody ClubColorRecord clubColorRecord) {
     return clubService.updateColor(clubId, clubColorRecord);
   }

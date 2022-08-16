@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.impl.controller;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -35,11 +36,24 @@ public class TokenStoreController {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
   }
 
-  private final ObjectMapper objectMapper;
   private final ClubUserService clubUserService;
   private final JWTUtil jwtUtil;
+  private final ObjectMapper objectMapper;
   private final TokenStore tokenStore;
   private final UserService userService;
+
+  @GetMapping("/public/ping")
+  public ResponseEntity<String> getPing(@RequestParam String message) throws InterruptedException {
+    TimeUnit.SECONDS.sleep(1);
+    return ResponseEntity.ok(message);
+  }
+
+  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/clubs/{clubId}/revoke-token")
+  public void revokeToken(@PathVariable String clubId, @RequestParam String username) {
+    clubUserService.getClubUserByUsername(clubId, username).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+    tokenStore.remove(username);
+  }
 
   @GetMapping("/validate-token")
   public ResponseEntity<String> validateToken(HttpServletRequest request) throws JsonProcessingException {
@@ -60,11 +74,13 @@ public class TokenStoreController {
     }
   }
 
-  @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping("/clubs/{clubId}/revoke-token")
-  public void revokeToken(@PathVariable String clubId, @RequestParam String username) {
-    clubUserService.getClubUserByUsername(clubId, username).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
-    tokenStore.remove(username);
+  private Optional<Claims> extractClaims(Cookie cookie) {
+    try {
+      return Optional.of(jwtUtil.getAllClaimsFromToken(cookie.getValue()));
+    } catch (RuntimeException e) {
+      log.debug("Failed to extract claims from token", e);
+      return Optional.empty();
+    }
   }
 
   private ResponseEntity<String> validateToken(Cookie cookie, Claims claims) throws JsonProcessingException {
@@ -75,15 +91,6 @@ public class TokenStoreController {
       return ResponseEntity.ok(objectMapper.writeValueAsString(userDTO));
     } else {
       return createUnauthorizedResponse();
-    }
-  }
-
-  private Optional<Claims> extractClaims(Cookie cookie) {
-    try {
-      return Optional.of(jwtUtil.getAllClaimsFromToken(cookie.getValue()));
-    } catch (RuntimeException e) {
-      log.debug("Failed to extract claims from token", e);
-      return Optional.empty();
     }
   }
 }
