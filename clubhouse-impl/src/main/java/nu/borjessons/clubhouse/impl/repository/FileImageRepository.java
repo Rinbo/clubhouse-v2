@@ -24,6 +24,16 @@ import nu.borjessons.clubhouse.impl.util.Validate;
 @Slf4j
 @RequiredArgsConstructor
 public class FileImageRepository implements ImageRepository {
+  private static Path deleteFileAndReturnPath(Path path) {
+    try {
+      Files.delete(path);
+      return path;
+    } catch (IOException e) {
+      log.warn("Unable to delete file: " + path, e);
+      return null;
+    }
+  }
+
   private static boolean isNotLogoRootFolder(Path path) {
     return !path.endsWith(ImageServiceImpl.LOGO_ROOT_FOLDER_NAME);
   }
@@ -31,8 +41,33 @@ public class FileImageRepository implements ImageRepository {
   private final Path imageDirectory;
 
   @Override
-  public List<ImageTokenId> deleteFolderAndGetTokens(Path path) {
-    return null;
+  public void createClubRootImageDirectory(Path path) {
+    try {
+      Files.createDirectories(imageDirectory.resolve(path));
+    } catch (IOException e) {
+      log.error("Could not create root club image directory {}", path, e);
+    }
+  }
+
+  @Override
+  public List<ImageTokenId> deleteFolderAndGetTokens(Path path) throws IOException {
+    try (Stream<Path> stream = Files.walk(path)) {
+      return stream.map(FileImageRepository::deleteFileAndReturnPath)
+          .filter(Objects::nonNull)
+          .map(Path::getParent)
+          .map(Path::getFileName)
+          .map(Path::toString)
+          .map(ImageTokenId::new)
+          .toList();
+    }
+  }
+
+  @Override
+  public void deleteImage(ImageToken imageToken) throws IOException {
+    FileUtils.deleteDirectoryRecursively(
+        imageDirectory
+            .resolve(imageToken.getPath())
+            .resolve(imageToken.getImageTokenId().toString()));
   }
 
   @Override
@@ -73,23 +108,5 @@ public class FileImageRepository implements ImageRepository {
     multipartFile.transferTo(absolutPath.resolve(fileName));
 
     return new ImageTokenId(imageId);
-  }
-
-  @Override
-  public void deleteImage(ImageToken imageToken) throws IOException {
-    String imageTokenIdString = imageToken.getImageTokenId().toString();
-    FileUtils.deleteDirectoryRecursively(
-        imageDirectory
-            .resolve(imageToken.getPath())
-            .resolve(imageTokenIdString));
-  }
-
-  @Override
-  public void createClubRootImageDirectory(Path path) {
-    try {
-      Files.createDirectories(imageDirectory.resolve(path));
-    } catch (IOException e) {
-      log.error("Could not create root club image directory {}", path, e);
-    }
   }
 }

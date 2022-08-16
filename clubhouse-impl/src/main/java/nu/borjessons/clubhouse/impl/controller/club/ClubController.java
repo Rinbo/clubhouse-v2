@@ -1,5 +1,7 @@
 package nu.borjessons.clubhouse.impl.controller.club;
 
+import java.io.IOException;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +27,11 @@ public class ClubController {
   @PreAuthorize("hasRole('OWNER')")
   @DeleteMapping
   public ResponseEntity<String> deleteClub(@PathVariable String clubId) {
-    clubService.deleteClub(clubId);
+    try {
+      clubService.deleteClub(clubId);
+    } catch (IOException e) {
+      return ResponseEntity.internalServerError().body("Unable to delete club");
+    }
     return ResponseEntity.ok("Club deleted");
   }
 

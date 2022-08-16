@@ -13,7 +13,7 @@ import nu.borjessons.clubhouse.impl.dto.ImageStream;
 public interface ImageRepository {
   void createClubRootImageDirectory(Path path);
 
-  List<ImageTokenId> deleteFolderAndGetTokens(Path path);
+  List<ImageTokenId> deleteFolderAndGetTokens(Path path) throws IOException;
 
   void deleteImage(ImageToken imageToken) throws IOException;
 

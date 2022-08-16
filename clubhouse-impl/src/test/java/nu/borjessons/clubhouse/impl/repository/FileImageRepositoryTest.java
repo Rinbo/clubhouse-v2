@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -17,13 +16,23 @@ import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.ImageToken;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.dto.ImageStream;
-import nu.borjessons.clubhouse.impl.util.FileUtils;
 
 @Slf4j
 class FileImageRepositoryTest {
   public static final Path PATH = Paths.get("clubs", "club1");
   private static final Path BASE_IMAGE_DIRECTORY = Paths.get(System.getProperty("java.io.tmpdir"), "clubhouse-test");
   private static final String ORIGINAL_FILE_NAME = "cool-pic.jpg";
+
+  private static void createClubFolderStructure(Path path) throws IOException {
+    createDirectoryAndFile(path, Path.of("token1"), "file1");
+    createDirectoryAndFile(path, Path.of("token2"), "file2");
+    createDirectoryAndFile(path, Path.of("token3"), "file3");
+    createDirectoryAndFile(path, Paths.get("logo", "logoToken"), "logo");
+  }
+
+  private static void createDirectoryAndFile(Path path, Path parent, String filename) throws IOException {
+    Files.createFile(Files.createDirectories(path.resolve(parent)).resolve(filename + ".txt"));
+  }
 
   private static ImageToken createImageToken() {
     ImageToken imageToken = new ImageToken();
@@ -49,23 +58,24 @@ class FileImageRepositoryTest {
     return multipartFile;
   }
 
-  @AfterEach
-  void afterEach() throws IOException {
-    FileUtils.deleteDirectoryRecursively(BASE_IMAGE_DIRECTORY);
+  @Test
+  void deleteFolderAndGetTokensTest() throws IOException {
+    createClubFolderStructure(BASE_IMAGE_DIRECTORY.resolve(Paths.get("clubs", "clubToken")));
   }
 
+/*  @AfterEach
+  void afterEach() throws IOException {
+    FileUtils.deleteDirectoryRecursively(BASE_IMAGE_DIRECTORY);
+  }*/
+
   @Test
-  void getAllPathsInClubDirectoryTest() throws IOException {
-    ImageToken imageToken1 = createImageToken();
-    ImageToken imageToken2 = createImageToken();
+  void deleteImageTest() throws IOException {
+    ImageToken imageToken = createImageToken();
+    Path path = createTempFile(imageToken);
+    Assertions.assertTrue(Files.exists(path));
     FileImageRepository fileImageRepository = new FileImageRepository(BASE_IMAGE_DIRECTORY);
-
-    Assertions.assertEquals(0, fileImageRepository.getClubImagePaths(PATH).size());
-
-    createTempFile(imageToken1);
-    createTempFile(imageToken2);
-
-    Assertions.assertEquals(2, fileImageRepository.getClubImagePaths(PATH).size());
+    fileImageRepository.deleteImage(imageToken);
+    Assertions.assertFalse(Files.exists(path));
   }
 
   @Test
@@ -89,6 +99,20 @@ class FileImageRepositoryTest {
   }
 
   @Test
+  void getAllPathsInClubDirectoryTest() throws IOException {
+    ImageToken imageToken1 = createImageToken();
+    ImageToken imageToken2 = createImageToken();
+    FileImageRepository fileImageRepository = new FileImageRepository(BASE_IMAGE_DIRECTORY);
+
+    Assertions.assertEquals(0, fileImageRepository.getClubImagePaths(PATH).size());
+
+    createTempFile(imageToken1);
+    createTempFile(imageToken2);
+
+    Assertions.assertEquals(2, fileImageRepository.getClubImagePaths(PATH).size());
+  }
+
+  @Test
   void saveImageTest() throws IOException {
     MultipartFile multipartFile = mockMultiPartFile();
     FileImageRepository fileImageRepository = new FileImageRepository(BASE_IMAGE_DIRECTORY);
@@ -102,15 +126,5 @@ class FileImageRepositoryTest {
     Mockito.verify(multipartFile).transferTo(pathArgumentCaptor.capture());
     Assertions.assertEquals(ORIGINAL_FILE_NAME, pathArgumentCaptor.getValue().getFileName().toString());
     Mockito.verifyNoMoreInteractions(multipartFile);
-  }
-
-  @Test
-  void deleteImageTest() throws IOException {
-    ImageToken imageToken = createImageToken();
-    Path path = createTempFile(imageToken);
-    Assertions.assertTrue(Files.exists(path));
-    FileImageRepository fileImageRepository = new FileImageRepository(BASE_IMAGE_DIRECTORY);
-    fileImageRepository.deleteImage(imageToken);
-    Assertions.assertFalse(Files.exists(path));
   }
 }

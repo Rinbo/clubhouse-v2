@@ -20,7 +20,7 @@ public interface ImageService {
 
   ImageToken createProfileImage(UserId userId, MultipartFile multipartFile);
 
-  void deleteAllClubImages(String clubId);
+  void deleteAllClubImages(String clubId) throws IOException;
 
   void deleteImage(ImageTokenId imageTokenId);
 

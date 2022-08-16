@@ -88,7 +88,7 @@ public class ImageServiceImpl implements ImageService {
   }
 
   @Override
-  public void deleteAllClubImages(String clubId) {
+  public void deleteAllClubImages(String clubId) throws IOException {
     List<ImageTokenId> imageTokenIds = imageRepository.deleteFolderAndGetTokens(Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId));
     imageTokenRepository.deleteAllByImageTokenId(imageTokenIds);
   }

@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
+import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ public class ClubServiceImpl implements ClubService {
   // TODO remove all images in club including top folder (recursive delete)
   @Transactional
   @Override
-  public void deleteClub(String clubId) {
+  public void deleteClub(String clubId) throws IOException {
     clubRepository.deleteByClubId(clubId);
     imageService.deleteAllClubImages(clubId);
   }
