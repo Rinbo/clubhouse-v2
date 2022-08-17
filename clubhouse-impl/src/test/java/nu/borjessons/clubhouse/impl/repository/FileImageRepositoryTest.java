@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -16,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.ImageToken;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.dto.ImageStream;
+import nu.borjessons.clubhouse.impl.util.FileUtils;
 
 @Slf4j
 class FileImageRepositoryTest {
@@ -58,15 +62,37 @@ class FileImageRepositoryTest {
     return multipartFile;
   }
 
-  @Test
-  void deleteFolderAndGetTokensTest() throws IOException {
-    createClubFolderStructure(BASE_IMAGE_DIRECTORY.resolve(Paths.get("clubs", "clubToken")));
-  }
-
-/*  @AfterEach
+  @AfterEach
   void afterEach() throws IOException {
     FileUtils.deleteDirectoryRecursively(BASE_IMAGE_DIRECTORY);
-  }*/
+  }
+
+  @Test
+  void deleteFolderAndGetTokensTest() throws IOException {
+    Path clubPath = BASE_IMAGE_DIRECTORY.resolve(PATH);
+    createClubFolderStructure(clubPath);
+    ImageRepository imageRepository = new FileImageRepository(BASE_IMAGE_DIRECTORY);
+
+    List<ImageTokenId> imageTokenIds = imageRepository.getFilePathsInFolder(clubPath)
+        .stream()
+        .sorted(Comparator.comparing(ImageTokenId::toString, String::compareTo))
+        .toList();
+
+    Assertions.assertEquals("logoToken", imageTokenIds.get(0).toString());
+    Assertions.assertEquals("token1", imageTokenIds.get(1).toString());
+    Assertions.assertEquals("token2", imageTokenIds.get(2).toString());
+    Assertions.assertEquals("token3", imageTokenIds.get(3).toString());
+  }
+
+  @Test
+  void deleteFoldersRecursivelyTest() throws IOException {
+    Path clubPath = BASE_IMAGE_DIRECTORY.resolve(PATH);
+    createClubFolderStructure(clubPath);
+    ImageRepository imageRepository = new FileImageRepository(BASE_IMAGE_DIRECTORY);
+
+    imageRepository.deleteFoldersRecursively(clubPath);
+    Assertions.assertFalse(Files.isDirectory(clubPath));
+  }
 
   @Test
   void deleteImageTest() throws IOException {
@@ -96,20 +122,6 @@ class FileImageRepositoryTest {
     Assertions.assertNotNull(imageStream.inputStream());
 
     Mockito.verifyNoMoreInteractions(imageDirectory);
-  }
-
-  @Test
-  void getAllPathsInClubDirectoryTest() throws IOException {
-    ImageToken imageToken1 = createImageToken();
-    ImageToken imageToken2 = createImageToken();
-    FileImageRepository fileImageRepository = new FileImageRepository(BASE_IMAGE_DIRECTORY);
-
-    Assertions.assertEquals(0, fileImageRepository.getClubImagePaths(PATH).size());
-
-    createTempFile(imageToken1);
-    createTempFile(imageToken2);
-
-    Assertions.assertEquals(2, fileImageRepository.getClubImagePaths(PATH).size());
   }
 
   @Test

@@ -1,7 +1,6 @@
 package nu.borjessons.clubhouse.impl.service;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +23,7 @@ public interface ImageService {
 
   void deleteImage(ImageTokenId imageTokenId);
 
-  List<Path> getClubImagePaths(String clubId);
+  List<ImageTokenId> getClubImagePaths(String clubId);
 
   ImageStream getImage(ImageTokenId imageTokenId) throws IOException;
 }

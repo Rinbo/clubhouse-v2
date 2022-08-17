@@ -2,9 +2,9 @@ package nu.borjessons.clubhouse.impl.repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -17,26 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.ImageToken;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.dto.ImageStream;
-import nu.borjessons.clubhouse.impl.service.impl.ImageServiceImpl;
 import nu.borjessons.clubhouse.impl.util.FileUtils;
 import nu.borjessons.clubhouse.impl.util.Validate;
 
 @Slf4j
 @RequiredArgsConstructor
 public class FileImageRepository implements ImageRepository {
-  private static Path deleteFileAndReturnPath(Path path) {
-    try {
-      Files.delete(path);
-      return path;
-    } catch (IOException e) {
-      log.warn("Unable to delete file: " + path, e);
-      return null;
-    }
-  }
-
-  private static boolean isNotLogoRootFolder(Path path) {
-    return !path.endsWith(ImageServiceImpl.LOGO_ROOT_FOLDER_NAME);
-  }
 
   private final Path imageDirectory;
 
@@ -50,15 +36,11 @@ public class FileImageRepository implements ImageRepository {
   }
 
   @Override
-  public List<ImageTokenId> deleteFolderAndGetTokens(Path path) throws IOException {
-    try (Stream<Path> stream = Files.walk(path)) {
-      return stream.map(FileImageRepository::deleteFileAndReturnPath)
-          .filter(Objects::nonNull)
-          .map(Path::getParent)
-          .map(Path::getFileName)
-          .map(Path::toString)
-          .map(ImageTokenId::new)
-          .toList();
+  public void deleteFoldersRecursively(Path path) {
+    try {
+      FileUtils.deleteDirectoryRecursively(path);
+    } catch (IOException e) {
+      log.error("failed to delete folders in path: " + path);
     }
   }
 
@@ -81,13 +63,15 @@ public class FileImageRepository implements ImageRepository {
   }
 
   @Override
-  public List<Path> getClubImagePaths(Path path) throws IOException {
-    Path clubPath = imageDirectory.resolve(path);
-    try (Stream<Path> pathStream = Files.walk(clubPath, 1)) {
-      return pathStream.skip(1).filter(FileImageRepository::isNotLogoRootFolder).toList();
-    } catch (NoSuchFileException e) {
-      log.debug("File not found {}", path, e);
-      return List.of();
+  public List<ImageTokenId> getFilePathsInFolder(Path path) throws IOException {
+    try (Stream<Path> stream = Files.walk(path)) {
+      return stream.sorted(Comparator.reverseOrder())
+          .filter(Files::isRegularFile)
+          .map(Path::getParent)
+          .map(Path::getFileName)
+          .map(Path::toString)
+          .map(ImageTokenId::new)
+          .toList();
     }
   }
 

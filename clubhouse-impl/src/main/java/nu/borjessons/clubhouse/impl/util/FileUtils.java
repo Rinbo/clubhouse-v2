@@ -24,4 +24,8 @@ public class FileUtils {
       log.error("Failed to delete file {}", path, e);
     }
   }
+
+  private FileUtils() {
+    throw new IllegalStateException("Utility class");
+  }
 }

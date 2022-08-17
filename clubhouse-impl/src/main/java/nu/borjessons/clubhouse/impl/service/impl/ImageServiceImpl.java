@@ -89,8 +89,10 @@ public class ImageServiceImpl implements ImageService {
 
   @Override
   public void deleteAllClubImages(String clubId) throws IOException {
-    List<ImageTokenId> imageTokenIds = imageRepository.deleteFolderAndGetTokens(Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId));
+    Path clubPath = Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId);
+    List<ImageTokenId> imageTokenIds = imageRepository.getFilePathsInFolder(clubPath);
     imageTokenRepository.deleteAllByImageTokenId(imageTokenIds);
+    imageRepository.deleteFoldersRecursively(clubPath);
   }
 
   @Override
@@ -105,10 +107,10 @@ public class ImageServiceImpl implements ImageService {
   // TODO this won't do. If paths are to great we will run out of memory. Create an announcements folder in clubs
   // When we add albums feature refactor to have an album folder containing album-id folders with the actual images.
   @Override
-  public List<Path> getClubImagePaths(String clubId) {
+  public List<ImageTokenId> getClubImagePaths(String clubId) {
     validateClubExists(clubId);
     try {
-      return imageRepository.getClubImagePaths(Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId));
+      return imageRepository.getFilePathsInFolder(Paths.get(CLUBS_ROOT_FOLDER_NAME, clubId));
     } catch (IOException e) {
       throw new IllegalStateException("Failed to fetch all paths for clubId " + clubId, e);
     }
