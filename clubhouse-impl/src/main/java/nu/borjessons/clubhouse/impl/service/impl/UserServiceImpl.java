@@ -22,6 +22,7 @@ import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
 import nu.borjessons.clubhouse.impl.repository.AddressRepository;
 import nu.borjessons.clubhouse.impl.repository.UserRepository;
+import nu.borjessons.clubhouse.impl.security.TokenStore;
 import nu.borjessons.clubhouse.impl.service.UserService;
 import nu.borjessons.clubhouse.impl.util.AppMappers;
 import nu.borjessons.clubhouse.impl.util.AppUtils;
@@ -31,6 +32,7 @@ import nu.borjessons.clubhouse.impl.util.AppUtils;
 public class UserServiceImpl implements UserService {
   private final AddressRepository addressRepository;
   private final AppMappers appMappers;
+  private final TokenStore tokenStore;
   private final UserRepository userRepository;
 
   @Override
@@ -55,12 +57,14 @@ public class UserServiceImpl implements UserService {
         .toList();
   }
 
+  // TODO also remove profile picture
   @Override
   @Transactional
   public void deleteUser(long id) {
     User user = getUser(id);
     Set<User> children = Set.copyOf(user.getChildren());
     children.forEach(child -> updateOrDeleteChild(child, user));
+    tokenStore.remove(user.getEmail());
     userRepository.delete(user);
   }
 
