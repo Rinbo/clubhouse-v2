@@ -105,11 +105,14 @@ public class ImageServiceImpl implements ImageService {
   }
 
   @Override
-  public void deleteImage(ImageToken imageToken) {
+  public void deleteImageFile(ImageToken imageToken) {
     Validate.notNull(imageToken, "imageToken");
 
-    deleteImageFile(imageToken);
-    imageTokenRepository.delete(imageToken);
+    try {
+      imageRepository.deleteImage(imageToken);
+    } catch (IOException e) {
+      log.error("Could not delete image: {}", imageToken, e);
+    }
   }
 
   // TODO this won't do. If paths are to great we will run out of memory. Create an announcements folder in clubs
@@ -139,14 +142,6 @@ public class ImageServiceImpl implements ImageService {
     imageToken.setContentType(multipartFile.getContentType());
     imageToken.setName(multipartFile.getOriginalFilename());
     return imageToken;
-  }
-
-  private void deleteImageFile(ImageToken imageToken) {
-    try {
-      imageRepository.deleteImage(imageToken);
-    } catch (IOException e) {
-      log.error("Could not delete image: {}", imageToken, e);
-    }
   }
 
   private ImageTokenId saveImage(MultipartFile multipartFile, Path path) {

@@ -23,7 +23,7 @@ public interface ImageService {
 
   void deleteImage(ImageTokenId imageTokenId);
 
-  void deleteImage(ImageToken imageToken);
+  void deleteImageFile(ImageToken imageToken);
 
   List<ImageTokenId> getClubImagePaths(String clubId);
 

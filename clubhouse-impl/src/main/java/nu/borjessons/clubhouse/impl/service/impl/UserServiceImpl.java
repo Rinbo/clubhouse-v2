@@ -60,7 +60,6 @@ public class UserServiceImpl implements UserService {
         .toList();
   }
 
-  // TODO also remove profile picture
   @Override
   @Transactional
   public void deleteUser(long id) {
@@ -68,9 +67,8 @@ public class UserServiceImpl implements UserService {
     Set<User> children = Set.copyOf(user.getChildren());
     children.forEach(child -> updateOrDeleteChild(child, user));
     tokenStore.remove(user.getEmail());
-    ImageToken imageToken = user.getImageToken();
     userRepository.delete(user);
-    if (imageToken != null) imageService.deleteImage(imageToken);
+    deleteUserImageFile(user);
   }
 
   @Override
@@ -151,6 +149,11 @@ public class UserServiceImpl implements UserService {
     return userRepository.findByEmail(username).orElseThrow(AppUtils.createNotFoundExceptionSupplier("That user does not exist: " + username));
   }
 
+  private void deleteUserImageFile(User user) {
+    ImageToken imageToken = user.getImageToken();
+    if (imageToken != null) imageService.deleteImageFile(imageToken);
+  }
+
   private User getUser(long id) {
     return userRepository.findById(id).orElseThrow();
   }
@@ -162,9 +165,8 @@ public class UserServiceImpl implements UserService {
   private void updateOrDeleteChild(User child, User parent) {
     child.removeParent(parent);
     if (child.getParents().isEmpty()) {
-      ImageToken imageToken = child.getImageToken();
       userRepository.delete(child);
-      if (imageToken != null) imageService.deleteImage(imageToken);
+      deleteUserImageFile(child);
     } else {
       userRepository.save(child);
     }
