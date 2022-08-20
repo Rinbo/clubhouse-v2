@@ -38,7 +38,7 @@ public class FileImageRepository implements ImageRepository {
   @Override
   public void deleteFoldersRecursively(Path path) {
     try {
-      FileUtils.deleteDirectoryRecursively(path);
+      FileUtils.deleteDirectoryRecursively(imageDirectory.resolve(path));
     } catch (IOException e) {
       log.error("failed to delete folders in path: " + path);
     }
@@ -64,7 +64,7 @@ public class FileImageRepository implements ImageRepository {
 
   @Override
   public List<ImageTokenId> getFilePathsInFolder(Path path) throws IOException {
-    try (Stream<Path> stream = Files.walk(path)) {
+    try (Stream<Path> stream = Files.walk(imageDirectory.resolve(path))) {
       return stream.sorted(Comparator.reverseOrder())
           .filter(Files::isRegularFile)
           .map(Path::getParent)

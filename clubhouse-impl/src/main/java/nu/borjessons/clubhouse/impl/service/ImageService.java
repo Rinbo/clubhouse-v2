@@ -23,6 +23,8 @@ public interface ImageService {
 
   void deleteImage(ImageTokenId imageTokenId);
 
+  void deleteImage(ImageToken imageToken);
+
   List<ImageTokenId> getClubImagePaths(String clubId);
 
   ImageStream getImage(ImageTokenId imageTokenId) throws IOException;

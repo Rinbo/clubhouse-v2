@@ -104,6 +104,14 @@ public class ImageServiceImpl implements ImageService {
     imageTokenRepository.delete(imageToken);
   }
 
+  @Override
+  public void deleteImage(ImageToken imageToken) {
+    Validate.notNull(imageToken, "imageToken");
+
+    deleteImageFile(imageToken);
+    imageTokenRepository.delete(imageToken);
+  }
+
   // TODO this won't do. If paths are to great we will run out of memory. Create an announcements folder in clubs
   // When we add albums feature refactor to have an album folder containing album-id folders with the actual images.
   @Override

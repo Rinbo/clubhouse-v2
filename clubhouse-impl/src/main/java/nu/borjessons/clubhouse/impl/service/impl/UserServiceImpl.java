@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Address;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
+import nu.borjessons.clubhouse.impl.data.ImageToken;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
@@ -67,8 +68,9 @@ public class UserServiceImpl implements UserService {
     Set<User> children = Set.copyOf(user.getChildren());
     children.forEach(child -> updateOrDeleteChild(child, user));
     tokenStore.remove(user.getEmail());
+    ImageToken imageToken = user.getImageToken();
     userRepository.delete(user);
-    user.getImageTokenId().ifPresent(imageService::deleteImage);
+    if (imageToken != null) imageService.deleteImage(imageToken);
   }
 
   @Override
@@ -160,8 +162,9 @@ public class UserServiceImpl implements UserService {
   private void updateOrDeleteChild(User child, User parent) {
     child.removeParent(parent);
     if (child.getParents().isEmpty()) {
+      ImageToken imageToken = child.getImageToken();
       userRepository.delete(child);
-      child.getImageTokenId().ifPresent(imageService::deleteImage);
+      if (imageToken != null) imageService.deleteImage(imageToken);
     } else {
       userRepository.save(child);
     }

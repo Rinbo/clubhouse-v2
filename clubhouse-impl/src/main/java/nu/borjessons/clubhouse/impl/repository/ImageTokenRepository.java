@@ -14,7 +14,7 @@ import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 @Repository
 public interface ImageTokenRepository extends JpaRepository<ImageToken, Long> {
   @Modifying
-  @Query("delete from ImageToken i where i.imageTokenId = ?1")
+  @Query("delete from ImageToken i where i.imageTokenId in ?1")
   void deleteAllByImageTokenId(List<ImageTokenId> imageTokens);
 
   Optional<ImageToken> findByImageTokenId(ImageTokenId imageTokenId);
