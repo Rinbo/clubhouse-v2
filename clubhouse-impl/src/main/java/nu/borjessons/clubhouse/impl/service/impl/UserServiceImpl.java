@@ -143,7 +143,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDetails loadUserByUsername(String username) {
-    return userRepository.findByEmail(username).orElseThrow();
+    return userRepository.findByEmail(username).orElseThrow(AppUtils.createNotFoundExceptionSupplier("That user does not exist: " + username));
   }
 
   private User getUser(long id) {

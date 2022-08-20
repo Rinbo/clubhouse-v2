@@ -2,6 +2,8 @@ package nu.borjessons.clubhouse.impl.controller;
 
 import java.util.Collection;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +27,7 @@ import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UpdateUserModel;
+import nu.borjessons.clubhouse.impl.security.util.SecurityUtil;
 import nu.borjessons.clubhouse.impl.service.AnnouncementService;
 import nu.borjessons.clubhouse.impl.service.ClubUserService;
 import nu.borjessons.clubhouse.impl.service.UserService;
@@ -33,6 +36,12 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 @RequiredArgsConstructor
 @RestController
 public class PrincipalController {
+  private static void removeJwtTokenCookie(HttpServletResponse httpServletResponse) {
+    Cookie cookie = new Cookie(SecurityUtil.JWT_TOKEN_KEY, "");
+    cookie.setMaxAge(0);
+    httpServletResponse.addCookie(cookie);
+  }
+
   private final AnnouncementService announcementService;
   private final ClubUserService clubUserService;
   private final UserService userService;
@@ -43,8 +52,9 @@ public class PrincipalController {
   }
 
   @DeleteMapping()
-  public void deleteSelf(@AuthenticationPrincipal User principal) {
+  public void deleteSelf(@AuthenticationPrincipal User principal, HttpServletResponse httpServletResponse) {
     userService.deleteUser(principal.getId());
+    removeJwtTokenCookie(httpServletResponse);
   }
 
   @GetMapping("/clubs/all-club-users")
