@@ -25,7 +25,7 @@ public record BaseUserRecord(
         user.getFirstName(),
         user.getLastName(),
         user.getDateOfBirth().toString(),
-        user.getImageTokenId(),
+        user.getImageTokenId().orElse(null),
         user.isManagedAccount());
   }
 }

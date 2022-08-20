@@ -27,7 +27,7 @@ public final class UserDto {
         .dateOfBirth(user.getDateOfBirth().toString())
         .email(user.getEmail())
         .firstName(firstName)
-        .imageTokenId(user.getImageTokenId())
+        .imageTokenId(user.getImageTokenId().orElse(null))
         .lastName(lastName)
         .managedUser(user.isManagedAccount())
         .name(String.format("%s %s", firstName, lastName))

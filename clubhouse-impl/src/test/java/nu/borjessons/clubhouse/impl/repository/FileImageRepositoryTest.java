@@ -7,7 +7,6 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -19,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.ImageToken;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.dto.ImageStream;
-import nu.borjessons.clubhouse.impl.util.FileUtils;
 
 @Slf4j
 class FileImageRepositoryTest {
@@ -62,10 +60,10 @@ class FileImageRepositoryTest {
     return multipartFile;
   }
 
-  @AfterEach
+/*  @AfterEach
   void afterEach() throws IOException {
     FileUtils.deleteDirectoryRecursively(BASE_IMAGE_DIRECTORY);
-  }
+  }*/
 
   @Test
   void deleteFolderAndGetTokensTest() throws IOException {

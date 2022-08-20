@@ -165,9 +165,9 @@ public class User extends BaseEntity implements UserDetails {
     return clubUsers.stream().filter(clubUser -> clubUser.getClub().getClubId().equals(clubId)).findFirst();
   }
 
-  public ImageTokenId getImageTokenId() {
-    if (imageToken == null) return null;
-    return imageToken.getImageTokenId();
+  public Optional<ImageTokenId> getImageTokenId() {
+    if (imageToken == null) return Optional.empty();
+    return Optional.of(imageToken.getImageTokenId());
   }
 
   @Override

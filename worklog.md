@@ -5,7 +5,9 @@
 ## Resource deletion
 
 - Thoroughly test deletion of users, parents, children, teams and clubs. Make sure everything is removed properly (including images)
-- Club statistics endpoint for show what gets deleted when deleting a club
+- ~~Delete User~~
+- ~~Delete Club~~
+- ~~Club statistics endpoint for show what gets deleted when deleting a club~~
 
 ## Messaging
 

@@ -45,7 +45,7 @@ public class ClubUserDto {
     club = new ClubRecord(clubUser.getClub());
     dateOfBirth = user.getDateOfBirth().toString();
     firstName = user.getFirstName();
-    imageTokenId = user.getImageTokenId();
+    imageTokenId = user.getImageTokenId().orElse(null);
     lastName = user.getLastName();
     managedUser = user.isManagedAccount();
     parentIds = user.getParents().stream().map(User::getUserId).map(UserId::toString).collect(Collectors.toSet());
