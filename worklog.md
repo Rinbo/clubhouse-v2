@@ -27,6 +27,7 @@
 - ~~P15 indicator, can probably be included in the name and/or the description. But I still need to implement some sorting logic when adding a member to a
   team.~~
   ~~You will want to limit the options that you search from to the age group of the team.~~
+- Training Event activated by leader
 
 ## Images
 
