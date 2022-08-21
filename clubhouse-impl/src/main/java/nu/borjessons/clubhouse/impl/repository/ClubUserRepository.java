@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import nu.borjessons.clubhouse.impl.data.ClubUser;
+import nu.borjessons.clubhouse.impl.data.key.UserId;
 
 @Repository
 public interface ClubUserRepository extends JpaRepository<ClubUser, Long> {
@@ -28,7 +29,7 @@ public interface ClubUserRepository extends JpaRepository<ClubUser, Long> {
   Optional<ClubUser> findByClubIdAndUserId(String clubId, long userId);
 
   @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id IN (SELECT id from users where user_id in (?2)) AND club_id IN (SELECT id from club where club_id = ?1)")
-  List<ClubUser> findByClubIdAndUserIds(String clubId, List<String> userIds);
+  List<ClubUser> findByClubIdAndUserIds(String clubId, List<UserId> userIds);
 
   @Query(nativeQuery = true, value = "SELECT * FROM club_user WHERE user_id IN (SELECT id from users where email=?2) AND club_id IN (SELECT id from club where club_id = ?1)")
   Optional<ClubUser> findByClubIdAndUsername(String clubId, String username);

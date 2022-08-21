@@ -6,7 +6,7 @@ import nu.borjessons.clubhouse.impl.dto.TrainingEventRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.TrainingEventRequestModel;
 
 public interface TrainingEventService {
-  TrainingEventRecord create(String teamId, TrainingEventRequestModel trainingEventRequestModel);
+  TrainingEventRecord create(String clubId, String teamId, TrainingEventRequestModel trainingEventRequestModel);
 
   TrainingEventRecord delete(long trainingEventId);
 
@@ -14,5 +14,5 @@ public interface TrainingEventService {
 
   List<TrainingEventRecord> getAllForTeam(String teamId);
 
-  TrainingEventRecord update(String teamId, long trainingEventId, TrainingEventRequestModel trainingEventRequestModel);
+  TrainingEventRecord update(String clubId, String teamId, long trainingEventId, TrainingEventRequestModel trainingEventRequestModel);
 }

@@ -49,6 +49,7 @@ public class ClubUserServiceImpl implements ClubUserService {
     user.setLastName(userDetails.getLastName());
     user.setDateOfBirth(LocalDate.parse(userDetails.getDateOfBirth(), AppUtils.DATE_FORMAT));
   }
+
   private final AppMappers appMappers;
   private final ClubRepository clubRepository;
   private final ClubUserRepository clubUserRepository;
@@ -123,10 +124,7 @@ public class ClubUserServiceImpl implements ClubUserService {
 
   @Override
   public Collection<BaseUserRecord> getClubUsersSubset(String clubId, List<UserId> userIds) {
-    return clubUserRepository.findByClubIdAndUserIds(clubId, userIds
-            .stream()
-            .map(UserId::toString)
-            .toList())
+    return clubUserRepository.findByClubIdAndUserIds(clubId, userIds)
         .stream()
         .map(ClubUser::getUser)
         .map(BaseUserRecord::new)
@@ -146,7 +144,7 @@ public class ClubUserServiceImpl implements ClubUserService {
   @Transactional
   public ClubUserDto removeClubChildren(String clubId, UserId userId, List<UserId> childrenIds) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId.toString()).orElseThrow();
-    List<ClubUser> childrenUsers = clubUserRepository.findByClubIdAndUserIds(clubId, childrenIds.stream().map(UserId::toString).toList());
+    List<ClubUser> childrenUsers = clubUserRepository.findByClubIdAndUserIds(clubId, childrenIds);
     if (clubUser.getUser().getChildren().stream().allMatch(child -> childrenIds.contains(child.getUserId()))) clubUser.removeParentRole();
     clubUserRepository.deleteAll(childrenUsers);
     return new ClubUserDto(clubUserRepository.save(clubUser));
@@ -181,7 +179,7 @@ public class ClubUserServiceImpl implements ClubUserService {
   private Set<Role> addChildren(Club club, User parent, List<UserId> childrenIds) {
     Set<Role> roles = EnumSet.of(Role.USER);
 
-    List<UserId> existingClubChildrenIds = clubUserRepository.findByClubIdAndUserIds(club.getClubId(), childrenIds.stream().map(UserId::toString).toList())
+    List<UserId> existingClubChildrenIds = clubUserRepository.findByClubIdAndUserIds(club.getClubId(), childrenIds)
         .stream()
         .map(childClubUser -> childClubUser.getUser().getUserId())
         .toList();
