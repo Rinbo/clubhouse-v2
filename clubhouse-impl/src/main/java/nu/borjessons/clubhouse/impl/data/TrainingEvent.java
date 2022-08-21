@@ -2,6 +2,7 @@ package nu.borjessons.clubhouse.impl.data;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -33,10 +34,10 @@ public class TrainingEvent {
   private String notes;
 
   @ManyToMany
-  private List<ClubUser> presentLeaders;
+  private List<ClubUser> presentLeaders = new ArrayList<>();
 
   @ManyToMany
-  private List<ClubUser> presentMembers;
+  private List<ClubUser> presentMembers = new ArrayList<>();
 
   @ManyToOne
   private Team team;
