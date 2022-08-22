@@ -21,8 +21,8 @@ public record TrainingEventRecord(
     Validate.notNegative(id, "id");
     Validate.notNull(dateTime, "dateTime");
     Validate.notNull(duration, "duration");
-    Validate.notEmpty(presentLeaders, "presentLeaders");
-    Validate.notEmpty(presentMembers, "presentMembers");
+    Validate.notNull(presentLeaders, "presentLeaders");
+    Validate.notNull(presentMembers, "presentMembers");
     Validate.notEmpty(teamId, "teamId");
   }
 

@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.controller.club;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,7 @@ import nu.borjessons.clubhouse.impl.service.TrainingEventService;
 public class TrainingEventController {
   private final TrainingEventService trainingEventService;
 
+  @PreAuthorize("hasRole('LEADER') or hasRole('ADMIN')")
   @PostMapping
   public TrainingEventRecord create(@PathVariable String clubId, @PathVariable String teamId,
       @RequestBody TrainingEventRequestModel trainingEventRequestModel) {

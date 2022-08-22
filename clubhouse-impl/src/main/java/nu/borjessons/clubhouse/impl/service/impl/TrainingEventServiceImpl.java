@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.impl.service.impl;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
@@ -23,6 +24,7 @@ public class TrainingEventServiceImpl implements TrainingEventService {
   private final TeamRepository teamRepository;
   private final TrainingEventRepository trainingEventRepository;
 
+  @Transactional
   @Override
   public TrainingEventRecord create(String clubId, String teamId, TrainingEventRequestModel trainingEventRequestModel) {
     Team team = teamRepository.findByTeamId(teamId).orElseThrow(AppUtils.createNotFoundExceptionSupplier("Team not found: " + teamId));
