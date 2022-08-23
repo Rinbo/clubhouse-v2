@@ -34,30 +34,6 @@ class AnnouncementIntegrationTest {
   }
 
   @Test
-  void getSingleAnnouncement() throws IOException {
-    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
-        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      AnnouncementRecord announcementRecord = AnnouncementUtil.getAnnouncement(token, EmbeddedDataLoader.CLUB_ID,
-          AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE).announcementId());
-
-      verifyAnnouncementRecord(announcementRecord);
-    }
-  }
-
-  @Test
-  void updateAnnouncement() throws IOException {
-    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
-        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
-      String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      AnnouncementRecord announcementRecord = AnnouncementUtil.updateAnnouncement(token, EmbeddedDataLoader.CLUB_ID,
-          AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE).announcementId());
-
-      verifyAnnouncementRecord(announcementRecord, "updated body", "updated title");
-    }
-  }
-
-  @Test
   void deleteAnnouncement() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
@@ -70,6 +46,19 @@ class AnnouncementIntegrationTest {
       } catch (HttpClientErrorException e) {
         Assertions.assertEquals(HttpStatus.NOT_FOUND, e.getStatusCode());
       }
+    }
+  }
+
+  @Test
+  void getAnnouncementSize() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE);
+      AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE);
+      AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE);
+
+      Assertions.assertEquals(3, AnnouncementUtil.getAnnouncementSize(token, EmbeddedDataLoader.CLUB_ID));
     }
   }
 
@@ -106,21 +95,26 @@ class AnnouncementIntegrationTest {
   }
 
   @Test
-  void verifyForeignKeyConstraintRemovedOnUserDeletionTest() throws IOException {
+  void getSingleAnnouncement() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      verifyAnnouncementRecord(AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE));
-      verifyAnnouncementRecord(AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE));
-      Assertions.assertEquals(2, AnnouncementUtil.getAnnouncements(token, EmbeddedDataLoader.CLUB_ID).size());
+      AnnouncementRecord announcementRecord = AnnouncementUtil.getAnnouncement(token, EmbeddedDataLoader.CLUB_ID,
+          AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE).announcementId());
 
-      UserUtil.deleteSelf(token);
+      verifyAnnouncementRecord(announcementRecord);
+    }
+  }
 
-      List<AnnouncementRecord> announcementRecords = AnnouncementUtil.getAnnouncements(
-          UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD), EmbeddedDataLoader.CLUB_ID);
+  @Test
+  void updateAnnouncement() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      AnnouncementRecord announcementRecord = AnnouncementUtil.updateAnnouncement(token, EmbeddedDataLoader.CLUB_ID,
+          AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE).announcementId());
 
-      Assertions.assertEquals(2, announcementRecords.size());
-      announcementRecords.forEach(announcementRecord -> Assertions.assertNull(announcementRecord.author()));
+      verifyAnnouncementRecord(announcementRecord, "updated body", "updated title");
     }
   }
 
@@ -146,15 +140,21 @@ class AnnouncementIntegrationTest {
   }
 
   @Test
-  void getAnnouncementSize() throws IOException {
+  void verifyForeignKeyConstraintRemovedOnUserDeletionTest() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE);
-      AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE);
-      AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE);
+      verifyAnnouncementRecord(AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE));
+      verifyAnnouncementRecord(AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE));
+      Assertions.assertEquals(2, AnnouncementUtil.getAnnouncements(token, EmbeddedDataLoader.CLUB_ID).size());
 
-      Assertions.assertEquals(3, AnnouncementUtil.getAnnouncementSize(token, EmbeddedDataLoader.CLUB_ID));
+      UserUtil.deleteSelf(token);
+
+      List<AnnouncementRecord> announcementRecords = AnnouncementUtil.getAnnouncements(
+          UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD), EmbeddedDataLoader.CLUB_ID);
+
+      Assertions.assertEquals(2, announcementRecords.size());
+      announcementRecords.forEach(announcementRecord -> Assertions.assertNull(announcementRecord.author()));
     }
   }
 

@@ -27,9 +27,7 @@ public class IntegrationTestHelper {
     propertyMap.put("spring.datasource.url", dbUrl);
     propertyMap.put("spring.datasource.username", "postgres");
     propertyMap.put("spring.datasource.password", "postgres");
-    propertyMap.put("spring.jpa.database", "POSTGRESQL");
-    propertyMap.put("spring.jpa.generate-ddl", "true");
-    propertyMap.put("spring.jpa.hibernate.ddl-auto", "create");
+    propertyMap.put("spring.datasource.driver-class-name", "org.postgresql.Driver");
     propertySources.addFirst(new MapPropertySource("CUSTOM_PROPS", propertyMap));
 
     return new SpringApplicationBuilder()
