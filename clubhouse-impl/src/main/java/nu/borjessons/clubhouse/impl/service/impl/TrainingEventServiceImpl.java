@@ -50,8 +50,16 @@ public class TrainingEventServiceImpl implements TrainingEventService {
   }
 
   @Override
-  public TrainingEventRecord update(String clubId, String teamId, long trainingEventId, TrainingEventRequestModel trainingEventRequestModel) {
-    return null;
+  public TrainingEventRecord update(String clubId, long trainingEventId, TrainingEventRequestModel trainingEventRequestModel) {
+    List<ClubUser> presentLeaders = clubUserRepository.findByClubIdAndUserIds(clubId, trainingEventRequestModel.presentLeaders());
+    List<ClubUser> presentMembers = clubUserRepository.findByClubIdAndUserIds(clubId, trainingEventRequestModel.presentMembers());
+
+    TrainingEvent trainingEvent = trainingEventRepository.findById(trainingEventId)
+        .orElseThrow(AppUtils.createNotFoundExceptionSupplier("TrainingEvent not found: " + trainingEventId));
+
+    updateTrainingEvent(trainingEvent, trainingEventRequestModel, presentLeaders, presentMembers);
+
+    return new TrainingEventRecord(trainingEventRepository.save(trainingEvent));
   }
 
   private TrainingEvent createTrainingEvent(TrainingEventRequestModel trainingEventRequestModel, List<ClubUser> presentLeaders, List<ClubUser> presentMembers,
@@ -64,5 +72,14 @@ public class TrainingEventServiceImpl implements TrainingEventService {
     trainingEvent.setPresentMembers(presentMembers);
     trainingEvent.setTeam(team);
     return trainingEvent;
+  }
+
+  private void updateTrainingEvent(TrainingEvent trainingEvent, TrainingEventRequestModel trainingEventRequestModel, List<ClubUser> presentLeaders,
+      List<ClubUser> presentMembers) {
+    trainingEvent.setDateTime(trainingEventRequestModel.dateTime());
+    trainingEvent.setDuration(trainingEventRequestModel.duration());
+    trainingEvent.setNotes(trainingEventRequestModel.notes());
+    trainingEvent.setPresentLeaders(presentLeaders);
+    trainingEvent.setPresentMembers(presentMembers);
   }
 }

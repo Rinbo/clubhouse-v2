@@ -14,5 +14,5 @@ public interface TrainingEventService {
 
   List<TrainingEventRecord> getAllForTeam(String teamId);
 
-  TrainingEventRecord update(String clubId, String teamId, long trainingEventId, TrainingEventRequestModel trainingEventRequestModel);
+  TrainingEventRecord update(String clubId, long trainingEventId, TrainingEventRequestModel trainingEventRequestModel);
 }
