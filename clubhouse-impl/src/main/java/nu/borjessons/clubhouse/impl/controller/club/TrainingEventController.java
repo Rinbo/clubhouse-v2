@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -32,10 +33,10 @@ public class TrainingEventController {
   }
 
   @PreAuthorize("hasRole('USER')")
-  @PostMapping
+  @GetMapping
   public List<TrainingEventRecord> getAll(@PathVariable String clubId, @PathVariable String teamId, @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
-    return trainingEventService.get(clubId, PageRequest.of(page, size, Sort.by("dateTime").descending()));
+    return trainingEventService.get(teamId, PageRequest.of(page, size, Sort.by("dateTime").descending()));
   }
 
   @PreAuthorize("hasRole('LEADER') or hasRole('ADMIN')")

@@ -7,8 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.TrainingEvent;
-import nu.borjessons.clubhouse.impl.dto.TrainingEventRecord;
 
 public interface TrainingEventRepository extends JpaRepository<TrainingEvent, Long> {
-  List<TrainingEventRecord> findByTeam(Team team, PageRequest pageRequest);
+  List<TrainingEvent> findByTeam(Team team, PageRequest pageRequest);
 }

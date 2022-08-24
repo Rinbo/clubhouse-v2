@@ -120,7 +120,7 @@ public class ClubhouseApplication {
   ObjectMapper createObjectMapper() {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
+    
     JavaTimeModule javaTimeModule = new JavaTimeModule();
     LocalDateTimeDeserializer localDateTimeDeserializer = new LocalDateTimeDeserializer(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     LocalDateDeserializer localDateDeserializer = new LocalDateDeserializer(DateTimeFormatter.ISO_OFFSET_DATE);

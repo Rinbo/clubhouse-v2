@@ -3,6 +3,7 @@ package nu.borjessons.clubhouse.integration.tests.util;
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
 import static com.fasterxml.jackson.annotation.PropertyAccessor.FIELD;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -23,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 import nu.borjessons.clubhouse.impl.data.key.AnnouncementId;
@@ -67,6 +70,7 @@ public class RestUtil {
 
   public static <T> HttpEntity<T> getHttpEntity(String token, T requestObject) {
     HttpHeaders headers = getHttpHeaders(token);
+    headers.setContentType(MediaType.APPLICATION_JSON);
     return new HttpEntity<T>(requestObject, headers);
   }
 
@@ -128,6 +132,13 @@ public class RestUtil {
     return restTemplate.exchange(uri, HttpMethod.PUT, entity, returnType);
   }
 
+  public static <T, U> ResponseEntity<U> putSerializedRequest(String uri, String token, T requestObject, Class<U> returnType) throws JsonProcessingException {
+    RestTemplate restTemplate = new RestTemplate();
+    String serializedRequestBody = getObjectMapper().writeValueAsString(requestObject);
+    HttpEntity<String> entity = getHttpEntity(token, serializedRequestBody);
+    return restTemplate.exchange(uri, HttpMethod.PUT, entity, returnType);
+  }
+
   public static void verifyForbiddenAccess(Runnable runnable) {
     try {
       runnable.run();
@@ -160,7 +171,11 @@ public class RestUtil {
 
   private static ObjectMapper getObjectMapper() {
     ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.registerModule(createIdModule());
+
+    JavaTimeModule javaTimeModule = new JavaTimeModule();
+    javaTimeModule.addSerializer(LocalDateTime.class, LocalDateTimeSerializer.INSTANCE);
+
+    objectMapper.registerModules(javaTimeModule, createIdModule());
     return objectMapper;
   }
 

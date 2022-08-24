@@ -46,9 +46,10 @@ public class TrainingEventServiceImpl implements TrainingEventService {
   }
 
   @Override
+  @Transactional
   public List<TrainingEventRecord> get(String teamId, PageRequest pageRequest) {
     Team team = teamRepository.findByTeamId(teamId).orElseThrow(AppUtils.createNotFoundExceptionSupplier("Team not found: " + teamId));
-    return trainingEventRepository.findByTeam(team, pageRequest);
+    return trainingEventRepository.findByTeam(team, pageRequest).stream().map(TrainingEventRecord::new).toList();
   }
 
   @Override
