@@ -2,6 +2,7 @@ package nu.borjessons.clubhouse.impl.service.impl;
 
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,8 +46,9 @@ public class TrainingEventServiceImpl implements TrainingEventService {
   }
 
   @Override
-  public List<TrainingEventRecord> getAllForTeam(String teamId) {
-    return null;
+  public List<TrainingEventRecord> get(String teamId, PageRequest pageRequest) {
+    Team team = teamRepository.findByTeamId(teamId).orElseThrow(AppUtils.createNotFoundExceptionSupplier("Team not found: " + teamId));
+    return trainingEventRepository.findByTeam(team, pageRequest);
   }
 
   @Override
