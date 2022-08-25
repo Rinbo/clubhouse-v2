@@ -25,8 +25,8 @@ public class TrainingEventServiceImpl implements TrainingEventService {
   private final TeamRepository teamRepository;
   private final TrainingEventRepository trainingEventRepository;
 
-  @Transactional
   @Override
+  @Transactional
   public TrainingEventRecord create(String clubId, String teamId, TrainingEventRequestModel trainingEventRequestModel) {
     Team team = teamRepository.findByTeamId(teamId).orElseThrow(AppUtils.createNotFoundExceptionSupplier("Team not found: " + teamId));
     List<ClubUser> presentLeaders = clubUserRepository.findByClubIdAndUserIds(clubId, trainingEventRequestModel.presentLeaders());
@@ -36,13 +36,16 @@ public class TrainingEventServiceImpl implements TrainingEventService {
   }
 
   @Override
-  public TrainingEventRecord delete(long trainingEventId) {
-    return null;
+  @Transactional
+  public void delete(long trainingEventId) {
+    trainingEventRepository.deleteById(trainingEventId);
   }
 
   @Override
+  @Transactional
   public TrainingEventRecord get(long trainingEventId) {
-    return null;
+    return new TrainingEventRecord(trainingEventRepository.findById(trainingEventId)
+        .orElseThrow(AppUtils.createNotFoundExceptionSupplier("TrainingEvent not found: " + trainingEventId)));
   }
 
   @Override

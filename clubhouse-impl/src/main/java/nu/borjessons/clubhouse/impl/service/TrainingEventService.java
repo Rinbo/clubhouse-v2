@@ -10,7 +10,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.TrainingEventRequestModel;
 public interface TrainingEventService {
   TrainingEventRecord create(String clubId, String teamId, TrainingEventRequestModel trainingEventRequestModel);
 
-  TrainingEventRecord delete(long trainingEventId);
+  void delete(long trainingEventId);
 
   TrainingEventRecord get(long trainingEventId);
 
