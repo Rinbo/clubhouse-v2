@@ -21,6 +21,14 @@ import nu.borjessons.clubhouse.integration.tests.util.TrainingEventUtils;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
 class TrainingEventIntegrationTest {
+  private static void verifyDefaultTrainingRecord(TrainingEventRecord trainingEventRecord) {
+    Assertions.assertEquals("My notes", trainingEventRecord.notes());
+    Assertions.assertEquals(TrainingEventUtils.LOCAL_DATE_TIME_1, trainingEventRecord.dateTime());
+    Assertions.assertEquals(Duration.ofHours(1), trainingEventRecord.duration());
+    Assertions.assertEquals(List.of(), trainingEventRecord.presentLeaders());
+    Assertions.assertEquals(List.of(), trainingEventRecord.presentMembers());
+  }
+
   @Test
   void createTest() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
@@ -30,11 +38,22 @@ class TrainingEventIntegrationTest {
 
       TrainingEventRequestModel trainingEventRequestModel = TrainingEventUtils.createTrainingEventRequestModel(TrainingEventUtils.LOCAL_DATE_TIME_1);
       TrainingEventRecord trainingEventRecord = TrainingEventUtils.create(token, EmbeddedDataLoader.CLUB_ID, teamId, trainingEventRequestModel);
-      Assertions.assertEquals("My notes", trainingEventRecord.notes());
-      Assertions.assertEquals(TrainingEventUtils.LOCAL_DATE_TIME_1, trainingEventRecord.dateTime());
-      Assertions.assertEquals(Duration.ofHours(1), trainingEventRecord.duration());
-      Assertions.assertEquals(List.of(), trainingEventRecord.presentLeaders());
-      Assertions.assertEquals(List.of(), trainingEventRecord.presentMembers());
+      verifyDefaultTrainingRecord(trainingEventRecord);
+    }
+  }
+
+  @Test
+  void getByIdTest() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String teamId = TeamUtil.getClubTeams(EmbeddedDataLoader.CLUB_ID, token).get(0).getTeamId();
+      long trainingEventId = TrainingEventUtils.create(token, EmbeddedDataLoader.CLUB_ID, teamId,
+          TrainingEventUtils.createTrainingEventRequestModel(TrainingEventUtils.LOCAL_DATE_TIME_1)).id();
+
+      String userToken = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      TrainingEventRecord trainingEventRecord = TrainingEventUtils.getById(userToken, EmbeddedDataLoader.CLUB_ID, teamId, trainingEventId);
+      verifyDefaultTrainingRecord(trainingEventRecord);
     }
   }
 

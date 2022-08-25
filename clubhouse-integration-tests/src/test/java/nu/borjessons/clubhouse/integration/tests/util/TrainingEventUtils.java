@@ -19,9 +19,10 @@ public class TrainingEventUtils {
   public static final LocalDateTime LOCAL_DATE_TIME_1 = LocalDateTime.of(2020, 1, 1, 12, 0);
   public static final LocalDateTime LOCAL_DATE_TIME_2 = LocalDateTime.of(2021, 1, 1, 12, 0);
 
-  public static TrainingEventRecord create(String token, String clubId, String teamId, TrainingEventRequestModel trainingEventRequestModel) {
+  public static TrainingEventRecord create(String token, String clubId, String teamId, TrainingEventRequestModel trainingEventRequestModel)
+      throws JsonProcessingException {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/training-events").buildAndExpand(clubId, teamId).toUriString();
-    ResponseEntity<TrainingEventRecord> response = RestUtil.postRequest(uri, token, trainingEventRequestModel, TrainingEventRecord.class);
+    ResponseEntity<TrainingEventRecord> response = RestUtil.postSerializedRequest(uri, token, trainingEventRequestModel, TrainingEventRecord.class);
     Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     return response.getBody();
   }
@@ -32,6 +33,16 @@ public class TrainingEventUtils {
 
   public static TrainingEventRequestModel createTrainingEventRequestModel(LocalDateTime localDateTime) {
     return createTrainingEventRequestModel(localDateTime, List.of(), List.of());
+  }
+
+  public static TrainingEventRecord getById(String token, String clubId, String teamId, long trainingEventId) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/training-events/{trainingEventId}")
+        .buildAndExpand(clubId, teamId, trainingEventId)
+        .toUriString();
+
+    ResponseEntity<TrainingEventRecord> response = RestUtil.getRequest(uri, token, TrainingEventRecord.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    return response.getBody();
   }
 
   public static List<TrainingEventRecord> getByTeamId(String token, String clubId, String teamId, int page, int size) throws JsonProcessingException {
