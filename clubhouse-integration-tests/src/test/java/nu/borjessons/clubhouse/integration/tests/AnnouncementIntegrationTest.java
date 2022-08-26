@@ -129,7 +129,7 @@ class AnnouncementIntegrationTest {
       verifyAnnouncementRecord(AnnouncementUtil.createAnnouncement(token, EmbeddedDataLoader.CLUB_ID, DEFAULT_ANNOUNCEMENT_TITLE));
       Assertions.assertEquals(2, AnnouncementUtil.getAnnouncements(token, EmbeddedDataLoader.CLUB_ID).size());
 
-      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, token, adminUser.getUserId());
+      UserUtil.removeClubUser(token, EmbeddedDataLoader.CLUB_ID, adminUser.getUserId());
 
       List<AnnouncementRecord> announcementRecords = AnnouncementUtil.getAnnouncements(
           UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD), EmbeddedDataLoader.CLUB_ID);

@@ -43,6 +43,44 @@ class TrainingEventIntegrationTest {
   }
 
   @Test
+  void deleteTest() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext configurableApplicationContext = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
+      String teamId = TeamUtil.getClubTeams(EmbeddedDataLoader.CLUB_ID, token).get(0).getTeamId();
+      long trainingEventId1 = TrainingEventUtils.create(token, EmbeddedDataLoader.CLUB_ID, teamId,
+          TrainingEventUtils.createTrainingEventRequestModel(TrainingEventUtils.LOCAL_DATE_TIME_1)).id();
+
+      TrainingEventUtils.delete(token, EmbeddedDataLoader.CLUB_ID, teamId, trainingEventId1);
+
+      UserId memberId1 = UserUtil.getUserIdByEmail("user@ex.com", configurableApplicationContext);
+      UserId leaderId1 = UserUtil.getUserIdByEmail("pops@ex.com", configurableApplicationContext);
+
+      TrainingEventRequestModel trainingEventRequestModel = TrainingEventUtils.createTrainingEventRequestModel(TrainingEventUtils.LOCAL_DATE_TIME_2,
+          List.of(leaderId1), List.of(memberId1));
+      long trainingEventId2 = TrainingEventUtils.create(token, EmbeddedDataLoader.CLUB_ID, teamId, trainingEventRequestModel).id();
+
+      UserUtil.removeClubUser(token, EmbeddedDataLoader.CLUB_ID, memberId1);
+      Assertions.assertTrue(TrainingEventUtils.getById(token, EmbeddedDataLoader.CLUB_ID, teamId, trainingEventId2).presentMembers().isEmpty());
+      Assertions.assertFalse(TrainingEventUtils.getById(token, EmbeddedDataLoader.CLUB_ID, teamId, trainingEventId2).presentLeaders().isEmpty());
+
+      UserUtil.removeClubUser(token, EmbeddedDataLoader.CLUB_ID, leaderId1);
+      Assertions.assertTrue(TrainingEventUtils.getById(token, EmbeddedDataLoader.CLUB_ID, teamId, trainingEventId2).presentMembers().isEmpty());
+      Assertions.assertTrue(TrainingEventUtils.getById(token, EmbeddedDataLoader.CLUB_ID, teamId, trainingEventId2).presentLeaders().isEmpty());
+
+      UserId leaderId2 = UserUtil.getUserIdByEmail("mommy@ex.com", configurableApplicationContext);
+      UserId memberId2 = UserUtil.getUserIdByEmail("user@ex.com", configurableApplicationContext);
+
+      TrainingEventUtils.create(token, EmbeddedDataLoader.CLUB_ID, teamId,
+          TrainingEventUtils.createTrainingEventRequestModel(TrainingEventUtils.LOCAL_DATE_TIME_2, List.of(leaderId2), List.of(memberId2)));
+      TeamUtil.deleteTeam(token, EmbeddedDataLoader.CLUB_ID, teamId);
+      Assertions.assertEquals(0, TeamUtil.getClubTeams(EmbeddedDataLoader.CLUB_ID, token).size());
+      Assertions.assertEquals(memberId2, UserUtil.getClubUser(token, EmbeddedDataLoader.CLUB_ID, memberId2).getUserId());
+      Assertions.assertEquals(leaderId2, UserUtil.getClubUser(token, EmbeddedDataLoader.CLUB_ID, leaderId2).getUserId());
+    }
+  }
+
+  @Test
   void getByIdTest() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
         ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {

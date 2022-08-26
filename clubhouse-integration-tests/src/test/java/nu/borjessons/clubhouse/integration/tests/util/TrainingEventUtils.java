@@ -35,6 +35,16 @@ public class TrainingEventUtils {
     return createTrainingEventRequestModel(localDateTime, List.of(), List.of());
   }
 
+  public static void delete(String token, String clubId, String teamId, long trainingEventId) {
+    String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/training-events/{trainingEventId}")
+        .buildAndExpand(clubId, teamId, trainingEventId)
+        .toUriString();
+
+    ResponseEntity<String> response = RestUtil.deleteRequest(uri, token, String.class);
+    Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    Assertions.assertEquals("TrainingEvent was deleted", response.getBody());
+  }
+
   public static TrainingEventRecord getById(String token, String clubId, String teamId, long trainingEventId) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/teams/{teamId}/training-events/{trainingEventId}")
         .buildAndExpand(clubId, teamId, trainingEventId)

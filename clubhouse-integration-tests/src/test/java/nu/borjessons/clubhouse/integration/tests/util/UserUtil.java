@@ -157,7 +157,7 @@ public class UserUtil {
     return Arrays.stream(baseUserRecords).collect(Collectors.toList());
   }
 
-  public static ClubUserDto getClubUser(String clubId, String token, UserId userId) {
+  public static ClubUserDto getClubUser(String token, String clubId, UserId userId) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);
@@ -259,7 +259,7 @@ public class UserUtil {
     return response.getBody();
   }
 
-  public static void removeClubUser(String clubId, String token, UserId userId) {
+  public static void removeClubUser(String token, String clubId, UserId userId) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users/{userId}").buildAndExpand(clubId, userId).toUriString();
     RestTemplate restTemplate = new RestTemplate();
     HttpEntity<Void> entity = RestUtil.getVoidHttpEntity(token);

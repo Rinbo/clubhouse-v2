@@ -75,10 +75,10 @@ class ClubUserIntegrationTest {
         ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
-      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context));
+      UserUtil.removeClubUser(ownerToken, EmbeddedDataLoader.CLUB_ID, UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context));
       Assertions.assertEquals(5, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken).size());
 
-      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, UserUtil.getUserIdByEmail(EmbeddedDataLoader.MOMMY_EMAIL, context));
+      UserUtil.removeClubUser(ownerToken, EmbeddedDataLoader.CLUB_ID, UserUtil.getUserIdByEmail(EmbeddedDataLoader.MOMMY_EMAIL, context));
       Assertions.assertEquals(4, UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, ownerToken).size());
     }
   }
@@ -90,8 +90,8 @@ class ClubUserIntegrationTest {
       UserId papaUserId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context);
       String papaToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
-      Assertions.assertEquals(papaUserId, UserUtil.getClubUser(EmbeddedDataLoader.CLUB_ID, ownerToken, papaUserId).getUserId());
-      Assertions.assertEquals(papaUserId, UserUtil.getClubUser(EmbeddedDataLoader.CLUB_ID, papaToken, papaUserId).getUserId());
+      Assertions.assertEquals(papaUserId, UserUtil.getClubUser(ownerToken, EmbeddedDataLoader.CLUB_ID, papaUserId).getUserId());
+      Assertions.assertEquals(papaUserId, UserUtil.getClubUser(papaToken, EmbeddedDataLoader.CLUB_ID, papaUserId).getUserId());
     }
   }
 
@@ -311,12 +311,12 @@ class ClubUserIntegrationTest {
     try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
-      UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, token, EmbeddedDataLoader.USER_ID);
+      UserUtil.removeClubUser(token, EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.USER_ID);
       Assertions.assertEquals(0, ClubUtil.getMyClubs(token).size());
 
       // User tries to remove another user which is forbidden
       UserId userId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context);
-      RestUtil.verifyForbiddenAccess(() -> UserUtil.removeClubUser(EmbeddedDataLoader.CLUB_ID, token, userId));
+      RestUtil.verifyForbiddenAccess(() -> UserUtil.removeClubUser(token, EmbeddedDataLoader.CLUB_ID, userId));
     }
   }
 }
