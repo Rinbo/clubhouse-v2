@@ -69,13 +69,10 @@ class TrainingEventIntegrationTest {
       Assertions.assertTrue(TrainingEventUtils.getById(token, EmbeddedDataLoader.CLUB_ID, teamId, trainingEventId2).presentLeaders().isEmpty());
 
       UserId leaderId2 = UserUtil.getUserIdByEmail("mommy@ex.com", configurableApplicationContext);
-      UserId memberId2 = UserUtil.getUserIdByEmail("user@ex.com", configurableApplicationContext);
-
       TrainingEventUtils.create(token, EmbeddedDataLoader.CLUB_ID, teamId,
-          TrainingEventUtils.createTrainingEventRequestModel(TrainingEventUtils.LOCAL_DATE_TIME_2, List.of(leaderId2), List.of(memberId2)));
+          TrainingEventUtils.createTrainingEventRequestModel(TrainingEventUtils.LOCAL_DATE_TIME_2, List.of(leaderId2), List.of()));
       TeamUtil.deleteTeam(token, EmbeddedDataLoader.CLUB_ID, teamId);
       Assertions.assertEquals(0, TeamUtil.getClubTeams(EmbeddedDataLoader.CLUB_ID, token).size());
-      Assertions.assertEquals(memberId2, UserUtil.getClubUser(token, EmbeddedDataLoader.CLUB_ID, memberId2).getUserId());
       Assertions.assertEquals(leaderId2, UserUtil.getClubUser(token, EmbeddedDataLoader.CLUB_ID, leaderId2).getUserId());
     }
   }
