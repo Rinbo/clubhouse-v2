@@ -32,13 +32,18 @@ class TrainingEventIntegrationTest {
   @Test
   void createTest() throws IOException {
     try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
-        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+        ConfigurableApplicationContext configurableApplicationContext = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       String teamId = TeamUtil.getClubTeams(EmbeddedDataLoader.CLUB_ID, token).get(0).getTeamId();
 
-      TrainingEventRequestModel trainingEventRequestModel = TrainingEventUtils.createTrainingEventRequestModel(TrainingEventUtils.LOCAL_DATE_TIME_1);
-      TrainingEventRecord trainingEventRecord = TrainingEventUtils.create(token, EmbeddedDataLoader.CLUB_ID, teamId, trainingEventRequestModel);
-      verifyDefaultTrainingRecord(trainingEventRecord);
+      TrainingEventRecord trainingEventRecord1 = TrainingEventUtils.create(token, EmbeddedDataLoader.CLUB_ID, teamId,
+          TrainingEventUtils.createTrainingEventRequestModel(TrainingEventUtils.LOCAL_DATE_TIME_1));
+      verifyDefaultTrainingRecord(trainingEventRecord1);
+
+      UserId nonLeaderId = UserUtil.getUserIdByEmail("user@ex.com", configurableApplicationContext);
+      TrainingEventRecord trainingEventRecord2 = TrainingEventUtils.create(token, EmbeddedDataLoader.CLUB_ID, teamId,
+          TrainingEventUtils.createTrainingEventRequestModel(TrainingEventUtils.LOCAL_DATE_TIME_1, List.of(nonLeaderId), List.of()));
+      verifyDefaultTrainingRecord(trainingEventRecord2);
     }
   }
 

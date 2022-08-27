@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.TrainingEvent;
+import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.TrainingEventRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.TrainingEventRequestModel;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
@@ -21,6 +22,10 @@ import nu.borjessons.clubhouse.impl.util.AppUtils;
 @Service
 @RequiredArgsConstructor
 public class TrainingEventServiceImpl implements TrainingEventService {
+  private static List<ClubUser> verifyIsLeader(List<ClubUser> clubUsers) {
+    return clubUsers.stream().filter(clubUser -> clubUser.getRoles().stream().anyMatch(role -> role.getName() == Role.LEADER)).toList();
+  }
+
   private final ClubUserRepository clubUserRepository;
   private final TeamRepository teamRepository;
   private final TrainingEventRepository trainingEventRepository;
@@ -29,9 +34,7 @@ public class TrainingEventServiceImpl implements TrainingEventService {
   @Transactional
   public TrainingEventRecord create(String clubId, String teamId, TrainingEventRequestModel trainingEventRequestModel) {
     Team team = teamRepository.findByTeamId(teamId).orElseThrow(AppUtils.createNotFoundExceptionSupplier("Team not found: " + teamId));
-
-    // TODO verify leader has has role leader
-    List<ClubUser> presentLeaders = clubUserRepository.findByClubIdAndUserIds(clubId, trainingEventRequestModel.presentLeaders());
+    List<ClubUser> presentLeaders = verifyIsLeader(clubUserRepository.findByClubIdAndUserIds(clubId, trainingEventRequestModel.presentLeaders()));
     List<ClubUser> presentMembers = clubUserRepository.findByClubIdAndUserIds(clubId, trainingEventRequestModel.presentMembers());
     TrainingEvent trainingEvent = createTrainingEvent(trainingEventRequestModel, presentLeaders, presentMembers, team);
     return new TrainingEventRecord(trainingEventRepository.save(trainingEvent));
@@ -59,8 +62,7 @@ public class TrainingEventServiceImpl implements TrainingEventService {
 
   @Override
   public TrainingEventRecord update(String clubId, long trainingEventId, TrainingEventRequestModel trainingEventRequestModel) {
-    // TODO verify leader has has role leader
-    List<ClubUser> presentLeaders = clubUserRepository.findByClubIdAndUserIds(clubId, trainingEventRequestModel.presentLeaders());
+    List<ClubUser> presentLeaders = verifyIsLeader(clubUserRepository.findByClubIdAndUserIds(clubId, trainingEventRequestModel.presentLeaders()));
     List<ClubUser> presentMembers = clubUserRepository.findByClubIdAndUserIds(clubId, trainingEventRequestModel.presentMembers());
 
     TrainingEvent trainingEvent = trainingEventRepository.findById(trainingEventId)
