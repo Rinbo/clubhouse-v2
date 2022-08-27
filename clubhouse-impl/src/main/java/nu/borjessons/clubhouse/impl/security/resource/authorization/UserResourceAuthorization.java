@@ -31,7 +31,7 @@ public class UserResourceAuthorization {
     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
   }
 
-  public void validateIsChildOfUser(UserId childId, UserId userId) {
+  public void validateIsChildOfUser(UserId userId, UserId childId) {
     User user = userRepository.findByUserId(userId).orElseThrow();
     List<UserId> childrenIds = user.getChildren().stream().map(User::getUserId).toList();
     if (!childrenIds.contains(childId)) {
@@ -39,8 +39,17 @@ public class UserResourceAuthorization {
     }
   }
 
+  public void validateIsChildrenOfUser(UserId userId, List<UserId> childrenIds) {
+    User user = userRepository.findByUserId(userId).orElseThrow();
+    for (UserId childId : user.getChildren().stream().map(User::getUserId).toList()) {
+      if (!childrenIds.contains(childId)) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, String.format("UserId %s is not a child of user %s", childId, userId));
+      }
+    }
+  }
+
   public void validateUserOrChild(UserId otherId, UserId principalId) {
     if (principalId.equals(otherId)) return;
-    validateIsChildOfUser(otherId, principalId);
+    validateIsChildOfUser(principalId, otherId);
   }
 }

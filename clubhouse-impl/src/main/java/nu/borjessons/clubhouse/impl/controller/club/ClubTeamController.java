@@ -36,7 +36,7 @@ public class ClubTeamController {
   @PutMapping("/clubs/{clubId}/teams/{teamId}/add-child")
   public TeamDto addChildrenToTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
       @RequestParam UserId childId) {
-    userResourceAuthorization.validateIsChildOfUser(childId, principal.getUserId());
+    userResourceAuthorization.validateIsChildOfUser(principal.getUserId(), childId);
     return teamService.addMemberToTeam(clubId, teamId, childId);
   }
 
