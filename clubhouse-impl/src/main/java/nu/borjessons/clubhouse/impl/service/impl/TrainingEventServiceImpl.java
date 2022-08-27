@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
+import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.TrainingEvent;
 import nu.borjessons.clubhouse.impl.dto.Role;
@@ -22,8 +24,16 @@ import nu.borjessons.clubhouse.impl.util.AppUtils;
 @Service
 @RequiredArgsConstructor
 public class TrainingEventServiceImpl implements TrainingEventService {
+
   private static List<ClubUser> verifyIsLeader(List<ClubUser> clubUsers) {
-    return clubUsers.stream().filter(clubUser -> clubUser.getRoles().stream().anyMatch(role -> role.getName() == Role.LEADER)).toList();
+    List<ClubUser> leaders = new ArrayList<>();
+
+    for (ClubUser clubUser : clubUsers) {
+      List<Role> roles = clubUser.getRoles().stream().map(RoleEntity::getName).toList();
+      if (roles.contains(Role.LEADER)) leaders.add(clubUser);
+    }
+
+    return leaders;
   }
 
   private final ClubUserRepository clubUserRepository;
@@ -61,6 +71,7 @@ public class TrainingEventServiceImpl implements TrainingEventService {
   }
 
   @Override
+  @Transactional
   public TrainingEventRecord update(String clubId, long trainingEventId, TrainingEventRequestModel trainingEventRequestModel) {
     List<ClubUser> presentLeaders = verifyIsLeader(clubUserRepository.findByClubIdAndUserIds(clubId, trainingEventRequestModel.presentLeaders()));
     List<ClubUser> presentMembers = clubUserRepository.findByClubIdAndUserIds(clubId, trainingEventRequestModel.presentMembers());
