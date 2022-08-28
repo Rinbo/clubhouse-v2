@@ -1,10 +1,11 @@
 package nu.borjessons.clubhouse.impl.util;
 
+import java.time.Clock;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -17,9 +18,11 @@ import nu.borjessons.clubhouse.impl.dto.UpcomingTrainingEvent;
 
 @Component
 public class UpcomingTrainingEventProducer {
+  private final Clock clock;
   private final Duration threshold;
 
-  public UpcomingTrainingEventProducer(@Value("${upcoming-training-time-threshold:PT3H}") Duration threshold) {
+  public UpcomingTrainingEventProducer(@Value("${upcoming-training-time-threshold:PT3H}") Duration threshold, Clock clock) {
+    this.clock = clock;
     this.threshold = threshold;
   }
 
@@ -29,8 +32,11 @@ public class UpcomingTrainingEventProducer {
 
   private UpcomingTrainingEvent createUpcomingTrainingEvent(Team team, TrainingTime trainingTime) {
     LocalTime startTime = trainingTime.getStartTime();
-    return new UpcomingTrainingEvent(team.getName(), team.getTeamId(), LocalDateTime.of(
-        LocalDate.now(), startTime), Duration.between(startTime, trainingTime.getEndTime()),
+    return new UpcomingTrainingEvent(
+        team.getName(),
+        team.getTeamId(),
+        LocalDateTime.of(LocalDate.ofInstant(clock.instant(), ZoneOffset.UTC), startTime),
+        Duration.between(startTime, trainingTime.getEndTime()),
         trainingTime.getLocation());
   }
 
@@ -42,7 +48,9 @@ public class UpcomingTrainingEventProducer {
   }
 
   private boolean isTrainingTimeWithinThreshold(TrainingTime trainingTime) {
-    Instant now = Instant.now();
-    return (now.isAfter(Instant.from(trainingTime.getStartTime().minus(threshold))) && now.isBefore(Instant.from(trainingTime.getStartTime().plus(threshold))));
+    LocalDateTime now = LocalDateTime.ofInstant(clock.instant(), ZoneOffset.UTC);
+    LocalDateTime from = LocalDateTime.of(now.toLocalDate(), trainingTime.getStartTime()).minus(threshold);
+    LocalDateTime to = LocalDateTime.of(now.toLocalDate(), trainingTime.getEndTime()).plus(threshold);
+    return (now.isAfter(from) && now.isBefore(to));
   }
 }

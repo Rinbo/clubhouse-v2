@@ -8,9 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Key;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.concurrent.ConcurrentHashMap;
@@ -98,6 +100,11 @@ public class ClubhouseApplication {
   }
 
   @Bean
+  Clock createClock() {
+    return Clock.system(ZoneId.systemDefault());
+  }
+
+  @Bean
   ImageRepository createImageRepository() {
     Path tmpDir = Paths.get(System.getProperty("java.io.tmpdir"));
     try {
@@ -120,7 +127,7 @@ public class ClubhouseApplication {
   ObjectMapper createObjectMapper() {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    
+
     JavaTimeModule javaTimeModule = new JavaTimeModule();
     LocalDateTimeDeserializer localDateTimeDeserializer = new LocalDateTimeDeserializer(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     LocalDateDeserializer localDateDeserializer = new LocalDateDeserializer(DateTimeFormatter.ISO_OFFSET_DATE);
