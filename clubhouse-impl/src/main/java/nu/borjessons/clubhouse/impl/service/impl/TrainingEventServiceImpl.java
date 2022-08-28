@@ -14,17 +14,18 @@ import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.TrainingEvent;
 import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.TrainingEventRecord;
+import nu.borjessons.clubhouse.impl.dto.UpcomingTrainingEvent;
 import nu.borjessons.clubhouse.impl.dto.rest.TrainingEventRequestModel;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 import nu.borjessons.clubhouse.impl.repository.TrainingEventRepository;
 import nu.borjessons.clubhouse.impl.service.TrainingEventService;
 import nu.borjessons.clubhouse.impl.util.AppUtils;
+import nu.borjessons.clubhouse.impl.util.UpcomingTrainingEventProducer;
 
 @Service
 @RequiredArgsConstructor
 public class TrainingEventServiceImpl implements TrainingEventService {
-
   private static List<ClubUser> verifyIsLeader(List<ClubUser> clubUsers) {
     List<ClubUser> leaders = new ArrayList<>();
 
@@ -39,6 +40,7 @@ public class TrainingEventServiceImpl implements TrainingEventService {
   private final ClubUserRepository clubUserRepository;
   private final TeamRepository teamRepository;
   private final TrainingEventRepository trainingEventRepository;
+  private final UpcomingTrainingEventProducer upcomingTrainingEventProducer;
 
   @Override
   @Transactional
@@ -68,6 +70,15 @@ public class TrainingEventServiceImpl implements TrainingEventService {
   public List<TrainingEventRecord> get(String teamId, PageRequest pageRequest) {
     Team team = teamRepository.findByTeamId(teamId).orElseThrow(AppUtils.createNotFoundExceptionSupplier("Team not found: " + teamId));
     return trainingEventRepository.findByTeam(team, pageRequest).stream().map(TrainingEventRecord::new).toList();
+  }
+
+  @Override
+  public List<UpcomingTrainingEvent> getUpcomingTrainingEvents(long principalId, String clubId) {
+    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, principalId)
+        .orElseThrow(AppUtils.createNotFoundExceptionSupplier("User not found: " + principalId));
+
+    List<Team> teams = clubUser.getManagedTeams();
+    return upcomingTrainingEventProducer.createUpcomingTrainingEvents(teams);
   }
 
   @Override

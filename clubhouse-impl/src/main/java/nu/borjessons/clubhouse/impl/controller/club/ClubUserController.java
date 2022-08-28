@@ -23,15 +23,18 @@ import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
+import nu.borjessons.clubhouse.impl.dto.UpcomingTrainingEvent;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.security.resource.authorization.UserResourceAuthorization;
 import nu.borjessons.clubhouse.impl.service.ClubUserService;
+import nu.borjessons.clubhouse.impl.service.TrainingEventService;
 
 @RequiredArgsConstructor
 @RequestMapping("/clubs/{clubId}")
 @RestController
 public class ClubUserController {
   private final ClubUserService clubUserService;
+  private final TrainingEventService trainingEventService;
   private final UserResourceAuthorization userResourceAuthorization;
 
   @PreAuthorize("hasRole('USER') and #userId == authentication.principal.userId")
@@ -63,6 +66,12 @@ public class ClubUserController {
   @GetMapping("/leaders")
   public Collection<ClubUserDto> getLeaders(@PathVariable String clubId) {
     return clubUserService.getLeaders(clubId);
+  }
+
+  @PreAuthorize("hasRole('LEADER')")
+  @GetMapping("/principal/upcoming-training")
+  public List<UpcomingTrainingEvent> getUpcomingTrainingEvents(@AuthenticationPrincipal User principal, @PathVariable String clubId, String browserTime) {
+    return trainingEventService.getUpcomingTrainingEvents(principal.getId(), clubId);
   }
 
   @PreAuthorize("hasRole('USER')")
