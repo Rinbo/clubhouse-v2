@@ -16,6 +16,7 @@ import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.TrainingTime;
 import nu.borjessons.clubhouse.impl.dto.UpcomingTrainingEvent;
 
+// TODO I have to check if an event has already been created for this trainingTime. If so I cannot show it as upcoming again
 @Component
 public class UpcomingTrainingEventProducer {
   private final Clock clock;

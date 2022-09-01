@@ -10,7 +10,7 @@ import nu.borjessons.clubhouse.impl.util.Validate;
 
 public record TrainingEventRecord(
     long id,
-    LocalDateTime dateTime,
+    LocalDateTime localDateTime,
     Duration duration,
     String notes,
     List<BaseUserRecord> presentLeaders,
@@ -19,7 +19,7 @@ public record TrainingEventRecord(
 
   public TrainingEventRecord {
     Validate.notNegative(id, "id");
-    Validate.notNull(dateTime, "dateTime");
+    Validate.notNull(localDateTime, "localDateTime");
     Validate.notNull(duration, "duration");
     Validate.notNull(presentLeaders, "presentLeaders");
     Validate.notNull(presentMembers, "presentMembers");
@@ -29,7 +29,7 @@ public record TrainingEventRecord(
   public TrainingEventRecord(TrainingEvent trainingEvent) {
     this(
         trainingEvent.getId(),
-        trainingEvent.getDateTime(),
+        trainingEvent.getLocalDateTime(),
         trainingEvent.getDuration(),
         trainingEvent.getNotes(),
         trainingEvent.getPresentLeaders().stream().map(ClubUser::getUser).map(BaseUserRecord::new).toList(),

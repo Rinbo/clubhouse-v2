@@ -99,7 +99,7 @@ public class TrainingEventServiceImpl implements TrainingEventService {
       Team team) {
     TrainingEvent trainingEvent = new TrainingEvent();
     trainingEvent.setDuration(trainingEventRequestModel.duration());
-    trainingEvent.setDateTime(trainingEventRequestModel.dateTime());
+    trainingEvent.setLocalDateTime(trainingEventRequestModel.localDateTime());
     trainingEvent.setNotes(trainingEventRequestModel.notes());
     trainingEvent.setPresentLeaders(presentLeaders);
     trainingEvent.setPresentMembers(presentMembers);
@@ -109,7 +109,7 @@ public class TrainingEventServiceImpl implements TrainingEventService {
 
   private void updateTrainingEvent(TrainingEvent trainingEvent, TrainingEventRequestModel trainingEventRequestModel, List<ClubUser> presentLeaders,
       List<ClubUser> presentMembers) {
-    trainingEvent.setDateTime(trainingEventRequestModel.dateTime());
+    trainingEvent.setLocalDateTime(trainingEventRequestModel.localDateTime());
     trainingEvent.setDuration(trainingEventRequestModel.duration());
     trainingEvent.setNotes(trainingEventRequestModel.notes());
     trainingEvent.setPresentLeaders(presentLeaders);

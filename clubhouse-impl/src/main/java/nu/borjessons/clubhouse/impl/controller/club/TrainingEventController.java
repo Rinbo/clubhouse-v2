@@ -51,7 +51,7 @@ public class TrainingEventController {
   @GetMapping
   public List<TrainingEventRecord> getAll(@PathVariable String clubId, @PathVariable String teamId, @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
-    return trainingEventService.get(teamId, PageRequest.of(page, size, Sort.by("dateTime").descending()));
+    return trainingEventService.get(teamId, PageRequest.of(page, size, Sort.by("localDateTime").descending()));
   }
 
   @PreAuthorize("hasRole('LEADER') or hasRole('ADMIN')")
