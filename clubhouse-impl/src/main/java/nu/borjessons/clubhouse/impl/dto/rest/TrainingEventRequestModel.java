@@ -12,7 +12,8 @@ public record TrainingEventRequestModel(
     Duration duration,
     String notes,
     List<UserId> presentLeaders,
-    List<UserId> presentMembers) {
+    List<UserId> presentMembers,
+    String trainingTimeId) {
 
   public TrainingEventRequestModel {
     Validate.notNull(localDateTime, "localDateTime");

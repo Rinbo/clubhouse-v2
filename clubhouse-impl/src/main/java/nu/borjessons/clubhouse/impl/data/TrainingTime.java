@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.impl.data;
 
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -23,28 +24,30 @@ import lombok.Setter;
 @Entity
 @Table(name = "training_time", indexes = @Index(name = "ix_training_time_id", columnList = "training_time_id"))
 public class TrainingTime {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private long id;
-
-  @Column(name = "training_time_id", nullable = false, unique = true)
-  private String trainingTimeId;
-
   @Column(name = "day_of_week", nullable = false)
   @Enumerated(EnumType.STRING)
   private DayOfWeek dayOfWeek;
 
   @Column(nullable = false)
-  private LocalTime startTime;
+  private LocalTime endTime;
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private long id;
+
+  private LocalDateTime lastActivated;
 
   @Column(nullable = false)
-  private LocalTime endTime;
+  private String location;
+
+  @Column(nullable = false)
+  private LocalTime startTime;
 
   @ManyToOne
   private Team team;
 
-  @Column(nullable = false)
-  private String location;
+  @Column(name = "training_time_id", nullable = false, unique = true)
+  private String trainingTimeId;
 
   public TrainingTime() {
     this.trainingTimeId = UUID.randomUUID().toString();

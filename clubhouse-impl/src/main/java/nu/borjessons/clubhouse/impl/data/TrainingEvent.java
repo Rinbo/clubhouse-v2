@@ -23,10 +23,13 @@ import lombok.Setter;
 @Table
 public class TrainingEvent {
   private Duration duration;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
+
   private LocalDateTime localDateTime;
+
   @Column(columnDefinition = "TEXT")
   private String notes;
 
@@ -38,4 +41,7 @@ public class TrainingEvent {
 
   @ManyToOne
   private Team team;
+
+  @ManyToOne
+  private TrainingTime trainingTime;
 }

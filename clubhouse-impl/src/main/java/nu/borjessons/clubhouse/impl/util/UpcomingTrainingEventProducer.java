@@ -16,7 +16,6 @@ import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.TrainingTime;
 import nu.borjessons.clubhouse.impl.dto.UpcomingTrainingEvent;
 
-// TODO I have to check if an event has already been created for this trainingTime. If so I cannot show it as upcoming again
 @Component
 public class UpcomingTrainingEventProducer {
   private final Clock clock;
@@ -38,14 +37,22 @@ public class UpcomingTrainingEventProducer {
         team.getTeamId(),
         LocalDateTime.of(LocalDate.ofInstant(clock.instant(), ZoneOffset.UTC), startTime),
         Duration.between(startTime, trainingTime.getEndTime()),
-        trainingTime.getLocation());
+        trainingTime.getLocation(),
+        trainingTime.getTrainingTimeId());
   }
 
   private Stream<UpcomingTrainingEvent> findWithinThreshold(Team team) {
     return team.getTrainingTimes()
         .stream()
+        .filter(this::isNotRecentlyActivated)
         .filter(this::isTrainingTimeWithinThreshold)
         .map(trainingTime -> createUpcomingTrainingEvent(team, trainingTime));
+  }
+
+  private boolean isNotRecentlyActivated(TrainingTime trainingTime) {
+    LocalDateTime lastActivated = trainingTime.getLastActivated();
+    if (lastActivated == null) return true;
+    return clock.instant().minus(threshold).isAfter(lastActivated.toInstant(ZoneOffset.UTC));
   }
 
   private boolean isTrainingTimeWithinThreshold(TrainingTime trainingTime) {

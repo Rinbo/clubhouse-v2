@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 import nu.borjessons.clubhouse.impl.util.Validate;
 
-public record UpcomingTrainingEvent(String teamName, String teamId, LocalDateTime localDateTime, Duration duration, String location) {
+public record UpcomingTrainingEvent(String teamName, String teamId, LocalDateTime localDateTime, Duration duration, String location, String trainingTimeId) {
   public UpcomingTrainingEvent {
     Validate.notEmpty(teamName, "teamName");
     Validate.notEmpty(teamId, "teamId");

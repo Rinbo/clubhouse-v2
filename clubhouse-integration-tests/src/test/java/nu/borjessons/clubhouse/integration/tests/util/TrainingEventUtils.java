@@ -28,7 +28,7 @@ public class TrainingEventUtils {
   }
 
   public static TrainingEventRequestModel createTrainingEventRequestModel(LocalDateTime localDateTime, List<UserId> leaderIds, List<UserId> memberIds) {
-    return new TrainingEventRequestModel(localDateTime, Duration.ofHours(1), "My notes", leaderIds, memberIds);
+    return new TrainingEventRequestModel(localDateTime, Duration.ofHours(1), "My notes", leaderIds, memberIds, null);
   }
 
   public static TrainingEventRequestModel createTrainingEventRequestModel(LocalDateTime localDateTime) {

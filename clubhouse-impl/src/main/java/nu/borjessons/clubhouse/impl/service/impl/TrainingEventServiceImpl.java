@@ -1,5 +1,6 @@
 package nu.borjessons.clubhouse.impl.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import nu.borjessons.clubhouse.impl.dto.rest.TrainingEventRequestModel;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 import nu.borjessons.clubhouse.impl.repository.TrainingEventRepository;
+import nu.borjessons.clubhouse.impl.repository.TrainingTimeRepository;
 import nu.borjessons.clubhouse.impl.service.TrainingEventService;
 import nu.borjessons.clubhouse.impl.util.AppUtils;
 import nu.borjessons.clubhouse.impl.util.UpcomingTrainingEventProducer;
@@ -26,6 +28,28 @@ import nu.borjessons.clubhouse.impl.util.UpcomingTrainingEventProducer;
 @Service
 @RequiredArgsConstructor
 public class TrainingEventServiceImpl implements TrainingEventService {
+  private static TrainingEvent createTrainingEvent(TrainingEventRequestModel trainingEventRequestModel, List<ClubUser> presentLeaders,
+      List<ClubUser> presentMembers,
+      Team team) {
+    TrainingEvent trainingEvent = new TrainingEvent();
+    trainingEvent.setDuration(trainingEventRequestModel.duration());
+    trainingEvent.setLocalDateTime(trainingEventRequestModel.localDateTime());
+    trainingEvent.setNotes(trainingEventRequestModel.notes());
+    trainingEvent.setPresentLeaders(presentLeaders);
+    trainingEvent.setPresentMembers(presentMembers);
+    trainingEvent.setTeam(team);
+    return trainingEvent;
+  }
+
+  private static void updateTrainingEvent(TrainingEvent trainingEvent, TrainingEventRequestModel trainingEventRequestModel, List<ClubUser> presentLeaders,
+      List<ClubUser> presentMembers) {
+    trainingEvent.setLocalDateTime(trainingEventRequestModel.localDateTime());
+    trainingEvent.setDuration(trainingEventRequestModel.duration());
+    trainingEvent.setNotes(trainingEventRequestModel.notes());
+    trainingEvent.setPresentLeaders(presentLeaders);
+    trainingEvent.setPresentMembers(presentMembers);
+  }
+
   private static List<ClubUser> verifyIsLeader(List<ClubUser> clubUsers) {
     List<ClubUser> leaders = new ArrayList<>();
 
@@ -40,6 +64,7 @@ public class TrainingEventServiceImpl implements TrainingEventService {
   private final ClubUserRepository clubUserRepository;
   private final TeamRepository teamRepository;
   private final TrainingEventRepository trainingEventRepository;
+  private final TrainingTimeRepository trainingTimeRepository;
   private final UpcomingTrainingEventProducer upcomingTrainingEventProducer;
 
   @Override
@@ -49,6 +74,8 @@ public class TrainingEventServiceImpl implements TrainingEventService {
     List<ClubUser> presentLeaders = verifyIsLeader(clubUserRepository.findByClubIdAndUserIds(clubId, trainingEventRequestModel.presentLeaders()));
     List<ClubUser> presentMembers = clubUserRepository.findByClubIdAndUserIds(clubId, trainingEventRequestModel.presentMembers());
     TrainingEvent trainingEvent = createTrainingEvent(trainingEventRequestModel, presentLeaders, presentMembers, team);
+    setAndUpdateTrainingTime(trainingEvent, trainingEventRequestModel.trainingTimeId());
+
     return new TrainingEventRecord(trainingEventRepository.save(trainingEvent));
   }
 
@@ -95,24 +122,12 @@ public class TrainingEventServiceImpl implements TrainingEventService {
     return new TrainingEventRecord(trainingEventRepository.save(trainingEvent));
   }
 
-  private TrainingEvent createTrainingEvent(TrainingEventRequestModel trainingEventRequestModel, List<ClubUser> presentLeaders, List<ClubUser> presentMembers,
-      Team team) {
-    TrainingEvent trainingEvent = new TrainingEvent();
-    trainingEvent.setDuration(trainingEventRequestModel.duration());
-    trainingEvent.setLocalDateTime(trainingEventRequestModel.localDateTime());
-    trainingEvent.setNotes(trainingEventRequestModel.notes());
-    trainingEvent.setPresentLeaders(presentLeaders);
-    trainingEvent.setPresentMembers(presentMembers);
-    trainingEvent.setTeam(team);
-    return trainingEvent;
-  }
-
-  private void updateTrainingEvent(TrainingEvent trainingEvent, TrainingEventRequestModel trainingEventRequestModel, List<ClubUser> presentLeaders,
-      List<ClubUser> presentMembers) {
-    trainingEvent.setLocalDateTime(trainingEventRequestModel.localDateTime());
-    trainingEvent.setDuration(trainingEventRequestModel.duration());
-    trainingEvent.setNotes(trainingEventRequestModel.notes());
-    trainingEvent.setPresentLeaders(presentLeaders);
-    trainingEvent.setPresentMembers(presentMembers);
+  private void setAndUpdateTrainingTime(TrainingEvent trainingEvent, String trainingTimeId) {
+    if (trainingTimeId == null) return;
+    trainingTimeRepository.findByTrainingTimeId(trainingTimeId).ifPresent(trainingTime -> {
+      trainingEvent.setTrainingTime(trainingTime);
+      trainingTime.setLastActivated(LocalDateTime.now());
+      trainingTimeRepository.save(trainingTime);
+    });
   }
 }

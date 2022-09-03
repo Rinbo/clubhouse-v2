@@ -23,8 +23,8 @@ public class TrainingTimeServiceImpl implements TrainingTimeService {
     existing.setEndTime(trainingTime.getEndTime());
   }
 
-  private final TrainingTimeRepository trainingTimeRepository;
   private final TeamRepository teamRepository;
+  private final TrainingTimeRepository trainingTimeRepository;
 
   @Override
   public Collection<TrainingTimeRecord> getTrainingTimes(String teamId) {
