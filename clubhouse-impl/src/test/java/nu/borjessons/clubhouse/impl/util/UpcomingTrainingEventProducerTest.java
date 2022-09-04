@@ -43,6 +43,16 @@ class UpcomingTrainingEventProducerTest {
   }
 
   @Test
+  void createUpcomingTrainingEventsNotThisDayOfWeekTest() {
+    Instant wrongDay = LocalDateTime.of(2020, 1, 2, 9, 0).toInstant(ZoneOffset.UTC);
+    UpcomingTrainingEventProducer upcomingTrainingEventProducer = new UpcomingTrainingEventProducer(Duration.ofHours(2),
+        Clock.fixed(wrongDay, ZoneId.systemDefault()));
+
+    List<UpcomingTrainingEvent> upcomingTrainingEvents = upcomingTrainingEventProducer.createUpcomingTrainingEvents(List.of(createTeam(null)));
+    Assertions.assertEquals(0, upcomingTrainingEvents.size());
+  }
+
+  @Test
   void createUpcomingTrainingEventsWithLastActivatedTest() {
     UpcomingTrainingEventProducer upcomingTrainingEventProducer = new UpcomingTrainingEventProducer(Duration.ofHours(2),
         Clock.fixed(INSTANT, ZoneId.systemDefault()));

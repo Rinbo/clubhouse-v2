@@ -44,9 +44,14 @@ public class UpcomingTrainingEventProducer {
   private Stream<UpcomingTrainingEvent> findWithinThreshold(Team team) {
     return team.getTrainingTimes()
         .stream()
+        .filter(this::isDayOfWeek)
         .filter(this::isNotRecentlyActivated)
         .filter(this::isTrainingTimeWithinThreshold)
         .map(trainingTime -> createUpcomingTrainingEvent(team, trainingTime));
+  }
+
+  private boolean isDayOfWeek(TrainingTime trainingTime) {
+    return LocalDate.ofInstant(clock.instant(), ZoneOffset.UTC).getDayOfWeek() == trainingTime.getDayOfWeek();
   }
 
   private boolean isNotRecentlyActivated(TrainingTime trainingTime) {
