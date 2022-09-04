@@ -34,6 +34,7 @@ public class TrainingEventServiceImpl implements TrainingEventService {
     TrainingEvent trainingEvent = new TrainingEvent();
     trainingEvent.setDuration(trainingEventRequestModel.duration());
     trainingEvent.setLocalDateTime(trainingEventRequestModel.localDateTime());
+    trainingEvent.setLocation(trainingEventRequestModel.location());
     trainingEvent.setNotes(trainingEventRequestModel.notes());
     trainingEvent.setPresentLeaders(presentLeaders);
     trainingEvent.setPresentMembers(presentMembers);
@@ -45,6 +46,7 @@ public class TrainingEventServiceImpl implements TrainingEventService {
       List<ClubUser> presentMembers) {
     trainingEvent.setLocalDateTime(trainingEventRequestModel.localDateTime());
     trainingEvent.setDuration(trainingEventRequestModel.duration());
+    trainingEvent.setLocation(trainingEventRequestModel.location());
     trainingEvent.setNotes(trainingEventRequestModel.notes());
     trainingEvent.setPresentLeaders(presentLeaders);
     trainingEvent.setPresentMembers(presentMembers);

@@ -30,6 +30,8 @@ public class TrainingEvent {
 
   private LocalDateTime localDateTime;
 
+  private String location;
+
   @Column(columnDefinition = "TEXT")
   private String notes;
 

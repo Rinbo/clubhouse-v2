@@ -23,6 +23,7 @@ import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 class TrainingEventIntegrationTest {
   private static void verifyDefaultTrainingRecord(TrainingEventRecord trainingEventRecord) {
     Assertions.assertEquals("My notes", trainingEventRecord.notes());
+    Assertions.assertEquals("Big Hall", trainingEventRecord.location());
     Assertions.assertEquals(TrainingEventUtils.LOCAL_DATE_TIME_1, trainingEventRecord.localDateTime());
     Assertions.assertEquals(Duration.ofHours(1), trainingEventRecord.duration());
     Assertions.assertEquals(List.of(), trainingEventRecord.presentLeaders());

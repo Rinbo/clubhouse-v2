@@ -10,6 +10,7 @@ import nu.borjessons.clubhouse.impl.util.Validate;
 public record TrainingEventRequestModel(
     LocalDateTime localDateTime,
     Duration duration,
+    String location,
     String notes,
     List<UserId> presentLeaders,
     List<UserId> presentMembers,
