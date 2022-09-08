@@ -1,6 +1,7 @@
 package nu.borjessons.clubhouse.impl.util;
 
 import java.time.Clock;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -30,12 +31,14 @@ class UpcomingTrainingEventProducerTest {
   private static List<TrainingTime> createTrainingTimes(LocalDateTime lastActivated) {
     TrainingTime trainingTime1 = new TrainingTime();
     trainingTime1.setLocation("Big Hall");
+    trainingTime1.setDayOfWeek(DayOfWeek.WEDNESDAY);
     trainingTime1.setStartTime(LocalTime.of(8, 0));
     trainingTime1.setEndTime(LocalTime.of(10, 0));
     trainingTime1.setLastActivated(lastActivated);
 
     TrainingTime trainingTime2 = new TrainingTime();
     trainingTime2.setLocation("Small Hall");
+    trainingTime2.setDayOfWeek(DayOfWeek.WEDNESDAY);
     trainingTime2.setStartTime(LocalTime.of(14, 0));
     trainingTime2.setEndTime(LocalTime.of(16, 0));
 
