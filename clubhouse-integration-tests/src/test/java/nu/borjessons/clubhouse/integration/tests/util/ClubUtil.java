@@ -13,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.dto.ClubRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubStatisticsRecord;
@@ -52,7 +50,7 @@ public class ClubUtil {
     return response.getBody();
   }
 
-  public static List<ClubUserDto> getClubLeaders(String clubId, String token) throws JsonProcessingException {
+  public static List<ClubUserDto> getClubLeaders(String clubId, String token) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/leaders").buildAndExpand(clubId).toUriString();
     ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
     ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);

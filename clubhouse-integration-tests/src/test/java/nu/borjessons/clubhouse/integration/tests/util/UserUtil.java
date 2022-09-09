@@ -176,7 +176,7 @@ public class UserUtil {
     return response.getBody();
   }
 
-  public static List<ClubUserDto> getClubUsers(String clubId, String token) throws JsonProcessingException {
+  public static List<ClubUserDto> getClubUsers(String clubId, String token) {
     String uri = RestUtil.getUriBuilder("/clubs/{clubId}/users").buildAndExpand(clubId).toUriString();
     ResponseEntity<String> response = RestUtil.getRequest(uri, token, String.class);
     ClubUserDto[] clubUserDtos = RestUtil.deserializeJsonBody(response.getBody(), ClubUserDto[].class);

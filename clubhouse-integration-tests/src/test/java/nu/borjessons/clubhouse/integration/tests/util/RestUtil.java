@@ -56,7 +56,7 @@ public class RestUtil {
     return restTemplate.exchange(uri, HttpMethod.DELETE, entity, returnType);
   }
 
-  public static <T> T deserializeJsonBody(String body, Class<T> clazz) throws JsonProcessingException {
+  public static <T> T deserializeJsonBody(String body, Class<T> clazz) {
     ObjectMapper mapper = new ObjectMapper();
 
     JavaTimeModule javaTimeModule = new JavaTimeModule();
@@ -65,7 +65,13 @@ public class RestUtil {
 
     mapper.registerModules(new ParameterNamesModule(), javaTimeModule, createIdModule());
     mapper.setVisibility(FIELD, ANY);
-    return mapper.readValue(body, clazz);
+
+    try {
+      return mapper.readValue(body, clazz);
+    } catch (JsonProcessingException e) {
+      Assertions.fail("Test failed");
+      throw new IllegalStateException(e);
+    }
   }
 
   public static <T> HttpEntity<T> getHttpEntity(String token, T requestObject) {

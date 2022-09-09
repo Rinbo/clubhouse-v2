@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
@@ -84,8 +82,9 @@ class ClubUserIntegrationTest {
   }
 
   @Test
-  void getClubUser() {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+  void getClubUser() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserId papaUserId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context);
       String papaToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
@@ -142,7 +141,8 @@ class ClubUserIntegrationTest {
 
   @Test
   void parentJoinsClubAndAddsOnlyOneChild() throws Exception {
-    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
 
@@ -162,7 +162,8 @@ class ClubUserIntegrationTest {
 
   @Test
   void parentJoinsClubAndBringsNoChildren() throws Exception {
-    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
 
@@ -180,7 +181,8 @@ class ClubUserIntegrationTest {
 
   @Test
   void parentJoinsClubAndRetainsAllChildren() throws Exception {
-    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
 
@@ -239,32 +241,18 @@ class ClubUserIntegrationTest {
   }
 
   @Test
-  void throwForbiddenExceptionWhenUserGetsAllClubUsersTest() throws Exception {
-    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
-      String userToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      try {
-        UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, userToken);
-      } catch (HttpClientErrorException e) {
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
-      }
-    }
-  }
-
-  @Test
   void throwForbiddenExceptionWhenUserGetsLeadersTest() throws Exception {
-    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String userToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
-      try {
-        ClubUtil.getClubLeaders(EmbeddedDataLoader.CLUB_ID, userToken);
-      } catch (HttpClientErrorException e) {
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
-      }
+      RestUtil.verifyForbiddenAccess(() -> ClubUtil.getClubLeaders(EmbeddedDataLoader.CLUB_ID, userToken));
     }
   }
 
   @Test
   void updateClubUser() throws Exception {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserId papaId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context);
       AdminUpdateUserModel updateUserModel = UserUtil.createAdminUpdateModel("Erik", "Johnson", "2000-01-01",
@@ -307,8 +295,9 @@ class ClubUserIntegrationTest {
   }
 
   @Test
-  void userRemovesHimself() {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+  void userRemovesHimself() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(1, ClubUtil.getMyClubs(token).size());
       UserUtil.removeClubUser(token, EmbeddedDataLoader.CLUB_ID, EmbeddedDataLoader.USER_ID);

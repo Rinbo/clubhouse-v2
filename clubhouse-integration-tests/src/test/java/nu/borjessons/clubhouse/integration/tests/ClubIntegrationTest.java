@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
 import nu.borjessons.clubhouse.impl.dto.ClubRecord;
@@ -34,8 +33,9 @@ class ClubIntegrationTest {
   }
 
   @Test
-  void adminGetsClubTest() {
-    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
+  void adminGetsClubTest() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       ClubRecord ownerClubRecord = ClubUtil.getClub(EmbeddedDataLoader.CLUB_ID, ownerToken);
       validateAgainstTestClub(ownerClubRecord);
@@ -89,8 +89,9 @@ class ClubIntegrationTest {
   }
 
   @Test
-  void userGetsClubTest() throws JsonProcessingException {
-    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
+  void userGetsClubTest() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
 
       List<ClubUserDto> clubUserDtos = ClubUtil.getClubLeaders(EmbeddedDataLoader.CLUB_ID, ownerToken);

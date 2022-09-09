@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 
 import nu.borjessons.clubhouse.impl.data.key.UserId;
@@ -30,8 +29,9 @@ class RegistrationIntegrationTest {
   public static final String CHILD_NAME = "Generic";
 
   @Test
-  void adminRegistersNewClubChildTest() throws JsonProcessingException {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+  void adminRegistersNewClubChildTest() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserId daddyId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context);
       UserDto daddyWithOneMoreKid = RegistrationUtil.registerClubChild(EmbeddedDataLoader.CLUB_ID, CHILD_NAME, daddyId, token);
@@ -42,8 +42,9 @@ class RegistrationIntegrationTest {
   }
 
   @Test
-  void dadRegistersNewClubChildTest() throws JsonProcessingException {
-    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
+  void dadRegistersNewClubChildTest() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserDto daddy = UserUtil.getSelf(token);
 
@@ -96,8 +97,9 @@ class RegistrationIntegrationTest {
   }
 
   @Test
-  void registerClubTest() throws JsonProcessingException {
-    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
+  void registerClubTest() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       final String name = "Owner2";
       CreateClubModel createClubModel = ClubUtil.createClubModel(name);
       final UserDto userDTO = RegistrationUtil.registerClub(createClubModel);
@@ -109,8 +111,9 @@ class RegistrationIntegrationTest {
   }
 
   @Test
-  void registerFamily() throws JsonProcessingException {
-    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
+  void registerFamily() throws IOException {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       final String surname = "Garfield";
       FamilyRequestModel familyRequestModel = UserUtil.createFamilyModel(EmbeddedDataLoader.CLUB_ID, surname);
       List<UserDto> userDtos = RegistrationUtil.registerFamily(familyRequestModel);
@@ -125,8 +128,9 @@ class RegistrationIntegrationTest {
 
   @Test
   void registerUser() throws Exception {
-    try (ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication()) {
-      final String firstName = "Dustin";
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
+      String firstName = "Dustin";
       CreateUserModel createUserModel = UserUtil.createUserModel(EmbeddedDataLoader.CLUB_ID, firstName);
       UserDto userDTO = RegistrationUtil.registerUser(createUserModel);
       Assertions.assertNotNull(userDTO);
@@ -156,7 +160,7 @@ class RegistrationIntegrationTest {
     }
   }
 
-  private List<ClubUserDto> validatePersistence(int expectedCount) throws JsonProcessingException {
+  private List<ClubUserDto> validatePersistence(int expectedCount) {
     String token = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
     List<ClubUserDto> clubUsers = UserUtil.getClubUsers(EmbeddedDataLoader.CLUB_ID, token);
     Assertions.assertEquals(expectedCount, clubUsers.size());

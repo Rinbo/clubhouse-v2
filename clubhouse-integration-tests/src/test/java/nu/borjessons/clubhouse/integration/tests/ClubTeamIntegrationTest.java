@@ -25,11 +25,22 @@ import nu.borjessons.clubhouse.integration.tests.util.TeamUtil;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
 class ClubTeamIntegrationTest {
-  public static final String TEAM_NAME = "Team 1";
+  private static final String TEAM_NAME = "Team 1";
+
+  private static void validateLeaderHasExpectedEmail(String expectedEmail, String token, String teamId) throws JsonProcessingException {
+    UserId userId = TeamUtil.getTeamById(EmbeddedDataLoader.CLUB_ID, teamId, token)
+        .getLeaders()
+        .iterator()
+        .next()
+        .getUserId();
+
+    Assertions.assertEquals(expectedEmail, UserUtil.getUserEmail(token, EmbeddedDataLoader.CLUB_ID, userId));
+  }
 
   @Test
   void adminCreatesTeamTest() throws Exception {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       TeamRequestModel teamRequestModel = TeamUtil.createRequestModel(List.of(), List.of(), TEAM_NAME);
       TeamDto teamDTO = TeamUtil.createTeam(EmbeddedDataLoader.CLUB_ID, teamRequestModel, ownerToken);
@@ -64,7 +75,8 @@ class ClubTeamIntegrationTest {
 
   @Test
   void getTeamById() throws Exception {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String token = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       List<TeamDto> clubTeams = TeamUtil.getClubTeams(EmbeddedDataLoader.CLUB_ID, token);
       String teamId = clubTeams.get(0).getTeamId();
@@ -76,7 +88,8 @@ class ClubTeamIntegrationTest {
 
   @Test
   void getTeams() throws Exception {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String userToken = UserUtil.loginUser(EmbeddedDataLoader.USER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       Assertions.assertEquals(1, TeamUtil.getClubTeams(EmbeddedDataLoader.CLUB_ID, userToken).size());
 
@@ -89,7 +102,8 @@ class ClubTeamIntegrationTest {
 
   @Test
   void joinAndLeaveTeam() throws Exception {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       TeamRequestModel teamRequestModel = TeamUtil.createRequestModel(List.of(), List.of(), TEAM_NAME);
       TeamDto newTeamDto = TeamUtil.createTeam(EmbeddedDataLoader.CLUB_ID, teamRequestModel, ownerToken);
@@ -107,7 +121,8 @@ class ClubTeamIntegrationTest {
 
   @Test
   void removeLeaderFromTeamTest() throws Exception {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserId leaderId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.POPS_EMAIL, context);
       List<TeamDto> teamDtos = TeamUtil.getClubTeams(EmbeddedDataLoader.CLUB_ID, ownerToken);
@@ -123,7 +138,8 @@ class ClubTeamIntegrationTest {
 
   @Test
   void updateTeamMembers() throws Exception {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       List<TeamDto> clubTeams = TeamUtil.getClubTeams(EmbeddedDataLoader.CLUB_ID, ownerToken);
       String teamId = clubTeams.get(0).getTeamId();
@@ -141,7 +157,8 @@ class ClubTeamIntegrationTest {
 
   @Test
   void updateTeamTest() throws Exception {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String teamName = "Some other name";
       String ownerToken = UserUtil.loginUser(EmbeddedDataLoader.OWNER_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       UserId mamaId = UserUtil.getUserIdByEmail(EmbeddedDataLoader.MOMMY_EMAIL, context);
@@ -162,7 +179,8 @@ class ClubTeamIntegrationTest {
 
   @Test
   void userCannotCreateTeamTest() throws Exception {
-    try (ConfigurableApplicationContext context = IntegrationTestHelper.runSpringApplication()) {
+    try (EmbeddedPostgres pg = IntegrationTestHelper.startEmbeddedPostgres();
+        ConfigurableApplicationContext ignored = IntegrationTestHelper.runSpringApplication(pg.getPort())) {
       String userToken = UserUtil.loginUser(EmbeddedDataLoader.POPS_EMAIL, EmbeddedDataLoader.DEFAULT_PASSWORD);
       TeamRequestModel teamRequestModel = TeamUtil.createRequestModel(List.of(), List.of(), TEAM_NAME);
       try {
@@ -171,15 +189,5 @@ class ClubTeamIntegrationTest {
         Assertions.assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
       }
     }
-  }
-
-  private void validateLeaderHasExpectedEmail(String expectedEmail, String token, String teamId) throws JsonProcessingException {
-    UserId userId = TeamUtil.getTeamById(EmbeddedDataLoader.CLUB_ID, teamId, token)
-        .getLeaders()
-        .iterator()
-        .next()
-        .getUserId();
-
-    Assertions.assertEquals(expectedEmail, UserUtil.getUserEmail(token, EmbeddedDataLoader.CLUB_ID, userId));
   }
 }
