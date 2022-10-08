@@ -29,8 +29,7 @@ import nu.borjessons.clubhouse.impl.util.UpcomingTrainingEventProducer;
 @RequiredArgsConstructor
 public class TrainingEventServiceImpl implements TrainingEventService {
   private static TrainingEvent createTrainingEvent(TrainingEventRequestModel trainingEventRequestModel, List<ClubUser> presentLeaders,
-      List<ClubUser> presentMembers,
-      Team team) {
+      List<ClubUser> presentMembers, Team team) {
     TrainingEvent trainingEvent = new TrainingEvent();
     trainingEvent.setDuration(trainingEventRequestModel.duration());
     trainingEvent.setLocalDateTime(trainingEventRequestModel.localDateTime());

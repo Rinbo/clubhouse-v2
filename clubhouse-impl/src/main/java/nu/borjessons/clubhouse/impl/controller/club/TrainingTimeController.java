@@ -29,14 +29,14 @@ public class TrainingTimeController {
   private final Function<TrainingTimeRequest, TrainingTime> scheduleInputConverter;
   private final TrainingTimeService trainingTimeService;
 
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('ADMIN') or hasRole('LEADER')")
   @PostMapping("/teams/{teamId}/training-time")
   public TrainingTimeRecord createTrainingTime(@PathVariable String clubId, @PathVariable String teamId,
       @Valid @RequestBody TrainingTimeRequest trainingTimeRequest) {
     return trainingTimeService.createTrainingTime(teamId, scheduleInputConverter.apply(trainingTimeRequest));
   }
 
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('ADMIN') or hasRole('LEADER')")
   @DeleteMapping("/teams/{teamId}/training-time/{trainingTimeId}")
   public ResponseEntity<String> deleteTrainingTime(@PathVariable String clubId, @PathVariable String teamId, @PathVariable String trainingTimeId) {
     trainingTimeService.deleteTrainingTime(trainingTimeId);
@@ -49,7 +49,7 @@ public class TrainingTimeController {
     return trainingTimeService.getTrainingTimes(teamId);
   }
 
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('ADMIN') or hasRole('LEADER')")
   @PutMapping("/teams/{teamId}/training-time/{trainingTimeId}")
   public TrainingTimeRecord updateTrainingTime(@PathVariable String clubId, @PathVariable String teamId, @PathVariable String trainingTimeId,
       @Valid @RequestBody TrainingTimeRequest trainingTimeRequest) {

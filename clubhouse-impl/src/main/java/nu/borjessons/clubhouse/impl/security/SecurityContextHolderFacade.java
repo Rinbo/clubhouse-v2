@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl;
+package nu.borjessons.clubhouse.impl.security;
 
 import java.util.Collection;
 
@@ -8,7 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import nu.borjessons.clubhouse.impl.data.User;
-import nu.borjessons.clubhouse.impl.security.SecurityContextFacade;
 
 @Component
 public class SecurityContextHolderFacade implements SecurityContextFacade {

@@ -9,6 +9,10 @@
 - ~~Delete Club~~
 - ~~Club statistics endpoint for show what gets deleted when deleting a club~~
 
+## TrainingEvents
+
+- Also check that there is not an existing event when checking for upcoming events. Maybe return that one then?
+
 ## Messaging
 
 - Implement ability for admins to send email to team and individual users.
