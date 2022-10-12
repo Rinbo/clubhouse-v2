@@ -52,7 +52,7 @@ class UpcomingTrainingEventProducerTest {
     UpcomingTrainingEventProducer upcomingTrainingEventProducer = new UpcomingTrainingEventProducer(Duration.ofHours(2),
         Clock.fixed(wrongDay, ZoneId.systemDefault()));
 
-    List<UpcomingTrainingEvent> upcomingTrainingEvents = upcomingTrainingEventProducer.createUpcomingTrainingEvents(List.of(createTeam(null)));
+    List<UpcomingTrainingEvent> upcomingTrainingEvents = upcomingTrainingEventProducer.getUpcomingTraining(List.of(createTeam(null)));
     Assertions.assertEquals(0, upcomingTrainingEvents.size());
   }
 
@@ -61,10 +61,10 @@ class UpcomingTrainingEventProducerTest {
     UpcomingTrainingEventProducer upcomingTrainingEventProducer = new UpcomingTrainingEventProducer(Duration.ofHours(2),
         Clock.fixed(INSTANT, ZoneId.systemDefault()));
 
-    Assertions.assertEquals(0, upcomingTrainingEventProducer.createUpcomingTrainingEvents(List.of(createTeam(LocalDateTime.of(2020, 1, 1, 7, 0)))).size());
+    Assertions.assertEquals(0, upcomingTrainingEventProducer.getUpcomingTraining(List.of(createTeam(LocalDateTime.of(2020, 1, 1, 7, 0)))).size());
 
     List<UpcomingTrainingEvent> upcomingTrainingEvents =
-        upcomingTrainingEventProducer.createUpcomingTrainingEvents(List.of(createTeam(LocalDateTime.of(2020, 1, 1, 3, 0))));
+        upcomingTrainingEventProducer.getUpcomingTraining(List.of(createTeam(LocalDateTime.of(2020, 1, 1, 3, 0))));
 
     UpcomingTrainingEvent upcomingTrainingEvent = upcomingTrainingEvents.get(0);
 
@@ -80,7 +80,7 @@ class UpcomingTrainingEventProducerTest {
     UpcomingTrainingEventProducer upcomingTrainingEventProducer = new UpcomingTrainingEventProducer(Duration.ofHours(2),
         Clock.fixed(INSTANT, ZoneId.systemDefault()));
 
-    List<UpcomingTrainingEvent> upcomingTrainingEvents = upcomingTrainingEventProducer.createUpcomingTrainingEvents(List.of(createTeam(null)));
+    List<UpcomingTrainingEvent> upcomingTrainingEvents = upcomingTrainingEventProducer.getUpcomingTraining(List.of(createTeam(null)));
     Assertions.assertEquals(1, upcomingTrainingEvents.size());
 
     UpcomingTrainingEvent upcomingTrainingEvent = upcomingTrainingEvents.get(0);

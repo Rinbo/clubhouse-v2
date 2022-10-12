@@ -70,6 +70,12 @@ public class ClubUserController {
 
   @PreAuthorize("hasRole('LEADER')")
   @GetMapping("/principal/upcoming-training")
+  public List<UpcomingTrainingEvent> getUpcomingTraining(@AuthenticationPrincipal User principal, @PathVariable String clubId, String browserTime) {
+    return trainingEventService.getUpcomingTraining(principal.getId(), clubId);
+  }
+
+  @PreAuthorize("hasRole('LEADER')")
+  @GetMapping("/principal/upcoming-training-events")
   public List<UpcomingTrainingEvent> getUpcomingTrainingEvents(@AuthenticationPrincipal User principal, @PathVariable String clubId, String browserTime) {
     return trainingEventService.getUpcomingTrainingEvents(principal.getId(), clubId);
   }
