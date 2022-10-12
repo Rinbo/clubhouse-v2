@@ -12,6 +12,9 @@
 ## TrainingEvents
 
 - Also check that there is not an existing event when checking for upcoming events. Maybe return that one then?
+- First check if there are any training event within threshold. If it is, display that one (will have to be done in frontend -> If I find training event display
+  link to go to that one. If not check if there is any training time that can be activated. If there is display activate. Will have to be applicable to many
+  events at the same time.
 
 ## Messaging
 

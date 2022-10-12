@@ -22,8 +22,8 @@ import nu.borjessons.clubhouse.impl.repository.TeamRepository;
 import nu.borjessons.clubhouse.impl.repository.TrainingEventRepository;
 import nu.borjessons.clubhouse.impl.repository.TrainingTimeRepository;
 import nu.borjessons.clubhouse.impl.service.TrainingEventService;
+import nu.borjessons.clubhouse.impl.service.UpcomingTrainingEventProducer;
 import nu.borjessons.clubhouse.impl.util.AppUtils;
-import nu.borjessons.clubhouse.impl.util.UpcomingTrainingEventProducer;
 
 @Service
 @RequiredArgsConstructor

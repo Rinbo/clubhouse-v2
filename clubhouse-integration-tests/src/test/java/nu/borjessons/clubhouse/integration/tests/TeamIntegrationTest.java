@@ -24,7 +24,7 @@ import nu.borjessons.clubhouse.integration.tests.util.RestUtil;
 import nu.borjessons.clubhouse.integration.tests.util.TeamUtil;
 import nu.borjessons.clubhouse.integration.tests.util.UserUtil;
 
-class ClubTeamIntegrationTest {
+class TeamIntegrationTest {
   private static final String TEAM_NAME = "Team 1";
 
   private static void validateLeaderHasExpectedEmail(String expectedEmail, String token, String teamId) throws JsonProcessingException {

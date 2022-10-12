@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.TrainingTime;
 import nu.borjessons.clubhouse.impl.dto.UpcomingTrainingEvent;
+import nu.borjessons.clubhouse.impl.service.UpcomingTrainingEventProducer;
 
 class UpcomingTrainingEventProducerTest {
   private static final Instant INSTANT = LocalDateTime.of(2020, 1, 1, 9, 0).toInstant(ZoneOffset.UTC);

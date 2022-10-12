@@ -28,7 +28,7 @@ import nu.borjessons.clubhouse.impl.service.TeamService;
 
 @RequiredArgsConstructor
 @RestController
-public class ClubTeamController {
+public class TeamController {
   private final TeamService teamService;
   private final UserResourceAuthorization userResourceAuthorization;
 

@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.util;
+package nu.borjessons.clubhouse.impl.service;
 
 import java.time.Clock;
 import java.time.Duration;
