@@ -90,7 +90,7 @@ public class UpcomingTrainingEventProducer {
     LocalTime startTime = trainingEvent.getLocalDateTime().toLocalTime();
     LocalDateTime from = LocalDateTime.of(now.toLocalDate(), startTime).minus(threshold);
     LocalDateTime to = LocalDateTime.of(now.toLocalDate(), startTime).plus(threshold);
-    return (now.isAfter(from) && now.isBefore(to));
+    return now.isAfter(from) && now.isBefore(to);
   }
 
   private boolean isTrainingTimeWithinThreshold(TrainingTime trainingTime) {

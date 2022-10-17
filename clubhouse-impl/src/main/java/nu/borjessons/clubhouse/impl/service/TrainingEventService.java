@@ -17,8 +17,6 @@ public interface TrainingEventService {
 
   List<TrainingEventRecord> get(String teamId, PageRequest pageRequest);
 
-  List<UpcomingTrainingEvent> getUpcomingTraining(long userId, String clubId);
-
   List<UpcomingTrainingEvent> getUpcomingTrainingEvents(long userId, String clubId);
 
   TrainingEventRecord update(String clubId, long trainingEventId, TrainingEventRequestModel trainingEventRequestModel);

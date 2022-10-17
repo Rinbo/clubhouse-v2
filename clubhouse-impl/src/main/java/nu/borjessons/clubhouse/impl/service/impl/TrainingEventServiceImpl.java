@@ -101,15 +101,6 @@ public class TrainingEventServiceImpl implements TrainingEventService {
   }
 
   @Override
-  public List<UpcomingTrainingEvent> getUpcomingTraining(long userId, String clubId) {
-    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId)
-        .orElseThrow(AppUtils.createNotFoundExceptionSupplier("User not found: " + userId));
-
-    List<Team> teams = clubUser.getManagedTeams();
-    return upcomingTrainingEventProducer.getUpcomingTraining(teams);
-  }
-
-  @Override
   public List<UpcomingTrainingEvent> getUpcomingTrainingEvents(long userId, String clubId) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId)
         .orElseThrow(AppUtils.createNotFoundExceptionSupplier("User not found: " + userId));
