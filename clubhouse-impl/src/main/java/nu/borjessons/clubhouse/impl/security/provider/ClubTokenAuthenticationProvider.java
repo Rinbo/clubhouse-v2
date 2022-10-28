@@ -32,8 +32,8 @@ public class ClubTokenAuthenticationProvider implements AuthenticationProvider {
 
   private final ClubUserRepository clubUserRepository;
   private final JWTUtil jwtUtil;
-  private final UserService userService;
   private final TokenStore tokenStore;
+  private final UserService userService;
 
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -41,7 +41,10 @@ public class ClubTokenAuthenticationProvider implements AuthenticationProvider {
     Claims claims = jwtUtil.getAllClaimsFromToken(token);
     String username = claims.getSubject();
 
-    if (!tokenStore.isSame(username, token)) throw new BadCredentialsException("Token is invalid");
+    if (!tokenStore.isSame(username, token)) {
+      throw new BadCredentialsException("Token is invalid");
+    }
+
     User user = userService.getUserByEmail(username);
     String clubId = (String) authentication.getDetails();
     Collection<GrantedAuthority> clubUserAuthorities = getClubUserAuthorities(user.getId(), clubId);

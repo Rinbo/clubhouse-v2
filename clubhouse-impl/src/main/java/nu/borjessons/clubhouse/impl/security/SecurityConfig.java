@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -68,14 +69,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .disable();
 
     http.logout()
-        .deleteCookies(SecurityUtil.JWT_TOKEN_KEY)
+        .clearAuthentication(true)
         .logoutUrl("/logout")
-        .logoutSuccessHandler((request, response, authentication) -> response.setStatus(HttpServletResponse.SC_OK));
+        .logoutSuccessHandler((request, response, authentication) -> {
+          response.setStatus(HttpServletResponse.SC_OK);
+          response.setHeader(HttpHeaders.SET_COOKIE, SecurityUtil.getLogoutCookie().toString());
+        });
   }
 
   private CorsConfiguration getCorsConfiguration() {
     CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
-    configuration.setAllowedOriginPatterns(List.of("http://localhost:3000"));
+    configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:5173"));
     configuration.setAllowedMethods(List.of("*"));
     configuration.setAllowCredentials(true);
     return configuration;

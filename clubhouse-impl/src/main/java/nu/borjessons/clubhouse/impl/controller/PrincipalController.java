@@ -2,12 +2,12 @@ package nu.borjessons.clubhouse.impl.controller;
 
 import java.util.Collection;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,9 +37,7 @@ import nu.borjessons.clubhouse.impl.service.UserService;
 @RestController
 public class PrincipalController {
   private static void removeJwtTokenCookie(HttpServletResponse httpServletResponse) {
-    Cookie cookie = new Cookie(SecurityUtil.JWT_TOKEN_KEY, "");
-    cookie.setMaxAge(0);
-    httpServletResponse.addCookie(cookie);
+    httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, SecurityUtil.getLogoutCookie().toString());
   }
 
   private final AnnouncementService announcementService;

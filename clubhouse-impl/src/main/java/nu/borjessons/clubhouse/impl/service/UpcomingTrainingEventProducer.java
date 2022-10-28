@@ -40,8 +40,8 @@ public class UpcomingTrainingEventProducer {
     return teams.stream().flatMap(this::findTrainingWithinThreshold).toList();
   }
 
-  public List<UpcomingTrainingEvent> getUpcomingTrainingEvents(List<TrainingEvent> trainingEvents) {
-    return trainingEvents.stream().filter(this::isTrainingEventWithinThreshold).map(this::createUpcomingTrainingEvent).toList();
+  public List<TrainingEvent> getUpcomingTrainingEvents(List<TrainingEvent> trainingEvents) {
+    return trainingEvents.stream().filter(this::isTrainingEventWithinThreshold).toList();
   }
 
   private UpcomingTrainingEvent createUpcomingTrainingEvent(Team team, TrainingTime trainingTime) {
@@ -53,17 +53,6 @@ public class UpcomingTrainingEventProducer {
         Duration.between(startTime, trainingTime.getEndTime()),
         trainingTime.getLocation(),
         getTrainingTimeId(trainingTime));
-  }
-
-  private UpcomingTrainingEvent createUpcomingTrainingEvent(TrainingEvent trainingEvent) {
-    Team team = trainingEvent.getTeam();
-    return new UpcomingTrainingEvent(
-        team.getName(),
-        team.getTeamId(),
-        trainingEvent.getLocalDateTime(),
-        trainingEvent.getDuration(),
-        trainingEvent.getLocation(),
-        getTrainingTimeId(trainingEvent.getTrainingTime()));
   }
 
   private Stream<UpcomingTrainingEvent> findTrainingWithinThreshold(Team team) {
@@ -87,9 +76,9 @@ public class UpcomingTrainingEventProducer {
 
   private boolean isTrainingEventWithinThreshold(TrainingEvent trainingEvent) {
     LocalDateTime now = LocalDateTime.ofInstant(clock.instant(), ZoneOffset.UTC);
-    LocalTime startTime = trainingEvent.getLocalDateTime().toLocalTime();
-    LocalDateTime from = LocalDateTime.of(now.toLocalDate(), startTime).minus(threshold);
-    LocalDateTime to = LocalDateTime.of(now.toLocalDate(), startTime).plus(threshold);
+
+    LocalDateTime from = trainingEvent.getLocalDateTime().minus(threshold);
+    LocalDateTime to = trainingEvent.getLocalDateTime().plus(trainingEvent.getDuration()).plus(threshold);
     return now.isAfter(from) && now.isBefore(to);
   }
 

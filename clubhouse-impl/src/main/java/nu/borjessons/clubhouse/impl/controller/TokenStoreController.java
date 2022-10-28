@@ -86,7 +86,7 @@ public class TokenStoreController {
   private ResponseEntity<String> validateToken(Cookie cookie, Claims claims) throws JsonProcessingException {
     String username = claims.getSubject();
 
-    if (tokenStore.isSame(username, cookie.getValue())) {
+    if (username != null && tokenStore.isSame(username, cookie.getValue())) {
       UserDto userDTO = userService.getUserByUserName(username);
       return ResponseEntity.ok(objectMapper.writeValueAsString(userDTO));
     } else {

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +16,6 @@ import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.TrainingEvent;
 import nu.borjessons.clubhouse.impl.dto.Role;
 import nu.borjessons.clubhouse.impl.dto.TrainingEventRecord;
-import nu.borjessons.clubhouse.impl.dto.UpcomingTrainingEvent;
 import nu.borjessons.clubhouse.impl.dto.rest.TrainingEventRequestModel;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.repository.TeamRepository;
@@ -101,13 +101,13 @@ public class TrainingEventServiceImpl implements TrainingEventService {
   }
 
   @Override
-  public List<UpcomingTrainingEvent> getUpcomingTrainingEvents(long userId, String clubId) {
+  public List<TrainingEventRecord> getUpcomingTrainingEvents(long userId, String clubId) {
     ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, userId)
         .orElseThrow(AppUtils.createNotFoundExceptionSupplier("User not found: " + userId));
 
     List<Team> teams = clubUser.getManagedTeams();
-    List<TrainingEvent> trainingEvents = trainingEventRepository.findByTeamIn(teams, PageRequest.of(0, 20));
-    return upcomingTrainingEventProducer.getUpcomingTrainingEvents(trainingEvents);
+    List<TrainingEvent> trainingEvents = trainingEventRepository.findByTeamIn(teams, PageRequest.of(0, 20, Sort.by("localDateTime").descending()));
+    return upcomingTrainingEventProducer.getUpcomingTrainingEvents(trainingEvents).stream().map(TrainingEventRecord::new).toList();
   }
 
   @Override

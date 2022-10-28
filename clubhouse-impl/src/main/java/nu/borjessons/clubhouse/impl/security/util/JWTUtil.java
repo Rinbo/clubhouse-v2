@@ -15,10 +15,6 @@ public class JWTUtil {
     this.key = key;
   }
 
-  public Claims getAllClaimsFromToken(String token) {
-    return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-  }
-
   public String doGenerateToken(String username) {
     final Date createdDate = new Date();
     final Date expirationDate = new Date(createdDate.getTime() + expirationMillis);
@@ -29,5 +25,9 @@ public class JWTUtil {
         .setExpiration(expirationDate)
         .signWith(key)
         .compact();
+  }
+
+  public Claims getAllClaimsFromToken(String token) {
+    return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
   }
 }

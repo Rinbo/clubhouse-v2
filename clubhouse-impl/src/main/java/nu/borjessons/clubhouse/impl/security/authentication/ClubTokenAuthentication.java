@@ -12,22 +12,21 @@ import nu.borjessons.clubhouse.impl.data.User;
 public class ClubTokenAuthentication implements Authentication {
   @Serial
   private static final long serialVersionUID = -5600312802206174372L;
-
-  private final Object credentials;
-  private final Object details;
-  private Object principal;
-  private Collection<? extends GrantedAuthority> authorities;
   private boolean authenticated;
+  private Collection<? extends GrantedAuthority> authorities;
+  private final Object clubId;
+  private Object principal;
+  private final Object token;
 
-  public ClubTokenAuthentication(Object credentials, Object details) {
-    this.credentials = credentials;
-    this.details = details;
+  public ClubTokenAuthentication(Object token, Object clubId) {
+    this.token = token;
+    this.clubId = clubId;
   }
 
-  public ClubTokenAuthentication(Object credentials, Object details, Object principal,
+  public ClubTokenAuthentication(Object token, Object clubId, Object principal,
       Collection<? extends GrantedAuthority> authorities) {
-    this.credentials = credentials;
-    this.details = details;
+    this.token = token;
+    this.clubId = clubId;
     this.principal = principal;
     this.authorities = authorities;
     authenticated = true;
@@ -40,12 +39,12 @@ public class ClubTokenAuthentication implements Authentication {
 
   @Override
   public Object getCredentials() {
-    return credentials;
+    return token;
   }
 
   @Override
   public Object getDetails() {
-    return details;
+    return clubId;
   }
 
   @Override

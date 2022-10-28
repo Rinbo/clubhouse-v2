@@ -37,7 +37,7 @@ public class ImageController {
   public static final int MAX_FILE_SIZE_BYTES = 2_000_000;
 
   private static CacheControl createCacheControlHeader() {
-    return CacheControl.maxAge(120, TimeUnit.SECONDS)
+    return CacheControl.maxAge(24, TimeUnit.HOURS)
         .noTransform()
         .mustRevalidate();
   }
@@ -93,6 +93,3 @@ public class ImageController {
     return ResponseEntity.ok(imageToken.getImageTokenId());
   }
 }
-
-
-

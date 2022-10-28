@@ -16,7 +16,8 @@ public record TrainingEventRecord(
     String notes,
     List<BaseUserRecord> presentLeaders,
     List<BaseUserRecord> presentMembers,
-    String teamId) {
+    String teamId,
+    String teamName) {
 
   public TrainingEventRecord {
     Validate.notNegative(id, "id");
@@ -25,6 +26,7 @@ public record TrainingEventRecord(
     Validate.notNull(presentLeaders, "presentLeaders");
     Validate.notNull(presentMembers, "presentMembers");
     Validate.notEmpty(teamId, "teamId");
+    Validate.notNull(teamName, "teamName");
   }
 
   public TrainingEventRecord(TrainingEvent trainingEvent) {
@@ -36,7 +38,8 @@ public record TrainingEventRecord(
         trainingEvent.getNotes(),
         trainingEvent.getPresentLeaders().stream().map(ClubUser::getUser).map(BaseUserRecord::new).toList(),
         trainingEvent.getPresentMembers().stream().map(ClubUser::getUser).map(BaseUserRecord::new).toList(),
-        trainingEvent.getTeam().getTeamId()
+        trainingEvent.getTeam().getTeamId(),
+        trainingEvent.getTeam().getName()
     );
   }
 }

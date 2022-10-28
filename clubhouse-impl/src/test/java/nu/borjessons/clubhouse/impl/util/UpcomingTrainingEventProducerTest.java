@@ -1,5 +1,9 @@
 package nu.borjessons.clubhouse.impl.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -9,6 +13,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
@@ -26,6 +31,10 @@ class UpcomingTrainingEventProducerTest {
   private static final String TEAM_ID = "teamId";
   private static final String TEAM_NAME = "My Team";
   private static final Duration THRESHOLD = Duration.ofHours(2);
+
+  private static File createRenamedFile(Path p) {
+    return new File(p.getParent().resolve(getRenamedFileName(p)).toString());
+  }
 
   private static Team createTeam(LocalDateTime lastActivated) {
     Team team = new Team(TEAM_ID);
@@ -60,6 +69,25 @@ class UpcomingTrainingEventProducerTest {
     trainingTime2.setEndTime(LocalTime.of(16, 0));
 
     return List.of(trainingTime1, trainingTime2);
+  }
+
+  private static String getRenamedFileName(Path p) {
+    return p.getFileName().toString().split("\\.")[0] + ".jsx";
+  }
+
+  private static void renameJsFilesInFolderToJsx() throws IOException {
+    Pattern pattern = Pattern.compile("[a-zA-Z0-9]+\\.js");
+    Path path = Path.of("C:\\Users\\robin\\projects\\clubhouse\\clubhouse-web\\src");
+
+    try (Stream<Path> stream = Files.walk(path)) {
+      long count = stream
+          .filter(Files::isRegularFile)
+          .filter(p -> pattern.matcher(p.getFileName().toString()).matches())
+          .map(p -> p.toFile().renameTo(createRenamedFile(p)))
+          .filter(b -> !b)
+          .count();
+      System.out.println("number of errors: " + count);
+    }
   }
 
   @Test
@@ -113,21 +141,21 @@ class UpcomingTrainingEventProducerTest {
     UpcomingTrainingEventProducer upcomingTrainingEventProducer = new UpcomingTrainingEventProducer(THRESHOLD, Clock.fixed(INSTANT, ZoneOffset.UTC));
     LocalDateTime localDateTime = LocalDateTime.ofInstant(INSTANT, ZoneOffset.UTC);
 
-    List<UpcomingTrainingEvent> upcomingTrainingEvents = upcomingTrainingEventProducer.getUpcomingTrainingEvents(List.of(createTrainingEvent(localDateTime)));
+    List<TrainingEvent> trainingEvents = upcomingTrainingEventProducer.getUpcomingTrainingEvents(List.of(createTrainingEvent(localDateTime)));
 
-    Assertions.assertFalse(upcomingTrainingEvents.isEmpty());
+    Assertions.assertFalse(trainingEvents.isEmpty());
 
-    UpcomingTrainingEvent upcomingTrainingEvent = upcomingTrainingEvents.get(0);
-    Assertions.assertEquals(BIG_HALL, upcomingTrainingEvent.location());
-    Assertions.assertEquals(TEAM_NAME, upcomingTrainingEvent.teamName());
-    Assertions.assertEquals(TEAM_ID, upcomingTrainingEvent.teamId());
-    Assertions.assertEquals(localDateTime, upcomingTrainingEvent.localDateTime());
+    TrainingEvent trainingEvent = trainingEvents.get(0);
+    Assertions.assertEquals(BIG_HALL, trainingEvent.getLocation());
+    Assertions.assertEquals(TEAM_NAME, trainingEvent.getTeam().getName());
+    Assertions.assertEquals(TEAM_ID, trainingEvent.getTeam().getTeamId());
+    Assertions.assertEquals(localDateTime, trainingEvent.getLocalDateTime());
 
-    List<TrainingEvent> trainingEvents = Stream.of(LocalDateTime.ofInstant(INSTANT.plus(THRESHOLD), ZoneOffset.UTC),
-            LocalDateTime.ofInstant(INSTANT.minus(THRESHOLD), ZoneOffset.UTC))
+    List<TrainingEvent> trainingEventInput = Stream.of(LocalDateTime.ofInstant(INSTANT.plus(THRESHOLD), ZoneOffset.UTC),
+            LocalDateTime.ofInstant(INSTANT.minus(Duration.ofHours(5)), ZoneOffset.UTC))
         .map(UpcomingTrainingEventProducerTest::createTrainingEvent)
         .toList();
 
-    Assertions.assertTrue(upcomingTrainingEventProducer.getUpcomingTrainingEvents(trainingEvents).isEmpty());
+    Assertions.assertTrue(upcomingTrainingEventProducer.getUpcomingTrainingEvents(trainingEventInput).isEmpty());
   }
 }
