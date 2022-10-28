@@ -75,7 +75,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   private CorsConfiguration getCorsConfiguration() {
     CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
-    configuration.setAllowedOriginPatterns(List.of("http://localhost:3000"));
+    configuration.setAllowedOriginPatterns(List.of("http://localhost:*"));
     configuration.setAllowedMethods(List.of("*"));
     configuration.setAllowCredentials(true);
     return configuration;

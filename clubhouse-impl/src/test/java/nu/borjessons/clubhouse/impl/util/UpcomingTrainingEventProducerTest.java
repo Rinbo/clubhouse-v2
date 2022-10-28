@@ -113,21 +113,21 @@ class UpcomingTrainingEventProducerTest {
     UpcomingTrainingEventProducer upcomingTrainingEventProducer = new UpcomingTrainingEventProducer(THRESHOLD, Clock.fixed(INSTANT, ZoneOffset.UTC));
     LocalDateTime localDateTime = LocalDateTime.ofInstant(INSTANT, ZoneOffset.UTC);
 
-    List<UpcomingTrainingEvent> upcomingTrainingEvents = upcomingTrainingEventProducer.getUpcomingTrainingEvents(List.of(createTrainingEvent(localDateTime)));
+    List<TrainingEvent> trainingEvents = upcomingTrainingEventProducer.getUpcomingTrainingEvents(List.of(createTrainingEvent(localDateTime)));
 
-    Assertions.assertFalse(upcomingTrainingEvents.isEmpty());
+    Assertions.assertFalse(trainingEvents.isEmpty());
 
-    UpcomingTrainingEvent upcomingTrainingEvent = upcomingTrainingEvents.get(0);
-    Assertions.assertEquals(BIG_HALL, upcomingTrainingEvent.location());
-    Assertions.assertEquals(TEAM_NAME, upcomingTrainingEvent.teamName());
-    Assertions.assertEquals(TEAM_ID, upcomingTrainingEvent.teamId());
-    Assertions.assertEquals(localDateTime, upcomingTrainingEvent.localDateTime());
+    TrainingEvent trainingEvent = trainingEvents.get(0);
+    Assertions.assertEquals(BIG_HALL, trainingEvent.getLocation());
+    Assertions.assertEquals(TEAM_NAME, trainingEvent.getTeam().getName());
+    Assertions.assertEquals(TEAM_ID, trainingEvent.getTeam().getTeamId());
+    Assertions.assertEquals(localDateTime, trainingEvent.getLocalDateTime());
 
-    List<TrainingEvent> trainingEvents = Stream.of(LocalDateTime.ofInstant(INSTANT.plus(THRESHOLD), ZoneOffset.UTC),
-            LocalDateTime.ofInstant(INSTANT.minus(THRESHOLD), ZoneOffset.UTC))
+    List<TrainingEvent> trainingEventInput = Stream.of(LocalDateTime.ofInstant(INSTANT.plus(THRESHOLD), ZoneOffset.UTC),
+            LocalDateTime.ofInstant(INSTANT.minus(Duration.ofHours(5)), ZoneOffset.UTC))
         .map(UpcomingTrainingEventProducerTest::createTrainingEvent)
         .toList();
 
-    Assertions.assertTrue(upcomingTrainingEventProducer.getUpcomingTrainingEvents(trainingEvents).isEmpty());
+    Assertions.assertTrue(upcomingTrainingEventProducer.getUpcomingTrainingEvents(trainingEventInput).isEmpty());
   }
 }

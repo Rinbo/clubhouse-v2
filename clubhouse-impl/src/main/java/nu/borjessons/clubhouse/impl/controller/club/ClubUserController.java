@@ -23,7 +23,7 @@ import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
-import nu.borjessons.clubhouse.impl.dto.UpcomingTrainingEvent;
+import nu.borjessons.clubhouse.impl.dto.TrainingEventRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.AdminUpdateUserModel;
 import nu.borjessons.clubhouse.impl.security.resource.authorization.UserResourceAuthorization;
 import nu.borjessons.clubhouse.impl.service.ClubUserService;
@@ -70,7 +70,7 @@ public class ClubUserController {
 
   @PreAuthorize("hasRole('LEADER')")
   @GetMapping("/principal/upcoming-training-events")
-  public List<UpcomingTrainingEvent> getUpcomingTrainingEvents(@AuthenticationPrincipal User principal, @PathVariable String clubId, String browserTime) {
+  public List<TrainingEventRecord> getUpcomingTrainingEvents(@AuthenticationPrincipal User principal, @PathVariable String clubId, String browserTime) {
     return trainingEventService.getUpcomingTrainingEvents(principal.getId(), clubId);
   }
 
