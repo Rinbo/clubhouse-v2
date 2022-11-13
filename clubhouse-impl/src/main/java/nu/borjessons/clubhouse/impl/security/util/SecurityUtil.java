@@ -23,7 +23,7 @@ public class SecurityUtil {
   public static final String FAMILY_REGISTRATION_URL = "/register/family";
   public static final String JWT_TOKEN_KEY = "jwt-token";
   public static final String USER_REGISTRATION_URL = "/register/user";
-  private static final List<String> PUBLIC_URLS = List.of("/public/**", "/register/**", "/validate-token*", "/h2-console/**", "/images/**");
+  private static final List<String> PUBLIC_URLS = List.of("/public/**", "/register/**", "/validate-token*", "/images/**");
 
   public static Optional<Cookie> extractJwtCookie(Cookie[] cookies) {
     if (cookies == null) return Optional.empty();
