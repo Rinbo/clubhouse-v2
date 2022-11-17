@@ -4,19 +4,18 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.security.filter.AuthenticationFilter;
@@ -24,53 +23,49 @@ import nu.borjessons.clubhouse.impl.security.filter.ClubsAuthorizationFilter;
 import nu.borjessons.clubhouse.impl.security.filter.TopLevelAuthorizationFilter;
 import nu.borjessons.clubhouse.impl.security.provider.ClubTokenAuthenticationProvider;
 import nu.borjessons.clubhouse.impl.security.provider.TopLevelAuthenticationProvider;
-import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
 import nu.borjessons.clubhouse.impl.security.util.SecurityUtil;
-import nu.borjessons.clubhouse.impl.service.UserService;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-  private final ClubTokenAuthenticationProvider clubTokenAuthenticationProvider;
-  private final JWTUtil jwtUtil;
-  private final ObjectMapper objectMapper;
-  private final PasswordEncoder passwordEncoder;
-  private final TokenStore tokenStore;
-  private final TopLevelAuthenticationProvider topLevelAuthenticationProvider;
-  private final UserService userService;
+public class SecurityConfig {
+  @Bean
+  public AuthenticationManager createAuthenticationManager(HttpSecurity http, ClubTokenAuthenticationProvider clubTokenAuthenticationProvider,
+      TopLevelAuthenticationProvider topLevelAuthenticationProvider) throws Exception {
+    AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
 
-  @Override
-  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth
+    return authenticationManagerBuilder
         .authenticationProvider(clubTokenAuthenticationProvider)
-        .authenticationProvider(topLevelAuthenticationProvider)
-        .userDetailsService(userService).passwordEncoder(passwordEncoder);
+        .authenticationProvider(topLevelAuthenticationProvider).build();
   }
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http.csrf().disable();
-    http.cors(c -> c.configurationSource(r -> getCorsConfiguration()));
+  // TODO - Tomorrow: Add fake endpoints and try out different ADMIN/USER combinations
+  // Then fix UserDetails and TokenStore
+  @Bean
+  public SecurityFilterChain createFilterChain(HttpSecurity httpSecurity, AuthenticationManager authenticationManager,
+      AuthenticationFilter authenticationFilter) throws Exception {
+    httpSecurity.csrf().disable();
+    httpSecurity.cors(c -> c.configurationSource(r -> getCorsConfiguration()));
 
-    http.authorizeRequests()
+    httpSecurity.authorizeRequests()
         .antMatchers(SecurityUtil.getPublicUrls()).permitAll()
-        .anyRequest().authenticated()
+        .anyRequest()
+        .authenticated()
         .and()
-        .addFilterAt(new AuthenticationFilter(authenticationManager(), jwtUtil, objectMapper, tokenStore, userService), BasicAuthenticationFilter.class)
-        .addFilterAfter(new TopLevelAuthorizationFilter(authenticationManager()), BasicAuthenticationFilter.class)
-        .addFilterAfter(new ClubsAuthorizationFilter(authenticationManager()), BasicAuthenticationFilter.class)
+        .addFilterAfter(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterAfter(new TopLevelAuthorizationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
+        .addFilterAfter(new ClubsAuthorizationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
         .sessionManagement()
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-    http.logout()
-        .clearAuthentication(true)
-        .logoutUrl("/logout")
+    httpSecurity.logout()
         .logoutSuccessHandler((request, response, authentication) -> {
           response.setStatus(HttpServletResponse.SC_OK);
           response.setHeader(HttpHeaders.SET_COOKIE, SecurityUtil.getLogoutCookie().toString());
         });
+
+    return httpSecurity.build();
   }
 
   private CorsConfiguration getCorsConfiguration() {

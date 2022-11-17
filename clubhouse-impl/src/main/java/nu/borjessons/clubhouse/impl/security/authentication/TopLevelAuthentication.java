@@ -12,6 +12,7 @@ import nu.borjessons.clubhouse.impl.data.User;
 public class TopLevelAuthentication implements Authentication {
   @Serial
   private static final long serialVersionUID = 6128259538648957141L;
+  
   private boolean authenticated;
   private Collection<? extends GrantedAuthority> authorities;
   private final Object credentials;

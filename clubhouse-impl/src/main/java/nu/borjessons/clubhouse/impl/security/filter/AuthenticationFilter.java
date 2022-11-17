@@ -7,18 +7,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
@@ -29,7 +29,7 @@ import nu.borjessons.clubhouse.impl.security.util.SecurityUtil;
 import nu.borjessons.clubhouse.impl.service.UserService;
 
 @Slf4j
-@RequiredArgsConstructor
+@Component
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
   private final AuthenticationManager authenticationManager;
   private final JWTUtil jwtUtil;
@@ -37,23 +37,34 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
   private final TokenStore tokenStore;
   private final UserService userService;
 
+  public AuthenticationFilter(AuthenticationManager authenticationManager, AuthenticationManager authenticationManager1, JWTUtil jwtUtil,
+      ObjectMapper objectMapper, TokenStore tokenStore, UserService userService) {
+    super(authenticationManager);
+    this.authenticationManager = authenticationManager1;
+    this.jwtUtil = jwtUtil;
+    this.objectMapper = objectMapper;
+    this.tokenStore = tokenStore;
+    this.userService = userService;
+  }
+
   @Override
   public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) {
+    if (!req.getMethod().equals("POST")) {
+      throw new AuthenticationServiceException("Authentication method not supported: " + req.getMethod());
+    }
+
     try {
       UserLoginRequestModel credentials = new ObjectMapper().readValue(req.getInputStream(), UserLoginRequestModel.class);
       String username = credentials.getUsername().toLowerCase().trim();
       String password = credentials.getPassword();
       return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
     } catch (IOException e) {
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-          "Attempt to authenticate failed. Unable to read input stream from request object");
+      throw new BadCredentialsException("Attempt to authenticate failed. Unable to read input stream from request object");
     }
   }
 
   @Override
   public void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) throws IOException {
-    log.info("IS SECURE: {}", req.isSecure());
-
     User user = (User) auth.getPrincipal();
     String username = user.getUsername();
     UserDto userDto = userService.updateUserLoginTime(username);
