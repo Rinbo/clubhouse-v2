@@ -5,14 +5,17 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import nu.borjessons.clubhouse.impl.data.Address;
+import nu.borjessons.clubhouse.impl.data.AppUserDetails;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.ImageToken;
 import nu.borjessons.clubhouse.impl.data.User;
@@ -79,7 +82,7 @@ public class UserServiceImpl implements UserService {
   @Override
   public Collection<BaseUserRecord> getChildren(long id) {
     return userRepository
-        .getById(id)
+        .getReferenceById(id)
         .getChildren()
         .stream()
         .sorted(Comparator.comparing(User::getFirstName))
@@ -103,7 +106,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserDto getUserByUserName(String username) {
+  public UserDto getUserByUsername(String username) {
     return UserDto.create(getUserByEmail(username));
   }
 
@@ -146,7 +149,9 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDetails loadUserByUsername(String username) {
-    return userRepository.findByEmail(username).orElseThrow(AppUtils.createNotFoundExceptionSupplier("That user does not exist: " + username));
+    Optional<User> optional = userRepository.findByEmail(username);
+    User user = optional.orElseThrow(() -> new UsernameNotFoundException("Could not find user: " + username));
+    return new AppUserDetails(user);
   }
 
   private void deleteUserImageFile(User user) {

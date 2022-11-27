@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.AppUserDetails;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
 import nu.borjessons.clubhouse.impl.dto.ClubUserDto;
@@ -52,7 +52,7 @@ public class ClubUserController {
 
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/principal")
-  public ClubUserDto getClubUserPrincipal(@AuthenticationPrincipal User principal, @PathVariable String clubId) {
+  public ClubUserDto getClubUserPrincipal(@AuthenticationPrincipal AppUserDetails principal, @PathVariable String clubId) {
     return clubUserService.getClubUser(clubId, principal.getUserId());
   }
 
@@ -70,7 +70,8 @@ public class ClubUserController {
 
   @PreAuthorize("hasRole('LEADER')")
   @GetMapping("/principal/upcoming-training-events")
-  public List<TrainingEventRecord> getUpcomingTrainingEvents(@AuthenticationPrincipal User principal, @PathVariable String clubId, String browserTime) {
+  public List<TrainingEventRecord> getUpcomingTrainingEvents(@AuthenticationPrincipal AppUserDetails principal, @PathVariable String clubId,
+      String browserTime) {
     return trainingEventService.getUpcomingTrainingEvents(principal.getId(), clubId);
   }
 

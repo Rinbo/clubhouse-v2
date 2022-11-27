@@ -30,7 +30,7 @@ public interface UserService extends UserDetailsService {
 
   User getUserByEmail(String username);
 
-  UserDto getUserByUserName(String username);
+  UserDto getUserByUsername(String username);
 
   UserDto updateChild(UserId childId, UserId parentId, UpdateUserModel userDetails);
 

@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageRequest;
 
 import nu.borjessons.clubhouse.impl.data.TeamPost;
 import nu.borjessons.clubhouse.impl.data.TeamPostComment;
-import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.TeamPostId;
 import nu.borjessons.clubhouse.impl.dto.TeamPostCommentRecord;
 import nu.borjessons.clubhouse.impl.dto.TeamPostRecord;
@@ -14,9 +13,9 @@ import nu.borjessons.clubhouse.impl.dto.rest.TeamPostCommentRequest;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamPostRequest;
 
 public interface TeamPostService {
-  TeamPostRecord createComment(User principal, String clubId, TeamPostId teamPostId, TeamPostCommentRequest teamPostCommentRequest);
+  TeamPostRecord createComment(long principalId, String clubId, TeamPostId teamPostId, TeamPostCommentRequest teamPostCommentRequest);
 
-  TeamPostRecord createPost(User user, String clubId, String teamId, TeamPostRequest teamPostRequest);
+  TeamPostRecord createPost(long principalId, String clubId, String teamId, TeamPostRequest teamPostRequest);
 
   void deletePost(TeamPost teamPost);
 

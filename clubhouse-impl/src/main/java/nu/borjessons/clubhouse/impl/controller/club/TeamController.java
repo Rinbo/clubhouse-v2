@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.AppUserDetails;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.TeamDto;
 import nu.borjessons.clubhouse.impl.dto.rest.TeamRequestModel;
@@ -34,7 +34,7 @@ public class TeamController {
 
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/add-child")
-  public TeamDto addChildrenToTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
+  public TeamDto addChildrenToTeam(@AuthenticationPrincipal AppUserDetails principal, @PathVariable String clubId, @PathVariable String teamId,
       @RequestParam UserId childId) {
     userResourceAuthorization.validateIsChildOfUser(principal.getUserId(), childId);
     return teamService.addMemberToTeam(clubId, teamId, childId);
@@ -56,7 +56,7 @@ public class TeamController {
   // TODO Need one for getting leader teams and children teams.
   @PreAuthorize("hasRole('USER')")
   @GetMapping("/clubs/{clubId}/my-teams")
-  public Set<TeamDto> getMyTeams(@AuthenticationPrincipal User principal, @PathVariable String clubId) {
+  public Set<TeamDto> getMyTeams(@AuthenticationPrincipal AppUserDetails principal, @PathVariable String clubId) {
     return teamService.getTeamsByUserId(clubId, principal.getUserId());
   }
 
@@ -74,13 +74,13 @@ public class TeamController {
 
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/join")
-  public TeamDto joinTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId) {
+  public TeamDto joinTeam(@AuthenticationPrincipal AppUserDetails principal, @PathVariable String clubId, @PathVariable String teamId) {
     return teamService.addMemberToTeam(clubId, teamId, principal.getUserId());
   }
 
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/clubs/{clubId}/teams/{teamId}/leave")
-  public void leaveTeam(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId) {
+  public void leaveTeam(@AuthenticationPrincipal AppUserDetails principal, @PathVariable String clubId, @PathVariable String teamId) {
     teamService.removeMemberFromTeam(clubId, teamId, principal.getUserId());
   }
 

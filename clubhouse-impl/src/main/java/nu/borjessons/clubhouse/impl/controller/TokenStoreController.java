@@ -87,7 +87,7 @@ public class TokenStoreController {
     String username = claims.getSubject();
 
     if (username != null && tokenStore.isSame(username, cookie.getValue())) {
-      UserDto userDTO = userService.getUserByUserName(username);
+      UserDto userDTO = userService.getUserByUsername(username);
       return ResponseEntity.ok(objectMapper.writeValueAsString(userDTO));
     } else {
       return createUnauthorizedResponse();

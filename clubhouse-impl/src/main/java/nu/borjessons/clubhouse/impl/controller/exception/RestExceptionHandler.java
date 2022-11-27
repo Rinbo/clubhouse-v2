@@ -1,4 +1,4 @@
-package nu.borjessons.clubhouse.impl.exception;
+package nu.borjessons.clubhouse.impl.controller.exception;
 
 import java.io.IOException;
 import java.util.HashMap;

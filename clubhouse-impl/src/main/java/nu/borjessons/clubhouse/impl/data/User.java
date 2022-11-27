@@ -1,6 +1,5 @@
 package nu.borjessons.clubhouse.impl.data;
 
-import java.io.Serial;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,9 +24,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,10 +35,7 @@ import nu.borjessons.clubhouse.impl.data.key.UserId;
 @Setter
 @Entity
 @Table(name = "users", indexes = {@Index(name = "ix_email", columnList = "email"), @Index(name = "ix_users_id", columnList = "userId")})
-public class User extends BaseEntity implements UserDetails {
-  @Serial
-  private static final long serialVersionUID = 3842546232021972948L;
-
+public class User extends BaseEntity {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   private Set<Address> addresses = new HashSet<>();
 
@@ -112,11 +105,6 @@ public class User extends BaseEntity implements UserDetails {
     clubUser.setUser(this);
   }
 
-  public void addParent(User parent) {
-    parents.add(parent);
-    parent.addChild(this);
-  }
-
   public Set<Address> getAddresses() {
     if (!parents.isEmpty())
       return parents.stream()
@@ -124,41 +112,6 @@ public class User extends BaseEntity implements UserDetails {
           .flatMap(Set::stream)
           .collect(Collectors.toSet());
     return addresses;
-  }
-
-  @Override
-  public Collection<GrantedAuthority> getAuthorities() {
-    return Set.of();
-  }
-
-  @Override
-  public String getPassword() {
-    return encryptedPassword;
-  }
-
-  @Override
-  public String getUsername() {
-    return email;
-  }
-
-  @Override
-  public boolean isAccountNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isAccountNonLocked() {
-    return true;
-  }
-
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return true;
   }
 
   public Optional<ClubUser> getClubUser(String clubId) {
@@ -201,11 +154,6 @@ public class User extends BaseEntity implements UserDetails {
   public void removeChild(User child) {
     children.remove(child);
     child.parents.remove(this);
-  }
-
-  public void removeClubUser(ClubUser clubUser) {
-    clubUsers.remove(clubUser);
-    clubUser.setUser(null);
   }
 
   public void removeParent(User parent) {

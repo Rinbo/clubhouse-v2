@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.AppUserDetails;
 import nu.borjessons.clubhouse.impl.data.key.TeamPostId;
 import nu.borjessons.clubhouse.impl.dto.TeamPostCommentRecord;
 import nu.borjessons.clubhouse.impl.dto.TeamPostRecord;
@@ -41,17 +41,17 @@ public class TeamPostController {
 
   @PreAuthorize("hasRole('USER')")
   @PostMapping
-  public TeamPostRecord createPost(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
+  public TeamPostRecord createPost(@AuthenticationPrincipal AppUserDetails principal, @PathVariable String clubId, @PathVariable String teamId,
       @RequestBody TeamPostRequest teamPostRequest) {
 
-    return teamPostService.createPost(principal, clubId, teamId, teamPostRequest);
+    return teamPostService.createPost(principal.getId(), clubId, teamId, teamPostRequest);
   }
 
   @PreAuthorize("hasRole('USER')")
   @PostMapping("/{teamPostId}/comments")
-  public TeamPostRecord createTeamPostComment(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
+  public TeamPostRecord createTeamPostComment(@AuthenticationPrincipal AppUserDetails principal, @PathVariable String clubId, @PathVariable String teamId,
       @PathVariable TeamPostId teamPostId, @RequestBody TeamPostCommentRequest teamPostCommentRequest) {
-    return teamPostService.createComment(principal, clubId, teamPostId, teamPostCommentRequest);
+    return teamPostService.createComment(principal.getId(), clubId, teamPostId, teamPostCommentRequest);
   }
 
   @PreAuthorize("hasRole('USER')")
@@ -63,8 +63,8 @@ public class TeamPostController {
 
   @PreAuthorize("hasRole('USER')")
   @DeleteMapping("/{teamPostId}/comments/{teamPostCommentId}")
-  public ResponseEntity<String> deleteTeamPostComment(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
-      @PathVariable TeamPostId teamPostId, @PathVariable long teamPostCommentId) {
+  public ResponseEntity<String> deleteTeamPostComment(@PathVariable String clubId, @PathVariable String teamId, @PathVariable TeamPostId teamPostId,
+      @PathVariable long teamPostCommentId) {
     teamPostService.deleteTeamPostComment(teamPostResourceAuthorization.getAuthorizedTeamPostComment(clubId, teamPostCommentId));
 
     return ResponseEntity.ok("Comment successfully deleted");
@@ -115,7 +115,7 @@ public class TeamPostController {
 
   @PreAuthorize("hasRole('USER')")
   @PutMapping("/{teamPostId}/comments/{teamPostCommentId}")
-  public TeamPostRecord updateTeamPostComment(@AuthenticationPrincipal User principal, @PathVariable String clubId, @PathVariable String teamId,
+  public TeamPostRecord updateTeamPostComment(@PathVariable String clubId, @PathVariable String teamId,
       @PathVariable TeamPostId teamPostId, @PathVariable long teamPostCommentId, @RequestBody TeamPostCommentRequest teamPostCommentRequest) {
     return teamPostService.updateComment(teamPostResourceAuthorization.getSelfAuthorizedTeamPostComment(clubId, teamPostCommentId), teamPostCommentRequest);
   }

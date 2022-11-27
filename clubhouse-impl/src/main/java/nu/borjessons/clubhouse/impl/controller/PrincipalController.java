@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.AppUserDetails;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.AnnouncementRecord;
 import nu.borjessons.clubhouse.impl.dto.BaseUserRecord;
@@ -45,49 +45,49 @@ public class PrincipalController {
   private final UserService userService;
 
   @PutMapping("/add-parent")
-  public void addParentToChildren(@AuthenticationPrincipal User principal, @RequestParam UserId parentId, @RequestParam UserId childId) {
+  public void addParentToChildren(@AuthenticationPrincipal AppUserDetails principal, @RequestParam UserId parentId, @RequestParam UserId childId) {
     userService.addParentToChild(principal.getUserId(), childId, parentId);
   }
 
   @DeleteMapping()
-  public void deleteSelf(@AuthenticationPrincipal User principal, HttpServletResponse httpServletResponse) {
+  public void deleteSelf(@AuthenticationPrincipal AppUserDetails principal, HttpServletResponse httpServletResponse) {
     userService.deleteUser(principal.getId());
     removeJwtTokenCookie(httpServletResponse);
   }
 
   @GetMapping("/clubs/all-club-users")
-  public Collection<ClubUserDto> getAllMyClubUsers(@AuthenticationPrincipal User principal) {
+  public Collection<ClubUserDto> getAllMyClubUsers(@AuthenticationPrincipal AppUserDetails principal) {
     return clubUserService.getAllUsersClubUsers(principal.getUserId());
   }
 
   @GetMapping("/announcements")
-  public Collection<AnnouncementRecord> getAnnouncements(@AuthenticationPrincipal User principal, @RequestParam(defaultValue = "0") int page,
+  public Collection<AnnouncementRecord> getAnnouncements(@AuthenticationPrincipal AppUserDetails principal, @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
-    return announcementService.getAllClubAnnouncements(principal, PageRequest.of(page, size, Sort.by("createdAt").descending()));
+    return announcementService.getAllClubAnnouncements(principal.getId(), PageRequest.of(page, size, Sort.by("createdAt").descending()));
   }
 
   @GetMapping("/children")
-  public Collection<BaseUserRecord> getChildren(@AuthenticationPrincipal User principal) {
+  public Collection<BaseUserRecord> getChildren(@AuthenticationPrincipal AppUserDetails principal) {
     return userService.getChildren(principal.getId());
   }
 
   @GetMapping("/clubs")
-  public Collection<ClubRecord> getMyClubs(@AuthenticationPrincipal User principal) {
+  public Collection<ClubRecord> getMyClubs(@AuthenticationPrincipal AppUserDetails principal) {
     return userService.getMyClubs(principal.getUserId());
   }
 
   @GetMapping()
-  public UserDto getSelf(@AuthenticationPrincipal User principal) {
+  public UserDto getSelf(@AuthenticationPrincipal AppUserDetails principal) {
     return userService.getById(principal.getId());
   }
 
   @PutMapping("/child/{childId}")
-  public UserDto updateChild(@AuthenticationPrincipal User principal, @PathVariable UserId childId, @Valid @RequestBody UpdateUserModel userDetails) {
+  public UserDto updateChild(@AuthenticationPrincipal AppUserDetails principal, @PathVariable UserId childId, @Valid @RequestBody UpdateUserModel userDetails) {
     return userService.updateChild(childId, principal.getUserId(), userDetails);
   }
 
   @PutMapping()
-  public UserDto updateSelf(@AuthenticationPrincipal User principal, @Valid @RequestBody UpdateUserModel userDetails) {
+  public UserDto updateSelf(@AuthenticationPrincipal AppUserDetails principal, @Valid @RequestBody UpdateUserModel userDetails) {
     return userService.updateUser(principal.getId(), userDetails);
   }
 }

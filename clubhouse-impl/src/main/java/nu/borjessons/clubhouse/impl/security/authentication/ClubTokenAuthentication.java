@@ -5,9 +5,8 @@ import java.util.Collection;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
-
-import nu.borjessons.clubhouse.impl.data.User;
 
 public class ClubTokenAuthentication implements Authentication {
   @Serial
@@ -66,6 +65,6 @@ public class ClubTokenAuthentication implements Authentication {
 
   @Override
   public String getName() {
-    return ((User) principal).getUsername();
+    return ((UserDetails) principal).getUsername();
   }
 }

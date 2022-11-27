@@ -12,7 +12,6 @@ import nu.borjessons.clubhouse.impl.data.Announcement;
 import nu.borjessons.clubhouse.impl.data.Club;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.ImageToken;
-import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.AnnouncementId;
 import nu.borjessons.clubhouse.impl.dto.AnnouncementRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.AnnouncementModel;
@@ -25,21 +24,15 @@ import nu.borjessons.clubhouse.impl.service.AnnouncementService;
 @Service
 @RequiredArgsConstructor
 public class AnnouncementServiceImpl implements AnnouncementService {
-  private final ClubRepository clubRepository;
   private final AnnouncementRepository announcementRepository;
+  private final ClubRepository clubRepository;
   private final ClubUserRepository clubUserRepository;
   private final UserRepository userRepository;
 
   @Override
-  public Collection<AnnouncementRecord> getClubAnnouncements(String clubId, Pageable pageable) {
-    Club club = clubRepository.findByClubId(clubId).orElseThrow();
-    return announcementRepository.findAnnouncementByClubId(club.getId(), pageable);
-  }
-
-  @Override
   @Transactional
-  public AnnouncementRecord createAnnouncement(String clubId, AnnouncementModel announcementModel, ImageToken imageToken, User principal) {
-    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, principal.getId()).orElseThrow();
+  public AnnouncementRecord createAnnouncement(String clubId, AnnouncementModel announcementModel, ImageToken imageToken, long principalId) {
+    ClubUser clubUser = clubUserRepository.findByClubIdAndUserId(clubId, principalId).orElseThrow();
 
     Announcement announcement = new Announcement();
     announcement.setAuthor(clubUser);
@@ -53,29 +46,15 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
   @Override
   @Transactional
-  public AnnouncementRecord updateAnnouncement(AnnouncementId announcementId, String clubId, AnnouncementModel announcementModel) {
-    Announcement announcement = announcementRepository.findAnnouncementByAnnouncementId(announcementId).orElseThrow();
-    announcement.setTitle(announcementModel.getTitle());
-    announcement.setBody(announcementModel.getBody());
-    return new AnnouncementRecord(announcementRepository.save(announcement));
-  }
-
-  @Override
-  public AnnouncementRecord getAnnouncement(AnnouncementId announcementId) {
-    return new AnnouncementRecord(announcementRepository.findAnnouncementByAnnouncementId(announcementId).orElseThrow());
-  }
-
-  @Override
-  @Transactional
   public void deleteAnnouncement(AnnouncementId announcementId) {
     announcementRepository.deleteAnnouncementByAnnouncementId(announcementId);
   }
 
   @Override
   @Transactional
-  public List<AnnouncementRecord> getAllClubAnnouncements(User principal, Pageable pageable) {
+  public List<AnnouncementRecord> getAllClubAnnouncements(long principalId, Pageable pageable) {
     List<Long> clubIds = userRepository
-        .getById(principal.getId())
+        .getReferenceById(principalId)
         .getClubUsers()
         .stream()
         .map(ClubUser::getClub)
@@ -85,7 +64,27 @@ public class AnnouncementServiceImpl implements AnnouncementService {
   }
 
   @Override
+  public AnnouncementRecord getAnnouncement(AnnouncementId announcementId) {
+    return new AnnouncementRecord(announcementRepository.findAnnouncementByAnnouncementId(announcementId).orElseThrow());
+  }
+
+  @Override
+  public Collection<AnnouncementRecord> getClubAnnouncements(String clubId, Pageable pageable) {
+    Club club = clubRepository.findByClubId(clubId).orElseThrow();
+    return announcementRepository.findAnnouncementByClubId(club.getId(), pageable);
+  }
+
+  @Override
   public int getSize(String clubId) {
     return announcementRepository.getSize(clubId);
+  }
+
+  @Override
+  @Transactional
+  public AnnouncementRecord updateAnnouncement(AnnouncementId announcementId, String clubId, AnnouncementModel announcementModel) {
+    Announcement announcement = announcementRepository.findAnnouncementByAnnouncementId(announcementId).orElseThrow();
+    announcement.setTitle(announcementModel.getTitle());
+    announcement.setBody(announcementModel.getBody());
+    return new AnnouncementRecord(announcementRepository.save(announcement));
   }
 }

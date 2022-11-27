@@ -11,7 +11,6 @@ import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.Team;
 import nu.borjessons.clubhouse.impl.data.TeamPost;
 import nu.borjessons.clubhouse.impl.data.TeamPostComment;
-import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.TeamPostId;
 import nu.borjessons.clubhouse.impl.dto.TeamPostCommentRecord;
 import nu.borjessons.clubhouse.impl.dto.TeamPostRecord;
@@ -47,8 +46,8 @@ public class TeamPostServiceImpl implements TeamPostService {
   private final TeamRepository teamRepository;
 
   @Override
-  public TeamPostRecord createComment(User principal, String clubId, TeamPostId teamPostId, TeamPostCommentRequest teamPostCommentRequest) {
-    ClubUser clubUser = getClubUser(principal, clubId);
+  public TeamPostRecord createComment(long principalId, String clubId, TeamPostId teamPostId, TeamPostCommentRequest teamPostCommentRequest) {
+    ClubUser clubUser = getClubUser(principalId, clubId);
     TeamPostComment teamPostComment = new TeamPostComment();
     teamPostComment.setComment(teamPostCommentRequest.comment());
     teamPostComment.setClubUser(clubUser);
@@ -61,8 +60,8 @@ public class TeamPostServiceImpl implements TeamPostService {
 
   @Transactional
   @Override
-  public TeamPostRecord createPost(User user, String clubId, String teamId, TeamPostRequest teamPostRequest) {
-    ClubUser clubUser = getClubUser(user, clubId);
+  public TeamPostRecord createPost(long principalId, String clubId, String teamId, TeamPostRequest teamPostRequest) {
+    ClubUser clubUser = getClubUser(principalId, clubId);
     Team team = teamRepository.findByTeamId(teamId).orElseThrow(AppUtils.createNotFoundExceptionSupplier("Team not found " + teamId));
 
     return new TeamPostRecord(teamPostRepository.save(createTeamPost(clubUser, team, teamPostRequest)));
@@ -128,13 +127,8 @@ public class TeamPostServiceImpl implements TeamPostService {
     return new TeamPostRecord(teamPostRepository.save(teamPost));
   }
 
-  private ClubUser getClubUser(User principal, String clubId) {
-    return clubUserRepository.findByClubIdAndUserId(clubId, principal.getId())
-        .orElseThrow(AppUtils.createNotFoundExceptionSupplier("user not found: " + principal.getUserId()));
-  }
-
-  private TeamPostComment getTeamPostComment(long teamPostCommentId, ClubUser clubUser) {
-    return teamPostCommentRepository.findByIdAndClubUser(teamPostCommentId, clubUser)
-        .orElseThrow(AppUtils.createNotFoundExceptionSupplier("teamPostCommentId not found: " + teamPostCommentId));
+  private ClubUser getClubUser(long userId, String clubId) {
+    return clubUserRepository.findByClubIdAndUserId(clubId, userId)
+        .orElseThrow(AppUtils.createNotFoundExceptionSupplier("user not found: " + userId));
   }
 }

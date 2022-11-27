@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.data.AppUserDetails;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.RoleEntity;
 import nu.borjessons.clubhouse.impl.data.User;
@@ -48,7 +49,8 @@ public class ClubTokenAuthenticationProvider implements AuthenticationProvider {
     User user = userService.getUserByEmail(username);
     String clubId = (String) authentication.getDetails();
     Collection<GrantedAuthority> clubUserAuthorities = getClubUserAuthorities(user.getId(), clubId);
-    return new ClubTokenAuthentication(token, clubId, user, clubUserAuthorities);
+    AppUserDetails principal = new AppUserDetails(user, clubUserAuthorities);
+    return new ClubTokenAuthentication(token, clubId, principal, clubUserAuthorities);
   }
 
   @Override

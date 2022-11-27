@@ -43,7 +43,6 @@ public class SecurityUtil {
     return PUBLIC_URLS.toArray(String[]::new);
   }
 
-  // TODO remove if ok
   public static boolean shouldBeIgnoredByTopLevelFilter(HttpServletRequest req) {
     return PUBLIC_URLS.stream().map(AntPathRequestMatcher::new).anyMatch(pattern -> pattern.matches(req));
   }

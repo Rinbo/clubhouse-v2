@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.data.AppUserDetails;
 import nu.borjessons.clubhouse.impl.data.ImageToken;
-import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.AnnouncementId;
 import nu.borjessons.clubhouse.impl.dto.AnnouncementRecord;
 import nu.borjessons.clubhouse.impl.dto.rest.AnnouncementModel;
@@ -37,30 +37,14 @@ public class AnnouncementController {
   private final AnnouncementService announcementService;
   private final ImageService imageService;
 
-  @GetMapping("/size")
-  public ResponseEntity<Integer> getSize(@PathVariable String clubId) {
-    return ResponseEntity.ok(announcementService.getSize(clubId));
-  }
-
-  @GetMapping
-  public Collection<AnnouncementRecord> getClubAnnouncements(@PathVariable String clubId, @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size) {
-    return announcementService.getClubAnnouncements(clubId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
-  }
-
-  @GetMapping("/{announcementId}")
-  public AnnouncementRecord getAnnouncement(@PathVariable AnnouncementId announcementId, @PathVariable String clubId) {
-    return announcementService.getAnnouncement(announcementId);
-  }
-
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping
-  public AnnouncementRecord createAnnouncement(@AuthenticationPrincipal User principal, @PathVariable String clubId,
+  public AnnouncementRecord createAnnouncement(@AuthenticationPrincipal AppUserDetails principal, @PathVariable String clubId,
       @RequestParam(value = "file", required = false) MultipartFile multipartFile, @RequestParam(value = "title") String title,
       @RequestParam(value = "body") String body) {
 
     return announcementService.createAnnouncement(clubId, new AnnouncementModel(title, body), createImageToken(multipartFile, clubId),
-        principal);
+        principal.getId());
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -76,10 +60,24 @@ public class AnnouncementController {
     announcementService.deleteAnnouncement(announcementId);
   }
 
+  @GetMapping("/{announcementId}")
+  public AnnouncementRecord getAnnouncement(@PathVariable AnnouncementId announcementId, @PathVariable String clubId) {
+    return announcementService.getAnnouncement(announcementId);
+  }
+
+  @GetMapping
+  public Collection<AnnouncementRecord> getClubAnnouncements(@PathVariable String clubId, @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+    return announcementService.getClubAnnouncements(clubId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
+  }
+
+  @GetMapping("/size")
+  public ResponseEntity<Integer> getSize(@PathVariable String clubId) {
+    return ResponseEntity.ok(announcementService.getSize(clubId));
+  }
+
   private ImageToken createImageToken(MultipartFile multipartFile, String clubId) {
     if (multipartFile == null) return null;
     return imageService.createClubImage(clubId, multipartFile);
   }
 }
-
-

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.data.AppUserDetails;
 import nu.borjessons.clubhouse.impl.security.TokenStore;
 import nu.borjessons.clubhouse.impl.security.authentication.TopLevelAuthentication;
 import nu.borjessons.clubhouse.impl.security.util.JWTUtil;
@@ -30,7 +31,7 @@ public class TopLevelAuthenticationProvider implements AuthenticationProvider {
 
     if (!tokenStore.isSame(username, token)) throw new BadCredentialsException("Token is invalid");
 
-    return new TopLevelAuthentication(token, userService.getUserByEmail(username), List.of());
+    return new TopLevelAuthentication(token, new AppUserDetails(userService.getUserByEmail(username)), List.of());
   }
 
   @Override

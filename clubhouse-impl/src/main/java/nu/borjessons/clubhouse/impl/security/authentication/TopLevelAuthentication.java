@@ -5,14 +5,13 @@ import java.util.Collection;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
-
-import nu.borjessons.clubhouse.impl.data.User;
 
 public class TopLevelAuthentication implements Authentication {
   @Serial
   private static final long serialVersionUID = 6128259538648957141L;
-  
+
   private boolean authenticated;
   private Collection<? extends GrantedAuthority> authorities;
   private final Object credentials;
@@ -66,6 +65,6 @@ public class TopLevelAuthentication implements Authentication {
 
   @Override
   public String getName() {
-    return ((User) principal).getUsername();
+    return ((UserDetails) principal).getUsername();
   }
 }

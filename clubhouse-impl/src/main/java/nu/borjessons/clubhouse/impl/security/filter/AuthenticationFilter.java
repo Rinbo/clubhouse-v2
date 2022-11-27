@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
-import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.AppUserDetails;
 import nu.borjessons.clubhouse.impl.dto.UserDto;
 import nu.borjessons.clubhouse.impl.dto.rest.UserLoginRequestModel;
 import nu.borjessons.clubhouse.impl.security.TokenStore;
@@ -65,8 +65,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
   @Override
   public void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) throws IOException {
-    User user = (User) auth.getPrincipal();
-    String username = user.getUsername();
+    AppUserDetails appUserDetails = (AppUserDetails) auth.getPrincipal();
+    String username = appUserDetails.getUsername();
     UserDto userDto = userService.updateUserLoginTime(username);
     String token = jwtUtil.doGenerateToken(username);
 
