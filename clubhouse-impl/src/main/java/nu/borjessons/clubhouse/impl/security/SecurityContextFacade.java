@@ -5,12 +5,12 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 
-import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.AppUserDetails;
 
 public interface SecurityContextFacade {
-  SecurityContext getContext();
+  AppUserDetails getAuthenticationPrincipal();
 
   Collection<? extends GrantedAuthority> getAuthorities();
 
-  User getAuthenticationPrincipal();
+  SecurityContext getContext();
 }

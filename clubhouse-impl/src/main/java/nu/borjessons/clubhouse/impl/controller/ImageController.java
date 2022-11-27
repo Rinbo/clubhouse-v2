@@ -22,8 +22,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nu.borjessons.clubhouse.impl.data.AppUserDetails;
 import nu.borjessons.clubhouse.impl.data.ImageToken;
-import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.ImageTokenId;
 import nu.borjessons.clubhouse.impl.data.key.UserId;
 import nu.borjessons.clubhouse.impl.dto.ImageStream;
@@ -84,7 +84,7 @@ public class ImageController {
   }
 
   @PostMapping(value = "/users/{userId}/upload-profile-image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<ImageTokenId> uploadProfileImage(@AuthenticationPrincipal User user, @PathVariable UserId userId,
+  public ResponseEntity<ImageTokenId> uploadProfileImage(@AuthenticationPrincipal AppUserDetails user, @PathVariable UserId userId,
       @RequestParam(value = "file") MultipartFile multipartFile) {
     userResourceAuthorization.validateUserOrChild(userId, user.getUserId());
     validateFileSize(multipartFile);

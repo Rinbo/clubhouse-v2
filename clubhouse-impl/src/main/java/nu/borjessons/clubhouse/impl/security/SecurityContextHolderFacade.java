@@ -7,13 +7,13 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import nu.borjessons.clubhouse.impl.data.User;
+import nu.borjessons.clubhouse.impl.data.AppUserDetails;
 
 @Component
 public class SecurityContextHolderFacade implements SecurityContextFacade {
   @Override
-  public SecurityContext getContext() {
-    return SecurityContextHolder.getContext();
+  public AppUserDetails getAuthenticationPrincipal() {
+    return (AppUserDetails) getContext().getAuthentication().getPrincipal();
   }
 
   @Override
@@ -22,7 +22,7 @@ public class SecurityContextHolderFacade implements SecurityContextFacade {
   }
 
   @Override
-  public User getAuthenticationPrincipal() {
-    return (User) getContext().getAuthentication().getPrincipal();
+  public SecurityContext getContext() {
+    return SecurityContextHolder.getContext();
   }
 }

@@ -9,6 +9,10 @@
 - ~~Delete Club~~
 - ~~Club statistics endpoint for show what gets deleted when deleting a club~~
 
+## Roles
+
+- Remove PARENT and CHILD roles
+
 ## TrainingEvents
 
 - Also check that there is not an existing event when checking for upcoming events. Maybe return that one then?

@@ -3,10 +3,10 @@ package nu.borjessons.clubhouse.impl.security.resource.authorization;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
+import nu.borjessons.clubhouse.impl.data.AppUserDetails;
 import nu.borjessons.clubhouse.impl.data.ClubUser;
 import nu.borjessons.clubhouse.impl.data.TeamPost;
 import nu.borjessons.clubhouse.impl.data.TeamPostComment;
-import nu.borjessons.clubhouse.impl.data.User;
 import nu.borjessons.clubhouse.impl.data.key.TeamPostId;
 import nu.borjessons.clubhouse.impl.repository.ClubUserRepository;
 import nu.borjessons.clubhouse.impl.repository.TeamPostCommentRepository;
@@ -47,7 +47,7 @@ public class TeamPostResourceAuthorization {
     return getTeamPostComment(getClubUser(securityContextFacade.getAuthenticationPrincipal(), clubId), teamPostCommentId);
   }
 
-  private ClubUser getClubUser(User principal, String clubId) {
+  private ClubUser getClubUser(AppUserDetails principal, String clubId) {
     return clubUserRepository.findByClubIdAndUserId(clubId, principal.getId())
         .orElseThrow(AppUtils.createAccessDeniedSupplier());
   }
